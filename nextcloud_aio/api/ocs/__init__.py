@@ -5,7 +5,7 @@ https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-ap
 import xmltodict
 import json
 
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 
 from nextcloud_aio.api import NextCloudBaseAPI
 from nextcloud_aio.exceptions import NextCloudASyncException
@@ -21,7 +21,8 @@ class NextCloudOCSAPI(NextCloudBaseAPI):
             url: str = None,
             sub: str = '',
             data: Dict[Any, Any] = {},
-            headers: Dict[Any, Any] = {}) -> Dict:
+            headers: Dict[Any, Any] = {},
+            include_headers: Optional[List] = []) -> Dict:
 
         headers.update({'OCS-APIRequest': 'true'})
 
@@ -39,17 +40,27 @@ class NextCloudOCSAPI(NextCloudBaseAPI):
                 raise NextCloudASyncException(
                     f'{ocs_meta["statuscode"]}: {ocs_meta["message"]}')
             else:
-                return response_data['ocs']['data']
+                ret = response_data['ocs']['data']
+                for header in include_headers:
+                    ret.setdefault('response_headers', {})\
+                        .setdefault(header, response.headers.get(header, None))
+                return ret
+
         else:
             return None
 
-    async def get_capabilities(self) -> Dict:
+    async def get_capabilities(self, slice: Optional[str] = '') -> Dict:
         """Get and cache capabilities for this server."""
         if not self.__capabilities:
             self.__capabilities = await self.ocs_query(
                 method='GET',
                 sub=r'/ocs/v1.php/cloud/capabilities')
-        return self.__capabilities
+        ret = self.__capabilities
+
+        for item in slice.split('.'):
+            ret = ret[item] if item else ret
+
+        return ret
 
     async def get_file_guest_link(self, file_id: int) -> str:
         """

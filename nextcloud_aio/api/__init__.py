@@ -24,7 +24,7 @@ class NextCloudBaseAPI(object):
 
     async def request(
             self,
-            method: str,
+            method: str = 'GET',
             url: str = None,
             sub: str = '',
             data: Optional[Dict[str, object]] = {},
