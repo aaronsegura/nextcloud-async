@@ -13,8 +13,6 @@ https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/instruc
 https://github.com/nextcloud/groupfolders#api
 https://github.com/nextcloud/notifications/blob/master/docs/ocs-endpoint-v2.md
 https://github.com/nextcloud/activity/blob/master/docs/endpoint-v2.md
-
-#TODO
 https://nextcloud-talk.readthedocs.io/en/latest/
 """
 
