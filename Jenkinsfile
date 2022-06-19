@@ -37,7 +37,7 @@ pipeline {
         stage('unit tests') {
           steps {
             withPythonEnv('Python3') {
-              sh 'python -m unittest'
+              sh 'python -m unittest discover tests/'
             }
           }
         }

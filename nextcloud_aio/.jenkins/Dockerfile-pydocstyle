@@ -1,0 +1,9 @@
+FROM ubuntu:focal
+
+RUN apt-get update && \
+    apt-get install -y pydocstyle python3-setuptools
+
+COPY . /data
+
+ENTRYPOINT ["bash", "-c"]
+CMD ["pydocstyle", "/data"]
