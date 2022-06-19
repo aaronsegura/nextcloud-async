@@ -53,7 +53,7 @@ pipeline {
       steps {
         dir('tests') {
           sh 'docker-compose build'
-          sh 'docker-compose up -d'
+          sh 'docker-compose -p test-${BUILD_NUMBER} up -d'
         }
       }
     }
@@ -69,8 +69,8 @@ pipeline {
     stage('Tear down Nextcloud') {
       steps {
         dir('tests') {
-          sh 'docker-compose stop'
-          sh 'docker-compose rm'
+          sh 'docker-compose -p test-${BUILD_NUMBER} stop'
+          sh 'docker-compose -p test-${BUILD_NUMBER} rm'
 
         }
       }
