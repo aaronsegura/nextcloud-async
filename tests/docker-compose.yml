@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  nextcloud:
+    build:
+      context: ../.jenkins
+      dockerfile: Dockerfile-nextcloud
+      args:
+        NEXTCLOUD_VERSION: ${NEXTCLOUD_VERSION}
+        GROUPFOLDERS_URL: ${GROUPFOLDERS_URL}
+        GROUPFOLDERS_ARCHIVE_NAME: ${GROUPFOLDERS_ARCHIVE_NAME}
+    ports:
+      - 8181:80
+    environment:
+      - SQLITE_DATABASE=nextcloud
+      - NEXTCLOUD_TRUSTED_DOMAINS=${NEXTCLOUD_HOSTNAME}
+      - NEXTCLOUD_ADMIN_USER
+      - NEXTCLOUD_ADMIN_PASSWORD
