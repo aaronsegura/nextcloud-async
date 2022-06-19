@@ -4,8 +4,8 @@ pipeline {
   stages {
     stage('Install Package') {
       steps {
-        withPythonEnv('Python3') {
-          sh 'python -mpip install .'
+        withPythonEnv('python3') {
+          sh 'python3 -mpip install .'
         }
       }
     }
@@ -36,8 +36,10 @@ pipeline {
         }
         stage('unit tests') {
           steps {
-            withPythonEnv('Python3') {
-              sh 'python -m unittest discover tests/'
+            withPythonEnv('python3') {
+              dir('tests') {
+                sh 'python3 -munittest'
+              }
             }
           }
         }

@@ -31,7 +31,7 @@ class LoginFlowV2(object):
                     f'nextcloud_aio/{__VERSION__}' if user_agent is None else user_agent})
         return response.json()
 
-    async def login_flow_wait_confirm(self, token, timeout: int = 60) -> Dict[Any, Any] | bool:
+    async def login_flow_wait_confirm(self, token, timeout: int = 60) -> Dict:
         """Wait for user to confirm login.  Return array including new `appPassword`."""
         start_dt = dt.datetime.now()
         running_time = 0

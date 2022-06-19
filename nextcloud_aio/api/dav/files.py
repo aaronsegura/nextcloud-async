@@ -2,7 +2,7 @@ import io
 
 import xml.etree.ElementTree as etree
 
-from typing import List, Optional
+from typing import List, Optional, Union
 
 
 class FileManager(object):
@@ -141,7 +141,7 @@ class FileManager(object):
             method='DELETE',
             sub=f'/remote.php/dav/trashbin/{self.user}/trash')
 
-    async def get_file_versions(self, file: str | int):
+    async def get_file_versions(self, file: Union[str, int]):
         """List of file versions."""
         file_id = file
         if isinstance(file, str):

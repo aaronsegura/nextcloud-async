@@ -60,7 +60,7 @@ class UserManager():
     async def user_autocomplete(
             self,
             search: str,
-            item_type: str | None = None,
+            item_type: Optional[str] = None,
             limit: int = 10):
         """Search for a user using incomplete information."""
         return await self.ocs_query(
