@@ -6,10 +6,10 @@ project.
 
 ----
 
-There is a 'get_conversations()' function already, and it works
+There is a `NextCloudAsync.get_conversations()` function already, and it works
 perfectly fine, but that's too easy.
 
-This is a perfectly horrible way to do it, instead:
+This is a perfectly horrible way to do it:
 
 
 
