@@ -9,7 +9,7 @@ import datetime as dt
 from enum import Enum, IntFlag
 from typing import Any, Optional
 
-from nextcloud_aio.exceptions import NextCloudASyncException
+from nextcloud_aio.exceptions import NextCloudAsyncException
 
 
 class ShareType(Enum):
@@ -70,11 +70,11 @@ class OCSShareAPI(object):
         try:
             expire_dt = dt.datetime.strptime(expire_date, r'%Y-%m-%d')
         except ValueError:
-            raise NextCloudASyncException('Invalid date.  Should be YYYY-MM-DD')
+            raise NextCloudAsyncException('Invalid date.  Should be YYYY-MM-DD')
         else:
             now = dt.datetime.now()
             if expire_dt < now:
-                raise NextCloudASyncException('Invalid date.  Should be in the future.')
+                raise NextCloudAsyncException('Invalid date.  Should be in the future.')
 
         return await self.ocs_query(
             method='POST',

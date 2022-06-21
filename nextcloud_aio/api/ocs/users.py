@@ -116,11 +116,11 @@ class UserManager():
             method='DELETE',
             sub=f'/ocs/v1.php/cloud/users/{user_id}')
 
-    async def get_user_groups(self, user_id: str):
+    async def get_user_groups(self, user_id: Optional[str] = None):
         """Get list of groups `user_id` belongs to."""
         return await self.ocs_query(
             method='GET',
-            sub=f'/ocs/v1.php/cloud/users/{user_id}/groups')
+            sub=f'/ocs/v1.php/cloud/users/{user_id or self.user}/groups')
 
     async def add_user_to_group(self, user_id: str, group_id: str):
         """Add `user_id` to `group_id`."""

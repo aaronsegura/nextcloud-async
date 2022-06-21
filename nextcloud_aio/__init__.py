@@ -14,6 +14,9 @@ https://github.com/nextcloud/groupfolders#api
 https://github.com/nextcloud/notifications/blob/master/docs/ocs-endpoint-v2.md
 https://github.com/nextcloud/activity/blob/master/docs/endpoint-v2.md
 https://nextcloud-talk.readthedocs.io/en/latest/
+
+# TODO:
+https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-sharee-api.html
 """
 
 from nextcloud_aio.api.ocs import NextCloudOCSAPI

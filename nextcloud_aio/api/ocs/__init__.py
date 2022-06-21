@@ -8,7 +8,7 @@ import json
 from typing import Dict, Any, Optional, List
 
 from nextcloud_aio.api import NextCloudBaseAPI
-from nextcloud_aio.exceptions import NextCloudASyncException
+from nextcloud_aio.exceptions import NextCloudAsyncException
 
 
 class NextCloudOCSAPI(NextCloudBaseAPI):
@@ -37,7 +37,7 @@ class NextCloudOCSAPI(NextCloudBaseAPI):
             )
             ocs_meta = response_data['ocs']['meta']
             if ocs_meta['status'] != 'ok':
-                raise NextCloudASyncException(
+                raise NextCloudAsyncException(
                     f'{ocs_meta["statuscode"]}: {ocs_meta["message"]}')
             else:
                 ret = response_data['ocs']['data']
@@ -97,7 +97,7 @@ class NextCloudOCSAPI(NextCloudBaseAPI):
                 'object_type': filter_object_type,
                 'object_id': filter_object})
         elif filter_object or filter_object_type:
-            raise NextCloudASyncException('Filter must have object_type and object_id')
+            raise NextCloudAsyncException('Filter must have object_type and object_id')
 
         data['limit'] = limit
         data['sort'] = sort

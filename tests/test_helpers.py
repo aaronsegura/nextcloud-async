@@ -4,7 +4,7 @@ from unittest import TestCase
 from nextcloud_aio.helpers import recursive_urlencode
 
 
-class Tests(TestCase):
+class TestHelpers(TestCase):
 
     def test_recursive_urlencode_nested_dict(self):
         a = {'configData': {'key1': 'val1', 'key2': 'val2'}}

@@ -15,6 +15,9 @@ class FileManager(object):
         """
         data = None
 
+        # if user passes in parameters, they must be built into an Element
+        # tree so they can be dumped to an XML document and then sent
+        # as the query body
         root = etree.Element(
             "d:propfind",
             attrib={
@@ -27,6 +30,7 @@ class FileManager(object):
 
         tree = etree.ElementTree(root)
 
+        # Write XML file to memory, then read it into `data`
         with io.BytesIO() as _mem:
             tree.write(_mem, xml_declaration=True)
             _mem.seek(0)
@@ -39,11 +43,10 @@ class FileManager(object):
 
     async def download_file(self, path: str):
         """Download the file at `path`."""
-        path = self.__slash_fixup(path)
-        return await self.dav_query(
+        return (await self.request(
             method='GET',
             sub=f'/remote.php/dav/files/{self.user}/{path}',
-            data={'path': path})
+            data={})).content
 
     async def upload_file(self, local_path: str, remote_path: str):
         """Upload a file."""
@@ -72,18 +75,18 @@ class FileManager(object):
             sub=f'/remote.php/dav/files/{self.user}/{source}',
             headers={
                 'Destination':
-                    f'{self.davapi.endpoint}/remote.php/dav/files/{self.user}/{dest}',
-                'Overwrite': overwrite})
+                    f'{self.endpoint}/remote.php/dav/files/{self.user}/{dest}',
+                'Overwrite': 'T' if True else 'F'})
 
     async def copy(self, source: str, dest: str, overwrite: bool = False):
         """Move a file or folder."""
         return await self.dav_query(
-            method='MOVE',
+            method='COPY',
             sub=f'/remote.php/dav/files/{self.user}/{source}',
             headers={
                 'Destination':
-                    f'{self.davapi.endpoint}/remote.php/dav/files/{self.user}/{dest}',
-                'Overwrite': overwrite})
+                    f'{self.endpoint}/remote.php/dav/files/{self.user}/{dest}',
+                'Overwrite': 'T' if overwrite else 'F'})
 
     async def __favorite(self, path: str, set: bool):
         """Set file/folder as a favorite."""
@@ -133,7 +136,7 @@ class FileManager(object):
             sub=path,
             headers={
                 'Destination':
-                    f'{self.davapi.endpoint}/remote.php/dav/trashbin/{self.user}/restore'})
+                    f'{self.endpoint}/remote.php/dav/trashbin/{self.user}/restore/file'})
 
     async def empty_trashbin(self):
         """Empty the trash."""
@@ -159,7 +162,7 @@ class FileManager(object):
             sub=path,
             headers={
                 'Destination':
-                    f'{self.davapi.endpoint}/remote.php/dav/versions/{self.user}/restore'})
+                    f'{self.endpoint}/remote.php/dav/versions/{self.user}/restore/file'})
 
     async def upload_file_chunked(self, local_path: str, remote_path: str):
         """Upload a large file in chunks."""

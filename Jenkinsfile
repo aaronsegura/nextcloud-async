@@ -17,8 +17,8 @@ pipeline {
 
     stage('Install Package') {
       steps {
-        withPythonEnv('python3') {
-          sh 'python3 -mpip install .'
+        withPythonEnv('python3.10') {
+          sh 'python3.10 -mpip install .'
         }
       }
     }
@@ -33,7 +33,7 @@ pipeline {
             }
           }
           steps {
-            sh 'flake8 --exclude .git,__pycache__,node_modules,.pyenv* --count --statistics . || true'
+            sh 'flake8 --exclude .git,__pycache__,node_modules,.pyenv* --count --statistics --ignore E227 .'
           }
         }
         stage('pydocstyle check') {
@@ -47,31 +47,12 @@ pipeline {
             sh 'pydocstyle --convention=pep257 --count nextcloud_aio || true'
           }
         }
-      }
-    } // parallel
-    stage('Build Nextcloud Node') {
-      steps {
-        dir('tests') {
-          sh 'docker-compose build'
-          sh 'docker-compose -p test-${BUILD_NUMBER} up -d'
-        }
-      }
-    }
-    stage('Unit testing') {
-      steps {
-        withPythonEnv('python3') {
-          dir('tests') {
-            sh 'python3 -munittest'
+        stage('Unit testing') {
+          steps {
+            withPythonEnv('python3.10') {
+              sh 'python3.10 -m unittest'
+            }
           }
-        }
-      }
-    }
-    stage('Tear down Nextcloud') {
-      steps {
-        dir('tests') {
-          sh 'docker-compose -p test-${BUILD_NUMBER} stop'
-          sh 'docker-compose -p test-${BUILD_NUMBER} rm'
-
         }
       }
     }

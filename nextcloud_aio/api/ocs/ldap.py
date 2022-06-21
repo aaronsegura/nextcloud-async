@@ -5,7 +5,7 @@ https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/user_au
 from typing import Dict
 
 from nextcloud_aio.helpers import recursive_urlencode
-from nextcloud_aio.exceptions import NextCloudASyncException
+from nextcloud_aio.exceptions import NextCloudAsyncException
 
 
 class OCSLdapAPI(object):
@@ -31,7 +31,7 @@ class OCSLdapAPI(object):
     async def set_ldap_config(self, id: str, config_data: Dict):
         """Set the properties of a given LDAP configuration."""
         if 'configData' not in config_data:
-            raise NextCloudASyncException(
+            raise NextCloudAsyncException(
                 'config_data must have configData object at top level.')
 
         url_data = recursive_urlencode(config_data)
