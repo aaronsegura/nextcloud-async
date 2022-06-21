@@ -1,9 +1,8 @@
 FROM python:3.10.5-bullseye
 
 RUN apt-get update && \
-    apt-get install -y pydocstyle python3-setuptools
+    apt-get install -y flake8
 
 COPY . /data
 
 ENTRYPOINT ["bash", "-c"]
-CMD ["pydocstyle", "/data"]

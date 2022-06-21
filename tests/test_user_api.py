@@ -105,13 +105,14 @@ class OCSUserAPI(BaseTestCase):
             assert response['users']['element'] == [USER, TESTUSER]
 
     def test_user_autocomplete(self):
-        xml_response = bytes(f"""<?xml version="1.0"?>\n<ocs>\n <meta>\n  <status>\
-        ok</status>\n  <statuscode>200</statuscode>\n  <message>OK</message>\n\
-        </meta>\n <data>\n  <element>\n   <id>{USER}</id>\n   <label>{NAME}\
-        </label>\n   <icon>icon-user</icon>\n   <source>users</source>\n\
-        <status>\n    <status>online</status>\n    <message/>\n    <icon/>\n\
-        <clearAt/>\n   </status>\n   <subline></subline>\n  </element>\n
-        </data>\n</ocs>\n""", 'utf-8')
+        xml_response = bytes(
+            '<?xml version="1.0"?>\n<ocs>\n <meta>\n  <status>'
+            'ok</status>\n  <statuscode>200</statuscode>\n  <message>OK</message>\n'
+            f'</meta>\n <data>\n  <element>\n   <id>{USER}</id>\n   <label>{NAME}'
+            '</label>\n   <icon>icon-user</icon>\n   <source>users</source>\n'
+            '<status>\n    <status>online</status>\n    <message/>\n    <icon/>\n'
+            '<clearAt/>\n   </status>\n   <subline></subline>\n  </element>\n'
+            '</data>\n</ocs>\n', 'utf-8')
         SEARCH = 'dk'
         with patch(
                 'httpx.AsyncClient.request',

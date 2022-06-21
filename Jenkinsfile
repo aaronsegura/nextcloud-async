@@ -1,18 +1,6 @@
 pipeline {
   agent any
 
-  environment {
-    NEXTCLOUD_VERSION="24"
-    GROUPFOLDERS_VERSION="11.1.2"
-    GROUPFOLDERS_ARCHIVE_NAME="groupfolders.tar.gz"
-    GROUPFOLDERS_URL="https://github.com/nextcloud/groupfolders/releases/download/v${GROUPFOLDERS_VERSION}/${GROUPFOLDERS_ARCHIVE_NAME}"
-    NEXTCLOUD_HOSTNAME="app"
-    NEXTCLOUD_ADMIN_USER="admin"
-    NEXTCLOUD_ADMIN_PASSWORD="admin"
-
-    NEXTCLOUD_HOST="app"
-    NEXTCLOUD_PORT="8181"
-  }
   stages {
 
     stage('Install Package') {
@@ -27,13 +15,16 @@ pipeline {
       parallel {
         stage('flake8 check') {
           agent {
-            docker {
-              image 'pipelinecomponents/flake8'
-              args '-v $PWD:/data'
+            dockerfile {
+              dir '.jenkins'
+              filename 'Dockerfile-flake8'
             }
           }
           steps {
-            sh 'flake8 --exclude .git,__pycache__,node_modules,.pyenv* --count --statistics --ignore E227 .'
+            withPythonEnv('python3.10') {
+              sh 'python3.10 -mpip install --target ${WORKSPACE} flake8'
+              sh 'flake8 --exclude .git,__pycache__,node_modules,.pyenv* --count --statistics --ignore E227 /data'
+            }
           }
         }
         stage('pydocstyle check') {

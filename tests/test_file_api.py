@@ -31,19 +31,20 @@ class DAVFileAPI(BaseTestCase):
                         'oc:size': '137546371275'},
                     'd:status': 'HTTP/1.1 200 OK'}}]
 
-        xml_response = '<?xml version="1.0"?>\n'\
-            '<d:multistatus xmlns:d="DAV:" xmlns:s="http://sabredav.org/ns" '\
-            'xmlns:oc="http://owncloud.org/ns" xmlns:nc="http://nextcloud.org/ns">'\
-            f'<d:response><d:href>/remote.php/dav/files/{USER}/</d:href>'\
-            '<d:propstat><d:prop><oc:fileid>2438276</oc:fileid>'\
-            '<oc:size>137546371275</oc:size><nc:has-preview>false</nc:has-preview>'\
-            '</d:prop><d:status>HTTP/1.1 200 OK</d:status>'\
-            '</d:propstat></d:response><d:response>'\
-            f'<d:href>/remote.php/dav/files/{USER}/Nextcloud%20Manual.pdf</d:href>'\
-            '<d:propstat><d:prop><oc:fileid>2438295</oc:fileid>'\
-            '<oc:size>5748633</oc:size><nc:has-preview>false</nc:has-preview>'\
-            '</d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propstat>'\
-            '</d:response></d:multistatus>\n'
+        xml_response = bytes(
+            '<?xml version="1.0"?>\n'
+            '<d:multistatus xmlns:d="DAV:" xmlns:s="http://sabredav.org/ns" '
+            'xmlns:oc="http://owncloud.org/ns" xmlns:nc="http://nextcloud.org/ns">'
+            f'<d:response><d:href>/remote.php/dav/files/{USER}/</d:href>'
+            '<d:propstat><d:prop><oc:fileid>2438276</oc:fileid>'
+            '<oc:size>137546371275</oc:size><nc:has-preview>false</nc:has-preview>'
+            '</d:prop><d:status>HTTP/1.1 200 OK</d:status>'
+            '</d:propstat></d:response><d:response>'
+            f'<d:href>/remote.php/dav/files/{USER}/Nextcloud%20Manual.pdf</d:href>'
+            '<d:propstat><d:prop><oc:fileid>2438295</oc:fileid>'
+            '<oc:size>5748633</oc:size><nc:has-preview>false</nc:has-preview>'
+            '</d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propstat>'
+            '</d:response></d:multistatus>\n', 'utf-8')
         with patch(
                 'httpx.AsyncClient.request',
                 new_callable=AsyncMock,
@@ -185,12 +186,13 @@ class DAVFileAPI(BaseTestCase):
                     'Overwrite': 'F'})
 
     def test_remove_favorite(self):
-        xml_response = '<?xml version="1.0"?>\n<d:multistatus xmlns:d="DAV:" '\
-            'xmlns:s="http://sabredav.org/ns" xmlns:oc="http://owncloud.org/ns" '\
-            'xmlns:nc="http://nextcloud.org/ns"><d:response>'\
-            f'<d:href>/remote.php/dav/files/{USER}/{FILE}</d:href><d:propstat>'\
-            '<d:prop><oc:favorite/></d:prop><d:status>HTTP/1.1 200 OK</d:status>'\
-            '</d:propstat></d:response></d:multistatus>'
+        xml_response = bytes(
+            '<?xml version="1.0"?>\n<d:multistatus xmlns:d="DAV:" '
+            'xmlns:s="http://sabredav.org/ns" xmlns:oc="http://owncloud.org/ns" '
+            'xmlns:nc="http://nextcloud.org/ns"><d:response>'
+            f'<d:href>/remote.php/dav/files/{USER}/{FILE}</d:href><d:propstat>'
+            '<d:prop><oc:favorite/></d:prop><d:status>HTTP/1.1 200 OK</d:status>'
+            '</d:propstat></d:response></d:multistatus>', 'utf-8')
         with patch(
                 'httpx.AsyncClient.request',
                 new_callable=AsyncMock,
@@ -216,12 +218,13 @@ class DAVFileAPI(BaseTestCase):
                     'd:status': 'HTTP/1.1 200 OK'}}
 
     def test_set_favorite(self):
-        xml_response = f"""<?xml version="1.0"?>\n<d:multistatus xmlns:d="DAV:"
-        xmlns:s="http://sabredav.org/ns" xmlns:oc="http://owncloud.org/ns"
-        xmlns:nc="http://nextcloud.org/ns"><d:response>
-        <d:href>/remote.php/dav/files/{USER}/{FILE}</d:href><d:propstat>
-        <d:prop><oc:favorite/></d:prop><d:status>HTTP/1.1 200 OK</d:status>
-        </d:propstat></d:response></d:multistatus>"""
+        xml_response = bytes(
+            '<?xml version="1.0"?>\n<d:multistatus xmlns:d="DAV:" '
+            'xmlns:s="http://sabredav.org/ns" xmlns:oc="http://owncloud.org/ns" '
+            'xmlns:nc="http://nextcloud.org/ns"><d:response>'
+            f'<d:href>/remote.php/dav/files/{USER}/{FILE}</d:href><d:propstat>'
+            '<d:prop><oc:favorite/></d:prop><d:status>HTTP/1.1 200 OK</d:status>'
+            '</d:propstat></d:response></d:multistatus>', 'utf-8')
         with patch(
                 'httpx.AsyncClient.request',
                 new_callable=AsyncMock,
@@ -250,16 +253,18 @@ class DAVFileAPI(BaseTestCase):
                     'd:status': 'HTTP/1.1 200 OK'}}
 
     def test_get_favorites(self):
-        xml_response = '<?xml version="1.0"?>\n'\
-            '<d:multistatus xmlns:d="DAV:" xmlns:s="http://sabredav.org/ns" xmlns:'\
-            'oc="http://owncloud.org/ns" xmlns:nc="http://nextcloud.org/ns">\n <d:'\
-            'response>\n  <d:status>HTTP/1.1 200 OK</d:status>\n  <d:href>/remote.'\
-            f'php/dav/files/{FILE}</d:href>\n  <d:propstat>\n'\
-            '   <d:prop/>\n   <d:status>HTTP/1.1 418 I\'m a teapot</d:status>\n  <'\
-            '/d:propstat>\n </d:response>\n <d:response>\n  <d:status>HTTP/1.1 200'\
-            f' OK</d:status>\n  <d:href>/remote.php/dav/files/{USER}/{FILE}</d:href'\
-            '>\n  <d:propstat>\n   <d:prop/>\n   <d:status>HTTP/1.1 418 I\'m a tea'\
-            'pot</d:status>\n  </d:propstat>\n </d:response>\n</d:multistatus>\n'
+        xml_response = bytes(
+            '<?xml version="1.0"?>\n'
+            '<d:multistatus xmlns:d="DAV:" xmlns:s="http://sabredav.org/ns" xmlns:'
+            'oc="http://owncloud.org/ns" xmlns:nc="http://nextcloud.org/ns">\n <d:'
+            'response>\n  <d:status>HTTP/1.1 200 OK</d:status>\n  <d:href>/remote.'
+            f'php/dav/files/{FILE}</d:href>\n  <d:propstat>\n'
+            '   <d:prop/>\n   <d:status>HTTP/1.1 418 I\'m a teapot</d:status>\n  <'
+            '/d:propstat>\n </d:response>\n <d:response>\n  <d:status>HTTP/1.1 200'
+            f' OK</d:status>\n  <d:href>/remote.php/dav/files/{USER}/{FILE}</d:href'
+            '>\n  <d:propstat>\n   <d:prop/>\n   <d:status>HTTP/1.1 418 I\'m a tea'
+            'pot</d:status>\n  </d:propstat>\n </d:response>\n</d:multistatus>\n',
+            'utf-8')
         with patch(
                 'httpx.AsyncClient.request',
                 new_callable=AsyncMock,
@@ -284,20 +289,21 @@ class DAVFileAPI(BaseTestCase):
                     'd:status': "HTTP/1.1 418 I'm a teapot"}} in response
 
     def test_get_trashbin(self):
-        xml_response = '<?xml version="1.0"?>\n<d:multistatus xmlns:d="DAV:" '\
-            'xmlns:s="http://sabredav.org/ns" xmlns:oc="http://owncloud.org/ns" x'\
-            'mlns:nc="http://nextcloud.org/ns"><d:response><d:href>/remote.php/da'\
-            f'v/trashbin/{USER}/trash/</d:href><d:propstat><d:prop><d:resourcetyp'\
-            'e><d:collection/></d:resourcetype></d:prop><d:status>HTTP/1.1 200 OK'\
-            '</d:status></d:propstat></d:response><d:response><d:href>/remote.php'\
-            f'/dav/trashbin/{USER}/trash/{FILE}.d1655760269</d:href><d:propstat><'\
-            'd:prop><d:getlastmodified>Mon, 20 Jun 2022 21:24:29 GMT</d:getlastmo'\
-            'dified><d:getcontentlength>0</d:getcontentlength><d:resourcetype/><d'\
-            ':getetag>1655760269</d:getetag><d:getcontenttype>text/markdown</d:ge'\
-            'tcontenttype></d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propst'\
-            'at><d:propstat><d:prop><d:quota-used-bytes/><d:quota-available-bytes'\
-            '/></d:prop><d:status>HTTP/1.1 404 Not Found</d:status></d:propstat><'\
-            '/d:response></d:multistatus>\n'
+        xml_response = bytes(
+            '<?xml version="1.0"?>\n<d:multistatus xmlns:d="DAV:" '
+            'xmlns:s="http://sabredav.org/ns" xmlns:oc="http://owncloud.org/ns" x'
+            'mlns:nc="http://nextcloud.org/ns"><d:response><d:href>/remote.php/da'
+            f'v/trashbin/{USER}/trash/</d:href><d:propstat><d:prop><d:resourcetyp'
+            'e><d:collection/></d:resourcetype></d:prop><d:status>HTTP/1.1 200 OK'
+            '</d:status></d:propstat></d:response><d:response><d:href>/remote.php'
+            f'/dav/trashbin/{USER}/trash/{FILE}.d1655760269</d:href><d:propstat><'
+            'd:prop><d:getlastmodified>Mon, 20 Jun 2022 21:24:29 GMT</d:getlastmo'
+            'dified><d:getcontentlength>0</d:getcontentlength><d:resourcetype/><d'
+            ':getetag>1655760269</d:getetag><d:getcontenttype>text/markdown</d:ge'
+            'tcontenttype></d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propst'
+            'at><d:propstat><d:prop><d:quota-used-bytes/><d:quota-available-bytes'
+            '/></d:prop><d:status>HTTP/1.1 404 Not Found</d:status></d:propstat><'
+            '/d:response></d:multistatus>\n', 'utf-8')
         with patch(
                 'httpx.AsyncClient.request',
                 new_callable=AsyncMock,
@@ -365,12 +371,13 @@ class DAVFileAPI(BaseTestCase):
                 headers={})
 
     def test_get_file_versions(self):
-        xml_response = '<?xml version="1.0"?>\n<d:multistatus xmlns:d="DAV:" x'\
-            'mlns:s="http://sabredav.org/ns" xmlns:oc="http://owncloud.org/ns'\
-            '" xmlns:nc="http://nextcloud.org/ns"><d:response><d:href>/remote'\
-            f'.php/dav/files/{USER}/{FILE}</d:href><d:propstat><d:prop><oc:fi'\
-            'leid>2875527</oc:fileid></d:prop><d:status>HTTP/1.1 200 OK</d:st'\
-            'atus></d:propstat></d:response></d:multistatus>\n'
+        xml_response = bytes(
+            '<?xml version="1.0"?>\n<d:multistatus xmlns:d="DAV:" x'
+            'mlns:s="http://sabredav.org/ns" xmlns:oc="http://owncloud.org/ns'
+            '" xmlns:nc="http://nextcloud.org/ns"><d:response><d:href>/remote'
+            f'.php/dav/files/{USER}/{FILE}</d:href><d:propstat><d:prop><oc:fi'
+            'leid>2875527</oc:fileid></d:prop><d:status>HTTP/1.1 200 OK</d:st'
+            'atus></d:propstat></d:response></d:multistatus>\n', 'utf-8')
         with patch(
                 'httpx.AsyncClient.request',
                 new_callable=AsyncMock,
@@ -387,20 +394,20 @@ class DAVFileAPI(BaseTestCase):
                 headers={})
 
     def test_restore_file_version(self):
-        xml_response = ''
-        FILE = f'/remote.php/dav/versions/{USER}/versions/2875527/1655762900'
+        xml_response = bytes('', 'utf-8')
+        VERSION = f'/remote.php/dav/versions/{USER}/versions/2875527/1655762900'
         with patch(
                 'httpx.AsyncClient.request',
                 new_callable=AsyncMock,
                 return_value=httpx.Response(
                     status_code=200,
                     content=xml_response)) as mock:
-            asyncio.run(self.ncc.restore_file_version(FILE))
+            asyncio.run(self.ncc.restore_file_version(VERSION))
 
             mock.assert_called_with(
                 method='MOVE',
                 auth=(USER, PASSWORD),
-                url=f'{ENDPOINT}{FILE}',
+                url=f'{ENDPOINT}{VERSION}',
                 data={},
                 headers={
                     'Destination':
