@@ -81,7 +81,7 @@ def resolve_element_list(data: Dict, list_keys=[]):
                 else:
                     ret.setdefault(k, resolve_element_list(v, list_keys=list_keys))
             elif isinstance(v, list) and k == 'element':
-                return v
+                ret = v
             elif k in list_keys and v is None:
                 ret = {k: []}
             else:

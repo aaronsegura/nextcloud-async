@@ -71,6 +71,7 @@ class NextCloudOCSAPI(NextCloudBaseAPI):
     async def get_file_guest_link(self, file_id: int) -> str:
         """
         Generate a generic sharable link for a file.
+
         Expires in 8 hours.
 
         Returns: (str) link to file
