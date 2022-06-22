@@ -1,7 +1,9 @@
 import urllib
 
+from typing import Dict
 
-def recursive_urlencode(d):
+
+def recursive_urlencode(d: Dict):
     """
     URL-encode a multidimensional dictionary PHP-style.
 
@@ -32,3 +34,59 @@ def recursive_urlencode(d):
         return pairs
 
     return '&'.join(recursion(d))
+
+
+def resolve_element_list(data: Dict, list_keys=[]):
+    """
+    Resolve all 'element' items into a list.
+
+    A side-effect of using xmltodict on nextcloud results is that lists of
+    items come back differently depending on how many results there are, and
+    there is always an unnecessary parent 'element' key wrapping the list:
+
+    Zero results returns:
+        {
+            'items': 'None'
+        }
+
+    One or more results returns a dict containing a list:
+        {
+            'items': {
+                'element': [...]
+            }
+        }
+
+    We want to get rid of the 'element' middle-man and turn all
+    list items into their proper representation:
+
+    Zero results:
+        {
+            'items': []
+        }
+
+    One or more results:
+        {
+            'items': [
+                ...,
+                ...,
+            ]
+        }
+    """
+    ret = {}
+    if isinstance(data, dict):
+        for k, v in data.items():
+            if isinstance(v, dict):
+                if k == 'element':
+                    ret = resolve_element_list(v, list_keys=list_keys)
+                else:
+                    ret.setdefault(k, resolve_element_list(v, list_keys=list_keys))
+            elif isinstance(v, list) and k == 'element':
+                return v
+            elif k in list_keys and v is None:
+                ret = {k: []}
+            else:
+                ret.setdefault(k, v)
+    else:
+        ret = resolve_element_list(data, list_keys=list_keys)
+
+    return ret

@@ -107,7 +107,7 @@ class OCSAppsAPI(BaseTestCase):
                 data=None,
                 headers={'OCS-APIRequest': 'true'})
             for app in APPS:
-                assert app in response['apps']['element']
+                assert app in response['apps']
 
     def test_enable_app(self):
         APP = 'FavoriteThing'

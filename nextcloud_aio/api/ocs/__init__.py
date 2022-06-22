@@ -9,6 +9,7 @@ from typing import Dict, Any, Optional, List
 
 from nextcloud_aio.api import NextCloudBaseAPI
 from nextcloud_aio.exceptions import NextCloudAsyncException
+from nextcloud_aio.helpers import resolve_element_list
 
 
 class NextCloudOCSAPI(NextCloudBaseAPI):
@@ -22,7 +23,8 @@ class NextCloudOCSAPI(NextCloudBaseAPI):
             sub: str = '',
             data: Dict[Any, Any] = {},
             headers: Dict[Any, Any] = {},
-            include_headers: Optional[List] = []) -> Dict:
+            include_headers: Optional[List] = [],
+            list_keys: List = []) -> Dict:
 
         headers.update({'OCS-APIRequest': 'true'})
 
@@ -30,11 +32,15 @@ class NextCloudOCSAPI(NextCloudBaseAPI):
             method, url=url, sub=sub, data=data, headers=headers)
 
         if response.content:
-            response_data = json.loads(
-                json.dumps(
-                    xmltodict.parse(response.content.decode('utf-8'))
-                )
-            )
+            response_data = resolve_element_list(
+                json.loads(
+                    json.dumps(
+                        xmltodict.parse(
+                            response.content.decode('utf-8'),
+                            force_list={'element': True})
+                    )
+                ),
+                list_keys=list_keys)
             ocs_meta = response_data['ocs']['meta']
             if ocs_meta['status'] != 'ok':
                 raise NextCloudAsyncException(

@@ -64,7 +64,7 @@ class OCSUserAPI(BaseTestCase):
                 url=f'{ENDPOINT}/ocs/v1.php/cloud/users?search={SEARCH}&limit=100&offset=0',
                 data=None,
                 headers={'OCS-APIRequest': 'true'})
-            assert USER in response['users']['element']
+            assert USER in response['users']
 
     def test_get_user(self):
         xml_response = bytes(SIMPLE_100.format(
@@ -102,7 +102,7 @@ class OCSUserAPI(BaseTestCase):
                 url=f'{ENDPOINT}/ocs/v1.php/cloud/users?',
                 data=None,
                 headers={'OCS-APIRequest': 'true'})
-            assert response['users']['element'] == [USER, TESTUSER]
+            assert response['users'] == [USER, TESTUSER]
 
     def test_user_autocomplete(self):
         xml_response = bytes(
@@ -174,7 +174,7 @@ class OCSUserAPI(BaseTestCase):
                 data=None,
                 headers={'OCS-APIRequest': 'true'})
             for field in FIELDS:
-                assert field in response['element']
+                assert field in response
 
     def test_disable_user(self):
         with patch(

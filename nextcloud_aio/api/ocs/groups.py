@@ -32,7 +32,8 @@ class GroupManager(object):
         """Get group members."""
         return await self.ocs_query(
             method='GET',
-            sub=f'/ocs/v1.php/cloud/groups/{group_id}')
+            sub=f'/ocs/v1.php/cloud/groups/{group_id}',
+            list_keys=['users'])
 
     async def get_group_subadmins(self, group_id: str):
         """Get `group_id` subadmins."""
