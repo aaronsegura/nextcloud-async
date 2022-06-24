@@ -28,9 +28,10 @@ class TestHelpers(TestCase):
                     'totalitems': None,
                     'itemsperpage': None},
                 'data': {
-                    KEY: MULTI_ANSWER}}}
+                    KEY: {
+                        'element': MULTI_ANSWER}}}}
         result_multi = resolve_element_list(response_multi, list_keys=[KEY])
-        assert result_multi['ocs']['data'] == {KEY: MULTI_ANSWER}
+        assert result_multi['ocs']['data'][KEY] == MULTI_ANSWER
 
         response_single = {
             'ocs': {
@@ -41,9 +42,10 @@ class TestHelpers(TestCase):
                     'totalitems': None,
                     'itemsperpage': None},
                 'data': {
-                    KEY: SINGLE_ANSWER}}}
+                    KEY: {
+                        'element': SINGLE_ANSWER}}}}
         result_single = resolve_element_list(response_single, list_keys=[KEY])
-        assert result_single['ocs']['data'] == {KEY: SINGLE_ANSWER}
+        assert result_single['ocs']['data'][KEY] == SINGLE_ANSWER
 
         response_empty = {
             'ocs': {
@@ -54,6 +56,7 @@ class TestHelpers(TestCase):
                     'totalitems': None,
                     'itemsperpage': None},
                 'data': {
-                    KEY: EMPTY_ANSWER}}}
+                    KEY: {
+                        'element': EMPTY_ANSWER}}}}
         result_empty = resolve_element_list(response_empty, list_keys=[KEY])
-        assert result_empty['ocs']['data'] == {KEY: EMPTY_ANSWER}
+        assert result_empty['ocs']['data'][KEY] == EMPTY_ANSWER
