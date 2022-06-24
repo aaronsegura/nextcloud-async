@@ -10,6 +10,7 @@ from typing import Dict, Optional
 
 class NextCloudBaseAPI(object):
     """The Base API interface."""
+
     def __init__(
             self,
             client: httpx.AsyncClient,

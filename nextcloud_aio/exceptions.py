@@ -2,7 +2,7 @@
 
 
 class NextCloudAsyncException(Exception):
-    """Generic Exception"""
+    """Generic Exception."""
 
     def __init__(self, *args, **kwargs):
         super(BaseException, self).__init__()

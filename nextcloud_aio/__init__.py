@@ -1,5 +1,4 @@
-"""
-Asynchronous client for Nextcloud.
+"""Asynchronous client for Nextcloud.
 
 Reference:
 https://docs.nextcloud.com/server/latest/developer_manual/client_apis/WebDAV/index.html
@@ -17,6 +16,7 @@ https://nextcloud-talk.readthedocs.io/en/latest/
 
 # TODO:
 https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-sharee-api.html
+https://nextcloud-talk.readthedocs.io/en/latest/reaction/
 """
 
 from nextcloud_aio.api.ocs import NextCloudOCSAPI
@@ -52,5 +52,44 @@ class NextCloudAsync(
         NotificationManager,
         LoginFlowV2,
         Wipe):
+    """The Asynchronous Nextcloud Client.
+
+    This project aims to cover all public APIs provided by the Nextcloud
+    project.
+
+    Currently covered:
+        File Management API
+        User Management API
+        Group Management API
+        App Management API
+        LDAP Configuration API
+        Status API
+        Share API
+        Talk/spreed API
+        Notifications API
+        Login Flow v2 API
+        Remote Wipe API
+
+    To do:
+        Sharee API
+        Reaction API
+
+    If I am missing any, please open an issue so they can be added:
+    https://github.com/aaronsegura/nextcloud_aio/issues
+
+    ### Simple usage example
+
+        > from nextcloud_aio import NextCloudAsync
+        > import httpx
+
+        > u = 'user'
+        > p = 'password'
+        > e = 'https://cloud.example.com'
+        > client = NextCloudAsync(client=httpx.AsyncClient())
+        > nca = NextCloudAsync(client=client, user=u, password=p, endpoint=e)
+        > users = await.nca.get_users()
+        > print(users)
+        ['admin', 'slippinjimmy', 'chunks', 'flipper', 'squishface']
+    """
 
     pass
