@@ -6,15 +6,13 @@ FILE = 'MatthewSweet.md'
 
 ENDPOINT = 'https://cloud.example.com'
 
-EMPTY_100 = '<?xml version="1.0"?>\n<ocs>\n <meta>\n  <status>ok</status>\n'\
-    '<statuscode>100</statuscode>\n  <message>OK</message>\n  <totalitems>'\
-    '</totalitems>\n  <itemsperpage></itemsperpage>\n </meta>\n <data/>\n </ocs>\n'
+EMPTY_100 = bytes(
+    '{"ocs":{"meta":{"status":"ok","statuscode":100,"message":"OK",'
+    '"totalitems":"","itemsperpage":""},"data":[]}}', 'utf-8')
 
-EMPTY_200 = '<?xml version="1.0"?>\n<ocs>\n <meta>\n  <status>ok</status>\n  '\
-    '<statuscode>200</statuscode>\n  <message>OK</message>\n </meta>\n <data/>\n'\
-    '</ocs>\n'
+EMPTY_200 = bytes(
+    '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK",'
+    '"totalitems":"","itemsperpage":""},"data":[]}}', 'utf-8')
 
-SIMPLE_100 = '<?xml version="1.0"?>\n<ocs>\n <meta>\n  <status>ok</status>\n'\
-    '<statuscode>100</statuscode>\n  <message>OK</message>\n  <totalitems>'\
-    '</totalitems>\n  <itemsperpage></itemsperpage>\n </meta>\n <data>\n {}'\
-    '</data></ocs>\n'
+SIMPLE_100 = '{{"ocs":{{"meta":{{"status":"ok","statuscode":100,"message":"OK",'\
+    '"totalitems":"","itemsperpage":""}},"data": {0} }}}}'

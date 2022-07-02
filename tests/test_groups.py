@@ -1,4 +1,5 @@
 
+from urllib.parse import urlencode
 from .base import BaseTestCase
 from .helpers import AsyncMock
 from .constants import (
@@ -13,25 +14,26 @@ from unittest.mock import patch
 class OCSGroupsAPI(BaseTestCase):
 
     def test_search_groups(self):
-        SEARCH = 'OK Go!'
+        SEARCH = 'OK Go'
         RESPONSE = 'OK_GROUP'
-        xml_response = bytes(
-            '<?xml version="1.0"?>\n<ocs>\n <meta>\n  <status>ok</status>\n  '
-            '<statuscode>100</statuscode>\n  <message>OK</message>\n  <totali'
-            'tems></totalitems>\n  <itemsperpage></itemsperpage>\n </meta>\n '
-            f'<data>\n  <groups>\n   <element>{RESPONSE}</element>\n  </groups>'
-            '\n </data>\n</ocs>\n', 'utf-8')
+        json_response = bytes(
+            '{"ocs":{"meta":{"status":"ok","statuscode":100,"message":"OK","t'
+            'otalitems":"","itemsperpage":""},"data":{"groups":['
+            f'"{RESPONSE}"'
+            ']}}}', 'utf-8')
+        search_encoded = urlencode({'search': SEARCH})
         with patch(
                 'httpx.AsyncClient.request',
                 new_callable=AsyncMock,
                 return_value=httpx.Response(
                     status_code=100,
-                    content=xml_response)) as mock:
+                    content=json_response)) as mock:
             response = asyncio.run(self.ncc.search_groups(SEARCH))
             mock.assert_called_with(
                 method='GET',
                 auth=(USER, PASSWORD),
-                url=f'{ENDPOINT}/ocs/v1.php/cloud/groups?limit=100&offset=0&search=OK+Go%21',
+                url=f'{ENDPOINT}/ocs/v1.php/cloud/groups?'
+                    f'limit=100&offset=0&{search_encoded}&format=json',
                 data=None,
                 headers={'OCS-APIRequest': 'true'})
             assert RESPONSE in response['groups']
@@ -49,26 +51,28 @@ class OCSGroupsAPI(BaseTestCase):
                 method='POST',
                 auth=(USER, PASSWORD),
                 url=f'{ENDPOINT}/ocs/v1.php/cloud/groups',
-                data={'groupid': GROUP},
+                data={'groupid': GROUP, 'format': 'json'},
                 headers={'OCS-APIRequest': 'true'})
-            assert response is None
+            assert response == []
 
     def test_get_group_members(self):
         GROUP = 'FeelinAlright'
         GROUPUSER = 'JoeCocker'
-        xml_response = bytes(SIMPLE_100.format(
-            f'<users>\n   <element>{GROUPUSER}</element>\n  </users>\n'), 'utf-8')
+        json_response = bytes(SIMPLE_100.format(
+            r'{"users":["'
+            f'{GROUPUSER}'
+            r'"]}'), 'utf-8')
         with patch(
                 'httpx.AsyncClient.request',
                 new_callable=AsyncMock,
                 return_value=httpx.Response(
                     status_code=100,
-                    content=xml_response)) as mock:
+                    content=json_response)) as mock:
             response = asyncio.run(self.ncc.get_group_members(GROUP))
             mock.assert_called_with(
                 method='GET',
                 auth=(USER, PASSWORD),
-                url=f'{ENDPOINT}/ocs/v1.php/cloud/groups/{GROUP}?',
+                url=f'{ENDPOINT}/ocs/v1.php/cloud/groups/{GROUP}?format=json',
                 data=None,
                 headers={'OCS-APIRequest': 'true'})
             assert GROUPUSER in response['users']
@@ -76,19 +80,21 @@ class OCSGroupsAPI(BaseTestCase):
     def test_get_group_subadmins(self):
         GROUP = 'UMO'
         GROUPUSER = 'Ruban Nielson'
-        xml_response = bytes(SIMPLE_100.format(
-            f'<users>\n   <element>{GROUPUSER}</element>\n  </users>\n'), 'utf-8')
+        json_response = bytes(SIMPLE_100.format(
+            r'{"users":["'
+            f'{GROUPUSER}'
+            r'"]}'), 'utf-8')
         with patch(
                 'httpx.AsyncClient.request',
                 new_callable=AsyncMock,
                 return_value=httpx.Response(
                     status_code=100,
-                    content=xml_response)) as mock:
+                    content=json_response)) as mock:
             response = asyncio.run(self.ncc.get_group_subadmins(GROUP))
             mock.assert_called_with(
                 method='GET',
                 auth=(USER, PASSWORD),
-                url=f'{ENDPOINT}/ocs/v1.php/cloud/groups/{GROUP}/subadmins?',
+                url=f'{ENDPOINT}/ocs/v1.php/cloud/groups/{GROUP}/subadmins?format=json',
                 data=None,
                 headers={'OCS-APIRequest': 'true'})
             assert GROUPUSER in response['users']
@@ -106,6 +112,6 @@ class OCSGroupsAPI(BaseTestCase):
                 method='DELETE',
                 auth=(USER, PASSWORD),
                 url=f'{ENDPOINT}/ocs/v1.php/cloud/groups/{GROUP}',
-                data={},
+                data={'format': 'json'},
                 headers={'OCS-APIRequest': 'true'})
-            assert response is None
+            assert response == []

@@ -14,59 +14,46 @@ class OCSAppsAPI(BaseTestCase):
 
     def test_get_app(self):
         APP = 'files'
-        xml_response = bytes(
-            '<?xml version="1.0"?>\n<ocs>\n <meta>\n  <status>ok</status>\n  '
-            '<statuscode>100</statuscode>\n  <message>OK</message>\n  <totali'
-            'tems></totalitems>\n  <itemsperpage></itemsperpage>\n </meta>\n '
-            f'<data>\n  <id>{APP}</id>\n  <name>Files</name>\n  <summary>File '
-            'Management</summary>\n  <description>File Management</descriptio'
-            'n>\n  <version>1.18.0</version>\n  <licence>agpl</licence>\n  <a'
-            'uthor>\n   <element>Robin Appelman</element>\n   <element>Vincen'
-            't Petry</element>\n  </author>\n  <default_enable></default_enab'
-            'le>\n  <types>\n   <element>filesystem</element>\n  </types>\n  '
-            '<documentation>\n   <user>user-files</user>\n  </documentation>'
-            '\n  <category>files</category>\n  <bugs>https://github.com/nextc'
-            'loud/server/issues</bugs>\n  <dependencies>\n   <nextcloud/>\n  '
-            '</dependencies>\n  <background-jobs>\n   <element>OCA\\Files\\Ba'
-            'ckgroundJob\\ScanFiles</element>\n   <element>OCA\\Files\\Backgr'
-            'oundJob\\DeleteOrphanedItems</element>\n   <element>OCA\\Files\\'
-            'BackgroundJob\\CleanupFileLocks</element>\n   <element>OCA\\File'
-            's\\BackgroundJob\\CleanupDirectEditingTokens</element>\n  </back'
-            'ground-jobs>\n  <commands>\n   <element>OCA\\Files\\Command\\Sca'
-            'n</element>\n   <element>OCA\\Files\\Command\\DeleteOrphanedFile'
-            's</element>\n   <element>OCA\\Files\\Command\\TransferOwnership<'
-            '/element>\n   <element>OCA\\Files\\Command\\ScanAppData</element'
-            '>\n   <element>OCA\\Files\\Command\\RepairTree</element>\n  </co'
-            'mmands>\n  <activity>\n   <settings>\n    <element>OCA\\Files\\A'
-            'ctivity\\Settings\\FavoriteAction</element>\n    <element>OCA\\F'
-            'iles\\Activity\\Settings\\FileChanged</element>\n    <element>OC'
-            'A\\Files\\Activity\\Settings\\FileFavoriteChanged</element>\n   '
-            '</settings>\n   <filters>\n    <element>OCA\\Files\\Activity\\Fi'
-            'lter\\FileChanges</element>\n    <element>OCA\\Files\\Activity'
-            '\\Filter\\Favorites</element>\n   </filters>\n   <providers>\n  '
-            '  <element>OCA\\Files\\Activity\\FavoriteProvider</element>\n   '
-            ' <element>OCA\\Files\\Activity\\Provider</element>\n   </provide'
-            'rs>\n  </activity>\n  <navigations>\n   <navigation>\n    <eleme'
-            'nt>\n     <name>Files</name>\n     <route>files.view.index</rout'
-            'e>\n     <order>0</order>\n    </element>\n   </navigation>\n  <'
-            '/navigations>\n  <settings>\n   <personal>\n    <element>OCA\\Fi'
-            'les\\Settings\\PersonalSettings</element>\n   </personal>\n   <a'
-            'dmin/>\n   <admin-section/>\n   <personal-section/>\n  </setting'
-            's>\n  <info/>\n  <remote/>\n  <public/>\n  <repair-steps>\n   <i'
-            'nstall/>\n   <pre-migration/>\n   <post-migration/>\n   <live-mi'
-            'gration/>\n   <uninstall/>\n  </repair-steps>\n  <two-factor-pro'
-            'viders/>\n </data>\n</ocs>\n', 'utf-8')
+        json_response = bytes(
+            '{"ocs":{"meta":{"status":"ok","statuscode":100,"message":"OK","t'
+            'otalitems":"","itemsperpage":""},"data":{"id":"files","name":'
+            f'"{APP}","summary":"File Management","description":"File Managem'
+            'ent","version":"1.19.0","licence":"agpl","author":["Robin Appelm'
+            'an","Vincent Petry"],"default_enable":"","types":["filesystem"],'
+            '"documentation":{"user":"user-files"},"category":"files","bugs":'
+            '"https:\\/\\/github.com\\/nextcloud\\/server\\/issues","dependen'
+            'cies":{"nextcloud":{"@attributes":{"min-version":"24","max-versi'
+            r'on":"24"}}},"background-jobs":["OCA\\\\Files\\\\BackgroundJob'
+            '\\\\ScanFiles","OCA\\\\Files\\\\BackgroundJob\\\\DeleteOrphanedI'
+            'tems","OCA\\\\Files\\\\BackgroundJob\\\\CleanupFileLocks","OCA'
+            '\\\\Files\\\\BackgroundJob\\\\CleanupDirectEditingTokens"],"comm'
+            'ands":["OCA\\\\Files\\\\Command\\\\Scan","OCA\\\\Files\\\\Comman'
+            'd\\\\DeleteOrphanedFiles","OCA\\\\Files\\\\Command\\\\TransferOw'
+            'nership","OCA\\\\Files\\\\Command\\\\ScanAppData","OCA\\\\Files'
+            '\\\\Command\\\\RepairTree"],"activity":{"settings":["OCA\\\\Fil'
+            'es\\\\Activity\\\\Settings\\\\FavoriteAction","OCA\\\\Files\\\\'
+            'Activity\\\\Settings\\\\FileChanged","OCA\\\\Files\\\\Activity'
+            '\\\\Settings\\\\FileFavoriteChanged"],"filters":["OCA\\\\Files'
+            '\\\\Activity\\\\Filter\\\\FileChanges","OCA\\\\Files\\\\Activity'
+            '\\\\Filter\\\\Favorites"],"providers":["OCA\\\\Files\\\\Activity'
+            '\\\\FavoriteProvider","OCA\\\\Files\\\\Activity\\\\Provider"]},"'
+            'navigations":{"navigation":[{"name":"Files","route":"files.view.'
+            'index","order":"0"}]},"settings":{"personal":["OCA\\\\Files\\\\S'
+            'ettings\\\\PersonalSettings"],"admin":[],"admin-section":[],"per'
+            'sonal-section":[]},"info":[],"remote":[],"public":[],"repair-ste'
+            'ps":{"install":[],"pre-migration":[],"post-migration":[],"live-m'
+            'igration":[],"uninstall":[]},"two-factor-providers":[]}}}', 'utf-8')
         with patch(
                 'httpx.AsyncClient.request',
                 new_callable=AsyncMock,
                 return_value=httpx.Response(
                     status_code=100,
-                    content=xml_response)) as mock:
+                    content=json_response)) as mock:
             response = asyncio.run(self.ncc.get_app(APP))
             mock.assert_called_with(
                 method='GET',
                 auth=(USER, PASSWORD),
-                url=f'{ENDPOINT}/ocs/v1.php/cloud/apps/{APP}?',
+                url=f'{ENDPOINT}/ocs/v1.php/cloud/apps/{APP}?format=json',
                 data=None,
                 headers={'OCS-APIRequest': 'true'})
 
@@ -78,34 +65,32 @@ class OCSAppsAPI(BaseTestCase):
 
     def test_get_apps(self):
         APPS = [
-            'workflow_script',
-            'phonetrack',
-            'epubreader',
-            'previewgenerator',
-            'unsplash',
-            'serverinfo']
-        xml_response = bytes(
-            '<?xml version="1.0"?>\n<ocs>\n <meta>\n  <status>ok</status>\n  '
-            '<statuscode>100</statuscode>\n  <message>OK</message>\n  <totali'
-            'tems></totalitems>\n  <itemsperpage></itemsperpage>\n </meta>\n '
-            '<data>\n  <apps>\n   <element>workflow_script</element>\n   <ele'
-            'ment>phonetrack</element>\n   <element>epubreader</element>\n   '
-            '<element>previewgenerator</element>\n   <element>unsplash</eleme'
-            'nt>\n   <element>serverinfo</element>\n  </apps>\n </data>\n</oc'
-            's>\n', 'utf-8')
+            'serverinfo',
+            'files_trashbin',
+            'weather_status',
+            'systemtags',
+            'files_external',
+            'encryption',
+            'spreed']
+        json_response = bytes(
+            '{"ocs":{"meta":{"status":"ok","statuscode":100,"message":"OK",'
+            '"totalitems":"","itemsperpage":""},"data":{"apps":["serverinfo'
+            '","files_trashbin","weather_status","systemtags","files_extern'
+            'al","encryption","spreed"]}}}', 'utf-8')
         with patch(
                 'httpx.AsyncClient.request',
                 new_callable=AsyncMock,
                 return_value=httpx.Response(
                     status_code=100,
-                    content=xml_response)) as mock:
+                    content=json_response)) as mock:
             response = asyncio.run(self.ncc.get_apps())
             mock.assert_called_with(
                 method='GET',
                 auth=(USER, PASSWORD),
-                url=f'{ENDPOINT}/ocs/v1.php/cloud/apps?',
+                url=f'{ENDPOINT}/ocs/v1.php/cloud/apps?format=json',
                 data=None,
                 headers={'OCS-APIRequest': 'true'})
+            print(response)
             for app in APPS:
                 assert app in response['apps']
 
@@ -122,9 +107,10 @@ class OCSAppsAPI(BaseTestCase):
                 method='POST',
                 auth=(USER, PASSWORD),
                 url=f'{ENDPOINT}/ocs/v1.php/cloud/apps/{APP}',
-                data={},
+                data={'format': 'json'},
                 headers={'OCS-APIRequest': 'true'})
-            assert response is None
+            print(response)
+            assert response == []
 
     def test_disable_app(self):
         APP = 'FavoriteThing'
@@ -139,6 +125,6 @@ class OCSAppsAPI(BaseTestCase):
                 method='DELETE',
                 auth=(USER, PASSWORD),
                 url=f'{ENDPOINT}/ocs/v1.php/cloud/apps/{APP}',
-                data={},
+                data={'format': 'json'},
                 headers={'OCS-APIRequest': 'true'})
-            assert response is None
+            assert response == []

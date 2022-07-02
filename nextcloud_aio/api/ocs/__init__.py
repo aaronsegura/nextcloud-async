@@ -2,14 +2,12 @@
 https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-api-overview.html
 """
 
-import xmltodict
 import json
 
 from typing import Dict, Any, Optional, List
 
 from nextcloud_aio.api import NextCloudBaseAPI
 from nextcloud_aio.exceptions import NextCloudAsyncException
-from nextcloud_aio.helpers import resolve_element_list
 
 
 class NextCloudOCSAPI(NextCloudBaseAPI):
@@ -27,20 +25,13 @@ class NextCloudOCSAPI(NextCloudBaseAPI):
             list_keys: List = []) -> Dict:
 
         headers.update({'OCS-APIRequest': 'true'})
+        data.update({"format": "json"})
 
         response = await self.request(
             method, url=url, sub=sub, data=data, headers=headers)
 
         if response.content:
-            response_data = resolve_element_list(
-                json.loads(
-                    json.dumps(
-                        xmltodict.parse(
-                            response.content.decode('utf-8'),
-                            force_list={'element': True})
-                    )
-                ),
-                list_keys=list_keys)
+            response_data = json.loads(response.content.decode('utf-8'))
             ocs_meta = response_data['ocs']['meta']
             if ocs_meta['status'] != 'ok':
                 raise NextCloudAsyncException(
