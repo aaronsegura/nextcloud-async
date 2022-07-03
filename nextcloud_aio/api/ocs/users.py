@@ -53,9 +53,10 @@ class UserManager():
             user_id = self.user
         return await self.ocs_query(method='GET', sub=f'/ocs/v1.php/cloud/users/{user_id}')
 
-    async def get_users(self) -> Dict:
-        """Returns all user IDs.  Admin only."""
-        return await self.ocs_query(method='GET', sub=r'/ocs/v1.php/cloud/users')
+    async def get_users(self) -> List:
+        """Return all user IDs.  Admin only."""
+        response = await self.ocs_query(method='GET', sub=r'/ocs/v1.php/cloud/users')
+        return response['users']
 
     async def user_autocomplete(
             self,

@@ -1,6 +1,9 @@
 """Implement Nextcloud Remote Wiping functionality.
 
 https://docs.nextcloud.com/server/latest/developer_manual/client_apis/RemoteWipe/index.html
+
+In order for this to work, you must be logged in using an app token.
+See api.loginflow.LoginFlowV2.
 """
 
 import json
@@ -46,4 +49,4 @@ class Wipe(object):
         return await self.request(
             method='POST',
             url=f'{self.endpoint}/index.php/core/wipe/success',
-            data={'token': {self.password}})
+            data={'token': self.password})

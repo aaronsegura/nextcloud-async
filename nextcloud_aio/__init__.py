@@ -13,10 +13,13 @@ https://github.com/nextcloud/groupfolders#api
 https://github.com/nextcloud/notifications/blob/master/docs/ocs-endpoint-v2.md
 https://github.com/nextcloud/activity/blob/master/docs/endpoint-v2.md
 https://nextcloud-talk.readthedocs.io/en/latest/
+https://docs.nextcloud.com/server/latest/developer_manual/client_apis/RemoteWipe/index.html
 
 # TODO:
 https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-sharee-api.html
 https://nextcloud-talk.readthedocs.io/en/latest/reaction/
+https://github.com/nextcloud/maps/blob/master/openapi.yml
+https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-user-preferences-api.html
 """
 
 from nextcloud_aio.api.ocs import NextCloudOCSAPI
@@ -54,11 +57,11 @@ class NextCloudAsync(
         Wipe):
     """The Asynchronous Nextcloud Client.
 
-    This project aims to cover all public APIs provided by the Nextcloud
-    project.
+    This project aims to provide an async-friendly python wrapper for all
+    public APIs provided by the Nextcloud project.
 
     Currently covered:
-        File Management API
+        File Management API (except chunked uploads)
         User Management API
         Group Management API
         App Management API
@@ -71,8 +74,11 @@ class NextCloudAsync(
         Remote Wipe API
 
     To do:
+        File API Chunked Uploads
         Sharee API
         Reaction API
+        Maps API
+        User Preferences API
 
     If I am missing any, please open an issue so they can be added:
     https://github.com/aaronsegura/nextcloud_aio/issues
@@ -85,9 +91,9 @@ class NextCloudAsync(
         > u = 'user'
         > p = 'password'
         > e = 'https://cloud.example.com'
-        > client = NextCloudAsync(client=httpx.AsyncClient())
-        > nca = NextCloudAsync(client=client, user=u, password=p, endpoint=e)
-        > users = await.nca.get_users()
+        > c = httpx.AsyncClient()
+        > nca = NextCloudAsync(client=c, user=u, password=p, endpoint=e)
+        > users = asyncio.run(nca.get_users())
         > print(users)
         ['admin', 'slippinjimmy', 'chunks', 'flipper', 'squishface']
     """

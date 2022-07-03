@@ -120,7 +120,7 @@ class OCSShareAPI(object):
 
         for a in attrs:
             if a[1]:
-                reqs.append(self.__update_share(share_id, a[0], a[1]))
+                reqs.append(self.__update_share(share_id, *a))
 
         return await asyncio.gather(*reqs)
 
