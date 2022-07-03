@@ -15,7 +15,7 @@ from unittest.mock import patch
 class OCSUserAPI(BaseTestCase):
 
     def test_create_user(self):
-        xml_response = bytes(SIMPLE_100.format(f'<id>{USER}</id>\n'), 'utf-8')
+        json_response = bytes(SIMPLE_100.format(f'{{"id": "{USER}"}}\n'), 'utf-8')
         QUOTA = '1G'
         LANG = 'en'
 
@@ -24,7 +24,7 @@ class OCSUserAPI(BaseTestCase):
                 new_callable=AsyncMock,
                 return_value=httpx.Response(
                     status_code=100,
-                    content=xml_response)) as mock:
+                    content=json_response)) as mock:
             response = asyncio.run(self.ncc.create_user(
                 user_id=USER,
                 email=EMAIL,
@@ -43,89 +43,104 @@ class OCSUserAPI(BaseTestCase):
                     'groups': [], 'subadmin': [],
                     'language': LANG,
                     'quota': QUOTA,
-                    'password': PASSWORD},
+                    'password': PASSWORD,
+                    'format': 'json'},
                 headers={'OCS-APIRequest': 'true'})
             assert response['id'] == USER
 
     def test_search_users(self):
-        xml_response = bytes(SIMPLE_100.format(
-            f'<users>\n<element>{USER}</element>\n  </users>\n'), 'utf-8')
+        json_response = bytes(SIMPLE_100.format(
+            f'{{"users": ["{USER}"]}}\n'), 'utf-8')
         SEARCH = 'MUTEMATH'
         with patch(
                 'httpx.AsyncClient.request',
                 new_callable=AsyncMock,
                 return_value=httpx.Response(
                     status_code=100,
-                    content=xml_response)) as mock:
+                    content=json_response)) as mock:
             response = asyncio.run(self.ncc.search_users(SEARCH))
             mock.assert_called_with(
                 method='GET',
                 auth=(USER, PASSWORD),
-                url=f'{ENDPOINT}/ocs/v1.php/cloud/users?search={SEARCH}&limit=100&offset=0',
+                url=f'{ENDPOINT}/ocs/v1.php/cloud/users?search={SEARCH}&limit=100&offset=0&format=json',
                 data=None,
                 headers={'OCS-APIRequest': 'true'})
             assert USER in response['users']
 
     def test_get_user(self):
-        xml_response = bytes(SIMPLE_100.format(
-            f'<id>{USER}</id>\n <displayname>{NAME}</displayname>\n'), 'utf-8')
+        json_response = bytes(
+            '{"ocs":{"meta":{"status":"ok","statuscode":100,"message":"OK","t'
+            'otalitems":"","itemsperpage":""},"data":{"enabled":true,"storage'
+            f'Location":"\\/opt\\/nextcloud\\/\\/{USER}","id":"{USER}","lastLo'
+            'gin":1656858534000,"backend":"Database","subadmin":[],"quota":{"'
+            'free":53003714560,"used":106514002334,"total":159517716894,"rela'
+            'tive":66.77,"quota":-3},"avatarScope":"v2-federated","email":"'
+            f'{EMAIL}","emailScope":"v2-federated","additional_mail":[],"addi'
+            f'tional_mailScope":[],"displayname":"{NAME}","displaynameScope":'
+            '"v2-federated","phone":"","phoneScope":"v2-local","address":"","'
+            'addressScope":"v2-local","website":"","websiteScope":"v2-local",'
+            '"twitter":"","twitterScope":"v2-local","organisation":"","organi'
+            'sationScope":"v2-local","role":"","roleScope":"v2-local","headli'
+            'ne":"","headlineScope":"v2-local","biography":"","biographyScope'
+            '":"v2-local","profile_enabled":"1","profile_enabledScope":"v2-lo'
+            'cal","groups":["admin"],"language":"en","locale":"en","notify_em'
+            'ail":null,"backendCapabilities":{"setDisplayName":true,"setPassw'
+            'ord":true}}}}', 'utf-8')
         with patch(
                 'httpx.AsyncClient.request',
                 new_callable=AsyncMock,
                 return_value=httpx.Response(
                     status_code=100,
-                    content=xml_response)) as mock:
-            response = asyncio.run(self.ncc.get_user())
+                    content=json_response)) as mock:
+            response = asyncio.run(self.ncc.get_user(USER))
             mock.assert_called_with(
                 method='GET',
                 auth=(USER, PASSWORD),
-                url=f'{ENDPOINT}/ocs/v1.php/cloud/users/{USER}?',
+                url=f'{ENDPOINT}/ocs/v1.php/cloud/users/{USER}?format=json',
                 data=None,
                 headers={'OCS-APIRequest': 'true'})
-            assert response['displayname'] == NAME and response['id'] == USER
+            assert response['displayname'] == NAME \
+                and response['id'] == USER \
+                and response['email'] == EMAIL
 
     def test_get_users(self):
         TESTUSER = 'testuser'
-        xml_response = bytes(SIMPLE_100.format(
-            f'<users>\n   <element>{USER}</element>\n'
-            f'<element>{TESTUSER}</element>\n </users>\n'), 'utf-8')
+        json_response = bytes(SIMPLE_100.format(
+            f'{{"users":["{USER}","{TESTUSER}"]}}'), 'utf-8')
         with patch(
                 'httpx.AsyncClient.request',
                 new_callable=AsyncMock,
                 return_value=httpx.Response(
                     status_code=100,
-                    content=xml_response)) as mock:
+                    content=json_response)) as mock:
             response = asyncio.run(self.ncc.get_users())
             mock.assert_called_with(
                 method='GET',
                 auth=(USER, PASSWORD),
-                url=f'{ENDPOINT}/ocs/v1.php/cloud/users?',
+                url=f'{ENDPOINT}/ocs/v1.php/cloud/users?format=json',
                 data=None,
                 headers={'OCS-APIRequest': 'true'})
-            assert response['users'] == [USER, TESTUSER]
+            assert response == [USER, TESTUSER]
 
     def test_user_autocomplete(self):
-        xml_response = bytes(
-            '<?xml version="1.0"?>\n<ocs>\n <meta>\n  <status>'
-            'ok</status>\n  <statuscode>200</statuscode>\n  <message>OK</message>\n'
-            f'</meta>\n <data>\n  <element>\n   <id>{USER}</id>\n   <label>{NAME}'
-            '</label>\n   <icon>icon-user</icon>\n   <source>users</source>\n'
-            '<status>\n    <status>online</status>\n    <message/>\n    <icon/>\n'
-            '<clearAt/>\n   </status>\n   <subline></subline>\n  </element>\n'
-            '</data>\n</ocs>\n', 'utf-8')
+        json_response = bytes(
+            '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},"'
+            f'data":[{{"id":"{USER}","label":"{NAME}","icon":"icon-user","sou'
+            'rce":"users","status":[],"subline":"","shareWithDisplayNameUniqu'
+            f'e":"{USER}"}}]}}}}', 'utf-8')
         SEARCH = 'dk'
         with patch(
                 'httpx.AsyncClient.request',
                 new_callable=AsyncMock,
                 return_value=httpx.Response(
                     status_code=200,
-                    content=xml_response)) as mock:
+                    content=json_response)) as mock:
             asyncio.run(self.ncc.user_autocomplete(SEARCH))
             mock.assert_called_with(
                 method='GET',
                 auth=(USER, PASSWORD),
                 url='https://cloud.example.com/ocs/v2.php/core/autocomplete/get'
-                    f'?search={SEARCH}&itemType=None&limit=10',
+                    f'?search={SEARCH}&itemType=None&limit=10&format=json',
                 data=None,
                 headers={'OCS-APIRequest': 'true'})
 
@@ -144,33 +159,39 @@ class OCSUserAPI(BaseTestCase):
                 method='PUT',
                 auth=(USER, PASSWORD),
                 url=f'{ENDPOINT}/ocs/v1.php/cloud/users/{USER}',
-                data={'key': DISPLAYNAME, 'value': NAME},
+                data={'key': DISPLAYNAME, 'value': NAME, 'format': 'json'},
                 headers={'OCS-APIRequest': 'true'})
             mock.assert_any_call(
                 method='PUT',
                 auth=(USER, PASSWORD),
                 url=f'{ENDPOINT}/ocs/v1.php/cloud/users/{USER}',
-                data={'key': WEBSITE, 'value': ENDPOINT},
+                data={'key': WEBSITE, 'value': ENDPOINT, 'format': 'json'},
                 headers={'OCS-APIRequest': 'true'})
             assert mock.call_count == 2
 
     def test_get_user_editable_fields(self):
-        FIELDS = ['displayname', 'email']
-        xml_response = bytes(
+        FIELDS = [
+            'displayname', 'email', 'additional_mail', 'phone', 'address',
+            'website', 'twitter', 'organisation', 'role', 'headline', 'biography',
+            'profile_enabled'
+        ]
+        json_response = bytes(
             SIMPLE_100
-            .format('<element>{}</element>\n   <element>{}</element>\n')
-            .format(*FIELDS), 'utf-8')
+            .format(
+                '["displayname","'
+                'email","additional_mail","phone","address","website","twitter","'
+                'organisation","role","headline","biography","profile_enabled"]'), 'utf-8')
         with patch(
                 'httpx.AsyncClient.request',
                 new_callable=AsyncMock,
                 return_value=httpx.Response(
                     status_code=100,
-                    content=xml_response)) as mock:
+                    content=json_response)) as mock:
             response = asyncio.run(self.ncc.get_user_editable_fields())
             mock.assert_called_with(
                 method='GET',
                 auth=(USER, PASSWORD),
-                url=f'{ENDPOINT}/ocs/v1.php/cloud/user/fields?',
+                url=f'{ENDPOINT}/ocs/v1.php/cloud/user/fields?format=json',
                 data=None,
                 headers={'OCS-APIRequest': 'true'})
             for field in FIELDS:
@@ -188,7 +209,7 @@ class OCSUserAPI(BaseTestCase):
                 method='PUT',
                 auth=(USER, PASSWORD),
                 url=f'{ENDPOINT}/ocs/v1.php/cloud/users/{USER}/disable',
-                data={},
+                data={'format': 'json'},
                 headers={'OCS-APIRequest': 'true'})
 
     def test_enable_user(self):
@@ -203,7 +224,7 @@ class OCSUserAPI(BaseTestCase):
                 method='PUT',
                 auth=(USER, PASSWORD),
                 url=f'{ENDPOINT}/ocs/v1.php/cloud/users/{USER}/enable',
-                data={},
+                data={'format': 'json'},
                 headers={'OCS-APIRequest': 'true'})
 
     def test_remove_user(self):
@@ -218,43 +239,43 @@ class OCSUserAPI(BaseTestCase):
                 method='DELETE',
                 auth=(USER, PASSWORD),
                 url=f'{ENDPOINT}/ocs/v1.php/cloud/users/{USER}',
-                data={},
+                data={'format': 'json'},
                 headers={'OCS-APIRequest': 'true'})
 
     def test_get_self_groups(self):
-        xml_response = bytes(SIMPLE_100.format('<groups/>\n'), 'utf-8')
+        json_response = bytes(SIMPLE_100.format('{"groups": []}'), 'utf-8')
         with patch(
                 'httpx.AsyncClient.request',
                 new_callable=AsyncMock,
                 return_value=httpx.Response(
                     status_code=100,
-                    content=xml_response)) as mock:
+                    content=json_response)) as mock:
             response = asyncio.run(self.ncc.get_user_groups())
             mock.assert_called_with(
                 method='GET',
                 auth=(USER, PASSWORD),
-                url=f'{ENDPOINT}/ocs/v1.php/cloud/users/{USER}/groups?',
+                url=f'{ENDPOINT}/ocs/v1.php/cloud/users/{USER}/groups?format=json',
                 data=None,
                 headers={'OCS-APIRequest': 'true'})
-            assert response['groups'] is None
+            assert response['groups'] == []
 
     def test_get_user_groups(self):
         TESTUSER = 'testuser'
-        xml_response = bytes(SIMPLE_100.format('<groups/>\n'), 'utf-8')
+        json_response = bytes(SIMPLE_100.format('{"groups": []}'), 'utf-8')
         with patch(
                 'httpx.AsyncClient.request',
                 new_callable=AsyncMock,
                 return_value=httpx.Response(
                     status_code=100,
-                    content=xml_response)) as mock:
+                    content=json_response)) as mock:
             response = asyncio.run(self.ncc.get_user_groups(TESTUSER))
             mock.assert_called_with(
                 method='GET',
                 auth=(USER, PASSWORD),
-                url=f'{ENDPOINT}/ocs/v1.php/cloud/users/{TESTUSER}/groups?',
+                url=f'{ENDPOINT}/ocs/v1.php/cloud/users/{TESTUSER}/groups?format=json',
                 data=None,
                 headers={'OCS-APIRequest': 'true'})
-            assert response['groups'] is None
+            assert response['groups'] == []
 
     def test_add_user_to_group(self):
         GROUP = 'group'
@@ -269,7 +290,7 @@ class OCSUserAPI(BaseTestCase):
                 method='POST',
                 auth=(USER, PASSWORD),
                 url=f'{ENDPOINT}/ocs/v1.php/cloud/users/{USER}/groups',
-                data={'groupid': GROUP},
+                data={'groupid': GROUP, 'format': 'json'},
                 headers={'OCS-APIRequest': 'true'})
 
     def test_add_user_to_nonexistent_group(self):
@@ -287,7 +308,7 @@ class OCSUserAPI(BaseTestCase):
                     method='POST',
                     auth=(USER, PASSWORD),
                     url=f'{ENDPOINT}/ocs/v1.php/cloud/users/{USER}/groups',
-                    data={'groupid': GROUP},
+                    data={'groupid': GROUP, 'format': 'json'},
                     headers={'OCS-APIRequest': 'true'})
                 self.assertRaises(NextCloudAsyncException)
 
@@ -304,7 +325,7 @@ class OCSUserAPI(BaseTestCase):
                 method='DELETE',
                 auth=(USER, PASSWORD),
                 url=f'{ENDPOINT}/ocs/v1.php/cloud/users/{USER}/groups',
-                data={'groupid': GROUP},
+                data={'groupid': GROUP, 'format': 'json'},
                 headers={'OCS-APIRequest': 'true'})
 
     def test_promote_user_to_subadmin(self):
@@ -320,7 +341,7 @@ class OCSUserAPI(BaseTestCase):
                 method='POST',
                 auth=(USER, PASSWORD),
                 url=f'{ENDPOINT}/ocs/v1.php/cloud/users/{USER}/subadmins',
-                data={'groupid': GROUP},
+                data={'groupid': GROUP, 'format': 'json'},
                 headers={'OCS-APIRequest': 'true'})
 
     def test_demote_user_from_subadmin(self):
@@ -336,41 +357,41 @@ class OCSUserAPI(BaseTestCase):
                 method='DELETE',
                 auth=(USER, PASSWORD),
                 url=f'{ENDPOINT}/ocs/v1.php/cloud/users/{USER}/subadmins',
-                data={'groupid': GROUP},
+                data={'groupid': GROUP, 'format': 'json'},
                 headers={'OCS-APIRequest': 'true'})
 
     def test_get_user_subadmin_groups(self):
         TESTUSER = 'testuser'
-        xml_response = EMPTY_100
+        json_response = EMPTY_100
         with patch(
                 'httpx.AsyncClient.request',
                 new_callable=AsyncMock,
                 return_value=httpx.Response(
                     status_code=100,
-                    content=xml_response)) as mock:
+                    content=json_response)) as mock:
             response = asyncio.run(self.ncc.get_user_subadmin_groups(TESTUSER))
             mock.assert_called_with(
                 method='GET',
                 auth=(USER, PASSWORD),
-                url=f'{ENDPOINT}/ocs/v1.php/cloud/users/{TESTUSER}/subadmins?',
+                url=f'{ENDPOINT}/ocs/v1.php/cloud/users/{TESTUSER}/subadmins?format=json',
                 data=None,
                 headers={'OCS-APIRequest': 'true'})
-            assert response is None
+            assert response == []
 
     def test_resend_welcome_email(self):
         TESTUSER = 'testuser'
-        xml_response = EMPTY_100
+        json_response = EMPTY_100
         with patch(
                 'httpx.AsyncClient.request',
                 new_callable=AsyncMock,
                 return_value=httpx.Response(
                     status_code=100,
-                    content=xml_response)) as mock:
+                    content=json_response)) as mock:
             response = asyncio.run(self.ncc.resend_welcome_email(TESTUSER))
             mock.assert_called_with(
                 method='POST',
                 auth=(USER, PASSWORD),
                 url=f'{ENDPOINT}/ocs/v1.php/cloud/users/{TESTUSER}/welcome',
-                data={},
+                data={'format': 'json'},
                 headers={'OCS-APIRequest': 'true'})
-            assert response is None
+            assert response == []

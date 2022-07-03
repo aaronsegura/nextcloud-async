@@ -31,7 +31,7 @@ class OCSNotificationAPI(BaseTestCase):
             mock.assert_called_with(
                 method='GET',
                 auth=(USER, PASSWORD),
-                url=f'{ENDPOINT}/ocs/v2.php/apps/notifications/api/v2/notifications?',
+                url=f'{ENDPOINT}/ocs/v2.php/apps/notifications/api/v2/notifications?format=json',
                 data=None,
                 headers={'OCS-APIRequest': 'true'})
 
@@ -49,7 +49,7 @@ class OCSNotificationAPI(BaseTestCase):
                 method='DELETE',
                 auth=(USER, PASSWORD),
                 url=f'{ENDPOINT}/ocs/v2.php/apps/notifications/api/v2/notifications',
-                data={},
+                data={'format': 'json'},
                 headers={'OCS-APIRequest': 'true'})
 
     def test_remove_notification(self):  # noqa: D102
@@ -66,5 +66,5 @@ class OCSNotificationAPI(BaseTestCase):
                 auth=(USER, PASSWORD),
                 url=f'{ENDPOINT}/ocs/v2.php/apps/notifications/api/'
                     f'v2/notifications/{NOTIFICATION}',
-                data={},
+                data={'format': 'json'},
                 headers={'OCS-APIRequest': 'true'})
