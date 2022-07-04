@@ -35,7 +35,33 @@ class OCSNotificationAPI(BaseTestCase):
                 data=None,
                 headers={'OCS-APIRequest': 'true'})
 
-    # TODO: Test get_notification(X)
+    def test_get_notification(self):  # noqa: D102
+        NOT_ID = 7
+        json_response = bytes(
+            '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},'
+            f'"data":{{"notification_id":{NOT_ID},"app":"updatenotifi'
+            'cation","user":"admin","datetime":"2022-07-04T14:10:22+00:00","o'
+            'bject_type":"core","object_id":"24.0.2.1","subject":"Update to N'
+            'extcloud 24.0.2 is available.","message":"","link":"http:\\/\\/l'
+            'ocalhost:8181\\/settings\\/admin\\/overview#version","subjectRic'
+            'h":"","subjectRichParameters":[],"messageRich":"","messageRichPa'
+            'rameters":[],"icon":"http:\\/\\/localhost:8181\\/apps\\/updateno'
+            'tification\\/img\\/notification.svg","actions":[]}}}', 'utf-8')
+
+        with patch(
+                'httpx.AsyncClient.request',
+                new_callable=AsyncMock,
+                return_value=httpx.Response(
+                    status_code=200,
+                    content=json_response)) as mock:
+            response = asyncio.run(self.ncc.get_notification(NOT_ID))
+            mock.assert_called_with(
+                method='GET',
+                auth=(USER, PASSWORD),
+                url=f'{ENDPOINT}/ocs/v2.php/apps/notifications/api/v2/notifications/{NOT_ID}?format=json',
+                data=None,
+                headers={'OCS-APIRequest': 'true'})
+            assert response['notification_id'] == NOT_ID
 
     def test_remove_notifications(self):  # noqa: D102
         with patch(

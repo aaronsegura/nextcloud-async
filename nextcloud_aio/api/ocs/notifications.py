@@ -1,3 +1,7 @@
+"""
+https://github.com/nextcloud/notifications/blob/master/docs/ocs-endpoint-v2.md
+"""
+
 
 class NotificationManager(object):
 

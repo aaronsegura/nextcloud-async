@@ -10,7 +10,7 @@ import httpx
 from unittest.mock import patch
 
 
-class OCSGroupsAPI(BaseTestCase):
+class OCSShareAPI(BaseTestCase):
 
     def test_get_all_shares(self):
         json_response = bytes(

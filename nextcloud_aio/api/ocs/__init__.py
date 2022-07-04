@@ -1,4 +1,5 @@
-"""
+"""Request Wrapper for Nextcloud OCS APIs.
+
 https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-api-overview.html
 """
 
@@ -21,8 +22,7 @@ class NextCloudOCSAPI(NextCloudBaseAPI):
             sub: str = '',
             data: Dict[Any, Any] = {},
             headers: Dict[Any, Any] = {},
-            include_headers: Optional[List] = [],
-            list_keys: List = []) -> Dict:
+            include_headers: Optional[List] = []) -> Dict:
 
         headers.update({'OCS-APIRequest': 'true'})
         data.update({"format": "json"})
@@ -73,11 +73,6 @@ class NextCloudOCSAPI(NextCloudBaseAPI):
             data={'fileId': file_id})
         return result['url']
 
-    async def get_notifications(self):
-        return await self.ocs_query(
-            method='GET',
-            sub='/ocs/v2.php/apps/notifications/api/v2/notifications')
-
     async def get_activity(
             self,
             since: Optional[int] = 0,
@@ -97,9 +92,11 @@ class NextCloudOCSAPI(NextCloudBaseAPI):
         elif filter_object or filter_object_type:
             raise NextCloudAsyncException('Filter must have object_type and object_id')
 
-        data['limit'] = limit
-        data['sort'] = sort
-        data['since'] = since
+        data.update({
+            'limit': limit,
+            'sort': sort,
+            'since': since,
+            'offset': offset})
 
         return await self.ocs_query(
             method='GET',

@@ -1,3 +1,7 @@
+"""Implement Nextcloud Group Folders Interaction.
+
+https://github.com/nextcloud/groupfolders#api
+"""
 
 from enum import IntFlag
 
@@ -37,28 +41,28 @@ class GroupFolderManager(object):
             method='DELETE',
             sub=f'/apps/groupfolders/folders/{folder_id}')
 
-    async def add_group_to_group_folder(self, group_id: str, folder_id: str):
+    async def add_group_to_group_folder(self, group_id: str, folder_id: int):
         """Give `group_id` access to `folder_id`."""
         return await self.ocs_query(
             method='POST',
             sub=f'/apps/groupfolders/folders/{folder_id}/groups',
             data={'group': group_id})
 
-    async def remove_group_from_group_folder(self, group_id: str, folder_id: str):
+    async def remove_group_from_group_folder(self, group_id: str, folder_id: int):
         """Remove `group_id` access from `folder_id`."""
         return await self.ocs_query(
             method='DELETE',
             sub=f'/apps/groupfolders/folders/{folder_id}/groups/{group_id}')
 
-    async def enable_group_folder_advanced_permissions(self, folder_id: str):
+    async def enable_group_folder_advanced_permissions(self, folder_id: int):
         """Enable advanced permissions on `folder_id`."""
         return await self.__advanced_permissions(folder_id, True)
 
-    async def disable_group_folder_advanced_permissions(self, folder_id: str):
+    async def disable_group_folder_advanced_permissions(self, folder_id: int):
         """Disable advanced permissions on `folder_id`."""
         return await self.__advanced_permissions(folder_id, False)
 
-    async def __advanced_permissions(self, folder_id: str, enable: bool):
+    async def __advanced_permissions(self, folder_id: int, enable: bool):
         return await self.ocs_query(
             method='POST',
             sub=f'/apps/groupfolders/folders/{folder_id}/acl',
@@ -66,10 +70,13 @@ class GroupFolderManager(object):
 
     async def add_group_folder_advanced_permissions(
             self,
-            folder_id: str,
+            folder_id: int,
             object_id: str,
             object_type: str):
-        """Enable `object_id` as manager of advanced permissions."""
+        """Enable `object_id` as manager of advanced permissions.
+
+        `object_type` is either `user` or `group`
+        """
         return await self.__advanced_permissions_admin(
             folder_id,
             object_id=object_id,
@@ -78,7 +85,7 @@ class GroupFolderManager(object):
 
     async def remove_group_folder_advanced_permissions(
             self,
-            folder_id: str,
+            folder_id: int,
             object_id: str,
             object_type: str):
         """Disable `object_id` as manager of advanced permissions."""
@@ -90,7 +97,7 @@ class GroupFolderManager(object):
 
     async def __advanced_permissions_admin(
             self,
-            folder_id: str,
+            folder_id: int,
             object_id: str,
             object_type: str,
             manage_acl: bool):
@@ -104,8 +111,8 @@ class GroupFolderManager(object):
 
     async def set_group_folder_permissions(
             self,
+            folder_id: int,
             group_id: str,
-            folder_id: str,
             permissions: Permissions):
         """Set permissions a group has in a folder."""
         return await self.ocs_query(
@@ -113,14 +120,17 @@ class GroupFolderManager(object):
             sub=f'/apps/groupfolders/folders/{folder_id}/groups/{group_id}',
             data={'permissions': permissions.value})
 
-    async def set_group_folder_quota(self, folder_id: str, quota: int):
-        """Set quota for group folder."""
+    async def set_group_folder_quota(self, folder_id: int, quota: int):
+        """Set quota for group folder.
+
+        `quota` is in bytes.  -3 for unlimited.
+        """
         return await self.ocs_query(
             method='POST',
             sub=f'/apps/groupfolders/folders/{folder_id}/quota',
             data={'quota': quota})
 
-    async def rename_group_folder(self, folder_id: str, mountpoint: str):
+    async def rename_group_folder(self, folder_id: int, mountpoint: str):
         """Rename a group folder."""
         return await self.ocs_query(
             method='POST',
