@@ -28,8 +28,8 @@ class NextCloudBaseAPI(object):
             method: str = 'GET',
             url: str = None,
             sub: str = '',
-            data: Optional[Dict[str, object]] = {},
-            headers: Optional[Dict[str, object]] = {}) -> httpx.Response:
+            data: Optional[Dict] = {},
+            headers: Optional[Dict] = {}) -> httpx.Response:
 
         if method.lower() == 'get':
             sub = f'{sub}?{urlencode(data)}'

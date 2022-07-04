@@ -4,6 +4,7 @@ Reference:
 https://docs.nextcloud.com/server/latest/developer_manual/client_apis/WebDAV/index.html
 https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-api-overview.html
 https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-share-api.html
+https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-status-api.html
 https://docs.nextcloud.com/server/latest/developer_manual/client_apis/LoginFlow/index.html
 https://docs.nextcloud.com/server/latest/developer_manual/client_apis/RemoteWipe/index.html
 https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/user_auth_ldap_api.html
@@ -80,7 +81,7 @@ class NextCloudAsync(
         Maps API
         User Preferences API
 
-    If I am missing any, please open an issue so they can be added:
+    Please open an issue if I am missing any APIs so they can be added:
     https://github.com/aaronsegura/nextcloud_aio/issues
 
     ### Simple usage example
