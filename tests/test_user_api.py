@@ -4,7 +4,7 @@ from .helpers import AsyncMock
 from .constants import (
     USER, NAME, ENDPOINT, PASSWORD, EMAIL, EMPTY_100, SIMPLE_100)
 
-from nextcloud_aio.exceptions import NextCloudAsyncException
+from nextcloud_async.exceptions import NextCloudAsyncException
 
 import asyncio
 import httpx

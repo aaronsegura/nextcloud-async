@@ -8,7 +8,7 @@ import httpx
 from unittest.mock import patch
 from importlib.metadata import version
 
-VERSION = version('nextcloud_aio')
+VERSION = version('nextcloud_async')
 TOKEN = 'qWPKzgQoCeV4Cvgc8Sl9ENJ8kXrGmijwWgA0eCNgOnP2bt'\
         'sWturgzFkdLGySmzMiheh746voMs5lpOB57MRm66KDV40G4n7V03cUnwznKX95k1'\
         'taNobxuGCNthK3I5me'
@@ -35,7 +35,7 @@ class LoginFlowV2(BaseTestCase):
                 auth=(USER, PASSWORD),
                 url=f'{ENDPOINT}/index.php/login/v2',
                 data={},
-                headers={'user-agent': f'nextcloud_aio/{VERSION}'})
+                headers={'user-agent': f'nextcloud_async/{VERSION}'})
 
     def test_login_flow_confirm(self):
         json_response = bytes(

@@ -90,7 +90,6 @@ class OCSAppsAPI(BaseTestCase):
                 url=f'{ENDPOINT}/ocs/v1.php/cloud/apps?format=json',
                 data=None,
                 headers={'OCS-APIRequest': 'true'})
-            print(response)
             for app in APPS:
                 assert app in response['apps']
 
@@ -109,7 +108,6 @@ class OCSAppsAPI(BaseTestCase):
                 url=f'{ENDPOINT}/ocs/v1.php/cloud/apps/{APP}',
                 data={'format': 'json'},
                 headers={'OCS-APIRequest': 'true'})
-            print(response)
             assert response == []
 
     def test_disable_app(self):

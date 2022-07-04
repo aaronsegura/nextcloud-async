@@ -2,7 +2,7 @@ from .base import BaseTestCase
 from .helpers import AsyncMock
 from .constants import USER, ENDPOINT, PASSWORD, SIMPLE_100
 
-from nextcloud_aio.api.ocs.groupfolders import Permissions as GP
+from nextcloud_async.api.ocs.groupfolders import Permissions as GP
 
 import asyncio
 import httpx

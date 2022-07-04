@@ -23,22 +23,22 @@ https://github.com/nextcloud/maps/blob/master/openapi.yml
 https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-user-preferences-api.html
 """
 
-from nextcloud_aio.api.ocs import NextCloudOCSAPI
-from nextcloud_aio.api.ocs.talk import NextCloudTalkAPI
-from nextcloud_aio.api.ocs.users import UserManager
-from nextcloud_aio.api.ocs.status import OCSStatusAPI
-from nextcloud_aio.api.ocs.shares import OCSShareAPI
-from nextcloud_aio.api.ocs.ldap import OCSLdapAPI
-from nextcloud_aio.api.ocs.apps import AppManager
-from nextcloud_aio.api.ocs.groups import GroupManager
-from nextcloud_aio.api.ocs.groupfolders import GroupFolderManager
-from nextcloud_aio.api.ocs.notifications import NotificationManager
+from nextcloud_async.api.ocs import NextCloudOCSAPI
+from nextcloud_async.api.ocs.talk import NextCloudTalkAPI
+from nextcloud_async.api.ocs.users import UserManager
+from nextcloud_async.api.ocs.status import OCSStatusAPI
+from nextcloud_async.api.ocs.shares import OCSShareAPI
+from nextcloud_async.api.ocs.ldap import OCSLdapAPI
+from nextcloud_async.api.ocs.apps import AppManager
+from nextcloud_async.api.ocs.groups import GroupManager
+from nextcloud_async.api.ocs.groupfolders import GroupFolderManager
+from nextcloud_async.api.ocs.notifications import NotificationManager
 
-from nextcloud_aio.api.dav import NextCloudDAVAPI
-from nextcloud_aio.api.dav.files import FileManager
+from nextcloud_async.api.dav import NextCloudDAVAPI
+from nextcloud_async.api.dav.files import FileManager
 
-from nextcloud_aio.api.loginflow import LoginFlowV2
-from nextcloud_aio.api.wipe import Wipe
+from nextcloud_async.api.loginflow import LoginFlowV2
+from nextcloud_async.api.wipe import Wipe
 
 
 class NextCloudAsync(

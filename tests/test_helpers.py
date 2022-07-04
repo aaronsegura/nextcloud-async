@@ -1,7 +1,7 @@
 
 from unittest import TestCase
 
-from nextcloud_aio.helpers import (
+from nextcloud_async.helpers import (
     recursive_urlencode,
     resolve_element_list)
 

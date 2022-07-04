@@ -9,7 +9,7 @@ import datetime as dt
 from enum import Enum, IntFlag
 from typing import Any, Optional
 
-from nextcloud_aio.exceptions import NextCloudAsyncException
+from nextcloud_async.exceptions import NextCloudAsyncException
 
 
 class ShareType(Enum):

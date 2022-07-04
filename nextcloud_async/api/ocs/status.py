@@ -8,7 +8,7 @@ import datetime as dt
 from enum import Enum, auto
 from typing import Dict, Optional, Union
 
-from nextcloud_aio.exceptions import NextCloudAsyncException
+from nextcloud_async.exceptions import NextCloudAsyncException
 
 
 class StatusType(Enum):

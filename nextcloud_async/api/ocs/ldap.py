@@ -4,8 +4,8 @@ https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/user_au
 
 from typing import Dict
 
-from nextcloud_aio.helpers import recursive_urlencode
-from nextcloud_aio.exceptions import NextCloudAsyncException
+from nextcloud_async.helpers import recursive_urlencode
+from nextcloud_async.exceptions import NextCloudAsyncException
 
 
 class OCSLdapAPI(object):

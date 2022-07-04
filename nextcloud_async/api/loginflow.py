@@ -22,9 +22,9 @@ import datetime as dt
 
 from typing import Dict, Optional
 
-from nextcloud_aio.exceptions import NextCloudLoginFlowTimeout
+from nextcloud_async.exceptions import NextCloudLoginFlowTimeout
 
-__VERSION__ = version('nextcloud_aio')
+__VERSION__ = version('nextcloud_async')
 
 
 class LoginFlowV2(object):
@@ -51,7 +51,7 @@ class LoginFlowV2(object):
             url=f'{self.endpoint}/index.php/login/v2',
             headers={
                 'user-agent':
-                    f'nextcloud_aio/{__VERSION__}' if user_agent is None else user_agent})
+                    f'nextcloud_async/{__VERSION__}' if user_agent is None else user_agent})
         return response.json()
 
     async def login_flow_wait_confirm(self, token, timeout: int = 60) -> Dict:

@@ -7,9 +7,9 @@ import json
 
 from typing import Dict
 
-from nextcloud_aio.exceptions import NextCloudAsyncException
+from nextcloud_async.exceptions import NextCloudAsyncException
 
-from nextcloud_aio.api import NextCloudBaseAPI
+from nextcloud_async.api import NextCloudBaseAPI
 
 
 class NextCloudDAVAPI(NextCloudBaseAPI):

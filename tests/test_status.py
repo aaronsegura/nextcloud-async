@@ -1,5 +1,5 @@
 
-from nextcloud_aio.api.ocs.status import StatusType as ST
+from nextcloud_async.api.ocs.status import StatusType as ST
 
 from .base import BaseTestCase
 from .helpers import AsyncMock

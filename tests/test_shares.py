@@ -1,5 +1,5 @@
 
-from nextcloud_aio.helpers import recursive_urlencode
+from nextcloud_async.helpers import recursive_urlencode
 from .base import BaseTestCase
 from .helpers import AsyncMock
 from .constants import USER, ENDPOINT, PASSWORD

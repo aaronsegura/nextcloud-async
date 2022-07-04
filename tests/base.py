@@ -5,7 +5,7 @@ import httpx
 
 from unittest import TestCase
 
-from nextcloud_aio import NextCloudAsync
+from nextcloud_async import NextCloudAsync
 
 
 class BaseTestCase(TestCase):

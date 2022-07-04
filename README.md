@@ -16,7 +16,7 @@ This is a perfectly horrible way to do it:
     import httpx
     import asyncio
 
-    from nextcloud_aio import NextCloudAsync
+    from nextcloud_async import NextCloudAsync
 
     nc = NextCloudAsync(
         client=httpx.AsyncClient(),

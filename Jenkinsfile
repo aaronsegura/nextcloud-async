@@ -35,7 +35,7 @@ pipeline {
             }
           }
           steps {
-            sh 'pydocstyle --convention=pep257 --count nextcloud_aio || true'
+            sh 'pydocstyle --convention=pep257 --count nextcloud_async || true'
           }
         }
         stage('Unit testing') {
