@@ -1,3 +1,4 @@
+# noqa: D100
 
 from nextcloud_async.helpers import recursive_urlencode
 from .base import BaseTestCase
@@ -10,9 +11,9 @@ import httpx
 from unittest.mock import patch
 
 
-class OCSShareAPI(BaseTestCase):
+class OCSShareAPI(BaseTestCase):  # noqa: D101
 
-    def test_get_all_shares(self):
+    def test_get_all_shares(self):  # noqa: D102
         json_response = bytes(
             '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},"'
             'data":[{"id":"1","share_type":0,"uid_owner":"admin","displayname'
@@ -40,7 +41,7 @@ class OCSShareAPI(BaseTestCase):
                 data=None,
                 headers={'OCS-APIRequest': 'true'})
 
-    def test_get_file_shares(self):
+    def test_get_file_shares(self):  # noqa: D102
         PATH = b''
         RESHARES = 'True'
         SUBFILES = 'True'
@@ -76,11 +77,11 @@ class OCSShareAPI(BaseTestCase):
                 data=None,
                 headers={'OCS-APIRequest': 'true'})
 
-    def test_get_share(self):
+    def test_get_share(self):  # noqa: D102
         SHARE_ID = 1
         json_response = bytes(
             '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},"'
-            'data":[{"id":"1","share_type":0,"uid_owner":"admin","displayname'
+            f'data":[{{"id":"{SHARE_ID}","share_type":0,"uid_owner":"admin","displayname'
             '_owner":"admin","permissions":19,"can_edit":true,"can_delete":tr'
             'ue,"stime":1656094271,"parent":null,"expiration":null,"token":nu'
             'll,"uid_file_owner":"admin","note":"","label":null,"displayname_'
@@ -97,7 +98,7 @@ class OCSShareAPI(BaseTestCase):
                 return_value=httpx.Response(
                     status_code=200,
                     content=json_response)) as mock:
-            asyncio.run(self.ncc.get_share(SHARE_ID))
+            response = asyncio.run(self.ncc.get_share(SHARE_ID))
             mock.assert_called_with(
                 method='GET',
                 auth=(USER, PASSWORD),
@@ -105,3 +106,6 @@ class OCSShareAPI(BaseTestCase):
                     f'/v1/shares/{SHARE_ID}?share_id={SHARE_ID}&format=json',
                 data=None,
                 headers={'OCS-APIRequest': 'true'})
+            assert isinstance(response, dict)
+
+# TODO: Finish shares api tests

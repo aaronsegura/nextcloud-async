@@ -36,6 +36,7 @@ pipeline {
           }
           steps {
             sh 'pydocstyle --convention=pep257 --count nextcloud_async || true'
+            sh 'docstr-coverage -P -m nextcloud_async'
           }
         }
         stage('Unit testing') {

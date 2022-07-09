@@ -1,4 +1,4 @@
-
+# noqa: D100
 from .base import BaseTestCase
 from .helpers import AsyncMock
 from .constants import (
@@ -10,13 +10,13 @@ import httpx
 from unittest.mock import patch
 
 
-class OCSAppsAPI(BaseTestCase):
+class OCSAppsAPI(BaseTestCase):  # noqa: D101
 
-    def test_get_app(self):
+    def test_get_app(self):  # noqa: D102
         APP = 'files'
         json_response = bytes(
             '{"ocs":{"meta":{"status":"ok","statuscode":100,"message":"OK","t'
-            'otalitems":"","itemsperpage":""},"data":{"id":"files","name":'
+            f'otalitems":"","itemsperpage":""}},"data":{{"id":"{APP}","name":'
             f'"{APP}","summary":"File Management","description":"File Managem'
             'ent","version":"1.19.0","licence":"agpl","author":["Robin Appelm'
             'an","Vincent Petry"],"default_enable":"","types":["filesystem"],'
@@ -63,7 +63,7 @@ class OCSAppsAPI(BaseTestCase):
                 case _:
                     assert False
 
-    def test_get_apps(self):
+    def test_get_apps(self):  # noqa: D102
         APPS = [
             'serverinfo',
             'files_trashbin',
@@ -91,9 +91,9 @@ class OCSAppsAPI(BaseTestCase):
                 data=None,
                 headers={'OCS-APIRequest': 'true'})
             for app in APPS:
-                assert app in response['apps']
+                assert app in response
 
-    def test_enable_app(self):
+    def test_enable_app(self):  # noqa: D102
         APP = 'FavoriteThing'
         with patch(
             'httpx.AsyncClient.request',
@@ -110,7 +110,7 @@ class OCSAppsAPI(BaseTestCase):
                 headers={'OCS-APIRequest': 'true'})
             assert response == []
 
-    def test_disable_app(self):
+    def test_disable_app(self):  # noqa: D102
         APP = 'FavoriteThing'
         with patch(
             'httpx.AsyncClient.request',

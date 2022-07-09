@@ -21,8 +21,7 @@ class OCSGeneralAPI(BaseTestCase):  # noqa: D101
         OBJ_ID = 30
         OBJ_TYPE = 'files'
         SINCE = 0
-        LIMIT = 3
-        OFFSET = 0
+        LIMIT = 1
         SORT = 'desc'
         json_response = bytes(
             '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},'
@@ -43,16 +42,18 @@ class OCSGeneralAPI(BaseTestCase):  # noqa: D101
                 new_callable=AsyncMock,
                 return_value=httpx.Response(
                     status_code=200,
-                    content=json_response)) as mock:
+                    content=json_response,
+                    headers={
+                        'X-Activity-Last-Given': '43'
+                    })) as mock:
             asyncio.run(self.ncc.get_activity(
-                since=SINCE, limit=LIMIT, filter_object=OBJ_ID, filter_object_type=OBJ_TYPE))
+                since=SINCE, limit=LIMIT, object_id=OBJ_ID, object_type=OBJ_TYPE))
             url_data = urlencode({
                 'object_type': OBJ_TYPE,
                 'object_id': OBJ_ID,
                 'limit': LIMIT,
                 'sort': SORT,
                 'since': SINCE,
-                'offset': OFFSET,
                 'format': 'json'
             })
             mock.assert_called_with(

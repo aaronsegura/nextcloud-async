@@ -1,4 +1,5 @@
-"""
+"""Nextcloud APIs.
+
 https://docs.nextcloud.com/server/latest/developer_manual/client_apis/
 """
 
@@ -16,8 +17,21 @@ class NextCloudBaseAPI(object):
             client: httpx.AsyncClient,
             endpoint: str,
             user: str = '',
-            password: str = ''):
+            password: str = ''):  # noqa: D416
+        """Set up the basis for endpoint interaction.
 
+        Args
+        ----
+            client (httpx.AsyncClient): AsyncClient.  Only httpx supported, but others may
+            work.
+
+            endpoint (str): The nextcloud endpoint URL
+
+            user (str, optional): User login. Defaults to ''.
+
+            password (str, optional): User password. Defaults to ''.
+
+        """
         self.user = user
         self.password = password
         self.endpoint = endpoint
@@ -30,9 +44,27 @@ class NextCloudBaseAPI(object):
             sub: str = '',
             data: Optional[Dict] = {},
             headers: Optional[Dict] = {}) -> httpx.Response:
+        """Send a request to the Nextcloud endpoint.
 
+        Args
+        ----
+            method (str, optional): HTTP Method. Defaults to 'GET'.
+
+            url (str, optional): URL, if outside of cloud endpoint. Defaults to None.
+
+            sub (str, optional): The part after the host. Defaults to ''.
+
+            data (dict, optional): Data for submission. Defaults to {}.
+
+            headers (dict, optional): Headers for submission. Defaults to {}.
+
+        Returns
+        -------
+            httpx.Response: An httpx Response Object
+
+        """
         if method.lower() == 'get':
-            sub = f'{sub}?{urlencode(data)}'
+            sub = f'{sub}?{urlencode(data, True)}'
             data = None
 
         return await self.client.request(

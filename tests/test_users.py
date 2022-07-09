@@ -1,4 +1,5 @@
-
+# noqa
+from nextcloud_async.api.ocs.shares import ShareType
 from .base import BaseTestCase
 from .helpers import AsyncMock
 from .constants import (
@@ -12,9 +13,9 @@ import httpx
 from unittest.mock import patch
 
 
-class OCSUserAPI(BaseTestCase):
+class OCSUserAPI(BaseTestCase):  # noqa: D101
 
-    def test_create_user(self):
+    def test_create_user(self):  # noqa: D102
         json_response = bytes(SIMPLE_100.format(f'{{"id": "{USER}"}}\n'), 'utf-8')
         QUOTA = '1G'
         LANG = 'en'
@@ -48,7 +49,7 @@ class OCSUserAPI(BaseTestCase):
                 headers={'OCS-APIRequest': 'true'})
             assert response['id'] == USER
 
-    def test_search_users(self):
+    def test_search_users(self):  # noqa: D102
         json_response = bytes(SIMPLE_100.format(
             f'{{"users": ["{USER}"]}}\n'), 'utf-8')
         SEARCH = 'MUTEMATH'
@@ -62,12 +63,13 @@ class OCSUserAPI(BaseTestCase):
             mock.assert_called_with(
                 method='GET',
                 auth=(USER, PASSWORD),
-                url=f'{ENDPOINT}/ocs/v1.php/cloud/users?search={SEARCH}&limit=100&offset=0&format=json',
+                url=f'{ENDPOINT}/ocs/v1.php/cloud/users?search={SEARCH}'
+                    '&limit=100&offset=0&format=json',
                 data=None,
                 headers={'OCS-APIRequest': 'true'})
-            assert USER in response['users']
+            assert USER in response
 
-    def test_get_user(self):
+    def test_get_user(self):  # noqa: D102
         json_response = bytes(
             '{"ocs":{"meta":{"status":"ok","statuscode":100,"message":"OK","t'
             'otalitems":"","itemsperpage":""},"data":{"enabled":true,"storage'
@@ -103,7 +105,7 @@ class OCSUserAPI(BaseTestCase):
                 and response['id'] == USER \
                 and response['email'] == EMAIL
 
-    def test_get_users(self):
+    def test_get_users(self):  # noqa: D102
         TESTUSER = 'testuser'
         json_response = bytes(SIMPLE_100.format(
             f'{{"users":["{USER}","{TESTUSER}"]}}'), 'utf-8')
@@ -122,7 +124,7 @@ class OCSUserAPI(BaseTestCase):
                 headers={'OCS-APIRequest': 'true'})
             assert response == [USER, TESTUSER]
 
-    def test_user_autocomplete(self):
+    def test_user_autocomplete(self):  # noqa: D102
         json_response = bytes(
             '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},"'
             f'data":[{{"id":"{USER}","label":"{NAME}","icon":"icon-user","sou'
@@ -135,16 +137,19 @@ class OCSUserAPI(BaseTestCase):
                 return_value=httpx.Response(
                     status_code=200,
                     content=json_response)) as mock:
-            asyncio.run(self.ncc.user_autocomplete(SEARCH))
+            asyncio.run(self.ncc.user_autocomplete(
+                SEARCH,
+                share_types=[ShareType['user'], ShareType['group']]))
             mock.assert_called_with(
                 method='GET',
                 auth=(USER, PASSWORD),
                 url='https://cloud.example.com/ocs/v2.php/core/autocomplete/get'
-                    f'?search={SEARCH}&itemType=None&limit=10&format=json',
+                    '?search=dk&itemType=None&itemId=None&sorter=None&shareType'
+                    's%5B%5D=0&shareTypes%5B%5D=1&limit=25&format=json',
                 data=None,
                 headers={'OCS-APIRequest': 'true'})
 
-    def test_update_user(self):
+    def test_update_user(self):  # noqa: D102
         WEBSITE = 'website'
         DISPLAYNAME = 'displayname'
         with patch(
@@ -169,7 +174,7 @@ class OCSUserAPI(BaseTestCase):
                 headers={'OCS-APIRequest': 'true'})
             assert mock.call_count == 2
 
-    def test_get_user_editable_fields(self):
+    def test_get_user_editable_fields(self):  # noqa: D102
         FIELDS = [
             'displayname', 'email', 'additional_mail', 'phone', 'address',
             'website', 'twitter', 'organisation', 'role', 'headline', 'biography',
@@ -197,7 +202,7 @@ class OCSUserAPI(BaseTestCase):
             for field in FIELDS:
                 assert field in response
 
-    def test_disable_user(self):
+    def test_disable_user(self):  # noqa: D102
         with patch(
                 'httpx.AsyncClient.request',
                 new_callable=AsyncMock,
@@ -212,7 +217,7 @@ class OCSUserAPI(BaseTestCase):
                 data={'format': 'json'},
                 headers={'OCS-APIRequest': 'true'})
 
-    def test_enable_user(self):
+    def test_enable_user(self):  # noqa: D102
         with patch(
                 'httpx.AsyncClient.request',
                 new_callable=AsyncMock,
@@ -227,7 +232,7 @@ class OCSUserAPI(BaseTestCase):
                 data={'format': 'json'},
                 headers={'OCS-APIRequest': 'true'})
 
-    def test_remove_user(self):
+    def test_remove_user(self):  # noqa: D102
         with patch(
                 'httpx.AsyncClient.request',
                 new_callable=AsyncMock,
@@ -242,7 +247,7 @@ class OCSUserAPI(BaseTestCase):
                 data={'format': 'json'},
                 headers={'OCS-APIRequest': 'true'})
 
-    def test_get_self_groups(self):
+    def test_get_self_groups(self):  # noqa: D102
         json_response = bytes(SIMPLE_100.format('{"groups": []}'), 'utf-8')
         with patch(
                 'httpx.AsyncClient.request',
@@ -257,9 +262,9 @@ class OCSUserAPI(BaseTestCase):
                 url=f'{ENDPOINT}/ocs/v1.php/cloud/users/{USER}/groups?format=json',
                 data=None,
                 headers={'OCS-APIRequest': 'true'})
-            assert response['groups'] == []
+            assert response == []
 
-    def test_get_user_groups(self):
+    def test_get_user_groups(self):  # noqa: D102
         TESTUSER = 'testuser'
         json_response = bytes(SIMPLE_100.format('{"groups": []}'), 'utf-8')
         with patch(
@@ -275,9 +280,9 @@ class OCSUserAPI(BaseTestCase):
                 url=f'{ENDPOINT}/ocs/v1.php/cloud/users/{TESTUSER}/groups?format=json',
                 data=None,
                 headers={'OCS-APIRequest': 'true'})
-            assert response['groups'] == []
+            assert response == []
 
-    def test_add_user_to_group(self):
+    def test_add_user_to_group(self):  # noqa: D102
         GROUP = 'group'
         with patch(
                 'httpx.AsyncClient.request',
@@ -293,7 +298,7 @@ class OCSUserAPI(BaseTestCase):
                 data={'groupid': GROUP, 'format': 'json'},
                 headers={'OCS-APIRequest': 'true'})
 
-    def test_add_user_to_nonexistent_group(self):
+    def test_add_user_to_nonexistent_group(self):  # noqa: D102
         GROUP = 'noexist_group'
         with patch(
                 'httpx.AsyncClient.request',
@@ -312,7 +317,7 @@ class OCSUserAPI(BaseTestCase):
                     headers={'OCS-APIRequest': 'true'})
                 self.assertRaises(NextCloudAsyncException)
 
-    def test_remove_user_from_group(self):
+    def test_remove_user_from_group(self):  # noqa: D102
         GROUP = 'group'
         with patch(
                 'httpx.AsyncClient.request',
@@ -328,7 +333,7 @@ class OCSUserAPI(BaseTestCase):
                 data={'groupid': GROUP, 'format': 'json'},
                 headers={'OCS-APIRequest': 'true'})
 
-    def test_promote_user_to_subadmin(self):
+    def test_promote_user_to_subadmin(self):  # noqa: D102
         GROUP = 'group'
         with patch(
                 'httpx.AsyncClient.request',
@@ -344,7 +349,7 @@ class OCSUserAPI(BaseTestCase):
                 data={'groupid': GROUP, 'format': 'json'},
                 headers={'OCS-APIRequest': 'true'})
 
-    def test_demote_user_from_subadmin(self):
+    def test_demote_user_from_subadmin(self):  # noqa: D102
         GROUP = 'group'
         with patch(
                 'httpx.AsyncClient.request',
@@ -360,7 +365,7 @@ class OCSUserAPI(BaseTestCase):
                 data={'groupid': GROUP, 'format': 'json'},
                 headers={'OCS-APIRequest': 'true'})
 
-    def test_get_user_subadmin_groups(self):
+    def test_get_user_subadmin_groups(self):  # noqa: D102
         TESTUSER = 'testuser'
         json_response = EMPTY_100
         with patch(
@@ -378,7 +383,7 @@ class OCSUserAPI(BaseTestCase):
                 headers={'OCS-APIRequest': 'true'})
             assert response == []
 
-    def test_resend_welcome_email(self):
+    def test_resend_welcome_email(self):  # noqa: D102
         TESTUSER = 'testuser'
         json_response = EMPTY_100
         with patch(

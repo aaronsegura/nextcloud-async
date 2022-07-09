@@ -5,6 +5,7 @@ class NextCloudAsyncException(Exception):
     """Generic Exception."""
 
     def __init__(self, *args, **kwargs):
+        """Initialize our very own exception."""
         super(BaseException, self).__init__()
 
 

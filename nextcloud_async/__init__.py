@@ -68,7 +68,7 @@ class NextCloudAsync(
         App Management API
         LDAP Configuration API
         Status API
-        Share API
+        Share API (except Federated shares)
         Talk/spreed API
         Notifications API
         Login Flow v2 API
@@ -80,13 +80,14 @@ class NextCloudAsync(
         Reaction API
         Maps API
         User Preferences API
+        Federated Shares API
 
     Please open an issue if I am missing any APIs so they can be added:
-    https://github.com/aaronsegura/nextcloud_aio/issues
+    https://github.com/aaronsegura/nextcloud_async/issues
 
     ### Simple usage example
 
-        > from nextcloud_aio import NextCloudAsync
+        > from nextcloud_async import NextCloudAsync
         > import httpx
 
         > u = 'user'

@@ -1,3 +1,4 @@
+# noqa: D100
 
 from urllib.parse import urlencode
 from .base import BaseTestCase
@@ -11,9 +12,9 @@ import httpx
 from unittest.mock import patch
 
 
-class OCSGroupsAPI(BaseTestCase):
+class OCSGroupsAPI(BaseTestCase):  # noqa: D101
 
-    def test_search_groups(self):
+    def test_search_groups(self):  # noqa: D102
         SEARCH = 'OK Go'
         RESPONSE = 'OK_GROUP'
         json_response = bytes(
@@ -36,9 +37,9 @@ class OCSGroupsAPI(BaseTestCase):
                     f'limit=100&offset=0&{search_encoded}&format=json',
                 data=None,
                 headers={'OCS-APIRequest': 'true'})
-            assert RESPONSE in response['groups']
+            assert RESPONSE in response
 
-    def test_create_group(self):
+    def test_create_group(self):  # noqa: D102
         GROUP = 'BobMouldFanClub'
         with patch(
             'httpx.AsyncClient.request',
@@ -55,7 +56,7 @@ class OCSGroupsAPI(BaseTestCase):
                 headers={'OCS-APIRequest': 'true'})
             assert response == []
 
-    def test_get_group_members(self):
+    def test_get_group_members(self):  # noqa: D102
         GROUP = 'FeelinAlright'
         GROUPUSER = 'JoeCocker'
         json_response = bytes(SIMPLE_100.format(
@@ -75,9 +76,9 @@ class OCSGroupsAPI(BaseTestCase):
                 url=f'{ENDPOINT}/ocs/v1.php/cloud/groups/{GROUP}?format=json',
                 data=None,
                 headers={'OCS-APIRequest': 'true'})
-            assert GROUPUSER in response['users']
+            assert GROUPUSER in response
 
-    def test_get_group_subadmins(self):
+    def test_get_group_subadmins(self):  # noqa: D102
         GROUP = 'UMO'
         GROUPUSER = 'Ruban Nielson'
         json_response = bytes(SIMPLE_100.format(
@@ -99,7 +100,7 @@ class OCSGroupsAPI(BaseTestCase):
                 headers={'OCS-APIRequest': 'true'})
             assert GROUPUSER in response['users']
 
-    def test_remove_group(self):
+    def test_remove_group(self):  # noqa: D102
         GROUP = 'BobMouldFanClub'
         with patch(
             'httpx.AsyncClient.request',

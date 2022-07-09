@@ -1,3 +1,4 @@
+# noqa: D100
 
 from nextcloud_async.api.ocs.status import StatusType as ST
 
@@ -13,9 +14,10 @@ from unittest.mock import patch
 
 CLEAR_AT = (dt.datetime.now() + dt.timedelta(seconds=300)).timestamp()
 
-class OCSStatusAPI(BaseTestCase):
 
-    def test_get_status(self):
+class OCSStatusAPI(BaseTestCase):  # noqa: D101
+
+    def test_get_status(self):  # noqa: D102
         json_response = bytes(
             '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},'
             f'"data":{{"userId":"{USER}","message":null,"messageId":null,"mes'
@@ -35,7 +37,7 @@ class OCSStatusAPI(BaseTestCase):
                 data=None,
                 headers={'OCS-APIRequest': 'true'})
 
-    def test_set_status(self):
+    def test_set_status(self):  # noqa: D102
         STATUS = ST['away']
         json_response = bytes(
             '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},'
@@ -56,7 +58,7 @@ class OCSStatusAPI(BaseTestCase):
                 data={'format': 'json', 'statusType': STATUS.name},
                 headers={'OCS-APIRequest': 'true'})
 
-    def test_get_predefined_statuses(self):
+    def test_get_predefined_statuses(self):  # noqa: D102
         json_response = bytes(
             '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},'
             '"data":[{"id":"meeting","icon":"\\ud83d\\udcc5","message":"In a '
@@ -83,7 +85,7 @@ class OCSStatusAPI(BaseTestCase):
                 data=None,
                 headers={'OCS-APIRequest': 'true'})
 
-    def test_choose_predefined_status(self):
+    def test_choose_predefined_status(self):  # noqa: D102
         MESSAGEID = 'meeting'
 
         json_response = bytes(
@@ -106,7 +108,7 @@ class OCSStatusAPI(BaseTestCase):
                 data={'format': 'json', 'messageId': MESSAGEID, 'clearAt': CLEAR_AT},
                 headers={'OCS-APIRequest': 'true'})
 
-    def test_set_status_message(self):
+    def test_set_status_message(self):  # noqa: D102
         MESSAGE = 'Stinkfist'
         json_response = bytes(
             '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},'
@@ -128,7 +130,7 @@ class OCSStatusAPI(BaseTestCase):
                 data={'format': 'json', 'message': MESSAGE, 'clearAt': CLEAR_AT},
                 headers={'OCS-APIRequest': 'true'})
 
-    def test_clear_status_message(self):
+    def test_clear_status_message(self):  # noqa: D102
         with patch(
                 'httpx.AsyncClient.request',
                 new_callable=AsyncMock,
@@ -143,7 +145,7 @@ class OCSStatusAPI(BaseTestCase):
                 data={'format': 'json'},
                 headers={'OCS-APIRequest': 'true'})
 
-    def test_get_all_user_statuses(self):
+    def test_get_all_user_statuses(self):  # noqa: D102
         json_response = bytes(
             '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},'
             f'"data":[{{"userId":"{USER}","message":null,"icon":null,"clearA'
@@ -159,11 +161,11 @@ class OCSStatusAPI(BaseTestCase):
                 method='GET',
                 auth=(USER, PASSWORD),
                 url=f'{ENDPOINT}/ocs/v2.php/apps/user_status/api/v1/statuses?'
-                    'limit=10&offset=0&format=json',
+                    'limit=100&offset=0&format=json',
                 data=None,
                 headers={'OCS-APIRequest': 'true'})
 
-    def test_get_user_status(self):
+    def test_get_user_status(self):  # noqa: D102
         json_response = bytes(
             '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},'
             f'"data":{{"userId":"{USER}","message":null,"icon":null,"clearAt"'

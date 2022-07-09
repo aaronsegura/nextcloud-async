@@ -28,7 +28,10 @@ class Wipe(object):
     async def get_wipe_status(self) -> bool:
         """Check for remote wipe flag.
 
-        Returns `True` or `False`.
+        Returns
+        -------
+            bool: Whether user has flagged this device for remote wiping.
+
         """
         response = await self.request(
             method='POST',
@@ -45,7 +48,13 @@ class Wipe(object):
         return False
 
     async def notify_wipe_status(self):
-        """Notify server that device has been wiped."""
+        """Notify server that device has been wiped.
+
+        Returns
+        -------
+            Empty 200 Response
+
+        """
         return await self.request(
             method='POST',
             url=f'{self.endpoint}/index.php/core/wipe/success',

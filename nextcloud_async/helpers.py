@@ -1,11 +1,12 @@
+"""Helper functions for NextCloudAsync."""
+
 import urllib
 
 from typing import Dict
 
 
 def recursive_urlencode(d: Dict):
-    """
-    URL-encode a multidimensional dictionary PHP-style.
+    """URL-encode a multidimensional dictionary PHP-style.
 
     https://stackoverflow.com/questions/4013838/urlencode-a-multidimensional-dictionary-in-python/4014164#4014164
 
@@ -15,13 +16,13 @@ def recursive_urlencode(d: Dict):
     >>> recursive_urlencode(data)
     u'a=b%26c&j=k&d[e][f%26g]=h%2Ai'
     """
-    def recursion(d, base=[]):
+    def _recursion(d, base=[]):
         pairs = []
 
         for key, value in d.items():
             new_base = base + [key]
             if hasattr(value, 'values'):
-                pairs += recursion(value, new_base)
+                pairs += _recursion(value, new_base)
             else:
                 new_pair = None
                 if len(new_base) > 1:
@@ -33,12 +34,11 @@ def recursive_urlencode(d: Dict):
                 pairs.append(new_pair)
         return pairs
 
-    return '&'.join(recursion(d))
+    return '&'.join(_recursion(d))
 
 
 def resolve_element_list(data: Dict, list_keys=[]):
-    """
-    Resolve all 'element' items into a list.
+    """Resolve all 'element' items into a list.
 
     A side-effect of using xmltodict on nextcloud results is that lists of
     items come back differently depending on how many results there are, and

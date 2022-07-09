@@ -1,3 +1,5 @@
+"""Test GroupFoldersManager."""
+
 from .base import BaseTestCase
 from .helpers import AsyncMock
 from .constants import USER, ENDPOINT, PASSWORD, SIMPLE_100
@@ -15,9 +17,9 @@ GROUP = 'somegroup'
 TESTUSER = 'testuser'
 
 
-class OCSGroupFoldersAPI(BaseTestCase):
+class OCSGroupFoldersAPI(BaseTestCase):  # noqa: D101
 
-    def test_get_all_group_folders(self):
+    def test_get_all_group_folders(self):  # noqa: D102
         json_response = bytes(
             '{"ocs":{"meta":{"status":"ok","statuscode":100,"message":"OK",'
             f'"totalitems":"","itemsperpage":""}},"data":{{"{FOLDERID}":{{"id"'
@@ -36,9 +38,9 @@ class OCSGroupFoldersAPI(BaseTestCase):
                 url=f'{ENDPOINT}/apps/groupfolders/folders?format=json',
                 data=None,
                 headers={'OCS-APIRequest': 'true'})
-            assert response[str(FOLDERID)]['id'] == FOLDERID
+            assert response[0][str(FOLDERID)]['id'] == FOLDERID
 
-    def test_create_group_folder(self):
+    def test_create_group_folder(self):  # noqa: D102
         json_response = bytes(SIMPLE_100.format(f'{{"id":{FOLDERID}}}'), 'utf-8')
         with patch(
                 'httpx.AsyncClient.request',
@@ -55,7 +57,7 @@ class OCSGroupFoldersAPI(BaseTestCase):
                 headers={'OCS-APIRequest': 'true'})
             assert response['id'] == FOLDERID
 
-    def test_get_group_folder(self):
+    def test_get_group_folder(self):  # noqa: D102
         json_response = bytes(
             '{"ocs":{"meta":{"status":"ok","statuscode":100,"message":"OK",'
             f'"totalitems":"","itemsperpage":""}},"data":{{"id":{FOLDERID},'
@@ -76,7 +78,7 @@ class OCSGroupFoldersAPI(BaseTestCase):
                 headers={'OCS-APIRequest': 'true'})
             assert response['id'] == FOLDERID
 
-    def test_remove_group_folder(self):
+    def test_remove_group_folder(self):  # noqa: D102
         json_response = bytes(SIMPLE_100.format('{"success":true}'), 'utf-8')
         with patch(
                 'httpx.AsyncClient.request',
@@ -93,7 +95,7 @@ class OCSGroupFoldersAPI(BaseTestCase):
                 headers={'OCS-APIRequest': 'true'})
             assert response['success'] is True
 
-    def test_add_group_to_group_folder(self):
+    def test_add_group_to_group_folder(self):  # noqa: D102
         json_response = bytes(SIMPLE_100.format('{"success":true}'), 'utf-8')
         with patch(
                 'httpx.AsyncClient.request',
@@ -110,7 +112,7 @@ class OCSGroupFoldersAPI(BaseTestCase):
                 headers={'OCS-APIRequest': 'true'})
             assert response['success'] is True
 
-    def test_remove_group_from_group_folder(self):
+    def test_remove_group_from_group_folder(self):  # noqa: D102
         json_response = bytes(SIMPLE_100.format('{"success":true}'), 'utf-8')
         with patch(
                 'httpx.AsyncClient.request',
@@ -127,7 +129,7 @@ class OCSGroupFoldersAPI(BaseTestCase):
                 headers={'OCS-APIRequest': 'true'})
             assert response['success'] is True
 
-    def test_enable_advanced_permissions(self):
+    def test_enable_advanced_permissions(self):  # noqa: D102
         json_response = bytes(SIMPLE_100.format('{"success":true}'), 'utf-8')
         with patch(
                 'httpx.AsyncClient.request',
@@ -145,7 +147,7 @@ class OCSGroupFoldersAPI(BaseTestCase):
                 headers={'OCS-APIRequest': 'true'})
             assert response['success'] is True
 
-    def test_disable_advanced_permissions(self):
+    def test_disable_advanced_permissions(self):  # noqa: D102
         json_response = bytes(SIMPLE_100.format('{"success":true}'), 'utf-8')
         with patch(
                 'httpx.AsyncClient.request',
@@ -163,7 +165,7 @@ class OCSGroupFoldersAPI(BaseTestCase):
                 headers={'OCS-APIRequest': 'true'})
             assert response['success'] is True
 
-    def test_add_group_folder_advanced_permissions(self):
+    def test_add_group_folder_advanced_permissions(self):  # noqa: D102
         TYPE = 'user'
         json_response = bytes(SIMPLE_100.format('{"success":true}'), 'utf-8')
         with patch(
@@ -186,7 +188,7 @@ class OCSGroupFoldersAPI(BaseTestCase):
                 headers={'OCS-APIRequest': 'true'})
             assert response['success'] is True
 
-    def test_remove_group_folder_advanced_permissions(self):
+    def test_remove_group_folder_advanced_permissions(self):  # noqa: D102
         TYPE = 'user'
         json_response = bytes(SIMPLE_100.format('{"success":true}'), 'utf-8')
         with patch(
@@ -209,7 +211,7 @@ class OCSGroupFoldersAPI(BaseTestCase):
                 headers={'OCS-APIRequest': 'true'})
             assert response['success'] is True
 
-    def test_set_group_folder_permissions(self):
+    def test_set_group_folder_permissions(self):  # noqa: D102
         PERM = GP['create']|GP['delete']
 
         json_response = bytes(SIMPLE_100.format('{"success":true}'), 'utf-8')
@@ -231,7 +233,7 @@ class OCSGroupFoldersAPI(BaseTestCase):
                 headers={'OCS-APIRequest': 'true'})
             assert response['success'] is True
 
-    def test_set_group_folder_quota(self):
+    def test_set_group_folder_quota(self):  # noqa: D102
         QUOTA = -3
 
         json_response = bytes(SIMPLE_100.format('{"success":true}'), 'utf-8')
@@ -253,7 +255,7 @@ class OCSGroupFoldersAPI(BaseTestCase):
                 headers={'OCS-APIRequest': 'true'})
             assert response['success'] is True
 
-    def test_rename_group_folder(self):
+    def test_rename_group_folder(self):  # noqa: D102
         NEWNAME = 'TakeFive'
 
         json_response = bytes(SIMPLE_100.format('{"success":true}'), 'utf-8')

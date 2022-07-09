@@ -1,3 +1,4 @@
+# noqa: D100
 
 from .base import BaseTestCase
 from .helpers import AsyncMock
@@ -10,9 +11,9 @@ import httpx
 from unittest.mock import patch, mock_open
 
 
-class DAVFileAPI(BaseTestCase):
+class DAVFileAPI(BaseTestCase):  # noqa: D101
 
-    def test_list_files(self):
+    def test_list_files(self):  # noqa: D102
         FILE = ''
         PROPS = ['oc:fileid', 'oc:size', 'nc:has-preview']
         RESPONSE_FILES = [
@@ -70,7 +71,7 @@ class DAVFileAPI(BaseTestCase):
 
             assert len(response) == 2
 
-    def test_download_file(self):
+    def test_download_file(self):  # noqa: D102
         FILE_CONTENTS = b'[File Contents]'
         with patch(
                 'httpx.AsyncClient.request',
@@ -87,7 +88,7 @@ class DAVFileAPI(BaseTestCase):
                 headers={})
             assert response == FILE_CONTENTS
 
-    def test_upload_file(self):
+    def test_upload_file(self):  # noqa: D102
         REMOTE_PATH = 'Documents/Somefile.md'
         LOCAL_PATH = FILE
 
@@ -108,7 +109,7 @@ class DAVFileAPI(BaseTestCase):
                 headers={})
             m_open.assert_called_once_with(FILE, 'r')
 
-    def test_create_folder(self):
+    def test_create_folder(self):  # noqa: D102
         FOLDER = FILE
 
         with patch(
@@ -126,7 +127,7 @@ class DAVFileAPI(BaseTestCase):
                 data={},
                 headers={})
 
-    def test_delete(self):
+    def test_delete(self):  # noqa: D102
         with patch(
                 'httpx.AsyncClient.request',
                 new_callable=AsyncMock,
@@ -142,7 +143,7 @@ class DAVFileAPI(BaseTestCase):
                 data={},
                 headers={})
 
-    def test_move(self):
+    def test_move(self):  # noqa: D102
         TO = f'{ENDPOINT}/remote.php/dav/files/{USER}/Documents/file.md'
 
         with patch(
@@ -163,7 +164,7 @@ class DAVFileAPI(BaseTestCase):
                     f'/https://cloud.example.com/remote.php/dav/files/dk/Documents/file.md',
                     'Overwrite': 'T'})
 
-    def test_copy(self):
+    def test_copy(self):  # noqa: D102
         FROM = 'file.md'
         TO = f'{ENDPOINT}/remote.php/dav/files/{USER}/Documents/file.md'
 
@@ -185,7 +186,7 @@ class DAVFileAPI(BaseTestCase):
                     f'/https://cloud.example.com/remote.php/dav/files/dk/Documents/file.md',
                     'Overwrite': 'F'})
 
-    def test_remove_favorite(self):
+    def test_remove_favorite(self):  # noqa: D102
         xml_response = bytes(
             '<?xml version="1.0"?>\n<d:multistatus xmlns:d="DAV:" '
             'xmlns:s="http://sabredav.org/ns" xmlns:oc="http://owncloud.org/ns" '
@@ -217,7 +218,7 @@ class DAVFileAPI(BaseTestCase):
                         'oc:favorite': None},
                     'd:status': 'HTTP/1.1 200 OK'}}
 
-    def test_set_favorite(self):
+    def test_set_favorite(self):  # noqa: D102
         xml_response = bytes(
             '<?xml version="1.0"?>\n<d:multistatus xmlns:d="DAV:" '
             'xmlns:s="http://sabredav.org/ns" xmlns:oc="http://owncloud.org/ns" '
@@ -252,7 +253,7 @@ class DAVFileAPI(BaseTestCase):
                         'oc:favorite': None},
                     'd:status': 'HTTP/1.1 200 OK'}}
 
-    def test_get_favorites(self):
+    def test_get_favorites(self):  # noqa: D102
         xml_response = bytes(
             '<?xml version="1.0"?>\n'
             '<d:multistatus xmlns:d="DAV:" xmlns:s="http://sabredav.org/ns" xmlns:'
@@ -288,7 +289,7 @@ class DAVFileAPI(BaseTestCase):
                     'd:prop': None,
                     'd:status': "HTTP/1.1 418 I'm a teapot"}} in response
 
-    def test_get_trashbin(self):
+    def test_get_trashbin(self):  # noqa: D102
         xml_response = bytes(
             '<?xml version="1.0"?>\n<d:multistatus xmlns:d="DAV:" '
             'xmlns:s="http://sabredav.org/ns" xmlns:oc="http://owncloud.org/ns" x'
@@ -334,7 +335,7 @@ class DAVFileAPI(BaseTestCase):
                             'd:quota-available-bytes': None},
                         'd:status': 'HTTP/1.1 404 Not Found'}]} in response
 
-    def test_restore_from_trashbin(self):
+    def test_restore_from_trashbin(self):  # noqa: D102
         TRASH_FILE = f'{ENDPOINT}/remote.php/dav/trashbin/{USER}/trash/{FILE}.d1655760269'
 
         with patch(
@@ -354,7 +355,7 @@ class DAVFileAPI(BaseTestCase):
                 headers={
                     'Destination': f'{ENDPOINT}/remote.php/dav/trashbin/{USER}/restore/file'})
 
-    def test_empty_trash(self):
+    def test_empty_trash(self):  # noqa: D102
         with patch(
                 'httpx.AsyncClient.request',
                 new_callable=AsyncMock,
@@ -370,7 +371,7 @@ class DAVFileAPI(BaseTestCase):
                 data={},
                 headers={})
 
-    def test_get_file_versions(self):
+    def test_get_file_versions(self):  # noqa: D102
         xml_response = bytes(
             '<?xml version="1.0"?>\n<d:multistatus xmlns:d="DAV:" x'
             'mlns:s="http://sabredav.org/ns" xmlns:oc="http://owncloud.org/ns'
@@ -393,7 +394,7 @@ class DAVFileAPI(BaseTestCase):
                 data={},
                 headers={})
 
-    def test_restore_file_version(self):
+    def test_restore_file_version(self):  # noqa: D102
         xml_response = bytes('', 'utf-8')
         VERSION = f'/remote.php/dav/versions/{USER}/versions/2875527/1655762900'
         with patch(
@@ -413,6 +414,6 @@ class DAVFileAPI(BaseTestCase):
                     'Destination':
                         f'{ENDPOINT}/remote.php/dav/versions/{USER}/restore/file'})
 
-    def test_upload_file_chunked(self):
+    def test_upload_file_chunked(self):  # noqa: D102
         # TODO: ^-this-v
         pass

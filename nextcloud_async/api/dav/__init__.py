@@ -5,7 +5,7 @@ https://docs.nextcloud.com/server/latest/developer_manual/client_apis/WebDAV/ind
 import xmltodict
 import json
 
-from typing import Dict
+from typing import Dict, Any
 
 from nextcloud_async.exceptions import NextCloudAsyncException
 
@@ -13,15 +13,38 @@ from nextcloud_async.api import NextCloudBaseAPI
 
 
 class NextCloudDAVAPI(NextCloudBaseAPI):
+    """Interace with Nextcloud DAV interface for file operations."""
 
     async def dav_query(
             self,
             method: str,
             url: str = None,
             sub: str = '',
-            data: Dict[str, object] = {},
-            headers: Dict[str, object] = {}) -> Dict:
+            data: Dict[str, Any] = {},
+            headers: Dict[str, Any] = {}) -> Dict:
+        """Send a query to the Nextcloud DAV Endpoint.
 
+        Args
+        ----
+            method (str): HTTP Method to use
+
+            url (str, optional): URL, if outside of provided cloud. Defaults to None.
+
+            sub (str, optional): The part after the URL. Defaults to ''.
+
+            data (dict, optional): Data to submit. Defaults to {}.
+
+            headers (dict, optional): Headers for submission. Defaults to {}.
+
+        Raises
+        ------
+            NextCloudAsyncException: Server API Errors
+
+        Returns
+        -------
+            Dict: Response content
+
+        """
         response = await self.request(method, url=url, sub=sub, data=data, headers=headers)
         if response.content:
             response_data = json.loads(json.dumps(xmltodict.parse(response.content)))
