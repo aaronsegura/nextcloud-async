@@ -1,5 +1,7 @@
-"""
-https://docs.nextcloud.com/server/22/admin_manual/configuration_user/instruction_set_for_groups.html
+"""Nextcloud Group Management API.
+
+https://docs.nextcloud.com/server/22/admin_manual/configuration_user/\
+instruction_set_for_groups.html
 """
 
 from typing import Optional

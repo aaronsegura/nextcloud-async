@@ -1,11 +1,10 @@
-"""
-https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/user_auth_ldap_api.html
-"""
+# noqa: D400 D415
+"""https://docs.nextcloud.com/server/latest/admin_manual/\
+configuration_user/user_auth_ldap_api.html"""
 
 from typing import Dict
 
 from nextcloud_async.helpers import recursive_urlencode
-from nextcloud_async.exceptions import NextCloudAsyncException
 
 
 class OCSLdapAPI(object):

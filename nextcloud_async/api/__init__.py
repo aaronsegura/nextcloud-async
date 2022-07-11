@@ -8,6 +8,12 @@ import httpx
 from urllib.parse import urlencode
 from typing import Dict, Optional
 
+from nextcloud_async.exceptions import (
+    NextCloudForbidden,
+    NextCloudUnauthorized,
+    NextCloudNotFound,
+    NextCloudRequestTimeout)
+
 
 class NextCloudBaseAPI(object):
     """The Base API interface."""
@@ -67,9 +73,22 @@ class NextCloudBaseAPI(object):
             sub = f'{sub}?{urlencode(data, True)}'
             data = None
 
-        return await self.client.request(
-            method=method,
-            auth=(self.user, self.password),
-            url=f'{url}{sub}' if url else f'{self.endpoint}{sub}',
-            data=data,
-            headers=headers)
+        try:
+            response = await self.client.request(
+                method=method,
+                auth=(self.user, self.password),
+                url=f'{url}{sub}' if url else f'{self.endpoint}{sub}',
+                data=data,
+                headers=headers)
+        except httpx.ReadTimeout:
+            raise NextCloudRequestTimeout()
+
+        match response.status_code:
+            case 401:
+                raise NextCloudUnauthorized()
+            case 403:
+                raise NextCloudForbidden()
+            case 404:
+                raise NextCloudNotFound()
+
+        return response

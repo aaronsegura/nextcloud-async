@@ -1,4 +1,4 @@
-"""API interface."""
+"""Talk API interface."""
 
 import json
 
@@ -10,34 +10,17 @@ from .constants import (
     NotificationLevel,
     ListableScope)
 from .rich_objects import NextCloudTalkRichObject
-from .exceptions import NextCloudTalkException, NextCloudTalkNotCapable
+from .exceptions import NextCloudTalkNotCapable
 
 
-TALK_CAPS = 'capabilities.spreed.features.element'
+TALK_CAPS = 'capabilities.spreed.features'
 
 
 class NextCloudTalkAPI(object):
-    """Base class for talk API objects."""
+    """Interact with Nextcloud Talk API."""
 
     conv_stub = None
     chat_sub = None
-
-    async def talk_query(
-            self,
-            data: dict = {},
-            url: str = '',
-            sub: str = '',
-            method: str = 'GET',
-            headers: Optional[Dict] = {},
-            include_headers: list = []):
-
-        return await self.ocs_query(
-            url=url,
-            sub=sub,
-            data=data,
-            method=method,
-            headers=headers,
-            include_headers=include_headers)
 
     async def __get_stubs(self):
         if 'conversation-v4' in await self.get_capabilities(TALK_CAPS):
@@ -76,20 +59,11 @@ class NextCloudTalkAPI(object):
             'noStatusUpdate': 1 if status_update else 0,
             'includeStatus': include_status,
         }
-        request = await self.talk_query(
+        request = await self.ocs_query(
+            method='GET',
             sub=f'{self.conv_stub}/room',
             data=data)
-
-        if not request:  # Zero results
-            rooms = []
-        elif isinstance(request['element'], dict):  # One Result
-            rooms = [request['element']]
-        elif isinstance(request['element'], list):  # Multiple Results
-            rooms = request['element']
-        else:
-            raise NextCloudTalkException(f'Unexpected result: {request["element"]}')
-
-        return rooms
+        return request
 
     async def create_conversation(
             self,
@@ -98,6 +72,7 @@ class NextCloudTalkAPI(object):
             room_name: str = '',
             source: str = '') -> Dict:
         """Create a new conversation.
+
         Method: POST
         Endpoint: /room
 
@@ -129,7 +104,7 @@ class NextCloudTalkAPI(object):
             'source': source,
             'roomName': room_name
         }
-        return await self.talk_query(
+        return await self.ocs_query(
             method="POST",
             sub=f'{self.conv_stub}/room',
             data=data)
@@ -146,7 +121,7 @@ class NextCloudTalkAPI(object):
         if not self.conv_stub:
             await self.__get_stubs()
 
-        room_data = await self.talk_query(
+        room_data = await self.ocs_query(
             sub=f'{self.conv_stub}/room/{room_token}')
         return room_data
 
@@ -155,18 +130,7 @@ class NextCloudTalkAPI(object):
         if not self.conv_stub:
             await self.__get_stubs()
 
-        request = await self.talk_query(sub=f'{self.conv_stub}/listed-room')
-
-        if not request:  # Zero results
-            rooms = []
-        elif isinstance(request['element'], dict):  # One Result
-            rooms = [request['element']]
-        elif isinstance(request['element'], list):  # Multiple Results
-            rooms = request['element']
-        else:
-            raise NextCloudTalkException(f"Unknown result: {request}")
-
-        return rooms
+        return await self.ocs_query(method='GET', sub=f'{self.conv_stub}/listed-room')
 
     async def rename_conversation(self, token: str, new_name: str) -> Dict:
         """Rename the room.
@@ -190,7 +154,7 @@ class NextCloudTalkAPI(object):
         if not self.conv_stub:
             await self.__get_stubs()
 
-        return await self.talk_query(
+        return await self.ocs_query(
             method='PUT',
             sub=f'{self.conv_stub}/room/{token}',
             data={'roomName': new_name})
@@ -213,7 +177,7 @@ class NextCloudTalkAPI(object):
         if not self.conv_stub:
             await self.__get_stubs()
 
-        return await self.talk_query(
+        return await self.ocs_query(
             method='DELETE',
             sub=f'{self.conv_stub}/room/{token}')
 
@@ -244,7 +208,7 @@ class NextCloudTalkAPI(object):
         if 'room-description' not in self.get_capabilities(TALK_CAPS):
             raise NextCloudTalkNotCapable('Server does not support setting room descriptions')
 
-        response = await self.talk_query(
+        response = await self.ocs_query(
             method='PUT',
             sub=f'{self.conv_stub}/room/{token}/description',
             data={'description': description})
@@ -252,7 +216,8 @@ class NextCloudTalkAPI(object):
         return response
 
     async def conversation_allow_guests(self, token: str, allow_guests: bool) -> Dict:
-        """Allow guests in a conversation (public conversation)#
+        """Allow guests in a conversation.
+
         Method: POST or DELETE
         Endpoint: /room/{token}/public
 
@@ -270,11 +235,11 @@ class NextCloudTalkAPI(object):
             await self.__get_stubs()
 
         if allow_guests:
-            return await self.talk_query(
+            return await self.ocs_query(
                 method='POST',
                 sub=f'{self.conv_stub}/room/{token}/public')
         else:
-            return await self.talk_query(
+            return await self.ocs_query(
                 method='DELETE',
                 sub=f'{self.conv_stub}/room/{token}/public')
 
@@ -306,7 +271,7 @@ class NextCloudTalkAPI(object):
         if 'read-only-rooms' not in self.get_capabilies(TALK_CAPS):
             raise NextCloudTalkNotCapable('Server doesn\'t support read-only rooms.')
 
-        return await self.talk_query(
+        return await self.ocs_query(
             method='PUT',
             sub=f'{self.conv_stub}/room/{token}/read-only',
             data={'state': state})
@@ -330,12 +295,12 @@ class NextCloudTalkAPI(object):
         if not self.conv_stub:
             await self.__get_stubs()
 
-        return await self.talk_query(
+        return await self.ocs_query(
             method='PUT',
             sub=f'{self.conv_stub}/room/{token}/password',
             data={'password': password})
 
-    async def add_to_favorites(self, token) -> Dict:
+    async def add_conversation_to_favorites(self, token) -> Dict:
         """Add conversation to favorites
 
         Required capability: favorites
@@ -355,11 +320,11 @@ class NextCloudTalkAPI(object):
         if 'favorites' not in self.get_capabilities(TALK_CAPS):
             raise NextCloudTalkNotCapable('Server does not support user favorites.')
 
-        return await self.talk_query(
+        return await self.ocs_query(
             method='POST',
             sub=f'{self.conv_stub}/room/{token}/favorite')
 
-    async def remove_from_favorites(self, token) -> Dict:
+    async def remove_conversation_from_favorites(self, token) -> Dict:
         """Remove conversation from favorites
 
         Required capability: favorites
@@ -379,7 +344,7 @@ class NextCloudTalkAPI(object):
         if 'favorites' not in self.get_capabilities(TALK_CAPS):
             raise NextCloudTalkNotCapable('Server does not support user favorites.')
 
-        return await self.talk_query(
+        return await self.ocs_query(
             method='DELETE',
             sub=f'{self.conv_stub}/room/{token}/favorites')
 
@@ -409,7 +374,7 @@ class NextCloudTalkAPI(object):
         data = {
             'level': NotificationLevel[notification_level].value
         }
-        return await self.talk_query(
+        return await self.ocs_query(
             method='POST',
             sub=f'{self.conv_stub}/room/{token}/notify',
             data=data)
@@ -446,7 +411,7 @@ class NextCloudTalkAPI(object):
         data = {
             'level': NotificationLevel[notification_level].value
         }
-        return await self.talk_query(
+        return await self.ocs_query(
             method='POST',
             sub=f'{self.conv_stub}/room/{token}/notify-calls',
             data=data)
@@ -488,7 +453,7 @@ class NextCloudTalkAPI(object):
             'mode': scope,
             'permissions': permissions,
         }
-        return await self.talk_query(
+        return await self.ocs_query(
             method='PUT',
             sub=f'{self.conv_stub}/room/{token}/permissions/{scope}',
             data=data)
@@ -539,7 +504,7 @@ class NextCloudTalkAPI(object):
             'password': password,
             'force': force,
         }
-        return await self.talk_query(
+        return await self.ocs_query(
             method='POST',
             sub=f'{self.conv_stub}/room/{token}/participants/active',
             data=data)
@@ -559,7 +524,7 @@ class NextCloudTalkAPI(object):
         if not self.conv_stub:
             await self.__get_stubs()
 
-        return await self.talk_query(
+        return await self.ocs_query(
             method='DELETE',
             sub=f'{self.conv_stub}/room/{token}/participants/self')
 
@@ -601,7 +566,7 @@ class NextCloudTalkAPI(object):
         if not self.conv_stub:
             await self.__get_stubs()
 
-        return await self.talk_query(
+        return await self.ocs_query(
             sub=f'{self.conv_stub}/room/{token}/participants',
             data={'newParticipant': invitee, 'source': source})
 
@@ -613,7 +578,7 @@ class NextCloudTalkAPI(object):
         if not self.conv_stub:
             await self.__get_stubs()
 
-        return await self.talk_query(
+        return await self.ocs_query(
             sub=f'/room/{token}/participants',
             data={'includeStatus': include_status})
 
@@ -669,7 +634,7 @@ class NextCloudTalkAPI(object):
         if not self.conv_stub:
             await self.__get_stubs()
 
-        response = await self.talk_query(
+        response = await self.ocs_query(
             method='POST',
             sub=f'{self.chat_stub}/chat/{token}',
             data={
@@ -683,7 +648,7 @@ class NextCloudTalkAPI(object):
 
         return response
 
-    async def conversation_change_scope(self, token, scope: str) -> Optional[Dict]:
+    async def set_conversation_scope(self, token, scope: str) -> Optional[Dict]:
         """Change scope for conversation.
 
         Change who can see the conversation.
@@ -713,7 +678,7 @@ class NextCloudTalkAPI(object):
         if 'listable-rooms' not in self.get_capabilities(TALK_CAPS):
             raise NextCloudTalkNotCapable('Server does not support listable rooms.')
 
-        self.talk_query(
+        self.ocs_query(
             method='PUT',
             sub=f'{self.conv_stub}/room/{token}/listable',
             data={'scope': ListableScope[scope].value})
@@ -754,7 +719,7 @@ class NextCloudTalkAPI(object):
             'mode': mode,
             'permissions': permissions.value,
         }
-        return await self.talk_query(
+        return await self.ocs_query(
             method='PUT',
             sub=f'{self.conv_stub}/room/{token}/attendees/permissions/all',
             data=data)
@@ -778,7 +743,7 @@ class NextCloudTalkAPI(object):
         404 Not Found When the conversation could not be found for the
         participant
         """
-        return await self.talk_query(
+        return await self.ocs_query(
             method='POST',
             url=f'{self.endpoint}/ocs/v2.php/apps/spreed/api/v1',
             sub=f'/guest/{token}/name',
@@ -873,7 +838,7 @@ class NextCloudTalkAPI(object):
         reactionsSelf	[array]	Optional: When the user reacted this is the list of emojis
         the user reacted with
         """
-        response = await self.talk_query(
+        response, headers = await self.ocs_query(
             method='GET',
             sub=f'{self.chat_stub}/chat/{token}',
             data={
@@ -887,12 +852,7 @@ class NextCloudTalkAPI(object):
             },
             include_headers=['X-Chat-Last-Given', 'X-Chat-Last-Common-Read']
         )
-        if isinstance(response['element'], dict):
-            return [response['element']]
-        elif isinstance(response['element'], list):
-            return response['element']
-        else:
-            raise NextCloudTalkException(f'Unknown return type for response: {response}')
+        return response
 
     async def send_rich_object_to_conversation(
             self,
@@ -943,7 +903,7 @@ class NextCloudTalkAPI(object):
         if not self.conv_stub:
             await self.__get_stubs()
 
-        response = await self.talk_query(
+        response = await self.ocs_query(
             method='POST',
             sub=f'{self.chat_stub}/chat/{token}/share',
             data={
@@ -986,7 +946,7 @@ class NextCloudTalkAPI(object):
         if 'clear-history' not in self.get_capabilities(TALK_CAPS):
             raise NextCloudTalkNotCapable('Server does not support deletion of chat history.')
 
-        response = await self.talk_query(
+        response = await self.ocs_query(
             method='DELETE',
             sub=f'{self.chat_stub}/chat/{token}',
             include_headers=['X-Chat-Last-Common-Read'],
@@ -1042,7 +1002,7 @@ class NextCloudTalkAPI(object):
         if not self.conv_stub:
             await self.__get_stubs()
 
-        return self.talk_query(
+        return self.ocs_query(
             method='GET',
             sub=f'{self.chat_stub}/chat/{token}/mentions',
             data={
@@ -1077,7 +1037,7 @@ class NextCloudTalkAPI(object):
         #### Exceptions:
         403 When path is already shared
         """
-        self.talk_query(
+        self.ocs_query(
             method='POST',
             url=f'{self.endpoint}/ocs/v2.php/apps/files_sharing/api/v1/shares',
             data={
@@ -1119,7 +1079,7 @@ class NextCloudTalkAPI(object):
         if not self.conv_stub:
             await self.__get_stubs()
 
-        return await self.talk_query(
+        return await self.ocs_query(
             method='DELETE',
             sub=f'{self.conv_stub}/room/{token}/attendees',
             data={'attendeeId': attendee_id})
@@ -1149,7 +1109,7 @@ class NextCloudTalkAPI(object):
 
         404 Not Found When the participant to remove could not be found
         """
-        return await self.talk_query(
+        return await self.ocs_query(
             method='POST',
             sub=f'/room/{token}/moderators',
             data={'attendeeId': attendee_id})
@@ -1181,7 +1141,7 @@ class NextCloudTalkAPI(object):
         if not self.conv_stub:
             await self.__get_stubs()
 
-        return await self.talk_query(
+        return await self.ocs_query(
             method='DELETE',
             sub=f'{self.conv_stub}/room/{self.room.token}/moderators',
             data={'attendeeId': attendee_id})
@@ -1231,7 +1191,7 @@ class NextCloudTalkAPI(object):
             'mode': mode,
             'permissions': permissions.value
         }
-        return self.talk_query(
+        return self.ocs_query(
             method='PUT',
             sub=f'{self.conv_stub}/room/{token}/attendees/permissions',
             data=data
@@ -1280,7 +1240,7 @@ class NextCloudTalkAPI(object):
             if 'delete-messages' not in self.get_capabilities(TALK_CAPS):
                 raise NextCloudTalkNotCapable('Server does not support message deletion.')
 
-        response = await self.talk_query(
+        response = await self.ocs_query(
             method='DELETE',
             sub=f'{self.chat_stub}/chat/{token}/{message_id}',
             include_headers=['X-Chat-Last-Common-Read'])
@@ -1341,7 +1301,7 @@ class NextCloudTalkAPI(object):
         if not self.conv_stub:
             await self.__get_stubs()
 
-        response = await self.talk_query(
+        response = await self.ocs_query(
             method='POST' if read else 'DELETE',
             sub=f'{self.chat_stub}/chat/{token}/read',
             data={'lastReadMessage': {message_id}},

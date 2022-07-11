@@ -8,7 +8,7 @@ import datetime as dt
 from enum import Enum, auto
 from typing import Optional, Union
 
-from nextcloud_async.exceptions import NextCloudAsyncException
+from nextcloud_async.exceptions import NextCloudException
 
 
 class StatusType(Enum):
@@ -62,17 +62,17 @@ class OCSStatusAPI(object):
 
         Raises
         ------
-            NextCloudAsyncException: Invalid timestamp or timestamp in the past
+            NextCloudException: Invalid timestamp or timestamp in the past
 
         """
         try:
             clear_dt = dt.datetime.fromtimestamp(ts)
         except (TypeError, ValueError):
-            raise NextCloudAsyncException('Invalid `clear_at`.  Should be unix timestamp.')
+            raise NextCloudException('Invalid `clear_at`.  Should be unix timestamp.')
 
         now = dt.datetime.now()
         if clear_dt <= now:
-            raise NextCloudAsyncException('Invalid `clear_at`.  Should be in the future.')
+            raise NextCloudException('Invalid `clear_at`.  Should be in the future.')
 
     async def get_predefined_statuses(self):
         """Get list of predefined statuses.

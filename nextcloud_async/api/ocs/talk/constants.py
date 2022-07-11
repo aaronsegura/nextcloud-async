@@ -32,14 +32,14 @@ class CallNotificationLevel(Enum):
 
 
 class ReadStatusPrivacy(Enum):
-    """Does user show read status?"""
+    """Show user read status."""
 
     public = 0
     private = 1
 
 
 class ListableScope(Enum):
-    """Conversation Listing Scope"""
+    """Conversation Listing Scope."""
 
     participants = 0
     users = 1

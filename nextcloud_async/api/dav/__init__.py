@@ -7,7 +7,7 @@ import json
 
 from typing import Dict, Any
 
-from nextcloud_async.exceptions import NextCloudAsyncException
+from nextcloud_async.exceptions import NextCloudException
 
 from nextcloud_async.api import NextCloudBaseAPI
 
@@ -38,7 +38,7 @@ class NextCloudDAVAPI(NextCloudBaseAPI):
 
         Raises
         ------
-            NextCloudAsyncException: Server API Errors
+            NextCloudException: Server API Errors
 
         Returns
         -------
@@ -51,7 +51,7 @@ class NextCloudDAVAPI(NextCloudBaseAPI):
             if 'd:error' in response_data:
                 err = response_data['d:error']
 
-                raise NextCloudAsyncException(
+                raise NextCloudException(
                     f'{err["s:exception"]}: {err["s:message"]}'.replace('\n', ''))
 
             return response_data['d:multistatus']['d:response']

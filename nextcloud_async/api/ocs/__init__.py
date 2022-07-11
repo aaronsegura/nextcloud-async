@@ -8,7 +8,7 @@ import json
 from typing import Dict, Any, Optional, List
 
 from nextcloud_async.api import NextCloudBaseAPI
-from nextcloud_async.exceptions import NextCloudAsyncException
+from nextcloud_async.exceptions import NextCloudException
 
 
 class NextCloudOCSAPI(NextCloudBaseAPI):
@@ -48,7 +48,7 @@ class NextCloudOCSAPI(NextCloudBaseAPI):
 
         Raises
         ------
-            NextCloudAsyncException: Server API Errors
+            NextCloudException: Server API Errors
 
         Returns
         -------
@@ -79,8 +79,9 @@ class NextCloudOCSAPI(NextCloudBaseAPI):
             response_content = json.loads(response.content.decode('utf-8'))
             ocs_meta = response_content['ocs']['meta']
             if ocs_meta['status'] != 'ok':
-                raise NextCloudAsyncException(
-                    f'{ocs_meta["statuscode"]}: {ocs_meta["message"]}')
+                raise NextCloudException(
+                    status_code=ocs_meta['statuscode'],
+                    reason=ocs_meta['message'])
             else:
                 response_data = response_content['ocs']['data']
                 if include_headers:
@@ -159,7 +160,7 @@ class NextCloudOCSAPI(NextCloudBaseAPI):
 
         Raises
         ------
-            NextCloudAsyncException: When given invalid argument combination
+            NextCloudException: When given invalid argument combination
 
         Returns
         -------
@@ -174,7 +175,7 @@ class NextCloudOCSAPI(NextCloudBaseAPI):
                 'object_type': object_type,
                 'object_id': object_id})
         elif object_id or object_type:
-            raise NextCloudAsyncException(
+            raise NextCloudException(
                 'filter_object_type and filter_object are both required.')
 
         data.update({
