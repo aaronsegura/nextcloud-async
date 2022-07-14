@@ -93,12 +93,17 @@ class NextCloudOCSAPI(NextCloudBaseAPI):
         else:
             return None
 
-    async def get_capabilities(self, slice: Optional[str] = '') -> Dict:
-        """Get and cache capabilities for this server.
+    async def get_capabilities(self, capability: Optional[str] = None) -> Dict:
+        """Return capabilities for this server.
 
         Args
         ----
             slice (str optional): Only return specific portion of results. Defaults to ''.
+
+        Raises
+        ------
+            NextCloudException(404) on capability mising
+            NextCloudException(400) invalid capability string
 
         Returns
         -------
@@ -111,9 +116,19 @@ class NextCloudOCSAPI(NextCloudBaseAPI):
                 sub=r'/ocs/v1.php/cloud/capabilities')
         ret = self.__capabilities
 
-        for item in slice.split('.'):
-            ret = ret[item] if item else ret
-
+        if capability:
+            if isinstance(capability, str):
+                for item in capability.split('.'):
+                    if item in ret:
+                        try:
+                            ret = ret[item]
+                        except TypeError:
+                            raise NextCloudException(status_code=404, reason=f'Capability not found: {item}')
+                    else:
+                        raise NextCloudException(status_code=404, reason=f'Capability not found: {item}')
+            else:
+                raise NextCloudException(status_code=400, reason=f'`capability` must be a string.')
+        
         return ret
 
     async def get_file_guest_link(self, file_id: int) -> str:
