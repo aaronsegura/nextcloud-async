@@ -84,3 +84,14 @@ class NextCloudLoginFlowTimeout(NextCloudException):
     def __init__(self):
         """Configure exception."""
         super(NextCloudException, self).__init__()
+
+
+class NextCloudChunkedUploadException(NextCloudException):
+    """When there is more than one chunk in the local cache directory."""
+
+    status_code = 999
+    reason = "Unable to determine chunked upload state."
+
+    def __init__(self):
+        """Configure exception."""
+        super(NextCloudException, self).__init__()
