@@ -107,7 +107,7 @@ class DAVFileAPI(BaseTestCase):  # noqa: D101
                 url=f'{ENDPOINT}/remote.php/dav/files/{USER}/{REMOTE_PATH}',
                 data='[File Contents]',
                 headers={})
-            m_open.assert_called_once_with(FILE, 'r')
+            m_open.assert_called_once_with(FILE, 'rb')
 
     def test_create_folder(self):  # noqa: D102
         FOLDER = FILE
@@ -146,6 +146,7 @@ class DAVFileAPI(BaseTestCase):  # noqa: D101
     def test_move(self):  # noqa: D102
         TO = f'{ENDPOINT}/remote.php/dav/files/{USER}/Documents/file.md'
 
+        # Test no overwrite
         with patch(
                 'httpx.AsyncClient.request',
                 new_callable=AsyncMock,
@@ -153,6 +154,25 @@ class DAVFileAPI(BaseTestCase):  # noqa: D101
                     status_code=200,
                     content='')) as mock:
             asyncio.run(self.ncc.move(FILE, TO))
+
+            mock.assert_called_with(
+                method='MOVE',
+                auth=(USER, PASSWORD),
+                url=f'{ENDPOINT}/remote.php/dav/files/{USER}/{FILE}',
+                data={},
+                headers={
+                    'Destination': f'{ENDPOINT}/remote.php/dav/files/{USER}'
+                    f'/https://cloud.example.com/remote.php/dav/files/dk/Documents/file.md',
+                    'Overwrite': 'F'})
+
+        # Test with overwrite
+        with patch(
+                'httpx.AsyncClient.request',
+                new_callable=AsyncMock,
+                return_value=httpx.Response(
+                    status_code=200,
+                    content='')) as mock:
+            asyncio.run(self.ncc.move(FILE, TO, overwrite=True))
 
             mock.assert_called_with(
                 method='MOVE',

@@ -62,7 +62,7 @@ class NextCloudAsync(
     public APIs provided by the Nextcloud project.
 
     Currently covered:
-        File Management API (except chunked uploads)
+        File Management API
         User Management API
         Group Management API
         App Management API
@@ -75,7 +75,6 @@ class NextCloudAsync(
         Remote Wipe API
 
     To do:
-        File API Chunked Uploads
         Sharee API
         Reaction API
         Maps API
@@ -89,6 +88,7 @@ class NextCloudAsync(
 
         > from nextcloud_async import NextCloudAsync
         > import httpx
+        > import asyncio
 
         > u = 'user'
         > p = 'password'
