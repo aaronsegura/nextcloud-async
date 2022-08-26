@@ -20,6 +20,17 @@ class NextCloudException(Exception):
             return self.reason
 
 
+class NextCloudNotModified(NextCloudException):
+    """304 - Content not modified."""
+
+    status_code = 304
+    reason = 'Not modified'
+
+    def __init__(self):
+        """Configure exception."""
+        super(NextCloudException, self).__init__()
+
+
 class NextCloudUnauthorized(NextCloudException):
     """User account is not authorized."""
 

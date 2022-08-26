@@ -755,8 +755,8 @@ class NextCloudTalkAPI(object):
             look_into_future: bool = False,
             limit: int = 100,
             timeout: int = 30,
-            last_known_message: int = 0,
-            last_common_read: int = 0,
+            last_known_message: Optional[int] = None,
+            last_common_read: Optional[int] = None,
             set_read_marker: bool = True,
             include_last_known: bool = False) -> List[Dict]:
         """Receive chat messages of a conversation.
@@ -838,21 +838,25 @@ class NextCloudTalkAPI(object):
         reactionsSelf	[array]	Optional: When the user reacted this is the list of emojis
         the user reacted with
         """
+        data = {
+            'lookIntoFuture': 1 if look_into_future else 0,
+            'limit': limit,
+            'timeout': timeout,
+            'setReadMaker': 1 if set_read_marker else 0,
+            'includeLastKnown': 1 if include_last_known else 0
+        }
+        if last_known_message:
+            data['lastKnownMessageId'] = last_known_message
+        if last_common_read:
+            data['lastCommonReadId'] = last_common_read
+
         response, headers = await self.ocs_query(
             method='GET',
             sub=f'{self.chat_stub}/chat/{token}',
-            data={
-                'lookIntoFuture': 1 if look_into_future else 0,
-                'limit': limit,
-                'lastKnownMessageId': last_known_message,
-                'lastCommonReadId': last_common_read,
-                'timeout': timeout,
-                'setReadMaker': 1 if set_read_marker else 0,
-                'includeLastKnown': 1 if include_last_known else 0
-            },
+            data=data,
             include_headers=['X-Chat-Last-Given', 'X-Chat-Last-Common-Read']
         )
-        return response
+        return response, headers
 
     async def send_rich_object_to_conversation(
             self,

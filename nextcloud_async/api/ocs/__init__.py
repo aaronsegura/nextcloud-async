@@ -128,7 +128,7 @@ class NextCloudOCSAPI(NextCloudBaseAPI):
                         raise NextCloudException(status_code=404, reason=f'Capability not found: {item}')
             else:
                 raise NextCloudException(status_code=400, reason=f'`capability` must be a string.')
-        
+
         return ret
 
     async def get_file_guest_link(self, file_id: int) -> str:

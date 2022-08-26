@@ -10,6 +10,7 @@ from typing import Dict, Optional
 
 from nextcloud_async.exceptions import (
     NextCloudForbidden,
+    NextCloudNotModified,
     NextCloudUnauthorized,
     NextCloudNotFound,
     NextCloudRequestTimeout)
@@ -64,6 +65,16 @@ class NextCloudBaseAPI(object):
 
             headers (dict, optional): Headers for submission. Defaults to {}.
 
+        Raises
+        ------
+            304 - NextCloudNotModified
+
+            401 - NextCloudUnauthorized
+
+            403 - NextCloudForbidden
+
+            404 - NextCloudNotFound
+
         Returns
         -------
             httpx.Response: An httpx Response Object
@@ -84,6 +95,8 @@ class NextCloudBaseAPI(object):
             raise NextCloudRequestTimeout()
 
         match response.status_code:
+            case 304:
+                raise NextCloudNotModified()
             case 401:
                 raise NextCloudUnauthorized()
             case 403:
