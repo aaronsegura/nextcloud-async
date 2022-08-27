@@ -21,6 +21,9 @@ https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-sh
 https://nextcloud-talk.readthedocs.io/en/latest/reaction/
 https://github.com/nextcloud/maps/blob/master/openapi.yml
 https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-user-preferences-api.html
+https://github.com/nextcloud/cookbook/blob/0360f7184b0dee58a6dc1ec6068d40685756d1e0/docs/dev/api/0.0.4/openapi-cookbook.yaml
+https://git.mdns.eu/nextcloud/passwords/-/wikis/Developers/Index
+https://github.com/nextcloud/notes/tree/master/docs/api
 """
 
 from nextcloud_async.api.ocs import NextCloudOCSAPI
@@ -39,6 +42,7 @@ from nextcloud_async.api.dav.files import FileManager
 
 from nextcloud_async.api.loginflow import LoginFlowV2
 from nextcloud_async.api.wipe import Wipe
+from nextcloud_async.api.maps import Maps
 
 
 class NextCloudAsync(
@@ -55,7 +59,8 @@ class NextCloudAsync(
         GroupFolderManager,
         NotificationManager,
         LoginFlowV2,
-        Wipe):
+        Wipe,
+        Maps):
     """The Asynchronous Nextcloud Client.
 
     This project aims to provide an async-friendly python wrapper for all
@@ -80,6 +85,9 @@ class NextCloudAsync(
         Maps API
         User Preferences API
         Federated Shares API
+        Cookbook API
+        Passwords API
+        Notes API
 
     Please open an issue if I am missing any APIs so they can be added:
     https://github.com/aaronsegura/nextcloud_async/issues

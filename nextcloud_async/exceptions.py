@@ -24,7 +24,18 @@ class NextCloudNotModified(NextCloudException):
     """304 - Content not modified."""
 
     status_code = 304
-    reason = 'Not modified'
+    reason = 'Not modified.'
+
+    def __init__(self):
+        """Configure exception."""
+        super(NextCloudException, self).__init__()
+
+
+class NextCloudBadRequest(NextCloudException):
+    """User made an invalid request."""
+
+    status_code = 400
+    reason = 'Bad request.'
 
     def __init__(self):
         """Configure exception."""

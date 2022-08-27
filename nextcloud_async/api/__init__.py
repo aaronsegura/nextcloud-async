@@ -9,6 +9,7 @@ from urllib.parse import urlencode
 from typing import Dict, Optional
 
 from nextcloud_async.exceptions import (
+    NextCloudBadRequest,
     NextCloudForbidden,
     NextCloudNotModified,
     NextCloudUnauthorized,
@@ -68,6 +69,8 @@ class NextCloudBaseAPI(object):
         Raises
         ------
             304 - NextCloudNotModified
+
+            400 - NextCloudBadRequest
 
             401 - NextCloudUnauthorized
 

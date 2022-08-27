@@ -1,5 +1,7 @@
 # Docker things
 
+## ---- Deprecated ----
+
 Borrowed, hacked, and mangled from https://github.com/luffah/nextcloud-API
 
 These are here to facilitate quick setup of docker nextcloud containers.
