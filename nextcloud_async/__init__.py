@@ -15,11 +15,11 @@ https://github.com/nextcloud/notifications/blob/master/docs/ocs-endpoint-v2.md
 https://github.com/nextcloud/activity/blob/master/docs/endpoint-v2.md
 https://nextcloud-talk.readthedocs.io/en/latest/
 https://docs.nextcloud.com/server/latest/developer_manual/client_apis/RemoteWipe/index.html
+https://github.com/nextcloud/maps/blob/master/openapi.yml
 
 # TODO:
 https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-sharee-api.html
 https://nextcloud-talk.readthedocs.io/en/latest/reaction/
-https://github.com/nextcloud/maps/blob/master/openapi.yml
 https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-user-preferences-api.html
 https://github.com/nextcloud/cookbook/blob/0360f7184b0dee58a6dc1ec6068d40685756d1e0/docs/dev/api/0.0.4/openapi-cookbook.yaml
 https://git.mdns.eu/nextcloud/passwords/-/wikis/Developers/Index
@@ -78,11 +78,11 @@ class NextCloudAsync(
         Notifications API
         Login Flow v2 API
         Remote Wipe API
+        Maps API
 
     To do:
         Sharee API
         Reaction API
-        Maps API
         User Preferences API
         Federated Shares API
         Cookbook API

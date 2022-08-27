@@ -2,7 +2,7 @@
 
 from .base import BaseTestCase
 from .helpers import AsyncMock
-from .constants import USER, ENDPOINT, PASSWORD, EMPTY_200
+from .constants import USER, ENDPOINT, PASSWORD
 
 import asyncio
 import httpx
@@ -14,6 +14,7 @@ LAT = 48.785526
 LNG = -95.035892
 NAME = "Blueberry Hill Campground"
 COMMENT = "ALL THE BLUEBERRIES"
+
 
 class MapsAPI(BaseTestCase):  # noqa: D101
 
