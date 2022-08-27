@@ -18,12 +18,14 @@ https://docs.nextcloud.com/server/latest/developer_manual/client_apis/RemoteWipe
 https://github.com/nextcloud/maps/blob/master/openapi.yml
 
 # TODO:
+https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-share-api.html#federated-cloud-shares
 https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-sharee-api.html
 https://nextcloud-talk.readthedocs.io/en/latest/reaction/
 https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-user-preferences-api.html
 https://github.com/nextcloud/cookbook/blob/0360f7184b0dee58a6dc1ec6068d40685756d1e0/docs/dev/api/0.0.4/openapi-cookbook.yaml
 https://git.mdns.eu/nextcloud/passwords/-/wikis/Developers/Index
 https://github.com/nextcloud/notes/tree/master/docs/api
+https://deck.readthedocs.io/en/latest/API/
 """
 
 from nextcloud_async.api.ocs import NextCloudOCSAPI
@@ -88,6 +90,7 @@ class NextCloudAsync(
         Cookbook API
         Passwords API
         Notes API
+        Deck API
 
     Please open an issue if I am missing any APIs so they can be added:
     https://github.com/aaronsegura/nextcloud_async/issues

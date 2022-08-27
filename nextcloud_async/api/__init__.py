@@ -100,6 +100,8 @@ class NextCloudBaseAPI(object):
         match response.status_code:
             case 304:
                 raise NextCloudNotModified()
+            case 400:
+                raise NextCloudBadRequest()
             case 401:
                 raise NextCloudUnauthorized()
             case 403:
