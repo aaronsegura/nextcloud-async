@@ -7,6 +7,7 @@ This module provides an asyncio-friendly interface to public NextCloud APIs.
 * File Management API
 * User Management API
 * Group Management API
+* GroupFolders API
 * App Management API
 * LDAP Configuration API
 * Status API
@@ -26,6 +27,9 @@ This module provides an asyncio-friendly interface to public NextCloud APIs.
 * Passwords API
 * Notes API
 * Deck API
+* Calendar CalDAV API
+* Tasks CalDAV API
+* Contacts CardDAV API
 
 If you know of any APIs missing from this list, please open an issue at
 https://github.com/aaronsegura/nextcloud-async/issues with a link to

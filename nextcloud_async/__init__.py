@@ -26,6 +26,8 @@ https://github.com/nextcloud/cookbook/blob/0360f7184b0dee58a6dc1ec6068d40685756d
 https://git.mdns.eu/nextcloud/passwords/-/wikis/Developers/Index
 https://github.com/nextcloud/notes/tree/master/docs/api
 https://deck.readthedocs.io/en/latest/API/
+https://sabre.io/dav/building-a-caldav-client/
+https://sabre.io/dav/building-a-carddav-client/
 """
 
 from nextcloud_async.api.ocs import NextCloudOCSAPI
@@ -91,6 +93,9 @@ class NextCloudAsync(
         Passwords API
         Notes API
         Deck API
+        Contacts API (CardDAV)
+        Calendar API (CalDAV)
+        Tasks API (CalDAV)
 
     Please open an issue if I am missing any APIs so they can be added:
     https://github.com/aaronsegura/nextcloud_async/issues
