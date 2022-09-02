@@ -579,7 +579,7 @@ class NextCloudTalkAPI(object):
             await self.__get_stubs()
 
         return await self.ocs_query(
-            sub=f'/room/{token}/participants',
+            sub=f'{self.conv_stub}/room/{token}/participants',
             data={'includeStatus': include_status})
 
     async def send_to_conversation(
@@ -746,7 +746,7 @@ class NextCloudTalkAPI(object):
         return await self.ocs_query(
             method='POST',
             url=f'{self.endpoint}/ocs/v2.php/apps/spreed/api/v1',
-            sub=f'/guest/{token}/name',
+            sub=f'{self.conv_stub}/guest/{token}/name',
             data={'displayName': display_name})
 
     async def get_conversation_messages(
@@ -1115,7 +1115,7 @@ class NextCloudTalkAPI(object):
         """
         return await self.ocs_query(
             method='POST',
-            sub=f'/room/{token}/moderators',
+            sub=f'{self.conv_stub}/room/{token}/moderators',
             data={'attendeeId': attendee_id})
 
     async def demote_conversation_participant(

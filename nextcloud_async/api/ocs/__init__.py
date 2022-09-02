@@ -22,7 +22,7 @@ class NextCloudOCSAPI(NextCloudBaseAPI):
 
     async def ocs_query(
             self,
-            method: str,
+            method: str = 'GET',
             url: str = None,
             sub: str = '',
             data: Dict[Any, Any] = {},
