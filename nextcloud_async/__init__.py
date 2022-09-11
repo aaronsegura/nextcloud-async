@@ -28,6 +28,7 @@ https://github.com/nextcloud/notes/tree/master/docs/api
 https://deck.readthedocs.io/en/latest/API/
 https://sabre.io/dav/building-a-caldav-client/
 https://sabre.io/dav/building-a-carddav-client/
+https://nextcloud-talk.readthedocs.io/en/latest/poll/
 """
 
 from nextcloud_async.api.ocs import NextCloudOCSAPI
@@ -96,6 +97,7 @@ class NextCloudAsync(
         Contacts API (CardDAV)
         Calendar API (CalDAV)
         Tasks API (CalDAV)
+        Talk Polls
 
     Please open an issue if I am missing any APIs so they can be added:
     https://github.com/aaronsegura/nextcloud_async/issues

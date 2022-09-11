@@ -538,30 +538,37 @@ class NextCloudTalkAPI(object):
         Method: POST
         Endpoint: /room/{token}/participants
 
-        #### Arguments:
-        invitee	[str]	User, group, email or circle to add
+        Args:
+        ----
+            token (str): Room token
 
-        source  [str]	Source of the participant(s) as
-            returned by the autocomplete suggestion endpoint (default is 'users')
+            invitee (str): User, group, email or circle to add
 
-        #### Exceptions:
-        400 Bad Request
-            When the source type is unknown, currently users, groups, emails
-            are supported. circles are supported with circles-support capability
+            source (str, optional): Source of the participant(s) as
+            returned by the autocomplete suggestion endpoint.  Defaults
+            to 'users'
 
-        400 Bad Request
-            When the conversation is a one-to-one conversation or a conversation
-            to request a password for a share
+        Raises
+        ------
+            400 Bad Request
+                When the source type is unknown, currently users, groups, emails
+                are supported. circles are supported with circles-support capability
 
-        403 Forbidden - When the current user is not a moderator or owner
+            400 Bad Request
+                When the conversation is a one-to-one conversation or a conversation
+                to request a password for a share
 
-        404 Not Found - When the conversation could not be found for the participant
+            403 Forbidden - When the current user is not a moderator or owner
 
-        404 Not Found - When the user or group to add could not be found
+            404 Not Found - When the conversation could not be found for the participant
 
-        Returns:
-        type	[int]   In case the conversation type changed, the new value is
-                        returned
+            404 Not Found - When the user or group to add could not be found
+
+        Returns
+        -------
+            Optional[int]: In case the conversation type changed, the new value is
+            returned
+
         """
         if not self.conv_stub:
             await self.__get_stubs()
@@ -584,8 +591,8 @@ class NextCloudTalkAPI(object):
 
     async def send_to_conversation(
             self,
-            message: str,
             token: str,
+            message: str,
             reply_to: int = 0,
             display_name: Optional[str] = None,
             reference_id: Optional[str] = None,
