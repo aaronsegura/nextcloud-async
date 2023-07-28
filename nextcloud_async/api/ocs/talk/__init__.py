@@ -845,6 +845,9 @@ class NextCloudTalkAPI(object):
         reactionsSelf	[array]	Optional: When the user reacted this is the list of emojis
         the user reacted with
         """
+        if not self.conv_stub:
+            await self.__get_stubs()
+
         data = {
             'lookIntoFuture': 1 if look_into_future else 0,
             'limit': limit,
