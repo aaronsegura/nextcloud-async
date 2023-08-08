@@ -102,8 +102,14 @@ class File(NextCloudTalkRichObject):
     object_type = 'file'
     path = ''
 
+    allowed_props = ['size', 'link', 'mimetype', 'preview-available', 'mtime']
+
     def __init__(self, name: str, path: str, **kwargs):
         """Set file object metadata."""
+
+        if not all(key in self.allowed_props for key in kwargs):
+            raise ValueError(f'Supported properties {self.allowed_props}')
+
         init = {
             'id': name,
             'name': name,
