@@ -101,28 +101,27 @@ class File(NextCloudTalkRichObject):
 
     object_type = 'file'
     path = ''
-    link = ''
 
-    def __init__(self, name: str, path: str, link: str):
+    allowed_props = ['size', 'link', 'mimetype', 'preview-available', 'mtime']
+
+    def __init__(self, name: str, path: str, **kwargs):
         """Set file object metadata."""
-        data = {
+
+        if not all(key in self.allowed_props for key in kwargs):
+            raise ValueError(f'Supported properties {self.allowed_props}')
+
+        init = {
             'id': name,
             'name': name,
             'path': path,
-            'link': link,
         }
+        data = { **init, **kwargs }
         super().__init__(**data)
 
     @property
     def metadata(self):
         """Return object metadata."""
-        return {
-            'id': self.id,
-            'name': self.name,
-            'path': self.path,
-            'link': self.link,
-        }
-
+        return self.__dict__
 
 class Form(NextCloudTalkRichObject):
     """Form."""
