@@ -685,10 +685,12 @@ class NextCloudTalkAPI(object):
         if 'listable-rooms' not in self.get_capabilities(TALK_CAPS):
             raise NextCloudTalkNotCapable('Server does not support listable rooms.')
 
-        self.ocs_query(
+        response = await self.ocs_query(
             method='PUT',
             sub=f'{self.conv_stub}/room/{token}/listable',
             data={'scope': ListableScope[scope].value})
+
+        return response
 
     async def set_conversation_permissions_for_participants(
             self,
@@ -1016,7 +1018,7 @@ class NextCloudTalkAPI(object):
         if not self.conv_stub:
             await self.__get_stubs()
 
-        return self.ocs_query(
+        return await self.ocs_query(
             method='GET',
             sub=f'{self.chat_stub}/chat/{token}/mentions',
             data={
@@ -1051,12 +1053,15 @@ class NextCloudTalkAPI(object):
         #### Exceptions:
         403 When path is already shared
         """
-        self.ocs_query(
+        if not self.conv_stub:
+            await self.__get_stubs()
+
+        response = await self.ocs_query(
             method='POST',
             url=f'{self.endpoint}/ocs/v2.php/apps/files_sharing/api/v1/shares',
             data={
                 'shareType': 10,
-                'shareWith': {token},
+                'shareWith': token,
                 'path': path,
                 'reference_id': reference_id,
                 'talkMetaData': json.dumps(
@@ -1064,6 +1069,8 @@ class NextCloudTalkAPI(object):
                 )
             }
         )
+        return response
+
 
     async def remove_participant_from_conversation(
             self,
@@ -1123,6 +1130,9 @@ class NextCloudTalkAPI(object):
 
         404 Not Found When the participant to remove could not be found
         """
+        if not self.conv_stub:
+            await self.__get_stubs()
+
         return await self.ocs_query(
             method='POST',
             sub=f'{self.conv_stub}/room/{token}/moderators',
@@ -1205,7 +1215,7 @@ class NextCloudTalkAPI(object):
             'mode': mode,
             'permissions': permissions.value
         }
-        return self.ocs_query(
+        return await self.ocs_query(
             method='PUT',
             sub=f'{self.conv_stub}/room/{token}/attendees/permissions',
             data=data
