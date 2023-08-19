@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nextcloud_async"
-version = "0.0.3"
+version = "0.0.5"
 authors = [
   { name="Aaron Segura" },
 ]
@@ -21,7 +21,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10"
 ]
 keywords = ["nextcloud", "asynchronous", "spreed"]
-dependencies = ["httpx", "xmltodict", "platformdirs"]
+dependencies = ["httpx", "xmltodict", "platformdirs", "PyNaCl"]
 
 [project.urls]
 "Homepage" = "https://github.com/aaronsegura/nextcloud-async"
