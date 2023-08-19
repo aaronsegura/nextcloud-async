@@ -1332,3 +1332,36 @@ class NextCloudTalkAPI(object):
             include_headers=['X-Chat-Last-Common-Read']
         )
         return response
+
+    async def get_shared_items_overview(
+            self,
+            token: str,
+            limit: int = 10) -> List[Dict]:
+        """List overview of items shared into a chat
+
+        Method: GET
+        Endpoint: /chat/{token}/share/overview
+
+        #### Arguments:
+        limit	[int]	Number of chat messages with shares you want to get
+
+        #### Exceptions:
+        404 Not Found When the conversation could not be found for the participant
+
+        412 Precondition Failed When the lobby is active and the user is not a moderator
+
+        #### Response Data (As Message() object attributes):
+        """
+        if not self.conv_stub:
+            await self.__get_stubs()
+
+        data = {
+            'limit': limit,
+        }
+
+        response = await self.ocs_query(
+            method='GET',
+            sub=f'{self.chat_stub}/chat/{token}/share/overview',
+            data=data,
+        )
+        return response
