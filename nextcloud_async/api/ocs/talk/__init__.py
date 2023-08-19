@@ -205,7 +205,7 @@ class NextCloudTalkAPI(object):
         if not self.conv_stub:
             await self.__get_stubs()
 
-        if 'room-description' not in self.get_capabilities(TALK_CAPS):
+        if 'room-description' not in await self.get_capabilities(TALK_CAPS):
             raise NextCloudTalkNotCapable('Server does not support setting room descriptions')
 
         response = await self.ocs_query(
@@ -268,7 +268,7 @@ class NextCloudTalkAPI(object):
         if not self.conv_stub:
             await self.__get_stubs()
 
-        if 'read-only-rooms' not in self.get_capabilies(TALK_CAPS):
+        if 'read-only-rooms' not in await self.get_capabilies(TALK_CAPS):
             raise NextCloudTalkNotCapable('Server doesn\'t support read-only rooms.')
 
         return await self.ocs_query(
@@ -317,7 +317,7 @@ class NextCloudTalkAPI(object):
         if not self.conv_stub:
             await self.__get_stubs()
 
-        if 'favorites' not in self.get_capabilities(TALK_CAPS):
+        if 'favorites' not in await self.get_capabilities(TALK_CAPS):
             raise NextCloudTalkNotCapable('Server does not support user favorites.')
 
         return await self.ocs_query(
@@ -341,7 +341,7 @@ class NextCloudTalkAPI(object):
         if not self.conv_stub:
             await self.__get_stubs()
 
-        if 'favorites' not in self.get_capabilities(TALK_CAPS):
+        if 'favorites' not in await self.get_capabilities(TALK_CAPS):
             raise NextCloudTalkNotCapable('Server does not support user favorites.')
 
         return await self.ocs_query(
@@ -404,7 +404,7 @@ class NextCloudTalkAPI(object):
         if not self.conv_stub:
             await self.__get_stubs()
 
-        if 'notification-calls' not in self.get_capabilities(TALK_CAPS):
+        if 'notification-calls' not in await self.get_capabilities(TALK_CAPS):
             raise NextCloudTalkNotCapable(
                 'Server does not support setting call notification levels.')
 
@@ -682,7 +682,7 @@ class NextCloudTalkAPI(object):
         if not self.conv_stub:
             await self.__get_stubs()
 
-        if 'listable-rooms' not in self.get_capabilities(TALK_CAPS):
+        if 'listable-rooms' not in await self.get_capabilities(TALK_CAPS):
             raise NextCloudTalkNotCapable('Server does not support listable rooms.')
 
         response = await self.ocs_query(
@@ -959,7 +959,7 @@ class NextCloudTalkAPI(object):
         if not self.conv_stub:
             await self.__get_stubs()
 
-        if 'clear-history' not in self.get_capabilities(TALK_CAPS):
+        if 'clear-history' not in await self.get_capabilities(TALK_CAPS):
             raise NextCloudTalkNotCapable('Server does not support deletion of chat history.')
 
         response = await self.ocs_query(
@@ -1256,12 +1256,10 @@ class NextCloudTalkAPI(object):
         if not self.conv_stub:
             await self.__get_stubs()
 
-        if self.message == r'{object}':
-            if 'rich-object-delete' not in self.get_capabilities(TALK_CAPS):
-                raise NextCloudTalkNotCapable(
-                    'Server does not support deletion of rich objects.')
+        if 'rich-object-delete' not in await self.get_capabilities(TALK_CAPS):
+            raise NextCloudTalkNotCapable('Server does not support deletion of rich objects.')
         else:
-            if 'delete-messages' not in self.get_capabilities(TALK_CAPS):
+            if 'delete-messages' not in await self.get_capabilities(TALK_CAPS):
                 raise NextCloudTalkNotCapable('Server does not support message deletion.')
 
         response = await self.ocs_query(
