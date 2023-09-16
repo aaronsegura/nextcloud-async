@@ -23,11 +23,12 @@ import datetime as dt
 from typing import Dict, Optional
 
 from nextcloud_async.exceptions import NextCloudLoginFlowTimeout
+from nextcloud_async.api import NextCloudBaseAPI
 
 __VERSION__ = version('nextcloud_async')
 
 
-class LoginFlowV2(object):
+class LoginFlowV2(NextCloudBaseAPI):
     """Obtain an app password after user web authorization.
 
     Simply:
