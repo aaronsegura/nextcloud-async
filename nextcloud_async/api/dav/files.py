@@ -481,3 +481,97 @@ class FileManager(object):
         for file in os.listdir(local_cache_dir):
             os.remove(f'{local_cache_dir}/{file}')
         os.rmdir(local_cache_dir)
+
+    async def get_groupfolder_acl(self, path: str, inherited: bool=False) -> Dict[str, Any]:
+        """Return a list of groupfolder ACL rules set for `path`.
+
+        Args
+        ----
+            path (str): Filesystem path
+            inherited (bool): Return inherited rules instead of normal rules
+
+        Returns
+        -------
+            list: ACL rules
+
+        """
+        data = None
+        ruleprop = 'nc:acl-list'
+        if inherited:
+            ruleprop = 'nc:inherited-acl-list'
+
+        root = etree.Element(
+            "d:propfind",
+            attrib={
+                'xmlns:d': 'DAV:',
+                'xmlns:oc': 'http://owncloud.org/ns',
+                'xmlns:nc': 'http://nextcloud.org/ns'})
+        prop = etree.SubElement(root, 'd:prop')
+        etree.SubElement(prop, ruleprop)
+
+        tree = etree.ElementTree(root)
+
+        # Write XML file to memory, then read it into `data`
+        with io.BytesIO() as _mem:
+            tree.write(_mem, xml_declaration=True)
+            _mem.seek(0)
+            data = _mem.read().decode('utf-8')
+
+        result = (await self.dav_query(
+            method='PROPFIND',
+            sub=f'/remote.php/dav/files/{self.user}/{path}',
+            data=data))
+
+        if result['d:propstat']['d:prop'][ruleprop]:
+            result = result['d:propstat']['d:prop'][ruleprop]['nc:acl']
+        else:
+            result = []
+
+        if type(result) is not list:
+            return [result]
+
+        return result
+
+    async def set_groupfolder_acl(self, path: str, acls: List[dict]):
+        """Apply a list of groupfolder ACL rules to `path`.
+
+        Args
+        ----
+            path (str): Filesystem path
+            acls (List[int]): List of ACL rule dicts
+
+        Returns
+        -------
+            Empty 200 Response
+
+        """
+        data = None
+
+        root = etree.Element(
+            "d:propertyupdate",
+            attrib={
+                'xmlns:d': 'DAV:',
+                'xmlns:oc': 'http://owncloud.org/ns',
+                'xmlns:nc': 'http://nextcloud.org/ns'})
+        prop = etree.SubElement(root, 'd:set')
+        prop = etree.SubElement(prop, 'd:prop')
+        prop = etree.SubElement(prop, 'nc:acl-list')
+        for acl in acls:
+            aclprop = etree.SubElement(prop, 'nc:acl')
+            for key, val in acl.items():
+                child = etree.Element(key)
+                child.text = str(val)
+                aclprop.append(child)
+
+        tree = etree.ElementTree(root)
+
+        # Write XML file to memory, then read it into `data`
+        with io.BytesIO() as _mem:
+            tree.write(_mem, xml_declaration=True)
+            _mem.seek(0)
+            data = _mem.read().decode('utf-8')
+
+        return (await self.dav_query(
+            method='PROPPATCH',
+            sub=f'/remote.php/dav/files/{self.user}/{path}',
+            data=data))
