@@ -150,14 +150,14 @@ class OCSShareAPI(object):
             # TODO : fill me in
 
         """
-        try:
-            expire_dt = dt.datetime.strptime(expire_date, r'%Y-%m-%d')
-        except ValueError:
-            raise NextCloudException('Invalid date.  Should be YYYY-MM-DD')
-        else:
-            now = dt.datetime.now()
-            if expire_dt < now:
-                raise NextCloudException('Invalid date.  Should be in the future.')
+        # try:
+        #     expire_dt = dt.datetime.strptime(expire_date, r'%Y-%m-%d')
+        # except ValueError:
+        #     raise NextCloudException('Invalid date.  Should be YYYY-MM-DD')
+        # else:
+        #     now = dt.datetime.now()
+        #     if expire_dt < now:
+        #         raise NextCloudException('Invalid date.  Should be in the future.')
 
         return await self.ocs_query(
             method='POST',
