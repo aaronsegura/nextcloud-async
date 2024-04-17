@@ -151,7 +151,7 @@ class OCSShareAPI(object):
 
         """
 
-        # Check exist the expired datetime param for evaluation, avoids this check if expired datatime param not exist
+        # Checks the expire_date argument exists before evaluation, otherwise continues.
         if expire_date:
             try:
                 expire_dt = dt.datetime.strptime(expire_date, r'%Y-%m-%d')
