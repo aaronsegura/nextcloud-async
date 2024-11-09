@@ -14,7 +14,8 @@ from nextcloud_async.exceptions import (
     NextCloudNotModified,
     NextCloudUnauthorized,
     NextCloudNotFound,
-    NextCloudRequestTimeout)
+    NextCloudRequestTimeout,
+    NextCloudTooManyRequests)
 
 
 class NextCloudBaseAPI(object):
@@ -77,6 +78,8 @@ class NextCloudBaseAPI(object):
             403 - NextCloudForbidden
 
             404 - NextCloudNotFound
+            
+            429 - NextCloudTooManyRequests
 
         Returns
         -------
@@ -108,5 +111,7 @@ class NextCloudBaseAPI(object):
                 raise NextCloudForbidden()
             case 404:
                 raise NextCloudNotFound()
+            case 429:
+                raise NextCloudTooManyRequests()
 
         return response
