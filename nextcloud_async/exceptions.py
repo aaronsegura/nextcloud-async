@@ -96,6 +96,15 @@ class NextCloudLoginFlowTimeout(NextCloudException):
         """Configure exception."""
         super(NextCloudException, self).__init__()
 
+class NextCloudTooManyRequests(NextCloudException):
+    """Too many requests"""
+
+    status_code = 429
+    reason = "Too many requests. Try again later."
+
+    def __init__(self):
+        """Configure exception."""
+        super(NextCloudException, self).__init__()
 
 class NextCloudChunkedUploadException(NextCloudException):
     """When there is more than one chunk in the local cache directory."""
