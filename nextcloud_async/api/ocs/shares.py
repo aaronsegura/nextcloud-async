@@ -89,8 +89,8 @@ class OCSShareAPI(object):
             sub='/ocs/v2.php/apps/files_sharing/api/v1/shares',
             data={
                 'path': path,
-                'reshares': reshares,
-                'subfiles': subfiles})
+                'reshares': str(reshares).lower(),
+                'subfiles': str(subfiles).lower()})
 
     async def get_share(self, share_id: int):
         """Return information about a known share.
@@ -170,7 +170,7 @@ class OCSShareAPI(object):
                 'shareType': share_type.value,
                 'shareWith': share_with,
                 'permissions': permissions.value,
-                'publicUpload': allow_public_upload,
+                'publicUpload': str(allow_public_upload).lower(),
                 'password': password,
                 'expireDate': expire_date,
                 'note': note})
@@ -234,7 +234,7 @@ class OCSShareAPI(object):
         attrs = [
             ('permissions', permissions),
             ('password', password),
-            ('publicUpload', allow_public_upload),
+            ('publicUpload', str(allow_public_upload).lower()),
             ('expireDate', expire_date),
             ('note', note)]
 
