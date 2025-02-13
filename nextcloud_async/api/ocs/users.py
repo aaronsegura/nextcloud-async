@@ -31,7 +31,7 @@ class UserManager():
 
             email (str): E-mail Address
 
-            quota (str): User quota, in bytes.  -3 for unlimited.
+            quota (str): User quota, in bytes.  "none" for unlimited.
 
             language (str): User language
 
