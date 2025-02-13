@@ -1,26 +1,27 @@
 """Our very own exception classes."""
 
+from typing import Optional
 
-class NextCloudException(Exception):
+class NextcloudException(Exception):
     """Generic Exception."""
 
     status_code = None
     reason = None
 
-    def __init__(self, status_code: int = None, reason: str = None):
+    def __init__(self, status_code: Optional[int] = None, reason: Optional[str] = None):
         """Initialize our very own exception."""
         super(BaseException, self).__init__()
         self.status_code = status_code
         self.reason = reason
 
-    def __str__(self):
+    def __str__(self) -> str:  # noqa: D105
         if self.status_code:
             return f'[{self.status_code}] {self.reason}'
         else:
-            return self.reason
+            return str(self.reason)
 
 
-class NextCloudNotModified(NextCloudException):
+class NextCloudNotModified(NextcloudException):
     """304 - Content not modified."""
 
     status_code = 304
@@ -28,10 +29,10 @@ class NextCloudNotModified(NextCloudException):
 
     def __init__(self):
         """Configure exception."""
-        super(NextCloudException, self).__init__()
+        super(NextcloudException, self).__init__()
 
 
-class NextCloudBadRequest(NextCloudException):
+class NextCloudBadRequest(NextcloudException):
     """User made an invalid request."""
 
     status_code = 400
@@ -39,10 +40,10 @@ class NextCloudBadRequest(NextCloudException):
 
     def __init__(self):
         """Configure exception."""
-        super(NextCloudException, self).__init__()
+        super(NextcloudException, self).__init__()
 
 
-class NextCloudUnauthorized(NextCloudException):
+class NextCloudUnauthorized(NextcloudException):
     """User account is not authorized."""
 
     status_code = 401
@@ -50,10 +51,10 @@ class NextCloudUnauthorized(NextCloudException):
 
     def __init__(self):
         """Configure exception."""
-        super(NextCloudException, self).__init__()
+        super(NextcloudException, self).__init__()
 
 
-class NextCloudForbidden(NextCloudException):
+class NextCloudForbidden(NextcloudException):
     """Forbidden action due to permissions."""
 
     status_code = 403
@@ -61,10 +62,10 @@ class NextCloudForbidden(NextCloudException):
 
     def __init__(self):
         """Configure exception."""
-        super(NextCloudException, self).__init__()
+        super(NextcloudException, self).__init__()
 
 
-class NextCloudNotFound(NextCloudException):
+class NextCloudNotFound(NextcloudException):
     """Object not found."""
 
     status_code = 404
@@ -72,10 +73,10 @@ class NextCloudNotFound(NextCloudException):
 
     def __init__(self):
         """Configure exception."""
-        super(NextCloudException, self).__init__()
+        super(NextcloudException, self).__init__()
 
 
-class NextCloudRequestTimeout(NextCloudException):
+class NextCloudRequestTimeout(NextcloudException):
     """HTTP Request timed out."""
 
     status_code = 408
@@ -83,10 +84,10 @@ class NextCloudRequestTimeout(NextCloudException):
 
     def __init__(self):
         """Configure exception."""
-        super(NextCloudException, self).__init__()
+        super(NextcloudException, self).__init__()
 
 
-class NextCloudLoginFlowTimeout(NextCloudException):
+class NextCloudLoginFlowTimeout(NextcloudException):
     """When the login flow times out."""
 
     status_code = 408
@@ -94,9 +95,9 @@ class NextCloudLoginFlowTimeout(NextCloudException):
 
     def __init__(self):
         """Configure exception."""
-        super(NextCloudException, self).__init__()
+        super(NextcloudException, self).__init__()
 
-class NextCloudTooManyRequests(NextCloudException):
+class NextCloudTooManyRequests(NextcloudException):
     """Too many requests"""
 
     status_code = 429
@@ -104,9 +105,9 @@ class NextCloudTooManyRequests(NextCloudException):
 
     def __init__(self):
         """Configure exception."""
-        super(NextCloudException, self).__init__()
+        super(NextcloudException, self).__init__()
 
-class NextCloudChunkedUploadException(NextCloudException):
+class NextCloudChunkedUploadException(NextcloudException):
     """When there is more than one chunk in the local cache directory."""
 
     status_code = 999
@@ -114,4 +115,4 @@ class NextCloudChunkedUploadException(NextCloudException):
 
     def __init__(self):
         """Configure exception."""
-        super(NextCloudException, self).__init__()
+        super(NextcloudException, self).__init__()

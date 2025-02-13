@@ -1,17 +1,17 @@
 """Our own Exception classes."""
 
-from nextcloud_async.exceptions import NextCloudException
+from nextcloud_async.exceptions import NextcloudException
 
 
-class NextCloudTalkException(NextCloudException):
+class NextcloudTalkException(NextcloudException):
     """Generic Exception."""
 
     def __init__(self, status_code: int = None, reason: str = None):
         """Configure exception."""
-        super(NextCloudException, self).__init__(status_code=status_code, reason=reason)
+        super(NextcloudException, self).__init__(status_code=status_code, reason=reason)
 
 
-class NextCloudTalkBadRequest(NextCloudTalkException):
+class NextCloudTalkBadRequest(NextcloudTalkException):
     """User made a bad request."""
 
     status_code = 400
@@ -19,10 +19,10 @@ class NextCloudTalkBadRequest(NextCloudTalkException):
 
     def __init__(self):
         """Configure exception."""
-        super(NextCloudTalkException, self).__init__()
+        super(NextcloudTalkException, self).__init__()
 
 
-class NextCloudTalkConflict(NextCloudTalkException):
+class NextCloudTalkConflict(NextcloudTalkException):
     """User has duplicate Talk sessions."""
 
     status_code = 409
@@ -30,10 +30,10 @@ class NextCloudTalkConflict(NextCloudTalkException):
 
     def __init__(self):
         """Configure exception."""
-        super(NextCloudTalkException, self).__init__()
+        super(NextcloudTalkException, self).__init__()
 
 
-class NextCloudTalkPreconditionFailed(NextCloudTalkException):
+class NextCloudTalkPreconditionFailed(NextcloudTalkException):
     """User tried to join chat room without going to lobby."""
 
     status_code = 412
@@ -41,10 +41,10 @@ class NextCloudTalkPreconditionFailed(NextCloudTalkException):
 
     def __init__(self):
         """Configure exception."""
-        super(NextCloudTalkException, self).__init__()
+        super(NextcloudTalkException, self).__init__()
 
 
-class NextCloudTalkNotCapable(NextCloudTalkException):
+class NextCloudTalkNotCapable(NextcloudTalkException):
     """Raised when server does not have required capability."""
 
     status_code = 499
@@ -52,4 +52,4 @@ class NextCloudTalkNotCapable(NextCloudTalkException):
 
     def __init__(self):
         """Configure exception."""
-        super(NextCloudTalkException, self).__init__()
+        super(NextcloudTalkException, self).__init__()

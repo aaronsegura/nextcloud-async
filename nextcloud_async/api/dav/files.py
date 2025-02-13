@@ -12,7 +12,7 @@ from typing import List, Optional, Any, Dict, ByteString
 
 from nextcloud_async.exceptions import (
     NextCloudChunkedUploadException,
-    NextCloudException)
+    NextcloudException)
 
 
 class FileManager(object):
@@ -362,7 +362,7 @@ class FileManager(object):
 
         Raises
         ------
-            NextCloudException: Errors from self.create_folder()
+            NextcloudException: Errors from self.create_folder()
 
         """
         # TODO: Write test
@@ -371,7 +371,7 @@ class FileManager(object):
         for count in range(1, len(path_chunks) + 1):
             try:
                 result = await self.create_folder("/".join(path_chunks[0:count]))
-            except NextCloudException as e:
+            except NextcloudException as e:
                 if 'already exists' not in str(e):
                     raise
         return result

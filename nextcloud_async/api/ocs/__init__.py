@@ -8,7 +8,7 @@ import json
 from typing import Dict, Any, Optional, List
 
 from nextcloud_async.api import NextCloudBaseAPI
-from nextcloud_async.exceptions import NextCloudException
+from nextcloud_async.exceptions import NextcloudException
 
 
 class NextCloudOCSAPI(NextCloudBaseAPI):
@@ -48,7 +48,7 @@ class NextCloudOCSAPI(NextCloudBaseAPI):
 
         Raises
         ------
-            NextCloudException: Server API Errors
+            NextcloudException: Server API Errors
 
         Returns
         -------
@@ -79,7 +79,7 @@ class NextCloudOCSAPI(NextCloudBaseAPI):
             response_content = json.loads(response.content.decode('utf-8'))
             ocs_meta = response_content['ocs']['meta']
             if ocs_meta['status'] != 'ok':
-                raise NextCloudException(
+                raise NextcloudException(
                     status_code=ocs_meta['statuscode'],
                     reason=ocs_meta['message'])
             else:
@@ -102,8 +102,8 @@ class NextCloudOCSAPI(NextCloudBaseAPI):
 
         Raises
         ------
-            NextCloudException(404) on capability mising
-            NextCloudException(400) invalid capability string
+            NextcloudException(404) on capability mising
+            NextcloudException(400) invalid capability string
 
         Returns
         -------
@@ -123,11 +123,11 @@ class NextCloudOCSAPI(NextCloudBaseAPI):
                         try:
                             ret = ret[item]
                         except TypeError:
-                            raise NextCloudException(status_code=404, reason=f'Capability not found: {item}')
+                            raise NextcloudException(status_code=404, reason=f'Capability not found: {item}')
                     else:
-                        raise NextCloudException(status_code=404, reason=f'Capability not found: {item}')
+                        raise NextcloudException(status_code=404, reason=f'Capability not found: {item}')
             else:
-                raise NextCloudException(status_code=400, reason=f'`capability` must be a string.')
+                raise NextcloudException(status_code=400, reason=f'`capability` must be a string.')
 
         return ret
 
@@ -175,7 +175,7 @@ class NextCloudOCSAPI(NextCloudBaseAPI):
 
         Raises
         ------
-            NextCloudException: When given invalid argument combination
+            NextcloudException: When given invalid argument combination
 
         Returns
         -------
@@ -190,7 +190,7 @@ class NextCloudOCSAPI(NextCloudBaseAPI):
                 'object_type': object_type,
                 'object_id': object_id})
         elif object_id or object_type:
-            raise NextCloudException(
+            raise NextcloudException(
                 'filter_object_type and filter_object are both required.')
 
         data.update({

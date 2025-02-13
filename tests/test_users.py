@@ -5,7 +5,7 @@ from .helpers import AsyncMock
 from .constants import (
     USER, NAME, ENDPOINT, PASSWORD, EMAIL, EMPTY_100, SIMPLE_100)
 
-from nextcloud_async.exceptions import NextCloudException
+from nextcloud_async.exceptions import NextcloudException
 
 import asyncio
 import httpx
@@ -303,10 +303,10 @@ class OCSUserAPI(BaseTestCase):  # noqa: D101
         with patch(
                 'httpx.AsyncClient.request',
                 new_callable=AsyncMock) as mock:
-            mock.side_effect = NextCloudException(status_code=102, reason='None')
+            mock.side_effect = NextcloudException(status_code=102, reason='None')
             try:
                 asyncio.run(self.ncc.add_user_to_group(USER, GROUP))
-            except NextCloudException:
+            except NextcloudException:
                 pass
             finally:
                 mock.assert_called_with(
@@ -315,7 +315,7 @@ class OCSUserAPI(BaseTestCase):  # noqa: D101
                     url=f'{ENDPOINT}/ocs/v1.php/cloud/users/{USER}/groups',
                     data={'groupid': GROUP, 'format': 'json'},
                     headers={'OCS-APIRequest': 'true'})
-                self.assertRaises(NextCloudException)
+                self.assertRaises(NextcloudException)
 
     def test_remove_user_from_group(self):  # noqa: D102
         GROUP = 'group'
