@@ -11,7 +11,7 @@ class NextcloudTalkException(NextcloudException):
         super(NextcloudException, self).__init__(status_code=status_code, reason=reason)
 
 
-class NextCloudTalkBadRequest(NextcloudTalkException):
+class NextcloudTalkBadRequest(NextcloudTalkException):
     """User made a bad request."""
 
     status_code = 400
@@ -22,7 +22,7 @@ class NextCloudTalkBadRequest(NextcloudTalkException):
         super(NextcloudTalkException, self).__init__()
 
 
-class NextCloudTalkConflict(NextcloudTalkException):
+class NextcloudTalkConflict(NextcloudTalkException):
     """User has duplicate Talk sessions."""
 
     status_code = 409
@@ -33,7 +33,7 @@ class NextCloudTalkConflict(NextcloudTalkException):
         super(NextcloudTalkException, self).__init__()
 
 
-class NextCloudTalkPreconditionFailed(NextcloudTalkException):
+class NextcloudTalkPreconditionFailed(NextcloudTalkException):
     """User tried to join chat room without going to lobby."""
 
     status_code = 412
@@ -44,7 +44,7 @@ class NextCloudTalkPreconditionFailed(NextcloudTalkException):
         super(NextcloudTalkException, self).__init__()
 
 
-class NextCloudTalkNotCapable(NextcloudTalkException):
+class NextcloudTalkNotCapable(NextcloudTalkException):
     """Raised when server does not have required capability."""
 
     status_code = 499

@@ -13,9 +13,9 @@ import httpx
 from unittest.mock import patch
 
 
-class OCSRemoteWipeAPI(BaseTestCase):  # noqa: D101
+class OCSRemoteWipeAPI(BaseTestCase):
 
-    def test_get_wipe_status(self):  # noqa: D102
+    def test_get_wipe_status(self):
         with patch(
                 'httpx.AsyncClient.request',
                 new_callable=AsyncMock,
@@ -30,7 +30,7 @@ class OCSRemoteWipeAPI(BaseTestCase):  # noqa: D101
                 data={'token': PASSWORD},
                 headers={})
 
-    def test_notify_wipe_status(self):  # noqa: D102
+    def test_notify_wipe_status(self):
         with patch(
                 'httpx.AsyncClient.request',
                 new_callable=AsyncMock,

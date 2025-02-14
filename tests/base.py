@@ -5,13 +5,13 @@ import httpx
 
 from unittest import TestCase
 
-from nextcloud_async import NextCloudAsync
+from nextcloud_async import NextcloudAsync
 
 
 class BaseTestCase(TestCase):
 
     def setUp(self):
-        self.ncc = NextCloudAsync(
+        self.ncc = NextcloudAsync(
             client=httpx.AsyncClient(),
             endpoint=ENDPOINT,
             user=USER,

@@ -5,15 +5,26 @@ https://github.com/nextcloud/maps/blob/master/openapi.yml
 """
 
 import json
+import httpx
 
+from typing import List, Hashable, Any, Dict
 
-class Maps(object):
+from nextcloud_async.client import NextcloudClient
+from nextcloud_async.api.base import NextcloudBaseApi
+
+class Maps:
+    stub = '/index.php/apps/maps/api/1.0'
+
     """Interact with Nextcloud Maps API.
 
     Add/remove/edit/delete map favorites.
     """
+    def __init__(
+            self,
+            client: NextcloudClient):
+        self.api = NextcloudBaseApi(client)
 
-    async def get_map_favorites(self) -> list:
+    async def list_favorites(self) -> List[str]:
         """Get a list of map favorites.
 
         Returns
@@ -21,24 +32,24 @@ class Maps(object):
             list of favorites
 
         """
-        response = await self.request(
-            method='GET',
-            url=f'{self.endpoint}/index.php/apps/maps/api/1.0/favorites')
+        response = await self.api.get(sub=f'{self.stub}/favorites')
         return json.loads(response.content.decode('utf-8'))
 
-    async def remove_map_favorite(self, id: int) -> str:
+    async def delete_favorite(self, id: int) -> None:
         """Remove a map favorite by Id.
 
         Args:
         ----
             id (int): ID of favorite to remove
 
-        """
-        return await self.request(
-            method='DELETE',
-            url=f'{self.endpoint}/index.php/apps/maps/api/1.0/favorites/{id}')
+        Raises:
+        -------
+            Appropriate NextcloudException
 
-    async def update_map_favorite(self, id: int, data: dict) -> dict:
+        """
+        await self.api.delete(sub=f'{self.stub}/favorites/{id}')
+
+    async def update_favorite(self, id: int, data: Dict[Hashable, Any]) -> Dict[Hashable, Any]:
         """Update an existing map favorite.
 
         Args
@@ -54,19 +65,19 @@ class Maps(object):
             dict: Result of update
 
         """
-        response = await self.request(
-            method='PUT',
-            url=f'{self.endpoint}/index.php/apps/maps/api/1.0/favorites/{id}',
-            data=data)
+        response = await self.api.put(
+                        sub=f'{self.stub}/favorites/{id}',
+                        data=data)
+
         return json.loads(response.content.decode('utf-8'))
 
-    async def create_map_favorite(self, data: dict) -> dict:
-        """Update an existing map favorite.
+    async def add_favorite(self, data: Dict[Hashable, Any]) -> Dict[Hashable, Any]:
+        """Add a new map favorite.
 
         Args
         ----
             data (dict): Dictionary describing new favorite
-                Keys may be: ['name', 'lat', 'lng', 'category',
+                Keys are: ['name', 'lat', 'lng', 'category',
                 'comment', 'extensions']
 
         Returns
@@ -74,8 +85,7 @@ class Maps(object):
             dict: Result of update
 
         """
-        response = await self.request(
-            method='POST',
-            url=f'{self.endpoint}/index.php/apps/maps/api/1.0/favorites',
-            data=data)
+        response = await self.api.post(
+                        sub=f'{self.stub}/favorites',
+                        data=data)
         return json.loads(response.content.decode('utf-8'))

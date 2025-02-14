@@ -5,13 +5,21 @@ Reference:
 configuration_user/instruction_set_for_apps.html
 """
 
-from typing import Optional
+from nextcloud_async.api.ocs import NextcloudOcsApi
+from nextcloud_async.client import NextcloudClient
+
+from typing import Optional, Dict, Hashable, Any, List
 
 
-class AppManager(object):
+class AppManager:
     """Manage applications on a Nextcloud instance."""
 
-    async def get_app(self, app_id: str):
+    def __init__(
+            self,
+            client: NextcloudClient):
+        self.api = NextcloudOcsApi(client)
+
+    async def get_app(self, app_id: str) -> Dict[Hashable, Any]:
         """Get application information.
 
         Args
@@ -23,11 +31,9 @@ class AppManager(object):
             dict: Application information
 
         """
-        return await self.ocs_query(
-            method='GET',
-            sub=f'/ocs/v1.php/cloud/apps/{app_id}')
+        return await self.api.get(sub=f'/ocs/v1.php/cloud/apps/{app_id}')
 
-    async def get_apps(self, filter: Optional[str] = None):
+    async def list_apps(self, filter: Optional[str] = None) -> List[int]:
         """Get list of applications.
 
         Args
@@ -39,16 +45,16 @@ class AppManager(object):
             list: List of application ids
 
         """
-        data = {}
+        data: Dict[Hashable, str] = {}
         if filter:
             data = {'filter': filter}
-        response = await self.ocs_query(
-            method='GET',
+
+        response = await self.api.get(
             sub=r'/ocs/v1.php/cloud/apps',
             data=data)
         return response['apps']
 
-    async def enable_app(self, app_id: str):
+    async def enable_app(self, app_id: str) -> Dict[Hashable, Any]:
         """Enable Application.
 
         Requires admin privileges.
@@ -62,11 +68,9 @@ class AppManager(object):
             Empty 100 Response
 
         """
-        return await self.ocs_query(
-            method='POST',
-            sub=f'/ocs/v1.php/cloud/apps/{app_id}')
+        return await self.api.post(sub=f'/ocs/v1.php/cloud/apps/{app_id}')
 
-    async def disable_app(self, app_id: str):
+    async def disable_app(self, app_id: str) -> Dict[Hashable, Any]:
         """Disable Application.
 
         Requires admin privileges.
@@ -80,6 +84,4 @@ class AppManager(object):
             Empty 100 Response
 
         """
-        return await self.ocs_query(
-            method='DELETE',
-            sub=f'/ocs/v1.php/cloud/apps/{app_id}')
+        return await self.api.delete(sub=f'/ocs/v1.php/cloud/apps/{app_id}')

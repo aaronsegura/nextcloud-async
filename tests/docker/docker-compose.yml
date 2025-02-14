@@ -16,3 +16,11 @@ services:
       - NEXTCLOUD_TRUSTED_DOMAINS=${NEXTCLOUD_HOSTNAME}
       - NEXTCLOUD_ADMIN_USER
       - NEXTCLOUD_ADMIN_PASSWORD
+    post_start:
+      - command: php occ app:enable maps
+        user: www-data
+      - command: php occ app:enable spreed
+        user: www-data
+      - command: php occ app:enable user_ldap
+        user: www-data
+

@@ -7,7 +7,11 @@ See api.loginflow.LoginFlowV2.
 """
 
 import json
+import httpx
 
+from nextcloud_async.api.base import NextcloudBaseApi
+from nextcloud_async.client import NextcloudClient
+from nextcloud_async.exceptions import NextcloudBadRequest, NextcloudNotFound
 
 class Wipe(object):
     """Interact with Nextcloud Remote Wipe API.
@@ -22,40 +26,49 @@ class Wipe(object):
             await notify_wipe_status()
     """
 
-    endpoint = None
-    password = None
+    sub = '/index.php/core/wipe'
 
-    async def get_wipe_status(self) -> bool:
+    def __init__(
+            self,
+            client: NextcloudClient):
+        self.api = NextcloudBaseApi(client)
+
+    async def check(self) -> bool:
         """Check for remote wipe flag.
+
+        Here we must use the direct httpx.post method without authentication.
 
         Returns
         -------
             bool: Whether user has flagged this device for remote wiping.
 
         """
-        response = await self.request(
-            method='POST',
-            url=f'{self.endpoint}/index.php/core/wipe/check',
-            data={'token': self.password})
+        try:
+            response = await self.api.client.post(
+                url=f'{self.api.endpoint}{self.sub}/check',
+                data={'token': self.api.password})
+        except NextcloudNotFound:
+            return False
 
         try:
-            result = response.json()
+            result= response.json()
         except json.decoder.JSONDecodeError:
-            return False
+            raise NextcloudBadRequest
 
         if 'wipe' in result:
             return result['wipe']
         return False
 
-    async def notify_wipe_status(self):
+    async def notify_wiped(self) -> httpx.Response:
         """Notify server that device has been wiped.
+
+        Here we must use the direct httpx.post method without authentication.
 
         Returns
         -------
             Empty 200 Response
 
         """
-        return await self.request(
-            method='POST',
-            url=f'{self.endpoint}/index.php/core/wipe/success',
-            data={'token': self.password})
+        return await self.api.client.post(
+            url=f'{self.api.endpoint}{self.sub}/success',
+            data={'token': self.api.password})

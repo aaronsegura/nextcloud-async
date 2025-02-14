@@ -5,6 +5,11 @@ https://github.com/nextcloud/groupfolders#api
 
 from enum import IntFlag
 
+from typing import List, Dict, Hashable, Any
+
+from nextcloud_async.api.ocs import NextcloudOcsApi
+from nextcloud_async.client import NextcloudClient
+
 
 class Permissions(IntFlag):
     """Groupfolders Permissions."""
@@ -22,8 +27,12 @@ class GroupFolderManager(object):
 
     Must have Group Folders application enabled on server.
     """
+    def __init__(
+            self,
+            client: NextcloudClient):
+        self.api = NextcloudOcsApi(client)
 
-    async def get_all_group_folders(self):
+    async def list_folders(self) -> List[Dict[Hashable, Any]]:
         """Get list of all group folders.
 
         Returns
@@ -31,9 +40,7 @@ class GroupFolderManager(object):
             list: List of group folders.
 
         """
-        response = await self.ocs_query(
-            method='GET',
-            sub='/apps/groupfolders/folders')
+        response = await self.api.get(sub='/apps/groupfolders/folders')
         if isinstance(response, dict):
             return [response]
         return response

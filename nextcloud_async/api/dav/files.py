@@ -11,7 +11,7 @@ import xml.etree.ElementTree as etree
 from typing import List, Optional, Any, Dict, ByteString
 
 from nextcloud_async.exceptions import (
-    NextCloudChunkedUploadException,
+    NextcloudChunkedUploadException,
     NextcloudException)
 
 
@@ -416,7 +416,7 @@ class FileManager(object):
 
         Raises
         ------
-            NextCloudChunkedCacheExists: When previous failed attempt is detected.
+            NextcloudChunkedCacheExists: When previous failed attempt is detected.
 
         """
         # TODO: Write test
@@ -450,7 +450,7 @@ class FileManager(object):
             # rest of file.
             if (span := re.match(r'[0-9]+-([0-9]+)$', file)):
                 if resume_chunk:
-                    raise NextCloudChunkedUploadException()
+                    raise NextcloudChunkedUploadException()
                 resume_chunk = file
                 file_position = int(span[1])
 

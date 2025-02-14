@@ -9,14 +9,14 @@ from .constants import (
     ConversationType,
     NotificationLevel,
     ListableScope)
-from .rich_objects import NextCloudTalkRichObject
-from .exceptions import NextCloudTalkNotCapable
+from .rich_objects import NextcloudTalkRichObject
+from .exceptions import NextcloudTalkNotCapable
 
 
 TALK_CAPS = 'capabilities.spreed.features'
 
 
-class NextCloudTalkAPI(object):
+class NextcloudTalkAPI(object):
     """Interact with Nextcloud Talk API."""
 
     conv_stub = None
@@ -26,12 +26,12 @@ class NextCloudTalkAPI(object):
         if 'conversation-v4' in await self.get_capabilities(TALK_CAPS):
             self.conv_stub = '/ocs/v2.php/apps/spreed/api/v4'
         else:
-            raise NextCloudTalkNotCapable('Unable to determine active Conversation endpoint.')
+            raise NextcloudTalkNotCapable('Unable to determine active Conversation endpoint.')
 
         if 'chat-v2' in await self.get_capabilities(TALK_CAPS):
             self.chat_stub = '/ocs/v2.php/apps/spreed/api/v1'
         else:
-            raise NextCloudTalkNotCapable('Unable to determine chat endpoint.')
+            raise NextcloudTalkNotCapable('Unable to determine chat endpoint.')
 
     async def get_conversations(
             self,
@@ -200,13 +200,13 @@ class NextCloudTalkAPI(object):
 
         404 Not Found When the conversation could not be found for the participant
 
-        NextCloudTalkNotCapable When server is lacking required capability
+        NextcloudTalkNotCapable When server is lacking required capability
         """
         if not self.conv_stub:
             await self.__get_stubs()
 
         if 'room-description' not in await self.get_capabilities(TALK_CAPS):
-            raise NextCloudTalkNotCapable('Server does not support setting room descriptions')
+            raise NextcloudTalkNotCapable('Server does not support setting room descriptions')
 
         response = await self.ocs_query(
             method='PUT',
@@ -263,13 +263,13 @@ class NextCloudTalkAPI(object):
         404 Not Found When the conversation could not be found for the
             participant
 
-        NextCloudTalkNotCapable When server is lacking required capability
+        NextcloudTalkNotCapable When server is lacking required capability
         """
         if not self.conv_stub:
             await self.__get_stubs()
 
         if 'read-only-rooms' not in await self.get_capabilies(TALK_CAPS):
-            raise NextCloudTalkNotCapable('Server doesn\'t support read-only rooms.')
+            raise NextcloudTalkNotCapable('Server doesn\'t support read-only rooms.')
 
         return await self.ocs_query(
             method='PUT',
@@ -312,13 +312,13 @@ class NextCloudTalkAPI(object):
 
         404 Not Found When the conversation could not be found for the participant
 
-        NextCloudTalkNotCapable When server is lacking required capability
+        NextcloudTalkNotCapable When server is lacking required capability
         """
         if not self.conv_stub:
             await self.__get_stubs()
 
         if 'favorites' not in await self.get_capabilities(TALK_CAPS):
-            raise NextCloudTalkNotCapable('Server does not support user favorites.')
+            raise NextcloudTalkNotCapable('Server does not support user favorites.')
 
         return await self.ocs_query(
             method='POST',
@@ -336,13 +336,13 @@ class NextCloudTalkAPI(object):
 
         404 Not Found When the conversation could not be found for the participant
 
-        NextCloudTalkNotCapable When server is lacking required capability
+        NextcloudTalkNotCapable When server is lacking required capability
         """
         if not self.conv_stub:
             await self.__get_stubs()
 
         if 'favorites' not in await self.get_capabilities(TALK_CAPS):
-            raise NextCloudTalkNotCapable('Server does not support user favorites.')
+            raise NextcloudTalkNotCapable('Server does not support user favorites.')
 
         return await self.ocs_query(
             method='DELETE',
@@ -399,13 +399,13 @@ class NextCloudTalkAPI(object):
 
         404 Not Found When the conversation could not be found for the participant
 
-        NextCloudTalkNotCapable When server is lacking required capability
+        NextcloudTalkNotCapable When server is lacking required capability
         """
         if not self.conv_stub:
             await self.__get_stubs()
 
         if 'notification-calls' not in await self.get_capabilities(TALK_CAPS):
-            raise NextCloudTalkNotCapable(
+            raise NextcloudTalkNotCapable(
                 'Server does not support setting call notification levels.')
 
         data = {
@@ -677,13 +677,13 @@ class NextCloudTalkAPI(object):
 
         404 Not Found When the conversation could not be found for the participant
 
-        NextCloudTalkNotCapable When server is lacking required capability
+        NextcloudTalkNotCapable When server is lacking required capability
         """
         if not self.conv_stub:
             await self.__get_stubs()
 
         if 'listable-rooms' not in await self.get_capabilities(TALK_CAPS):
-            raise NextCloudTalkNotCapable('Server does not support listable rooms.')
+            raise NextcloudTalkNotCapable('Server does not support listable rooms.')
 
         response = await self.ocs_query(
             method='PUT',
@@ -873,7 +873,7 @@ class NextCloudTalkAPI(object):
     async def send_rich_object_to_conversation(
             self,
             token: str,
-            rich_object: NextCloudTalkRichObject,
+            rich_object: NextcloudTalkRichObject,
             reference_id: Optional[str] = None,
             actor_display_name: str = 'Guest') -> Dict:
         """Share a rich object to the chat.
@@ -886,7 +886,7 @@ class NextCloudTalkAPI(object):
         Data:
 
         #### Arguments:
-        rich_object	[NextCloudTalkRichObject]	The rich object
+        rich_object	[NextcloudTalkRichObject]	The rich object
 
         actor_display_name	[str]   Guest display name (ignored for logged in users)
 
@@ -960,7 +960,7 @@ class NextCloudTalkAPI(object):
             await self.__get_stubs()
 
         if 'clear-history' not in await self.get_capabilities(TALK_CAPS):
-            raise NextCloudTalkNotCapable('Server does not support deletion of chat history.')
+            raise NextcloudTalkNotCapable('Server does not support deletion of chat history.')
 
         response = await self.ocs_query(
             method='DELETE',
@@ -1257,10 +1257,10 @@ class NextCloudTalkAPI(object):
             await self.__get_stubs()
 
         if 'rich-object-delete' not in await self.get_capabilities(TALK_CAPS):
-            raise NextCloudTalkNotCapable('Server does not support deletion of rich objects.')
+            raise NextcloudTalkNotCapable('Server does not support deletion of rich objects.')
         else:
             if 'delete-messages' not in await self.get_capabilities(TALK_CAPS):
-                raise NextCloudTalkNotCapable('Server does not support message deletion.')
+                raise NextcloudTalkNotCapable('Server does not support message deletion.')
 
         response = await self.ocs_query(
             method='DELETE',

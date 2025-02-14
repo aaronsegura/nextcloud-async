@@ -9,10 +9,10 @@ from typing import Dict, Any
 
 from nextcloud_async.exceptions import NextcloudException
 
-from nextcloud_async.api import NextCloudBaseAPI
+from nextcloud_async.api import NextcloudBaseAPI
 
 
-class NextCloudDAVAPI(NextCloudBaseAPI):
+class NextcloudDAVAPI(NextcloudBaseAPI):
     """Interace with Nextcloud DAV interface for file operations."""
 
     async def dav_query(

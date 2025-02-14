@@ -1,4 +1,4 @@
-"""Helper functions for NextCloudAsync."""
+"""Helper functions for NextcloudAsync."""
 
 import urllib
 

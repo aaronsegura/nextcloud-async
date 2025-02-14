@@ -1,7 +1,7 @@
 # nextcloud-async
 ## Asynchronous Nextcloud Client
 
-This module provides an asyncio-friendly interface to public NextCloud APIs.
+This module provides an asyncio-friendly interface to public Nextcloud APIs.
 
 ### Covered APIs
 * File Management API
@@ -34,14 +34,14 @@ This module provides an asyncio-friendly interface to public NextCloud APIs.
 If you know of any APIs missing from this list, please open an issue at
 https://github.com/aaronsegura/nextcloud-async/issues with a link to
 the API documentation so it can be added.  This project aims to eventually
-cover any API provided by NextCloud and commonly used NextCloud apps.
+cover any API provided by Nextcloud and commonly used Nextcloud apps.
 
 ### Example Usage
     import httpx
     import asyncio
-    from nextcloud_async import NextCloudAsync
+    from nextcloud_async import NextcloudAsync
 
-    nca = NextCloudAsync(
+    nca = NextcloudAsync(
         client=httpx.AsyncClient(),
         endpoint='http://localhost:8181',
         user='user',
@@ -58,5 +58,5 @@ cover any API provided by NextCloud and commonly used NextCloud apps.
         asyncio.run(main())
 
 ----
-This project is not endorsed or recognized in any way by the NextCloud
+This project is not endorsed or recognized in any way by the Nextcloud
 project.

@@ -9,7 +9,7 @@ and entered into the chat.
 """
 
 
-class NextCloudTalkRichObject(object):
+class NextcloudTalkRichObject(object):
     """Base Class for Rich Objects."""
 
     object_type = None
@@ -26,37 +26,37 @@ class NextCloudTalkRichObject(object):
         return {'id': self.id, 'name': self.name}
 
 
-class AddressBook(NextCloudTalkRichObject):
+class AddressBook(NextcloudTalkRichObject):
     """Address book."""
 
     object_type = 'addressbook'
 
 
-class AddressBookContact(NextCloudTalkRichObject):
+class AddressBookContact(NextcloudTalkRichObject):
     """Addressbook contact."""
 
     object_type = 'addressbook-contact'
 
 
-class Announcement(NextCloudTalkRichObject):
+class Announcement(NextcloudTalkRichObject):
     """Announcement."""
 
     object_type = 'announcement'
 
 
-class Calendar(NextCloudTalkRichObject):
+class Calendar(NextcloudTalkRichObject):
     """Calendar."""
 
     object_type = 'calendar'
 
 
-class CalendarEvent(NextCloudTalkRichObject):
+class CalendarEvent(NextcloudTalkRichObject):
     """Calendar Event."""
 
     object_type = 'calendar-event'
 
 
-class Call(NextCloudTalkRichObject):
+class Call(NextcloudTalkRichObject):
     """Nextcloud Talk Call."""
 
     object_type = 'call'
@@ -72,31 +72,31 @@ class Call(NextCloudTalkRichObject):
         }
 
 
-class Circle(NextCloudTalkRichObject):
+class Circle(NextcloudTalkRichObject):
     """Cirle."""
 
     object_type = 'circle'
 
 
-class DeckBoard(NextCloudTalkRichObject):
+class DeckBoard(NextcloudTalkRichObject):
     """Deck board."""
 
     object_type = 'deck-board'
 
 
-class DeckCard(NextCloudTalkRichObject):
+class DeckCard(NextcloudTalkRichObject):
     """Deck card."""
 
     object_type = 'deck-card'
 
 
-class Email(NextCloudTalkRichObject):
+class Email(NextcloudTalkRichObject):
     """E-mail."""
 
     object_type = 'email'
 
 
-class File(NextCloudTalkRichObject):
+class File(NextcloudTalkRichObject):
     """File."""
 
     object_type = 'file'
@@ -123,13 +123,13 @@ class File(NextCloudTalkRichObject):
         """Return object metadata."""
         return self.__dict__
 
-class Form(NextCloudTalkRichObject):
+class Form(NextcloudTalkRichObject):
     """Form."""
 
     object_type = 'forms-form'
 
 
-class GeoLocation(NextCloudTalkRichObject):
+class GeoLocation(NextcloudTalkRichObject):
     """Geo-location."""
 
     object_type = 'geo-location'
@@ -160,19 +160,19 @@ class GeoLocation(NextCloudTalkRichObject):
         }
 
 
-class TalkAttachment(NextCloudTalkRichObject):
+class TalkAttachment(NextcloudTalkRichObject):
     """Talk Attachment."""
 
     object_type = 'talk-attachment'
 
 
-class User(NextCloudTalkRichObject):
+class User(NextcloudTalkRichObject):
     """User."""
 
     object_type = 'user'
 
 
-class UserGroup(NextCloudTalkRichObject):
+class UserGroup(NextcloudTalkRichObject):
     """User group."""
 
     object_type = 'user-group'
