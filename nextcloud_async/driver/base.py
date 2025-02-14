@@ -8,7 +8,8 @@ import httpx
 from urllib.parse import urlencode
 from typing import Optional, Any, Dict, Hashable
 
-from .api import NextcloudHttpApi
+from nextcloud_async.driver import NextcloudHttpApi
+from nextcloud_async.client import NextcloudClient
 
 from nextcloud_async.exceptions import (
     NextcloudBadRequest,
@@ -22,12 +23,20 @@ from nextcloud_async.exceptions import (
 
 class NextcloudBaseApi(NextcloudHttpApi):
     """The Base API interface."""
+    def __init__(
+            self,
+            client: NextcloudClient,
+            api_stub: Optional[str] = None):
+        super().__init__(client)
+        if api_stub:
+            self.stub = api_stub
+        else:
+            self.stub = '/index.php'
 
     async def request(
             self,
             method: str = 'GET',
-            url: Optional[str] = None,
-            sub: Optional[str] = None,
+            path: Optional[str] = None,
             data: Optional[Dict[Hashable, Any]] = dict(),
             headers: Optional[Dict[Hashable, Any]] = {}) -> httpx.Response:
         """Send a request to the Nextcloud endpoint.
@@ -36,9 +45,7 @@ class NextcloudBaseApi(NextcloudHttpApi):
         ----
             method (str, optional): HTTP Method. Defaults to 'GET'.
 
-            url (str, optional): URL, if outside of cloud endpoint. Defaults to None.
-
-            sub (str, optional): The part after the host. Defaults to ''.
+            path (str, optional): The part after the host. Defaults to ''.
 
             data (dict, optional): Data for submission. Defaults to {}.
 
@@ -66,7 +73,7 @@ class NextcloudBaseApi(NextcloudHttpApi):
         """
         if method.lower() == 'get':
             if data:
-                sub = f'{sub}?{urlencode(data, True)}'
+                path = f'{path}?{urlencode(data, True)}'
             else:
                 data = None
 
@@ -79,7 +86,7 @@ class NextcloudBaseApi(NextcloudHttpApi):
             response = await self.client.request(
                 method=method,
                 auth=(self.user, self.password),
-                url=f'{url}{sub}' if url else f'{self.endpoint}{sub}',
+                url=f'{self.endpoint}{self.stub}{path}',
                 data=data,   # type: ignore
                 headers=headers) # type: ignore
 

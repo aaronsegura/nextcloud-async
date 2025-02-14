@@ -13,7 +13,7 @@ from nextcloud_async.api.base import NextcloudBaseApi
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.exceptions import NextcloudBadRequest, NextcloudNotFound
 
-class Wipe(object):
+class Wipe:
     """Interact with Nextcloud Remote Wipe API.
 
     Two simple functions: one to check if the user wants their data

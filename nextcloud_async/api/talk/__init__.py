@@ -16,7 +16,7 @@ from .exceptions import NextcloudTalkNotCapable
 TALK_CAPS = 'capabilities.spreed.features'
 
 
-class NextcloudTalkAPI(object):
+class NextcloudTalkAPI:
     """Interact with Nextcloud Talk API."""
 
     conv_stub = None

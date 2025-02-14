@@ -4,21 +4,30 @@ import os
 import uuid
 import json
 import re
+import httpx
 
 import platformdirs as pdir
 import xml.etree.ElementTree as etree
 
 from typing import List, Optional, Any, Dict, ByteString
 
+from nextcloud_async.driver import NextcloudModule, NextcloudDavApi
+from nextcloud_async.client import NextcloudClient
+
 from nextcloud_async.exceptions import (
     NextcloudChunkedUploadException,
     NextcloudException)
 
 
-class FileManager(object):
+class FileManager(NextcloudModule):
     """Interact with Nextcloud DAV Files Endpoint."""
+    def __init__(
+            self,
+            client: NextcloudClient):
+        self.client= client
+        self.api = NextcloudDavApi(client)
 
-    async def list_files(self, path: str, properties: List[str] = []) -> Dict[str, Any]:
+    async def list(self, path: str, properties: List[str] = []) -> Dict[str, Any]:
         """Return a list of files at `path`.
 
         If `properties` is passed, only those properties requested are
@@ -58,12 +67,11 @@ class FileManager(object):
             _mem.seek(0)
             data = _mem.read().decode('utf-8')
 
-        return await self.dav_query(
-            method='PROPFIND',
-            sub=f'/remote.php/dav/files/{self.user}/{path}',
-            data=data)
+        return await self._propfind(
+            path=f'/files/{self.client.user}/{path}',
+            data=data)  # type: ignore
 
-    async def download_file(self, path: str) -> ByteString:
+    async def download(self, path: str) -> ByteString:
         """Download the file at `path`.
 
         Args
@@ -75,12 +83,11 @@ class FileManager(object):
             str: File content
 
         """
-        return (await self.request(
-            method='GET',
-            sub=f'/remote.php/dav/files/{self.user}/{path}',
+        return (await self._get(
+            path=f'/files/{self.client.user}/{path}',
             data={})).content
 
-    async def upload_file(self, local_path: str, remote_path: str):
+    async def upload(self, local_path: str, remote_path: str):
         """Upload a file.
 
         Args
@@ -95,12 +102,11 @@ class FileManager(object):
 
         """
         with open(local_path, 'rb') as fp:
-            return await self.dav_query(
-                method='PUT',
-                sub=f'/remote.php/dav/files/{self.user}/{remote_path}',
+            return await self._put(
+                path=f'/files/{self.client.user}/{remote_path}',
                 data=fp.read())
 
-    async def create_folder(self, path: str, create_parents: bool = False):
+    async def mkdir(self, path: str, create_parents: bool = False) -> None:
         """Create a new folder/directory.
 
         Args
@@ -115,11 +121,10 @@ class FileManager(object):
 
         """
         if create_parents:
-            return await self.create_folder_with_parents(path)
+            await self.mkdir_with_parents(path)
+            return
 
-        return await self.dav_query(
-            method='MKCOL',
-            sub=f'/remote.php/dav/files/{self.user}/{path}')
+        await self._mkcol(path=f'/files/{self.client.user}/{path}')
 
     async def delete(self, path: str):
         """Delete file or folder.
@@ -133,9 +138,7 @@ class FileManager(object):
             Empty 200 Response
 
         """
-        return await self.dav_query(
-            method='DELETE',
-            sub=f'/remote.php/dav/files/{self.user}/{path}')
+        return await self._delete(path=f'/files/{self.client.user}/{path}')
 
     async def move(self, source: str, dest: str, overwrite: bool = False):
         """Move a file or folder.
@@ -153,12 +156,11 @@ class FileManager(object):
             Empty 200 Response
 
         """
-        return await self.dav_query(
-            method='MOVE',
-            sub=f'/remote.php/dav/files/{self.user}/{source}',
+        return await self._move(
+            path=f'/files/{self.client.user}/{source}',
             headers={
                 'Destination':
-                    f'{self.endpoint}/remote.php/dav/files/{self.user}/{dest}',
+                    f'{self.client.endpoint}/remote.php/dav/files/{self.client.user}/{dest}',
                 'Overwrite': 'T' if overwrite else 'F'})
 
     async def copy(self, source: str, dest: str, overwrite: bool = False):
@@ -177,12 +179,11 @@ class FileManager(object):
             Empty 200 Response
 
         """
-        return await self.dav_query(
-            method='COPY',
-            sub=f'/remote.php/dav/files/{self.user}/{source}',
+        return await self._copy(
+            path=f'/files/{self.client.user}/{source}',
             headers={
                 'Destination':
-                    f'{self.endpoint}/remote.php/dav/files/{self.user}/{dest}',
+                    f'{self.client.endpoint}/remote.php/dav/files/{self.client.user}/{dest}',
                 'Overwrite': 'T' if overwrite else 'F'})
 
     async def __favorite(self, path: str, set: bool) -> Dict[str, Any]:
@@ -208,9 +209,8 @@ class FileManager(object):
                 </d:prop></d:set></d:propertyupdate>
         '''
 
-        return await self.dav_query(
-            method='PROPPATCH',
-            sub=f'/remote.php/dav/files/{self.user}/{path}',
+        return await self._proppatch(
+            path=f'/files/{self.client.user}/{path}',
             data=data)
 
     async def set_favorite(self, path: str):
@@ -227,7 +227,7 @@ class FileManager(object):
         """
         return await self.__favorite(path, True)
 
-    async def remove_favorite(self, path: str):
+    async def unset_favorite(self, path: str):
         """Remove file/folder as a favorite.
 
         Args
@@ -241,7 +241,7 @@ class FileManager(object):
         """
         return await self.__favorite(path, False)
 
-    async def get_favorites(self, path: Optional[str] = ''):
+    async def get_favorites(self, path: Optional[str] = '') -> List[str]:
         """List favorites below given Path.
 
         Args
@@ -257,12 +257,11 @@ class FileManager(object):
         xmlns:oc="http://owncloud.org/ns" xmlns:nc="http://nextcloud.org/ns">
         <oc:filter-rules><oc:favorite>1</oc:favorite></oc:filter-rules>
         </oc:filter-files>'''
-        return await self.dav_query(
-            method='REPORT',
-            sub=f'/remote.php/dav/files/{self.user}/{path}',
+        return await self._report(
+            path=f'/files/{self.client.user}/{path}',
             data=data)
 
-    async def get_trashbin(self):
+    async def list_trash(self):
         """Get items in the trash.
 
         Returns
@@ -270,11 +269,9 @@ class FileManager(object):
             list: Trashed items
 
         """
-        return await self.dav_query(
-            method='PROPFIND',
-            sub=f'/remote.php/dav/trashbin/{self.user}/trash')
+        return await self._propfind(path=f'/trashbin/{self.client.user}/trash')
 
-    async def restore_from_trashbin(self, path: str):
+    async def restore_trash(self, path: str):
         """Restore a file from the trash.
 
         Args
@@ -286,12 +283,11 @@ class FileManager(object):
             Empty 200 Response
 
         """
-        return await self.dav_query(
-            method='MOVE',
-            sub=path,
+        return await self._move(
+            path=path,
             headers={
                 'Destination':
-                    f'{self.endpoint}/remote.php/dav/trashbin/{self.user}/restore/file'})
+                    f'{self.client.endpoint}/remote.php/dav/trashbin/{self.client.user}/restore/file'})
 
     async def empty_trashbin(self):
         """Empty the trash.
@@ -301,32 +297,23 @@ class FileManager(object):
             Empty 200 Response
 
         """
-        return await self.dav_query(
-            method='DELETE',
-            sub=f'/remote.php/dav/trashbin/{self.user}/trash')
+        return await self._delete(path=f'/trashbin/{self.client.user}/trash')
 
-    async def get_file_versions(self, file: str):
+    async def get_versions(self, file_id: int):
         """List of file versions.
 
         Args
         ----
-            file (str): File path
+            file_id (int): File ID
 
         Returns
         -------
             list: File versions
 
         """
-        file_id = file
-        if isinstance(file, str):
-            f = await self.list_files(file, properties=['oc:fileid'])
-            file_id = f["d:propstat"]["d:prop"]["oc:fileid"]
+        return await self._propfind(path=f'/versions/{self.client.user}/versions/{file_id}')
 
-        return await self.dav_query(
-            method='PROPFIND',
-            sub=f'/remote.php/dav/versions/{self.user}/versions/{file_id}')
-
-    async def restore_file_version(self, path: str):
+    async def restore_version(self, path: str):
         """Restore an old file version.
 
         Args
@@ -338,63 +325,52 @@ class FileManager(object):
             Empty 200 Response
 
         """
-        return await self.dav_query(
-            method='MOVE',
-            sub=path,
+        return await self._move(
+            path=path,
             headers={
                 'Destination':
-                    f'{self.endpoint}/remote.php/dav/versions/{self.user}/restore/file'})
+                    f'{self.client.endpoint}/remote.php/dav/versions/{self.client.user}/restore/file'})
 
     def __replace_slashes(self, string: str):
         """Replace path slashes with underscores."""
         return string.replace('/', '_').replace('\\', '_')
 
-    async def create_folder_with_parents(self, path: str):
+    async def mkdir_with_parents(self, path: str) -> None:
         """Create folder with parents (mkdir -p).
 
         Args
         ----
             path (str): Path to folder
 
-        Returns
-        -------
-            Empty 200 response on success
-
         Raises
         ------
             NextcloudException: Errors from self.create_folder()
 
         """
-        # TODO: Write test
         path_chunks = path.strip('/').split('/')
-        result = None
         for count in range(1, len(path_chunks) + 1):
             try:
-                result = await self.create_folder("/".join(path_chunks[0:count]))
+                await self.mkdir("/".join(path_chunks[0:count]))
             except NextcloudException as e:
                 if 'already exists' not in str(e):
                     raise
-        return result
 
-    async def __upload_file_chunk(self, local_path: str, uuid_dir: str):
+    async def __upload_file_chunk(self, local_path: str, uuid_dir: str) -> httpx.Response:
         with open(local_path, 'rb') as fp:
-            return await self.dav_query(
-                method='PUT',
-                sub=f'/remote.php/dav/uploads/{self.user}/'
-                    f'{uuid_dir}/{os.path.basename(local_path)}',
+            return await self._put(
+                path=f'/uploads/{self.client.user}/{uuid_dir}/{os.path.basename(local_path)}',
                 data=fp.read())
 
     async def __assemble_chunks(
             self,
             uuid_dir: str,
-            remote_path: str):
-        return await self.dav_query(
-            method='MOVE',
-            sub=f'/remote.php/dav/uploads/{self.user}/{uuid_dir}/.file',
+            remote_path: str) -> httpx.Response:
+        return await self._move(
+            path=f'/uploads/{self.client.user}/{uuid_dir}/.file',
             headers={
                 'Destination':
-                    f'{self.endpoint}/remote.php/dav/files/'
-                    f'{self.user}/{remote_path.strip("/")}',
+                    f'{self.client.endpoint}/remote.php/dav/files/'
+                    f'{self.client.user}/{remote_path.strip("/")}',
                 'Overwrite': 'T'})
 
     async def upload_file_chunked(
@@ -419,7 +395,6 @@ class FileManager(object):
             NextcloudChunkedCacheExists: When previous failed attempt is detected.
 
         """
-        # TODO: Write test
         file_position = 0
         padding = len(str(os.stat(local_path).st_size))
 
@@ -459,9 +434,8 @@ class FileManager(object):
             os.remove(f'{local_cache_dir}/{resume_chunk}')
         else:
             # Make remote upload directory
-            await self.dav_query(
-                method='MKCOL',
-                sub=f'/remote.php/dav/uploads/{self.user}/{uuid_dir}')
+            await self._mkcol(
+                path=f'/uploads/{self.client.user}/{uuid_dir}')
 
         with open(local_path, 'rb') as source_fp:
             source_fp.seek(file_position)
@@ -517,9 +491,8 @@ class FileManager(object):
             _mem.seek(0)
             data = _mem.read().decode('utf-8')
 
-        result = (await self.dav_query(
-            method='PROPFIND',
-            sub=f'/remote.php/dav/files/{self.user}/{path}',
+        result = (await self._propfind(
+            path=f'/files/{self.client.user}/{path}',
             data=data))
 
         if result['d:propstat']['d:prop'][ruleprop]:
@@ -532,13 +505,13 @@ class FileManager(object):
 
         return result
 
-    async def set_groupfolder_acl(self, path: str, acls: List[dict]):
+    async def set_groupfolder_acl(self, path: str, acls: List[Dict[str, Any]]):
         """Apply a list of groupfolder ACL rules to `path`.
 
         Args
         ----
             path (str): Filesystem path
-            acls (List[int]): List of ACL rule dicts
+            acls (List[Dict[str, Any]]): List of ACL rule dicts
 
         Returns
         -------
@@ -571,7 +544,6 @@ class FileManager(object):
             _mem.seek(0)
             data = _mem.read().decode('utf-8')
 
-        return (await self.dav_query(
-            method='PROPPATCH',
-            sub=f'/remote.php/dav/files/{self.user}/{path}',
+        return (await self._proppatch(
+            path=f'/files/{self.client.user}/{path}',
             data=data))

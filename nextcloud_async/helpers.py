@@ -2,25 +2,25 @@
 
 import urllib
 
-from typing import Dict
+from typing import Dict, Hashable, Any, List
 
 
-def recursive_urlencode(d: Dict):
+def recursive_urlencode(d: Dict[Hashable, Any]):
     """URL-encode a multidimensional dictionary PHP-style.
 
     https://stackoverflow.com/questions/4013838/urlencode-a-multidimensional-dictionary-in-python/4014164#4014164
 
     Updated for python3.
 
-    >>> data = {'a': 'b&c', 'd': {'e': {'f&g': 'h*i'}}, 'j': 'k'}
+    >>> data = {'a': 'b&c', 'd': {'e': {'fg': 'hi'}}, 'j': 'k'}
     >>> recursive_urlencode(data)
     u'a=b%26c&j=k&d[e][f%26g]=h%2Ai'
     """
-    def _recursion(d, base=[]):
-        pairs = []
+    def _recursion(d: Dict[str, str], base: List[str] = []) -> List[str]:
+        pairs: List[str] = []
 
         for key, value in d.items():
-            new_base = base + [key]
+            new_base: List[str] = base + [key]
             if hasattr(value, 'values'):
                 pairs += _recursion(value, new_base)
             else:
@@ -90,3 +90,9 @@ def resolve_element_list(data: Dict, list_keys=[]):
         ret = resolve_element_list(data, list_keys=list_keys)
 
     return ret
+
+def str2bool(s: str):
+    if s.lower() in ["true", "t", "1", "yes"]:
+        return True
+    else:
+        return False

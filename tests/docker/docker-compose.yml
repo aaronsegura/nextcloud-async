@@ -23,4 +23,5 @@ services:
         user: www-data
       - command: php occ app:enable user_ldap
         user: www-data
-
+      - command: php occ app:enable groupfolders
+        user: www-data

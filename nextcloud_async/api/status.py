@@ -5,26 +5,35 @@ https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-st
 
 import datetime as dt
 
-from enum import Enum, auto
-from typing import Optional, Union
+from enum import Enum
+from typing import Optional, Union, Dict, Hashable, Any, cast
 
+from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
+from nextcloud_async.client import NextcloudClient
 from nextcloud_async.exceptions import NextcloudException
 
 
 class StatusType(Enum):
     """Status Types."""
 
-    online = auto()
-    away = auto()
-    dnd = auto()
-    invisible = auto()
-    offline = auto()
+    online = 'online'
+    away = 'away'
+    dnd = 'dnd'
+    invisible = 'invisible'
+    offline = 'offline'
 
 
-class OCSStatusAPI(object):
+class Status(NextcloudModule):
     """Manage a user's status on Nextcloud instances."""
 
-    async def get_status(self):
+    def __init__(
+            self,
+            client: NextcloudClient,
+            api_version: str = '1'):
+        self.stub = f'/apps/user_status/api/v{api_version}'
+        self.api = NextcloudOcsApi(client, ocs_version = '2')
+
+    async def get(self):
         """Get current status.
 
         Returns
@@ -32,11 +41,9 @@ class OCSStatusAPI(object):
             dict: Status description
 
         """
-        return await self.ocs_query(
-            method='GET',
-            sub=r'/ocs/v2.php/apps/user_status/api/v1/user_status')
+        return await self._get('/user_status')
 
-    async def set_status(self, status_type: StatusType):
+    async def set(self, status_type: StatusType):
         """Set user status.
 
         Args
@@ -48,9 +55,8 @@ class OCSStatusAPI(object):
             dict: New status description.
 
         """
-        return await self.ocs_query(
-            method='PUT',
-            sub=r'/ocs/v2.php/apps/user_status/api/v1/user_status/status',
+        return await self._put(
+            path='/user_status/status',
             data={'statusType': status_type.name})
 
     def __validate_future_timestamp(self, ts: Union[float, int]) -> None:
@@ -68,11 +74,11 @@ class OCSStatusAPI(object):
         try:
             clear_dt = dt.datetime.fromtimestamp(ts)
         except (TypeError, ValueError):
-            raise NextcloudException('Invalid `clear_at`.  Should be unix timestamp.')
+            raise NextcloudException(status_code=406, reason='Invalid `clear_at`.  Should be unix timestamp.')
 
         now = dt.datetime.now()
         if clear_dt <= now:
-            raise NextcloudException('Invalid `clear_at`.  Should be in the future.')
+            raise NextcloudException(status_code=406, reason='Invalid `clear_at`.  Should be in the future.')
 
     async def get_predefined_statuses(self):
         """Get list of predefined statuses.
@@ -82,14 +88,12 @@ class OCSStatusAPI(object):
             list: Predefined statuses
 
         """
-        return await self.ocs_query(
-            method='GET',
-            sub=r'/ocs/v2.php/apps/user_status/api/v1/predefined_statuses')
+        return await self._get(path='/predefined_statuses')
 
     async def choose_predefined_status(
             self,
             message_id: int,
-            clear_at: Union[int, None] = None):
+            clear_at: Union[int, None] = None) -> Dict[Hashable, Any]:
         """Choose from predefined status messages.
 
         Args
@@ -104,20 +108,19 @@ class OCSStatusAPI(object):
             dict: New status description
 
         """
-        data = {'messageId': message_id}
+        data: Dict[Hashable, int] = {'messageId': message_id}
         if clear_at:
             self.__validate_future_timestamp(clear_at)
             data.update({'clearAt': clear_at})
-        return await self.ocs_query(
-            method='PUT',
-            sub=r'/ocs/v2.php/apps/user_status/api/v1/user_status/message/predefined',
+        return await self._put(
+            path='/user_status/message/predefined',
             data=data)
 
-    async def set_status_message(
+    async def set_message(
             self,
             message: str,
             status_icon: Optional[str] = None,
-            clear_at: Optional[int] = None):
+            clear_at: Optional[int] = None) -> Dict[Hashable, Any]:
         """Set a custom status message.
 
         Args
@@ -134,18 +137,17 @@ class OCSStatusAPI(object):
             dict: New status description
 
         """
-        data = {'message': message}
+        data: Dict[Hashable, str] = {'message': message}
         if status_icon:
             data.update({'statusIcon': status_icon})
         if clear_at:
             self.__validate_future_timestamp(clear_at)
-            data.update({'clearAt': clear_at})
-        return await self.ocs_query(
-            method='PUT',
-            sub=r'/ocs/v2.php/apps/user_status/api/v1/user_status/message/custom',
+            data.update(cast(Dict[Hashable, Any], {'clearAt': clear_at}))
+        return await self._put(
+            path='/user_status/message/custom',
             data=data)
 
-    async def clear_status_message(self):
+    async def clear_message(self):
         """Clear status message.
 
         Returns
@@ -153,9 +155,7 @@ class OCSStatusAPI(object):
             Empty 200 Response
 
         """
-        return await self.ocs_query(
-            method='DELETE',
-            sub=r'/ocs/v2.php/apps/user_status/api/v1/user_status/message')
+        return await self._delete(path=r'/user_status/message')
 
     async def get_all_user_statuses(
             self,
@@ -174,9 +174,8 @@ class OCSStatusAPI(object):
             list: User statuses
 
         """
-        return await self.ocs_query(
-            method='GET',
-            sub=r'/ocs/v2.php/apps/user_status/api/v1/statuses',
+        return await self._get(
+            path='/statuses',
             data={'limit': limit, 'offset': offset})
 
     async def get_user_status(self, user: str):
@@ -191,6 +190,5 @@ class OCSStatusAPI(object):
             dict: User status description
 
         """
-        return await self.ocs_query(
-            method='GET',
-            sub=f'/ocs/v2.php/apps/user_status/api/v1/statuses/{user}')
+        return await self._get(
+            path=f'/statuses/{user}')

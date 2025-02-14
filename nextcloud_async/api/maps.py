@@ -5,23 +5,22 @@ https://github.com/nextcloud/maps/blob/master/openapi.yml
 """
 
 import json
-import httpx
 
 from typing import List, Hashable, Any, Dict
 
 from nextcloud_async.client import NextcloudClient
-from nextcloud_async.api.base import NextcloudBaseApi
+from nextcloud_async.driver import NextcloudBaseApi, NextcloudModule
 
-class Maps:
-    stub = '/index.php/apps/maps/api/1.0'
-
+class Maps(NextcloudModule):
     """Interact with Nextcloud Maps API.
 
     Add/remove/edit/delete map favorites.
     """
     def __init__(
             self,
-            client: NextcloudClient):
+            client: NextcloudClient,
+            api_version: str = '1.0'):
+        self.stub = f'/apps/maps/api/{api_version}'
         self.api = NextcloudBaseApi(client)
 
     async def list_favorites(self) -> List[str]:
@@ -32,7 +31,7 @@ class Maps:
             list of favorites
 
         """
-        response = await self.api.get(sub=f'{self.stub}/favorites')
+        response = await self._get(path='/favorites')
         return json.loads(response.content.decode('utf-8'))
 
     async def delete_favorite(self, id: int) -> None:
@@ -47,7 +46,7 @@ class Maps:
             Appropriate NextcloudException
 
         """
-        await self.api.delete(sub=f'{self.stub}/favorites/{id}')
+        await self._delete(path=f'/favorites/{id}')
 
     async def update_favorite(self, id: int, data: Dict[Hashable, Any]) -> Dict[Hashable, Any]:
         """Update an existing map favorite.
@@ -65,8 +64,8 @@ class Maps:
             dict: Result of update
 
         """
-        response = await self.api.put(
-                        sub=f'{self.stub}/favorites/{id}',
+        response = await self._put(
+                        path=f'/favorites/{id}',
                         data=data)
 
         return json.loads(response.content.decode('utf-8'))
@@ -86,6 +85,6 @@ class Maps:
 
         """
         response = await self.api.post(
-                        sub=f'{self.stub}/favorites',
+                        path='/favorites',
                         data=data)
         return json.loads(response.content.decode('utf-8'))

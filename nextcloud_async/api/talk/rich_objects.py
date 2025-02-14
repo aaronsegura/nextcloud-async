@@ -9,7 +9,7 @@ and entered into the chat.
 """
 
 
-class NextcloudTalkRichObject(object):
+class NextcloudTalkRichObject:
     """Base Class for Rich Objects."""
 
     object_type = None

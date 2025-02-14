@@ -1,25 +1,28 @@
 """Nextcloud Application API.
 
 Reference:
-    https://docs.nextcloud.com/server/22/admin_manual/\
-configuration_user/instruction_set_for_apps.html
+    https://docs.nextcloud.com/server/lastest/admin_manual/configuration_user/instruction_set_for_apps.html
 """
 
+from nextcloud_async.api import NextcloudModule
 from nextcloud_async.api.ocs import NextcloudOcsApi
 from nextcloud_async.client import NextcloudClient
 
 from typing import Optional, Dict, Hashable, Any, List
 
 
-class AppManager:
+class Apps(NextcloudModule):
     """Manage applications on a Nextcloud instance."""
 
     def __init__(
             self,
-            client: NextcloudClient):
-        self.api = NextcloudOcsApi(client)
+            client: NextcloudClient,
+            ocs_version: Optional[str] = '1'):
+        self.client= client
+        self.api = NextcloudOcsApi(client, ocs_version=ocs_version)
+        self.stub = '/cloud/apps'
 
-    async def get_app(self, app_id: str) -> Dict[Hashable, Any]:
+    async def get(self, app_id: str) -> Dict[Hashable, Any]:
         """Get application information.
 
         Args
@@ -31,9 +34,9 @@ class AppManager:
             dict: Application information
 
         """
-        return await self.api.get(sub=f'/ocs/v1.php/cloud/apps/{app_id}')
+        return await self._get(path=f'/{app_id}')
 
-    async def list_apps(self, filter: Optional[str] = None) -> List[int]:
+    async def list(self, filter: Optional[str] = None) -> List[int]:
         """Get list of applications.
 
         Args
@@ -49,9 +52,7 @@ class AppManager:
         if filter:
             data = {'filter': filter}
 
-        response = await self.api.get(
-            sub=r'/ocs/v1.php/cloud/apps',
-            data=data)
+        response = await self._get(data=data)
         return response['apps']
 
     async def enable_app(self, app_id: str) -> Dict[Hashable, Any]:
@@ -68,7 +69,7 @@ class AppManager:
             Empty 100 Response
 
         """
-        return await self.api.post(sub=f'/ocs/v1.php/cloud/apps/{app_id}')
+        return await self._post(path=f'/{app_id}')
 
     async def disable_app(self, app_id: str) -> Dict[Hashable, Any]:
         """Disable Application.
@@ -84,4 +85,4 @@ class AppManager:
             Empty 100 Response
 
         """
-        return await self.api.delete(sub=f'/ocs/v1.php/cloud/apps/{app_id}')
+        return await self.api.delete(path=f'/{app_id}')

@@ -1,15 +1,25 @@
 # noqa: D400 D415
-"""https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/\
-instruction_set_for_users.html"""
+"""
+https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/instruction_set_for_users.html
+"""
 
 import asyncio
 
-from typing import Optional, List, Dict
-from nextcloud_async.api.ocs.shares import ShareType
+from typing import Optional, List, Dict, Hashable, Any
+
+from nextcloud_async.driver import NextcloudOcsApi, NextcloudModule
+from nextcloud_async.client import NextcloudClient
 
 
-class UserManager():
+
+class Users(NextcloudModule):
     """Manage users on a Nextcloud instance."""
+
+    def __init__(
+            self,
+            client: NextcloudClient):
+        self.stub = r'/cloud/users'
+        self.api = NextcloudOcsApi(client, ocs_version = '1')
 
     async def create_user(
             self,
@@ -18,8 +28,8 @@ class UserManager():
             email: str,
             quota: str,
             language: str,
-            groups: List = [],
-            subadmin: List = [],
+            groups: List[str] = [],
+            subadmin: List[str] = [],
             password: Optional[str] = None) -> Dict[str, str]:
         """Create a new Nextcloud user.
 
@@ -50,9 +60,7 @@ class UserManager():
                 { 'id': 'YourNewUser' }
 
         """
-        return await self.ocs_query(
-            method='POST',
-            sub='/ocs/v1.php/cloud/users',
+        return await self._post(
             data={
                 'userid': user_id,
                 'displayName': display_name,
@@ -63,7 +71,7 @@ class UserManager():
                 'quota': quota,
                 'password': password})
 
-    async def search_users(
+    async def search(
             self,
             search: str,
             limit: int = 100,
@@ -83,16 +91,14 @@ class UserManager():
             list: User ID matches
 
         """
-        response = await self.ocs_query(
-            method='GET',
-            sub='/ocs/v1.php/cloud/users',
+        response = await self._get(
             data={
                 'search': search,
                 'limit': limit,
                 'offset': offset})
         return response['users']
 
-    async def get_user(self, user_id: str = None) -> Dict[str, str]:
+    async def get(self, user_id: str) -> Dict[str, str]:
         """Get a valid user.
 
         Args
@@ -104,11 +110,10 @@ class UserManager():
             dict: User description.
 
         """
-        if not user_id:
-            user_id = self.user
-        return await self.ocs_query(method='GET', sub=f'/ocs/v1.php/cloud/users/{user_id}')
 
-    async def get_users(self) -> List[str]:
+        return await self._get(path=f'/{user_id}')
+
+    async def list(self) -> List[str]:
         """Return all user IDs.
 
         Admin required
@@ -118,63 +123,62 @@ class UserManager():
             List: User IDs
 
         """
-        response = await self.ocs_query(method='GET', sub=r'/ocs/v1.php/cloud/users')
+        response = await self._get()
         return response['users']
 
-    async def user_autocomplete(
-            self,
-            search: str,
-            item_type: Optional[str] = None,
-            item_id: Optional[str] = None,
-            sorter: Optional[str] = None,
-            share_types: Optional[List[ShareType]] = [ShareType['user']],
-            limit: int = 25) -> List[Dict[str, str]]:
-        """Search for a user using incomplete information.
 
-        Reference:
-            https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/\
-            ocs-api-overview.html#auto-complete-and-user-search
+    # TODO: Put into OCS-specific module, along with other TODOs
+    # async def user_autocomplete(
+    #         self,
+    #         search: str,
+    #         item_type: Optional[str] = None,
+    #         item_id: Optional[str] = None,
+    #         sorter: Optional[str] = None,
+    #         share_types: Optional[List[ShareType]] = [ShareType['user']],
+    #         limit: int = 25) -> List[Dict[str, str]]:
+    #     """Search for a user using incomplete information.
 
-            https://github.com/nextcloud/server/blob/master/core/Controller/\
-            AutoCompleteController.php#L62
+    #     Reference:
+    #         https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-api-overview.html#auto-complete-and-user-search
 
-        Args
-        ----
-            search (str): Search string
+    #         https://github.com/nextcloud/server/blob/master/core/Controller/AutoCompleteController.php#L62
 
-            item_type (str, optional): Item type, `users` or `groups`. Used for sorting.
-            Defaults to None.
+    #     Args
+    #     ----
+    #         search (str): Search string
 
-            item_id (str, optional): Item id, used for sorting.  Defaults to None.
+    #         item_type (str, optional): Item type, `users` or `groups`. Used for sorting.
+    #         Defaults to None.
 
-            sorter (str, optional): Can be piped, top priority first, e.g.:
-            "commenters|share-recipients"
+    #         item_id (str, optional): Item id, used for sorting.  Defaults to None.
 
-            share_types (ShareType, optional): ShareType, defaults to ShareType['user']
+    #         sorter (str, optional): Can be piped, top priority first, e.g.:
+    #         "commenters|share-recipients"
 
-            limit (int, optional): Results per page. Defaults to 25.
+    #         share_types (ShareType, optional): ShareType, defaults to ShareType['user']
 
-        Returns
-        -------
-            list: Potential matches
+    #         limit (int, optional): Results per page. Defaults to 25.
 
-        """
-        share_types_values = [x.value for x in share_types]
-        return await self.ocs_query(
-            method='GET',
-            sub='/ocs/v2.php/core/autocomplete/get',
-            data={
-                'search': search,
-                'itemType': item_type,
-                'itemId': item_id,
-                'sorter': sorter,
-                'shareTypes[]': share_types_values,
-                'limit': limit})
+    #     Returns
+    #     -------
+    #         list: Potential matches
+
+    #     """
+    #     share_types_values = [x.value for x in share_types]
+    #     return await self._get(
+    #         path='/ocs/v2.php/core/autocomplete/get',
+    #         data={
+    #             'search': search,
+    #             'itemType': item_type,
+    #             'itemId': item_id,
+    #             'sorter': sorter,
+    #             'shareTypes[]': share_types_values,
+    #             'limit': limit})
 
     async def update_user(
             self,
             user_id: str,
-            new_data: Dict) -> List[List[str]]:
+            new_data: Dict[Hashable, Any]) -> List[List[str]]:
         """Update a user's information.
 
         Use async/await to update everything at once.
@@ -192,17 +196,16 @@ class UserManager():
         """
         reqs = []
         for k, v in new_data.items():
-            reqs.append(self.__update_user(user_id, k, v))
+            reqs.append(self.__update_user(user_id, k, v))  # type: ignore
 
-        return await asyncio.gather(*reqs)
+        return await asyncio.gather(*reqs)  # type: ignore
 
-    async def __update_user(self, user_id, k, v) -> List[str]:
-        return await self.ocs_query(
-            method='PUT',
-            sub=f'/ocs/v1.php/cloud/users/{user_id}',
+    async def __update_user(self, user_id: int, k: str, v: str | int) -> List[str]:
+        return await self._put(
+            path=f'/{user_id}',
             data={'key': k, 'value': v})
 
-    async def get_user_editable_fields(self):
+    async def get_editable_fields(self):
         """Get user-editable fields.
 
         Returns
@@ -210,11 +213,9 @@ class UserManager():
             list: User-editable fields
 
         """
-        return await self.ocs_query(
-            method='GET',
-            sub=r'/ocs/v1.php/cloud/user/fields')
+        return await self._get(path=r'/fields')
 
-    async def disable_user(self, user_id: str) -> List[str]:
+    async def disable(self, user_id: str) -> List[str]:
         """Disable `user_id`.
 
         Must be admin.
@@ -228,11 +229,9 @@ class UserManager():
             Empty 100 Response
 
         """
-        return await self.ocs_query(
-            method='PUT',
-            sub=f'/ocs/v1.php/cloud/users/{user_id}/disable')
+        return await self._put(path=f'/{user_id}/disable')
 
-    async def enable_user(self, user_id: str) -> List[str]:
+    async def enable(self, user_id: str) -> List[str]:
         """Enable `user_id`.  Must be admin.
 
         Args
@@ -244,11 +243,9 @@ class UserManager():
             Empty 100 Response
 
         """
-        return await self.ocs_query(
-            method='PUT',
-            sub=f'/ocs/v1.php/cloud/users/{user_id}/enable')
+        return await self._put(path=f'/{user_id}/enable')
 
-    async def remove_user(self, user_id: str) -> List[str]:
+    async def delete(self, user_id: str) -> List[str]:
         """Remove existing `user_id`.
 
         Args
@@ -260,11 +257,9 @@ class UserManager():
             Empty 100 Response
 
         """
-        return await self.ocs_query(
-            method='DELETE',
-            sub=f'/ocs/v1.php/cloud/users/{user_id}')
+        return await self._delete(path=f'/{user_id}')
 
-    async def get_user_groups(self, user_id: Optional[str] = None) -> List[str]:
+    async def get_group_membership(self, user_id: str) -> List[str]:
         """Get list of groups `user_id` belongs to.
 
         Args
@@ -276,12 +271,10 @@ class UserManager():
             list: group ids
 
         """
-        response = await self.ocs_query(
-            method='GET',
-            sub=f'/ocs/v1.php/cloud/users/{user_id or self.user}/groups')
+        response = await self._get(path=f'/{user_id }/groups')
         return response['groups']
 
-    async def add_user_to_group(self, user_id: str, group_id: str) -> List[str]:
+    async def add_to_group(self, user_id: str, group_id: str) -> List[str]:
         """Add `user_id` to `group_id`.
 
         Args
@@ -295,12 +288,11 @@ class UserManager():
             Empty 100 Response
 
         """
-        return await self.ocs_query(
-            method='POST',
-            sub=f'/ocs/v1.php/cloud/users/{user_id}/groups',
+        return await self._post(
+            path=f'/{user_id}/groups',
             data={'groupid': group_id})
 
-    async def remove_user_from_group(self, user_id: str, group_id: str) -> List[str]:
+    async def remove_from_group(self, user_id: str, group_id: str) -> List[str]:
         """Remove `user_id` from `group_id`.
 
         Args
@@ -314,12 +306,11 @@ class UserManager():
             Empty 100 Response
 
         """
-        return await self.ocs_query(
-            method='DELETE',
-            sub=f'/ocs/v1.php/cloud/users/{user_id}/groups',
+        return await self._delete(
+            path=f'/{user_id}/groups',
             data={'groupid': group_id})
 
-    async def promote_user_to_subadmin(self, user_id: str, group_id: str) -> List[str]:
+    async def promote_to_subadmin(self, user_id: str, group_id: str) -> List[str]:
         """Make `user_id` a subadmin of `group_id`.
 
         Args
@@ -333,12 +324,11 @@ class UserManager():
             Empty 100 Response
 
         """
-        return await self.ocs_query(
-            method='POST',
-            sub=f'/ocs/v1.php/cloud/users/{user_id}/subadmins',
+        return await self._post(
+            path=f'/{user_id}/subadmins',
             data={'groupid': group_id})
 
-    async def demote_user_from_subadmin(self, user_id: str, group_id: str) -> List[str]:
+    async def demote_from_subadmin(self, user_id: str, group_id: str) -> List[str]:
         """Demote `user_id` from subadmin of `group_id`.
 
         Args
@@ -352,12 +342,11 @@ class UserManager():
             Empty 100 Response
 
         """
-        return await self.ocs_query(
-            method='DELETE',
-            sub=f'/ocs/v1.php/cloud/users/{user_id}/subadmins',
+        return await self._delete(
+            path=f'/{user_id}/subadmins',
             data={'groupid': group_id})
 
-    async def get_user_subadmin_groups(self, user_id: str) -> List[str]:
+    async def get_subadmin_groups(self, user_id: str) -> List[str]:
         """Return list of groups of which `user_id` is subadmin.
 
         Args
@@ -369,9 +358,7 @@ class UserManager():
             list: group ids
 
         """
-        return await self.ocs_query(
-            method='GET',
-            sub=f'/ocs/v1.php/cloud/users/{user_id}/subadmins')
+        return await self._get(path=f'/{user_id}/subadmins')
 
     async def resend_welcome_email(self, user_id: str) -> List[str]:
         """Re-send initial welcome e-mail to `user_id`.
@@ -385,6 +372,4 @@ class UserManager():
             Empty 100 Response
 
         """
-        return await self.ocs_query(
-            method='POST',
-            sub=f'/ocs/v1.php/cloud/users/{user_id}/welcome')
+        return await self._post(path=f'/{user_id}/welcome')

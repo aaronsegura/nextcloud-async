@@ -8,9 +8,10 @@ import httpx
 
 from urllib.parse import urlencode
 
-from typing import Dict, Any, Optional, List, Hashable, Tuple
+from typing import Dict, Any, Optional, Hashable
 
-from nextcloud_async.api.api import NextcloudHttpApi
+from nextcloud_async.client import NextcloudClient
+from nextcloud_async.driver import NextcloudHttpApi
 from nextcloud_async.exceptions import NextcloudException
 
 from nextcloud_async.exceptions import (
@@ -22,20 +23,30 @@ from nextcloud_async.exceptions import (
     NextcloudRequestTimeout,
     NextcloudTooManyRequests)
 
+
 class NextcloudOcsApi(NextcloudHttpApi):
     """Nextcloud OCS API.
 
     All OCS queries must have an {'OCS-APIRequest': 'true'} header. Additionally, we
     request all data to be returned to us in json format.
     """
-
     __capabilities: Dict[Hashable, Any] = {}
+
+    def __init__(
+            self,
+            client: NextcloudClient,
+            ocs_version: Optional[str] = '1',
+            stub: Optional[str] = None):
+        super().__init__(client)
+        if stub:
+            self.stub = stub
+        else:
+            self.stub = f'/ocs/v{ocs_version}.php'
 
     async def request(
             self,
             method: str = 'GET',
-            url: Optional[str] = None,
-            sub: str = '',
+            path: str = '',
             data: Optional[Dict[Hashable, Any]] = {},
             headers: Optional[Dict[Hashable, Any]] = {},
             return_full_response: bool = False) -> Dict[Hashable, Any]:
@@ -47,7 +58,7 @@ class NextcloudOcsApi(NextcloudHttpApi):
 
             url (str, optional): Use a URL outside of the given endpoint. Defaults to None.
 
-            sub (str, optional): The portion of the URL after the host. Defaults to ''.
+            path (str, optional): The portion of the URL after the host. Defaults to ''.
 
             data (Dict, optional): Data for submission.  Data for GET requests is translated by
             urlencode and tacked on to the end of the URL as arguments. Defaults to {}.
@@ -82,7 +93,7 @@ class NextcloudOcsApi(NextcloudHttpApi):
             what was requested.  The metadata is stripped after checking for request
             success, and only the data portion of the response is returned.
 
-            >>> response = await self.ocs_query(sub='/ocs/v1.php/cloud/capabilities')
+            >>> response = await self.ocs_query(path='/ocs/v1.php/cloud/capabilities')
 
             Dict, Dict: Response Data and Included Headers
 
@@ -107,13 +118,14 @@ class NextcloudOcsApi(NextcloudHttpApi):
             data = {'format': 'json'}
 
         if method.lower() == 'get':
-            sub = f'{sub}?{urlencode(data, True)}'
+            path = f'{path}?{urlencode(data, True)}'
             data = None
 
         try:
             response = await self.client.request(
                 method,
-                url=f'{url}{sub}' if url else f'{self.endpoint}{sub}',
+                auth=(self.user, self.password),
+                url=f'{self.endpoint}{self.stub}{path}',
                 data=data, # type: ignore
                 headers=headers) # type: ignore
         except httpx.ReadTimeout:
@@ -153,38 +165,8 @@ class NextcloudOcsApi(NextcloudHttpApi):
         else:
             raise NextcloudException(status_code=500, reason='Invalid response from server.')
 
-    async def request_with_returned_headers(
-            self,
-            method: str = 'GET',
-            url: Optional[str] = None,
-            sub: str = '',
-            data: Optional[Dict[Hashable, Any]] = {},
-            headers: Optional[Dict[Hashable, Any]] = {},
-            return_headers: Optional[List[str]] = []) -> Tuple[Dict[Hashable, Any], Dict[Hashable, Any]]:
 
-        response_content = await self.request(
-            method=method,
-            url=url,
-            sub=sub,
-            data=data,
-            headers=headers,
-            return_full_response=True)
-
-        response_headers: Dict[Hashable, Any] = {}
-
-        ocs_meta = response_content['ocs']['meta']
-        if ocs_meta['status'] != 'ok':
-            raise NextcloudException(
-                status_code=ocs_meta['statuscode'],
-                reason=ocs_meta['message'])
-        else:
-            response_data = response_content['ocs']['data']
-            if return_headers:
-                for header in return_headers:
-                    response_headers.setdefault(header, ocs_meta['headers'].get(header, None))
-                return response_data, response_headers
-            else:
-                return response_data
+    # TODO: Move this to another module
 
     async def get_capabilities(self, capability: Optional[str] = None) -> Dict[Hashable, Any]:
         """Return capabilities for this server.
@@ -206,12 +188,8 @@ class NextcloudOcsApi(NextcloudHttpApi):
         if not self.__capabilities:
             response = await self.request(
                 method='GET',
-                sub=r'/ocs/v1.php/cloud/capabilities')
-
-            if isinstance(response, dict):
-                self.__capabilities = response
-            else:
-                raise NextcloudNotFound
+                path=r'/ocs/v1.php/cloud/capabilities')
+            self.__capabilities = response
 
         ret = self.__capabilities
 
@@ -255,24 +233,20 @@ class NextcloudOcsApi(NextcloudHttpApi):
 
         result = await self.request(
             method='POST',
-            sub=r'/ocs/v2.php/apps/dav/api/v1/direct',
+            path=r'/ocs/v2.php/apps/dav/api/v1/direct',
             data={'fileId': file_id})
 
-        if isinstance(result, dict):
-            return result['url']
-        else:
-            print(result)
-            raise NextcloudNotFound
+        return result['url']
+
 
     # TODO: Move this to another module
-
     async def get_activity(
             self,
             since: Optional[int] = 0,
             object_id: Optional[str] = None,
             object_type: Optional[str] = None,
             sort: Optional[str] = 'desc',
-            limit: Optional[int] = 50) -> Tuple[Dict[Hashable, Any], Dict[Hashable, Any]]:
+            limit: Optional[int] = 50) -> Dict[Hashable, Any]:
         """Get Recent activity for the current user.
 
         Args
@@ -320,10 +294,10 @@ class NextcloudOcsApi(NextcloudHttpApi):
             'sort': sort,
             'since': since})
 
-        data, headers = await self.request_with_returned_headers(
+        response = await self.request(
             method='GET',
-            sub=f'/ocs/v2.php/apps/activity/api/v2/activity{filter}',
+            path=f'/ocs/v2.php/apps/activity/api/v2/activity{filter}',
             data=data,
-            return_headers=['X-Activity-First-Known', 'X-Activity-Last-Given'])
+            return_full_response=True)
 
-        return data, headers
+        return response

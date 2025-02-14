@@ -7,9 +7,9 @@ from enum import IntFlag
 
 from typing import List, Dict, Hashable, Any
 
-from nextcloud_async.api.ocs import NextcloudOcsApi
+from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
 from nextcloud_async.client import NextcloudClient
-
+from nextcloud_async.helpers import str2bool
 
 class Permissions(IntFlag):
     """Groupfolders Permissions."""
@@ -22,17 +22,21 @@ class Permissions(IntFlag):
     all = 31
 
 
-class GroupFolderManager(object):
+class GroupFolders(NextcloudModule):
     """Manage Group Folders.
 
-    Must have Group Folders application enabled on server.
+    Must have Group Folders application enabled on server.  If groupfolders is not enabled,
+    all requests will throw NextcloudNotFound exception.  You can check capabilities of the
+    server before sending a request: self.get_capabilities('groupfolders')
     """
+
     def __init__(
             self,
             client: NextcloudClient):
-        self.api = NextcloudOcsApi(client)
+        self.api = NextcloudOcsApi(client, stub='/index.php/apps')
+        self.stub = 'groupfolders/folders'
 
-    async def list_folders(self) -> List[Dict[Hashable, Any]]:
+    async def list(self) -> List[Dict[Hashable, Any]]:
         """Get list of all group folders.
 
         Returns
@@ -40,12 +44,12 @@ class GroupFolderManager(object):
             list: List of group folders.
 
         """
-        response = await self.api.get(sub='/apps/groupfolders/folders')
+        response = await self.api.get(path=self.stub)
         if isinstance(response, dict):
             return [response]
         return response
 
-    async def create_group_folder(self, path: str):
+    async def add(self, path: str) -> Dict[Hashable, Any]:
         """Create new group folder.
 
         Args
@@ -61,12 +65,9 @@ class GroupFolderManager(object):
                 { 'id': 1 }
 
         """
-        return await self.ocs_query(
-            method='POST',
-            sub='/apps/groupfolders/folders',
-            data={'mountpoint': path})
+        return await self.api.post(path=self.stub, data={'mountpoint': path})
 
-    async def get_group_folder(self, folder_id: int):
+    async def get(self, folder_id: int) -> Dict[Hashable, Any]:
         """Get group folder with id `folder_id`.
 
         Args
@@ -78,11 +79,9 @@ class GroupFolderManager(object):
             dict: Group folder description.
 
         """
-        return await self.ocs_query(
-            method='GET',
-            sub=f'/apps/groupfolders/folders/{folder_id}')
+        return await self.api.get(path=f'{self.stub}/{folder_id}')
 
-    async def remove_group_folder(self, folder_id: int):
+    async def delete(self, folder_id: int) -> bool:
         """Delete group folder with id `folder_id`.
 
         Args
@@ -91,14 +90,13 @@ class GroupFolderManager(object):
 
         Returns
         -------
-            dict: { 'success': True|False }
+            bool: success(True) or failure(False)
 
         """
-        return await self.ocs_query(
-            method='DELETE',
-            sub=f'/apps/groupfolders/folders/{folder_id}')
+        response = await self.api.delete(path=f'{self.stub}/{folder_id}')
+        return str2bool(response['success'])
 
-    async def add_group_to_group_folder(self, group_id: str, folder_id: int):
+    async def permit_group(self, group_id: str, folder_id: int) -> bool:
         """Give `group_id` access to `folder_id`.
 
         Args
@@ -109,15 +107,13 @@ class GroupFolderManager(object):
 
         Returns
         -------
-            dict: { 'success': True|False }
+            bool: success(True) or failure(False)
 
         """
-        return await self.ocs_query(
-            method='POST',
-            sub=f'/apps/groupfolders/folders/{folder_id}/groups',
-            data={'group': group_id})
+        response = await self.api.post(path=f'{self.stub}/{folder_id}/groups', data={'group': group_id})
+        return str2bool(response['success'])
 
-    async def remove_group_from_group_folder(self, group_id: str, folder_id: int):
+    async def deny_group(self, group_id: str, folder_id: int) -> bool:
         """Remove `group_id` access from `folder_id`.
 
         Args
@@ -128,14 +124,13 @@ class GroupFolderManager(object):
 
         Returns
         -------
-            dict: { 'success': True|False }
+            bool: success(True) or failure(False)
 
         """
-        return await self.ocs_query(
-            method='DELETE',
-            sub=f'/apps/groupfolders/folders/{folder_id}/groups/{group_id}')
+        response = await self.api.delete(path=f'/apps/groupfolders/folders/{folder_id}/groups/{group_id}')
+        return str2bool(response['success'])
 
-    async def enable_group_folder_advanced_permissions(self, folder_id: int):
+    async def enable_advanced_permissions(self, folder_id: int) -> bool:
         """Enable advanced permissions on `folder_id`.
 
         Args
@@ -144,7 +139,7 @@ class GroupFolderManager(object):
 
         Returns
         -------
-            dict: { 'success': True|False }
+            bool: success(True) or failure(False)
 
         """
         return await self.__advanced_permissions(folder_id, True)
@@ -158,18 +153,19 @@ class GroupFolderManager(object):
 
         Returns
         -------
-            dict: { 'success': True|False }
+            bool: success(True) or failure(False)
 
         """
         return await self.__advanced_permissions(folder_id, False)
 
-    async def __advanced_permissions(self, folder_id: int, enable: bool):
-        return await self.ocs_query(
-            method='POST',
-            sub=f'/apps/groupfolders/folders/{folder_id}/acl',
+    async def __advanced_permissions(self, folder_id: int, enable: bool) -> bool:
+        response = await self.api.post(
+            path=f'{self.stub}/{folder_id}/acl',
             data={'acl': 1 if enable else 0})
+        return str2bool(response['success'])
 
-    async def add_group_folder_advanced_permissions(
+
+    async def add_advanced_permissions(
             self,
             folder_id: int,
             object_id: str,
@@ -186,7 +182,7 @@ class GroupFolderManager(object):
 
         Returns
         -------
-            dict: { 'success': True|False }
+            bool: success(True) or failure(False)
 
         """
         return await self.__advanced_permissions_admin(
@@ -212,7 +208,7 @@ class GroupFolderManager(object):
 
         Returns
         -------
-            dict: { 'success': True|False }
+            bool: success(True) or failure(False)
 
         """
         return await self.__advanced_permissions_admin(
@@ -226,20 +222,22 @@ class GroupFolderManager(object):
             folder_id: int,
             object_id: str,
             object_type: str,
-            manage_acl: bool):
-        return await self.ocs_query(
-            method='POST',
-            sub=f'/apps/groupfolders/folders/{folder_id}/manageACL',
+            manage_acl: bool) -> bool:
+        response = await self.api.post(
+            path=f'{self.stub}/{folder_id}/manageACL',
             data={
                 'mappingId': object_id,
                 'mappingType': object_type,
                 'manageAcl': manage_acl})
 
+        return str2bool(response['success'])
+
+
     async def set_group_folder_permissions(
             self,
             folder_id: int,
             group_id: str,
-            permissions: Permissions):
+            permissions: Permissions) -> bool:
         """Set permissions a group has in a folder.
 
         Args
@@ -252,15 +250,15 @@ class GroupFolderManager(object):
 
         Returns
         -------
-            dict: { 'success': True|False }
+            bool: success(True) or failure(False)
 
         """
-        return await self.ocs_query(
-            method='POST',
-            sub=f'/apps/groupfolders/folders/{folder_id}/groups/{group_id}',
+        response = await self.api.post(
+            path=f'{self.stub}/{folder_id}/groups/{group_id}',
             data={'permissions': permissions.value})
+        return str2bool(response['success'])
 
-    async def set_group_folder_quota(self, folder_id: int, quota: int):
+    async def set_quota(self, folder_id: int, quota: int) -> bool:
         """Set quota for group folder.
 
         Args
@@ -271,15 +269,15 @@ class GroupFolderManager(object):
 
         Returns
         -------
-            dict: { 'success': True|False }
+            bool: success(True) or failure(False)
 
         """
-        return await self.ocs_query(
-            method='POST',
-            sub=f'/apps/groupfolders/folders/{folder_id}/quota',
+        response = await self.api.post(
+            path=f'{self.stub}/{folder_id}/quota',
             data={'quota': quota})
+        return str2bool(response['successs'])
 
-    async def rename_group_folder(self, folder_id: int, mountpoint: str):
+    async def rename(self, folder_id: int, mountpoint: str):
         """Rename a group folder.
 
         Args
@@ -290,10 +288,10 @@ class GroupFolderManager(object):
 
         Returns
         -------
-            dict: { 'success': True|False }
+            bool: success(True) or failure(False)
 
         """
-        return await self.ocs_query(
-            method='POST',
-            sub=f'/apps/groupfolders/folders/{folder_id}/mountpoint',
+        response = await self.api.post(
+            path=f'{self.stub}/{folder_id}/mountpoint',
             data={'mountpoint': mountpoint})
+        return str2bool(response['success'])

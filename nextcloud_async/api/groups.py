@@ -4,24 +4,34 @@ https://docs.nextcloud.com/server/22/admin_manual/configuration_user/\
 instruction_set_for_groups.html
 """
 
-from typing import Optional
+from typing import Optional, List, Dict, Hashable, Any
+
+from nextcloud_async.driver import NextcloudOcsApi, NextcloudModule
+from nextcloud_async.client import NextcloudClient
 
 
-class GroupManager(object):
+class Groups(NextcloudModule):
     """Manage groups on a Nextcloud instance."""
 
-    async def search_groups(
+    def __init__(
             self,
-            search: str,
+            client: NextcloudClient):
+
+        self.api = NextcloudOcsApi(client)
+        self.stub = '/cloud/groups'
+
+    async def search(
+            self,
+            search: Optional[str] = '',
             limit: Optional[int] = 100,
-            offset: Optional[int] = 0):
+            offset: Optional[int] = 0) -> List[str]:
         """Search groups.
 
         This is the way to 'get' a group.
 
         Args
         ----
-            search (str): Search string
+            search (str): Search string, empty string for all groups.
 
             limit (int, optional): Results per page. Defaults to 100.
 
@@ -32,33 +42,30 @@ class GroupManager(object):
             list: Group names.
 
         """
-        response = await self.ocs_query(
-            method='GET',
-            sub='/ocs/v1.php/cloud/groups',
+        response = await self._get(
             data={
                 'limit': limit,
                 'offset': offset,
                 'search': search})
         return response['groups']
 
-    async def create_group(self, group_id: str):
+    async def add(self, group_name: str) -> Dict[Hashable, Any]:
         """Create a new group.
 
         Args
         ----
-            group_id (str): Group name
+            group_name (str): Group name
 
         Returns
         -------
             Empty 100 Response
 
         """
-        return await self.ocs_query(
-            method='POST',
-            sub=r'/ocs/v1.php/cloud/groups',
-            data={'groupid': group_id})
+        return await self.api.post(
+            path=self.stub,
+            data={'groupid': group_name})
 
-    async def get_group_members(self, group_id: str):
+    async def get_group_members(self, group_name: str) -> List[str]:
         """Get group members.
 
         Args
@@ -70,28 +77,26 @@ class GroupManager(object):
             list: Users belonging to `group_id`
 
         """
-        response = await self.ocs_query(
-            method='GET',
-            sub=f'/ocs/v1.php/cloud/groups/{group_id}')
+        response = await self.api.get(
+            path=f'{self.stub}/{group_name}')
         return response['users']
 
-    async def get_group_subadmins(self, group_id: str):
-        """Get `group_id` subadmins.
+    async def get_subadmins(self, group_name: str) -> List[str]:
+        """Get `group_name` subadmins.
 
         Args
         ----
-            group_id (str): Group ID
+            group_name (str): Group ID
 
         Returns
         -------
             list: Users who are subadmins of this group.
 
         """
-        return await self.ocs_query(
-            method='GET',
-            sub=f'/ocs/v1.php/cloud/groups/{group_id}/subadmins')
+        return await self.api.get(
+            path=f'{self.stub}/{group_name}/subadmins')
 
-    async def remove_group(self, group_id: str):
+    async def delete(self, group_name: str):
         """Remove `group_id`.
 
         Args
@@ -103,6 +108,5 @@ class GroupManager(object):
             Empty 100 Response
 
         """
-        return await self.ocs_query(
-            method='DELETE',
-            sub=f'/ocs/v1.php/cloud/groups/{group_id}')
+        return await self.api.delete(
+            path=f'{self.stub}/{group_name}')

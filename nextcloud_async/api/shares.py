@@ -12,7 +12,10 @@ import asyncio
 import datetime as dt
 
 from enum import Enum, IntFlag
-from typing import Any, Optional, List
+from typing import Any, Optional, List, Dict, Hashable, Tuple
+
+from nextcloud_async.client import NextcloudClient
+from nextcloud_async.driver import NextcloudOcsApi, NextcloudModule
 
 from nextcloud_async.exceptions import NextcloudException
 
@@ -48,20 +51,23 @@ class SharePermission(IntFlag):
     all = 31
 
 
-class OCSShareAPI(object):
+class Shares(NextcloudModule):
     """Manage local shares on Nextcloud instances."""
+    def __init__(
+            self,
+            client: NextcloudClient,
+            api_version: str = '1'):
+        self.stub = f'/apps/file_sharing/api/v{api_version}/shares'
+        self.api = NextcloudOcsApi(client, ocs_version = '2')
 
-    async def get_all_shares(self):
+    async def list(self) -> List[Dict[Hashable, Any]]:
         """Return list of all shares.
 
         Returns
         -------
             list: Share descriptions
-
         """
-        return await self.ocs_query(
-            method='GET',
-            sub='/ocs/v2.php/apps/files_sharing/api/v1/shares')
+        return await self.api.get(path=f'{self.stub}/shares')
 
     async def get_file_shares(
             self,
@@ -84,15 +90,13 @@ class OCSShareAPI(object):
             list: File share descriptions
 
         """
-        return await self.ocs_query(
-            method='GET',
-            sub='/ocs/v2.php/apps/files_sharing/api/v1/shares',
+        return await self._get(
             data={
                 'path': path,
                 'reshares': str(reshares).lower(),
                 'subfiles': str(subfiles).lower()})
 
-    async def get_share(self, share_id: int):
+    async def get(self, share_id: int):
         """Return information about a known share.
 
         Args
@@ -104,12 +108,11 @@ class OCSShareAPI(object):
             dict: Share description
 
         """
-        return (await self.ocs_query(
-            method='GET',
-            sub=f'/ocs/v2.php/apps/files_sharing/api/v1/shares/{share_id}',
+        return (await self._get(
+            path=f'/{share_id}',
             data={'share_id': share_id}))[0]
 
-    async def create_share(
+    async def add(
             self,
             path: str,
             share_type: ShareType,
@@ -156,15 +159,13 @@ class OCSShareAPI(object):
             try:
                 expire_dt = dt.datetime.strptime(expire_date, r'%Y-%m-%d')
             except ValueError:
-                raise NextcloudException('Invalid date.  Should be YYYY-MM-DD')
+                raise NextcloudException(status_code=406, reason='Invalid date.  Should be YYYY-MM-DD')
             else:
                 now = dt.datetime.now()
                 if expire_dt < now:
-                    raise NextcloudException('Invalid date.  Should be in the future.')
+                    raise NextcloudException(status_code=406, reason='Invalid date.  Should be in the future.')
 
-        return await self.ocs_query(
-            method='POST',
-            sub='/ocs/v2.php/apps/files_sharing/api/v1/shares',
+        return await self._post(
             data={
                 'path': path,
                 'shareType': share_type.value,
@@ -175,7 +176,7 @@ class OCSShareAPI(object):
                 'expireDate': expire_date,
                 'note': note})
 
-    async def delete_share(self, share_id: int):
+    async def delete(self, share_id: int):
         """Delete an existing share.
 
         Args
@@ -187,20 +188,18 @@ class OCSShareAPI(object):
             Query results.
 
         """
-        return await self.ocs_query(
-            method='DELETE',
-            sub=f'/ocs/v2.php/apps/files_sharing/api/v1/shares/{share_id}',
-            data={'share_id': share_id}
-        )
+        return await self._delete(
+            path=f'/{share_id}',
+            data={'share_id': share_id})
 
-    async def update_share(
+    async def update(
             self,
             share_id: int,
             permissions: Optional[SharePermission] = None,
             password: Optional[str] = None,
             allow_public_upload: Optional[bool] = None,
             expire_date: Optional[str] = None,  # YYYY-MM-DD
-            note: Optional[str] = None) -> List:
+            note: Optional[str] = None) -> List[Dict[Hashable, Any]]:
         """Update properties of an existing share.
 
         This function makes asynchronous calls to the __update_share function
@@ -230,8 +229,8 @@ class OCSShareAPI(object):
             List: responses from update queries
 
         """
-        reqs = []
-        attrs = [
+        reqs: List[Dict[Hashable, Any]] = []
+        attrs: List[Tuple[str, Any]] = [
             ('permissions', permissions),
             ('password', password),
             ('publicUpload', str(allow_public_upload).lower()),
@@ -240,15 +239,16 @@ class OCSShareAPI(object):
 
         for a in attrs:
             if a[1]:
-                reqs.append(self.__update_share(share_id, *a))
+                reqs.append(self.__update_share(share_id, *a))  # type: ignore
 
-        return await asyncio.gather(*reqs)
+        return await asyncio.gather(*reqs)  # type: ignore
 
-    async def __update_share(self, share_id, key: str, value: Any):
-        return await self.ocs_query(
-            method='PUT',
-            sub=f'/ocs/v2.php/apps/files_sharing/api/v1/shares/{share_id}',
+    async def __update_share(self, share_id: int, key: str, value: Any) -> Dict[Hashable, Any]:
+        return await self._put(
+            path=f'/{share_id}',
             data={key: value})
+
+    # TODO : vvv this vvv
 
     async def search_sharees(
             self,
@@ -256,7 +256,7 @@ class OCSShareAPI(object):
             lookup: bool = False,
             limit: int = 200,
             page: int = 1,
-            search: str = None):
+            search: Optional[str] = None):
         """Search for people or groups to share things with.
 
         Args

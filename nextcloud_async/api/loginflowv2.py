@@ -15,7 +15,6 @@ Reference:
 """
 
 import asyncio
-import httpx
 
 from importlib.metadata import version
 
@@ -25,7 +24,7 @@ from typing import Dict, Hashable, Any
 
 from nextcloud_async.exceptions import NextcloudLoginFlowTimeout
 
-from nextcloud_async.api.base import NextcloudBaseApi
+from nextcloud_async.driver import NextcloudBaseApi, NextcloudOcsApi
 from nextcloud_async.client import NextcloudClient
 
 __VERSION__ = version('nextcloud_async')
@@ -43,14 +42,13 @@ class LoginFlowV2:
 
     You may then use `appPassword` to log in as the user with your application.
     """
-
-    sub = '/index.php/login/v2'
-
     def __init__(
             self,
-            client: NextcloudClient) -> None:
+            client: NextcloudClient,
+            api_version: str = '2') -> None:
+        self.client = client
         self.api = NextcloudBaseApi(client)
-
+        self.stub = f'login/v{api_version}'
 
     async def initiate(self) -> Dict[Hashable, Any]:
         r"""Initiate login flow v2.
@@ -75,7 +73,7 @@ class LoginFlowV2:
             }
 
         """
-        response = await self.api.post(sub=self.sub)
+        response = await self.api.post(path=self.stub)
         return response.json()
 
     async def wait_confirm(self, token: str, timeout: int = 60) -> Dict[Hashable, Any]:
@@ -113,16 +111,15 @@ class LoginFlowV2:
         running_time = 0
 
         response = await self.api.post(
-                        sub='/login/v2/poll',
+                        path=f'{self.stub}/poll',
                         data={'token': token})
 
         while response.status_code == 404 and running_time < timeout:
-            print("LOOPTID")
             running_time = (dt.datetime.now() - start_dt).seconds
             await asyncio.sleep(1)
 
             response = await self.api.post(
-                            sub='/login/v2/poll',
+                            path=f'{self.stub}/poll',
                             data={'token': token})
 
         if response.status_code == 404:
@@ -142,9 +139,8 @@ class LoginFlowV2:
 
         """
         # This reuqires OCS api
-        response = await self.api.request(
-            method='DELETE',
-            sub='/ocs/v2.php/core/apppassword')
+        ocs_api = NextcloudOcsApi(self.client, ocs_version='2')
+        response = await ocs_api.delete(path='core/apppassword')
 
         if response.status_code == 200:
             return True

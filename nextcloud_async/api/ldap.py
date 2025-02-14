@@ -7,13 +7,13 @@ from typing import Dict
 from nextcloud_async.helpers import recursive_urlencode
 
 
-class OCSLdapAPI(object):
+class OCSLdapApi:
     """Manage the LDAP configuration of a Nextcloud instance.
 
     Server must have LDAP user and group back-end enabled.
     """
 
-    async def create_ldap_config(self):
+    async def add_config(self):
         """Create a new LDAP configuration.
 
         Returns

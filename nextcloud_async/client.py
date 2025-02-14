@@ -2,6 +2,8 @@ import httpx
 
 from typing import Optional
 
+from nextcloud_async.version import USER_AGENT
+
 class NextcloudClient:
     def __init__(
             self,
@@ -9,7 +11,7 @@ class NextcloudClient:
             user: str,
             password: str,
             http_client: Optional[httpx.AsyncClient] = None,
-            ):
+            user_agent: str = USER_AGENT):
         """Set up authentication for endpoint interaction.
 
         Args
@@ -28,3 +30,4 @@ class NextcloudClient:
         self.password: str = password
         self.endpoint: str = endpoint
         self.http_client: httpx.AsyncClient = http_client or httpx.AsyncClient()
+        self.user_agent: str = user_agent
