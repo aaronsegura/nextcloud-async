@@ -203,6 +203,26 @@ class DAVFileAPI(BaseTestCase):  # noqa: D101
                     'Destination': f'https://cloud.example.com/remote.php/dav/files/dk/Documents/file.md',
                     'Overwrite': 'F'})
 
+    def test_copy_with_special_chars(self):  # noqa: D102
+        FROM = 'file.md'
+        TO = 'Documenté/file.md'
+        with patch(
+                'httpx.AsyncClient.request',
+                new_callable=AsyncMock,
+                return_value=httpx.Response(
+                    status_code=200,
+                    content='')) as mock:
+            asyncio.run(self.ncc.copy(FROM, TO))
+
+            mock.assert_called_with(
+                method='COPY',
+                auth=(USER, PASSWORD),
+                url=f'{ENDPOINT}/remote.php/dav/files/{USER}/{FROM}',
+                data={},
+                headers={
+                    'Destination': f'https://cloud.example.com/remote.php/dav/files/dk/Document%C3%A9/file.md',
+                    'Overwrite': 'F'})
+
     def test_remove_favorite(self):  # noqa: D102
         xml_response = bytes(
             '<?xml version="1.0"?>\n<d:multistatus xmlns:d="DAV:" '

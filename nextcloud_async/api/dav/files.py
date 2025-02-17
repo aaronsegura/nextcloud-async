@@ -4,6 +4,7 @@ import os
 import uuid
 import json
 import re
+from urllib.parse import quote
 
 import platformdirs as pdir
 import xml.etree.ElementTree as etree
@@ -158,7 +159,7 @@ class FileManager(object):
             sub=f'/remote.php/dav/files/{self.user}/{source}',
             headers={
                 'Destination':
-                    f'{self.endpoint}/remote.php/dav/files/{self.user}/{dest}',
+                    f'{self.endpoint}/remote.php/dav/files/{self.user}/{quote(dest)}',
                 'Overwrite': 'T' if overwrite else 'F'})
 
     async def copy(self, source: str, dest: str, overwrite: bool = False):
@@ -182,7 +183,7 @@ class FileManager(object):
             sub=f'/remote.php/dav/files/{self.user}/{source}',
             headers={
                 'Destination':
-                    f'{self.endpoint}/remote.php/dav/files/{self.user}/{dest}',
+                    f'{self.endpoint}/remote.php/dav/files/{self.user}/{quote(dest)}',
                 'Overwrite': 'T' if overwrite else 'F'})
 
     async def __favorite(self, path: str, set: bool) -> Dict[str, Any]:
@@ -394,7 +395,7 @@ class FileManager(object):
             headers={
                 'Destination':
                     f'{self.endpoint}/remote.php/dav/files/'
-                    f'{self.user}/{remote_path.strip("/")}',
+                    f'{self.user}/{quote(remote_path.strip("/"))}',
                 'Overwrite': 'T'})
 
     async def upload_file_chunked(
