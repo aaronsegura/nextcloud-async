@@ -144,7 +144,7 @@ class DAVFileAPI(BaseTestCase):  # noqa: D101
                 headers={})
 
     def test_move(self):  # noqa: D102
-        TO = f'{ENDPOINT}/remote.php/dav/files/{USER}/Documents/file.md'
+        TO = f'Documents/file.md'
 
         # Test no overwrite
         with patch(
@@ -161,8 +161,7 @@ class DAVFileAPI(BaseTestCase):  # noqa: D101
                 url=f'{ENDPOINT}/remote.php/dav/files/{USER}/{FILE}',
                 data={},
                 headers={
-                    'Destination': f'{ENDPOINT}/remote.php/dav/files/{USER}'
-                    f'/https://cloud.example.com/remote.php/dav/files/dk/Documents/file.md',
+                    'Destination': f'https://cloud.example.com/remote.php/dav/files/dk/Documents/file.md',
                     'Overwrite': 'F'})
 
         # Test with overwrite
@@ -180,13 +179,12 @@ class DAVFileAPI(BaseTestCase):  # noqa: D101
                 url=f'{ENDPOINT}/remote.php/dav/files/{USER}/{FILE}',
                 data={},
                 headers={
-                    'Destination': f'{ENDPOINT}/remote.php/dav/files/{USER}'
-                    f'/https://cloud.example.com/remote.php/dav/files/dk/Documents/file.md',
+                    'Destination': 'https://cloud.example.com/remote.php/dav/files/dk/Documents/file.md',
                     'Overwrite': 'T'})
 
     def test_copy(self):  # noqa: D102
         FROM = 'file.md'
-        TO = f'{ENDPOINT}/remote.php/dav/files/{USER}/Documents/file.md'
+        TO = f'Documents/file.md'
 
         with patch(
                 'httpx.AsyncClient.request',
@@ -202,8 +200,27 @@ class DAVFileAPI(BaseTestCase):  # noqa: D101
                 url=f'{ENDPOINT}/remote.php/dav/files/{USER}/{FROM}',
                 data={},
                 headers={
-                    'Destination': f'{ENDPOINT}/remote.php/dav/files/{USER}'
-                    f'/https://cloud.example.com/remote.php/dav/files/dk/Documents/file.md',
+                    'Destination': f'https://cloud.example.com/remote.php/dav/files/dk/Documents/file.md',
+                    'Overwrite': 'F'})
+
+    def test_copy_with_special_chars(self):  # noqa: D102
+        FROM = 'file.md'
+        TO = 'Documenté/file.md'
+        with patch(
+                'httpx.AsyncClient.request',
+                new_callable=AsyncMock,
+                return_value=httpx.Response(
+                    status_code=200,
+                    content='')) as mock:
+            asyncio.run(self.ncc.copy(FROM, TO))
+
+            mock.assert_called_with(
+                method='COPY',
+                auth=(USER, PASSWORD),
+                url=f'{ENDPOINT}/remote.php/dav/files/{USER}/{FROM}',
+                data={},
+                headers={
+                    'Destination': f'https://cloud.example.com/remote.php/dav/files/dk/Document%C3%A9/file.md',
                     'Overwrite': 'F'})
 
     def test_remove_favorite(self):  # noqa: D102
