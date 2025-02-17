@@ -144,7 +144,7 @@ class DAVFileAPI(BaseTestCase):  # noqa: D101
                 headers={})
 
     def test_move(self):  # noqa: D102
-        TO = f'{ENDPOINT}/remote.php/dav/files/{USER}/Documents/file.md'
+        TO = f'Documents/file.md'
 
         # Test no overwrite
         with patch(
@@ -161,8 +161,7 @@ class DAVFileAPI(BaseTestCase):  # noqa: D101
                 url=f'{ENDPOINT}/remote.php/dav/files/{USER}/{FILE}',
                 data={},
                 headers={
-                    'Destination': f'{ENDPOINT}/remote.php/dav/files/{USER}'
-                    f'/https://cloud.example.com/remote.php/dav/files/dk/Documents/file.md',
+                    'Destination': f'https://cloud.example.com/remote.php/dav/files/dk/Documents/file.md',
                     'Overwrite': 'F'})
 
         # Test with overwrite
@@ -180,13 +179,12 @@ class DAVFileAPI(BaseTestCase):  # noqa: D101
                 url=f'{ENDPOINT}/remote.php/dav/files/{USER}/{FILE}',
                 data={},
                 headers={
-                    'Destination': f'{ENDPOINT}/remote.php/dav/files/{USER}'
-                    f'/https://cloud.example.com/remote.php/dav/files/dk/Documents/file.md',
+                    'Destination': 'https://cloud.example.com/remote.php/dav/files/dk/Documents/file.md',
                     'Overwrite': 'T'})
 
     def test_copy(self):  # noqa: D102
         FROM = 'file.md'
-        TO = f'{ENDPOINT}/remote.php/dav/files/{USER}/Documents/file.md'
+        TO = f'Documents/file.md'
 
         with patch(
                 'httpx.AsyncClient.request',
@@ -202,8 +200,7 @@ class DAVFileAPI(BaseTestCase):  # noqa: D101
                 url=f'{ENDPOINT}/remote.php/dav/files/{USER}/{FROM}',
                 data={},
                 headers={
-                    'Destination': f'{ENDPOINT}/remote.php/dav/files/{USER}'
-                    f'/https://cloud.example.com/remote.php/dav/files/dk/Documents/file.md',
+                    'Destination': f'https://cloud.example.com/remote.php/dav/files/dk/Documents/file.md',
                     'Overwrite': 'F'})
 
     def test_remove_favorite(self):  # noqa: D102
