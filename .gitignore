@@ -15,6 +15,7 @@ __pycache__/
 # Temp files
 *.tmp
 temp.py
+capabilitites.json
 
 # Distribution / packaging
 .Python

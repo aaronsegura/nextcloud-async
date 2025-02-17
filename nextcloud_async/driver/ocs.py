@@ -8,20 +8,13 @@ import httpx
 
 from urllib.parse import urlencode
 
-from typing import Dict, Any, Optional, Hashable
+from typing import Dict, Any, Optional, Hashable, List
 
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver import NextcloudHttpApi
 from nextcloud_async.exceptions import NextcloudException
 
-from nextcloud_async.exceptions import (
-    NextcloudBadRequest,
-    NextcloudForbidden,
-    NextcloudNotModified,
-    NextcloudUnauthorized,
-    NextcloudNotFound,
-    NextcloudRequestTimeout,
-    NextcloudTooManyRequests)
+from nextcloud_async.exceptions import NextcloudRequestTimeout
 
 
 class NextcloudOcsApi(NextcloudHttpApi):
@@ -49,7 +42,7 @@ class NextcloudOcsApi(NextcloudHttpApi):
             path: str = '',
             data: Optional[Dict[Hashable, Any]] = {},
             headers: Optional[Dict[Hashable, Any]] = {},
-            return_full_response: bool = False) -> Dict[Hashable, Any]:
+            return_full_response: bool = False) -> Dict[Hashable, Any] | List[Dict[Hashable, Any]]:
         """Submit OCS-type query to cloud endpoint.
 
         Args
@@ -77,6 +70,8 @@ class NextcloudOcsApi(NextcloudHttpApi):
             401 - NextcloudUnauthorized
 
             403 - NextcloudForbidden
+
+            403 - NextcloudDeviceWipeRequested
 
             404 - NextcloudNotFound
 
@@ -110,7 +105,7 @@ class NextcloudOcsApi(NextcloudHttpApi):
         if headers:
             headers.update({'OCS-APIRequest': 'true'})
         else:
-            headers = {'OCS-APIRequest' : 'true',}
+            headers = {'OCS-APIRequest' : 'true'}
 
         if data:
             data.update({'format': 'json'})
@@ -122,30 +117,17 @@ class NextcloudOcsApi(NextcloudHttpApi):
             data = None
 
         try:
-            response = await self.client.request(
+            print(f"PATH={self.client.endpoint}{self.stub}{path}")
+            response = await self.client.http_client.request(
                 method,
-                auth=(self.user, self.password),
-                url=f'{self.endpoint}{self.stub}{path}',
+                auth=(self.client.user, self.client.password),
+                url=f'{self.client.endpoint}{self.stub}{path}',
                 data=data, # type: ignore
                 headers=headers) # type: ignore
         except httpx.ReadTimeout:
             raise NextcloudRequestTimeout()
 
-        match response.status_code:
-            case 304:
-                raise NextcloudNotModified()
-            case 400:
-                raise NextcloudBadRequest()
-            case 401:
-                raise NextcloudUnauthorized()
-            case 403:
-                raise NextcloudForbidden()
-            case 404:
-                raise NextcloudNotFound()
-            case 429:
-                raise NextcloudTooManyRequests()
-            case _:
-                pass
+        await self.raise_response_exception(response.status_code)
 
         if response.content:
             try:
@@ -186,10 +168,11 @@ class NextcloudOcsApi(NextcloudHttpApi):
 
         """
         if not self.__capabilities:
-            response = await self.request(
+            response = await self.client.http_client.request(
                 method='GET',
-                path=r'/ocs/v1.php/cloud/capabilities')
-            self.__capabilities = response
+                url=f'{self.client.endpoint}/ocs/v1.php/cloud/capabilities?format=json',
+                headers={'OCS-APIRequest' : 'true'})
+            self.__capabilities = response.json()['ocs']['data']['capabilities']
 
         ret = self.__capabilities
 
@@ -210,94 +193,94 @@ class NextcloudOcsApi(NextcloudHttpApi):
 
     # TODO: Move this to another module
 
-    async def get_file_guest_link(self, file_id: int) -> str:
-        """Generate a generic sharable link for a file.
+    # async def get_file_guest_link(self, file_id: int) -> str:
+    #     """Generate a generic sharable link for a file.
 
-        Link expires in 8 hours.
+    #     Link expires in 8 hours.
 
-        https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-api-overview.html#direct-download
+    #     https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-api-overview.html#direct-download
 
-        Args
-        ----
-            file_id (int): File ID to generate link for
+    #     Args
+    #     ----
+    #         file_id (int): File ID to generate link for
 
-        Returns
-        -------
-            str: Link to file
+    #     Returns
+    #     -------
+    #         str: Link to file
 
-        Raises
-        ------
-            NextcloudNotFound - file not found
+    #     Raises
+    #     ------
+    #         NextcloudNotFound - file not found
 
-        """
+    #     """
 
-        result = await self.request(
-            method='POST',
-            path=r'/ocs/v2.php/apps/dav/api/v1/direct',
-            data={'fileId': file_id})
+    #     result = await self.request(
+    #         method='POST',
+    #         path=r'/ocs/v2.php/apps/dav/api/v1/direct',
+    #         data={'fileId': file_id})
 
-        return result['url']
+    #     return result['url']
 
 
-    # TODO: Move this to another module
-    async def get_activity(
-            self,
-            since: Optional[int] = 0,
-            object_id: Optional[str] = None,
-            object_type: Optional[str] = None,
-            sort: Optional[str] = 'desc',
-            limit: Optional[int] = 50) -> Dict[Hashable, Any]:
-        """Get Recent activity for the current user.
+    # # TODO: Move this to another module
+    # async def get_activity(
+    #         self,
+    #         since: Optional[int] = 0,
+    #         object_id: Optional[str] = None,
+    #         object_type: Optional[str] = None,
+    #         sort: Optional[str] = 'desc',
+    #         limit: Optional[int] = 50) -> Dict[Hashable, Any]:
+    #     """Get Recent activity for the current user.
 
-        Args
-        ----
-            since (int optional): Only return ativity since activity with given ID. Defaults
-            to 0.
+    #     Args
+    #     ----
+    #         since (int optional): Only return ativity since activity with given ID. Defaults
+    #         to 0.
 
-            object_id (str optional): object_id filter. Defaults to None.
+    #         object_id (str optional): object_id filter. Defaults to None.
 
-            object_type (str optional): object_type filter. Defaults to None.
+    #         object_type (str optional): object_type filter. Defaults to None.
 
-            sort (str optional): Sort order; either `asc` or `desc`. Defaults to 'desc'.
+    #         sort (str optional): Sort order; either `asc` or `desc`. Defaults to 'desc'.
 
-            limit (int optional): How many results per request. Defaults to 50.
+    #         limit (int optional): How many results per request. Defaults to 50.
 
-        Raises
-        ------
-            NextcloudException: When given invalid argument combination
+    #     Raises
+    #     ------
+    #         NextcloudException: When given invalid argument combination
 
-        Returns
-        -------
-            Tuple(dict, dict): activity results and headers
+    #     Returns
+    #     -------
+    #         Tuple(dict, dict): activity results and headers
 
-        Raises
-        ------
-            NextcloudException - when Activities isn't installed.
+    #     Raises
+    #     ------
+    #         NextcloudException - when Activities isn't installed.
 
-        """
-        await self.get_capabilities('activity.apiv2')
+    #     """
+    #     await self.get_capabilities('activity.apiv2')
 
-        data: Dict[Hashable, Any] = {}
-        filter = ''
-        if object_id and object_type:
-            filter = '/filter'
-            data.update({
-                'object_type': object_type,
-                'object_id': object_id})
-        elif object_id or object_type:
-            raise NextcloudException(
-                403,
-                'filter_object_type and filter_object are both required.')
+    #     data: Dict[Hashable, Any] = {}
+    #     filter = ''
+    #     if object_id and object_type:
+    #         filter = '/filter'
+    #         data.update({
+    #             'object_type': object_type,
+    #             'object_id': object_id})
+    #     elif object_id or object_type:
+    #         raise NextcloudException(
+    #             403,
+    #             'filter_object_type and filter_object are both required.')
 
-        data.update({
-            'limit': limit,
-            'sort': sort,
-            'since': since})
+    #     data.update({
+    #         'limit': limit,
+    #         'sort': sort,
+    #         'since': since})
 
-        response = await self.request(
-            method='GET',
-            path=f'/ocs/v2.php/apps/activity/api/v2/activity{filter}',
-            data=data,
-            return_full_response=True)
+    #     response = await self.request(
+    #         method='GET',
+    #         path=f'/ocs/v2.php/apps/activity/api/v2/activity{filter}',
+    #         data=data,
+    #         return_full_response=True)
 
-        return response
+    #     return response

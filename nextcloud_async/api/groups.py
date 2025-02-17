@@ -4,10 +4,40 @@ https://docs.nextcloud.com/server/22/admin_manual/configuration_user/\
 instruction_set_for_groups.html
 """
 
-from typing import Optional, List, Dict, Hashable, Any
+from dataclasses import dataclass
 
-from nextcloud_async.driver import NextcloudOcsApi, NextcloudModule
+from typing import Optional, List, Any
+
+from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
 from nextcloud_async.client import NextcloudClient
+
+
+@dataclass
+class Group:
+    data: str
+    groups_api: 'Groups'
+
+    def __post_init__(self):
+        self._data = {'name': self.data}
+
+    def __getattr__(self, k: str) -> Any:
+        return self._data[k]
+
+    def __str__(self):
+        return f'<Nextcloud Group "{self.name}">'
+
+    def __repr__(self):
+        return str(self)
+
+    async def get_members(self):
+        return await self.groups_api.get_members(self.name)
+
+    async def get_subadmins(self):
+        return await self.groups_api.get_subadmins(self.name)
+
+    async def delete(self) -> None:
+        await self.groups_api.delete(self.name)
+        self._data['name'] = '<deleted>'
 
 
 class Groups(NextcloudModule):
@@ -24,7 +54,7 @@ class Groups(NextcloudModule):
             self,
             search: Optional[str] = '',
             limit: Optional[int] = 100,
-            offset: Optional[int] = 0) -> List[str]:
+            offset: Optional[int] = 0) -> List[Group]:
         """Search groups.
 
         This is the way to 'get' a group.
@@ -47,25 +77,20 @@ class Groups(NextcloudModule):
                 'limit': limit,
                 'offset': offset,
                 'search': search})
-        return response['groups']
+        return [Group(data, self) for data in response['groups']]
 
-    async def add(self, group_name: str) -> Dict[Hashable, Any]:
+    async def add(self, group_name: str) -> Group:
         """Create a new group.
 
         Args
         ----
             group_name (str): Group name
 
-        Returns
-        -------
-            Empty 100 Response
-
         """
-        return await self.api.post(
-            path=self.stub,
-            data={'groupid': group_name})
+        await self._post(data={'groupid': group_name})
+        return Group(group_name, self)
 
-    async def get_group_members(self, group_name: str) -> List[str]:
+    async def get_members(self, group_name: str) -> List[str]:
         """Get group members.
 
         Args
@@ -77,8 +102,8 @@ class Groups(NextcloudModule):
             list: Users belonging to `group_id`
 
         """
-        response = await self.api.get(
-            path=f'{self.stub}/{group_name}')
+        response = await self._get(
+            path=f'/{group_name}')
         return response['users']
 
     async def get_subadmins(self, group_name: str) -> List[str]:
@@ -93,10 +118,9 @@ class Groups(NextcloudModule):
             list: Users who are subadmins of this group.
 
         """
-        return await self.api.get(
-            path=f'{self.stub}/{group_name}/subadmins')
+        return await self._get(path=f'/{group_name}/subadmins')
 
-    async def delete(self, group_name: str):
+    async def delete(self, group_name: str) -> None:
         """Remove `group_id`.
 
         Args
@@ -108,5 +132,5 @@ class Groups(NextcloudModule):
             Empty 100 Response
 
         """
-        return await self.api.delete(
-            path=f'{self.stub}/{group_name}')
+        return await self._delete(
+            path=f'/{group_name}')

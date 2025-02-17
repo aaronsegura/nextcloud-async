@@ -7,9 +7,8 @@ import asyncio
 
 from typing import Optional, List, Dict, Hashable, Any
 
-from nextcloud_async.driver import NextcloudOcsApi, NextcloudModule
+from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
 from nextcloud_async.client import NextcloudClient
-
 
 
 class Users(NextcloudModule):

@@ -23,14 +23,13 @@ import datetime as dt
 from typing import Dict, Hashable, Any
 
 from nextcloud_async.exceptions import NextcloudLoginFlowTimeout
-
-from nextcloud_async.driver import NextcloudBaseApi, NextcloudOcsApi
+from nextcloud_async.driver import NextcloudModule, NextcloudBaseApi, NextcloudOcsApi
 from nextcloud_async.client import NextcloudClient
 
 __VERSION__ = version('nextcloud_async')
 
 
-class LoginFlowV2:
+class LoginFlowV2(NextcloudModule):
     """Obtain an app password after user web authorization.
 
     Simply:
@@ -73,8 +72,8 @@ class LoginFlowV2:
             }
 
         """
-        response = await self.api.post(path=self.stub)
-        return response.json()
+        response = await self._post(path=self.stub)
+        return response
 
     async def wait_confirm(self, token: str, timeout: int = 60) -> Dict[Hashable, Any]:
         r"""Wait for user to confirm application authorization.
@@ -110,7 +109,7 @@ class LoginFlowV2:
         start_dt = dt.datetime.now()
         running_time = 0
 
-        response = await self.api.post(
+        response = await self._post(
                         path=f'{self.stub}/poll',
                         data={'token': token})
 
@@ -118,14 +117,14 @@ class LoginFlowV2:
             running_time = (dt.datetime.now() - start_dt).seconds
             await asyncio.sleep(1)
 
-            response = await self.api.post(
+            response = await self._post(
                             path=f'{self.stub}/poll',
                             data={'token': token})
 
         if response.status_code == 404:
             raise NextcloudLoginFlowTimeout()
 
-        return response.json()
+        return response
 
     # TODO: Move this to another module
     async def destroy_token(self) -> bool:
@@ -138,9 +137,9 @@ class LoginFlowV2:
             Empty 200 Response
 
         """
-        # This reuqires OCS api
+        # This requires OCS api
         ocs_api = NextcloudOcsApi(self.client, ocs_version='2')
-        response = await ocs_api.delete(path='core/apppassword')
+        response = await ocs_api.delete(path='/core/apppassword')
 
         if response.status_code == 200:
             return True

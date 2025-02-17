@@ -3,6 +3,30 @@
 https://docs.nextcloud.com/server/latest/developer_manual/client_apis/
 """
 
-from .maps import Maps  # type: ignore  # noqa: F401
-from .loginflowv2 import LoginFlowV2  # type: ignore  # noqa: F401
-from .wipe import Wipe  # type: ignore # noqa: F401
+from .apps import Apps, App
+from .files import Files, File
+from .groupfolders import GroupFolders
+from .groups import Groups
+from .loginflowv2 import LoginFlowV2
+from .maps import Maps
+from .notifications import Notifications
+from .shares import Shares, Share, ShareType, SharePermission
+from .sharees import Sharees
+from .status import Status, StatusType
+from .users import Users
+from .wipe import Wipe
+
+__all__ = [
+    "Apps", "App",
+    "Files", "File",
+    "GroupFolders",
+    "Groups",
+    "LoginFlowV2",
+    "Maps",
+    "Notifications",
+    "Shares", "Share", "ShareType", "SharePermission",
+    "Sharees",
+    "Status", "StatusType",
+    "Users",
+    "Wipe",
+]

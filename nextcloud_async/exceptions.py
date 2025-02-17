@@ -2,6 +2,7 @@
 
 from typing import Optional
 
+
 class NextcloudException(Exception):
     """Generic Exception."""
 
@@ -65,11 +66,33 @@ class NextcloudForbidden(NextcloudException):
         super(NextcloudException, self).__init__()
 
 
+class NextcloudDeviceWipeRequested(NextcloudException):
+    """User has revoked this appKey, and requests a device wipe."""
+
+    status_code = 403
+    reason = 'User revoked key. Please wipe this device and confirm with Wipe.notify_wiped().'
+
+    def __init__(self):
+        """Configure exception."""
+        super(NextcloudException, self).__init__()
+
+
 class NextcloudNotFound(NextcloudException):
     """Object not found."""
 
     status_code = 404
     reason = 'Object not found.'
+
+    def __init__(self):
+        """Configure exception."""
+        super(NextcloudException, self).__init__()
+
+
+class NextcloudMethodNotAllowed(NextcloudException):
+    """HTTP Request timed out."""
+
+    status_code = 405
+    reason = "Method not allowed for object."
 
     def __init__(self):
         """Configure exception."""
@@ -87,11 +110,22 @@ class NextcloudRequestTimeout(NextcloudException):
         super(NextcloudException, self).__init__()
 
 
+class NextcloudTalkConflict(NextcloudException):
+    """User has duplicate Talk sessions."""
+
+    status_code = 409
+    reason = 'User has duplicate Talk sessions.'
+
+    def __init__(self):
+        """Configure exception."""
+        super(NextcloudException, self).__init__()
+
+
 class NextcloudLoginFlowTimeout(NextcloudException):
     """When the login flow times out."""
 
-    status_code = 408
-    reason = "Login flow timed out.  Try again."
+    status_code = 426
+    reason = "Client upgrade required."
 
     def __init__(self):
         """Configure exception."""
@@ -103,6 +137,28 @@ class NextcloudTooManyRequests(NextcloudException):
 
     status_code = 429
     reason = "Too many requests. Try again later."
+
+    def __init__(self):
+        """Configure exception."""
+        super(NextcloudException, self).__init__()
+
+
+class NextcloudTalkPreconditionFailed(NextcloudException):
+    """User tried to join chat room without going to lobby."""
+
+    status_code = 412
+    reason = 'User tried to join chat room without going to lobby.'
+
+    def __init__(self):
+        """Configure exception."""
+        super(NextcloudException, self).__init__()
+
+
+class NextcloudNotCapable(NextcloudException):
+    """Raised when server does not have required capability."""
+
+    status_code = 499
+    reason = 'Server does not support required capability.'
 
     def __init__(self):
         """Configure exception."""

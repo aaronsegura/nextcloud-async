@@ -1,7 +1,7 @@
 """Implement Nextcloud Shares/Sharee APIs.
 
 https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-share-api.html
-https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-sharee-api.html
+https://github.com/nextcloud/server/blob/892c473b064af222570a0c7155d9603a229d7312/apps/files_sharing/openapi.json
 
 Not Implemented:
     Federated share management
@@ -10,13 +10,14 @@ Not Implemented:
 import asyncio
 
 import datetime as dt
+from dataclasses import dataclass
 
 from enum import Enum, IntFlag
 from typing import Any, Optional, List, Dict, Hashable, Tuple
 
 from nextcloud_async.client import NextcloudClient
-from nextcloud_async.driver import NextcloudOcsApi, NextcloudModule
-
+from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
+from nextcloud_async.helpers import bool2str
 from nextcloud_async.exceptions import NextcloudException
 
 
@@ -29,7 +30,7 @@ class ShareType(Enum):
 
     user = 0
     group = 1
-    public = 3
+    public_link = 3
     email = 4
     federated = 6
     circle = 7
@@ -51,29 +52,52 @@ class SharePermission(IntFlag):
     all = 31
 
 
+@dataclass
+class Share:
+    data: Dict[Hashable, Any]
+    shares_api: 'Shares'
+
+    async def delete(self):
+        await self.shares_api.delete(self.id) # type: ignore
+        self.data = {}
+
+    async def update(self, **kwargs):  # type: ignore
+        await self.shares_api.update(share_id=self.id, **kwargs)  # type: ignore
+
+    def __getattr__(self, k: str) -> Any:
+        return self.data[k]
+
+    def __str__(self):
+        return f'<Nextcloud Share "{self.path}" by {self.owner}>'
+
+    def __repr__(self):
+        return str(self)
+
+
 class Shares(NextcloudModule):
     """Manage local shares on Nextcloud instances."""
     def __init__(
             self,
             client: NextcloudClient,
             api_version: str = '1'):
-        self.stub = f'/apps/file_sharing/api/v{api_version}/shares'
+        self.stub = f'/apps/files_sharing/api/v{api_version}/shares'
         self.api = NextcloudOcsApi(client, ocs_version = '2')
 
-    async def list(self) -> List[Dict[Hashable, Any]]:
+    async def list(self) -> List[Share]:
         """Return list of all shares.
 
         Returns
         -------
             list: Share descriptions
         """
-        return await self.api.get(path=f'{self.stub}/shares')
+        response = await self._get()
+        return [Share(x, self) for x in response]
 
     async def get_file_shares(
             self,
             path: str,
             reshares: bool = False,
-            subfiles: bool = False):
+            subfiles: bool = False) -> List[Share]:
         """Return list of shares for given file/folder.
 
         Args
@@ -90,13 +114,14 @@ class Shares(NextcloudModule):
             list: File share descriptions
 
         """
-        return await self._get(
+        response = await self._get(
             data={
                 'path': path,
-                'reshares': str(reshares).lower(),
-                'subfiles': str(subfiles).lower()})
+                'reshares': bool2str(reshares),
+                'subfiles': bool2str(subfiles)})
+        return [Share(x, self) for x in response]
 
-    async def get(self, share_id: int):
+    async def get(self, share_id: int) -> Share:
         """Return information about a known share.
 
         Args
@@ -108,11 +133,12 @@ class Shares(NextcloudModule):
             dict: Share description
 
         """
-        return (await self._get(
+        response = await self._get(
             path=f'/{share_id}',
-            data={'share_id': share_id}))[0]
+            data={'share_id': share_id})
+        return Share(response[0], self)
 
-    async def add(
+    async def create(
             self,
             path: str,
             share_type: ShareType,
@@ -120,7 +146,7 @@ class Shares(NextcloudModule):
             share_with: Optional[str] = None,
             allow_public_upload: bool = False,
             password: Optional[str] = None,
-            expire_date: Optional[str] = None,
+            expire_date: Optional[dt.datetime] = None,
             note: Optional[str] = None):
         """Create a new share.
 
@@ -156,16 +182,10 @@ class Shares(NextcloudModule):
 
         # Checks the expire_date argument exists before evaluation, otherwise continues.
         if expire_date:
-            try:
-                expire_dt = dt.datetime.strptime(expire_date, r'%Y-%m-%d')
-            except ValueError:
-                raise NextcloudException(status_code=406, reason='Invalid date.  Should be YYYY-MM-DD')
-            else:
-                now = dt.datetime.now()
-                if expire_dt < now:
-                    raise NextcloudException(status_code=406, reason='Invalid date.  Should be in the future.')
+            if expire_date < dt.datetime.now():
+                raise NextcloudException(status_code=406, reason='Invalid expiration date.  Should be in the future.')
 
-        return await self._post(
+        response = await self._post(
             data={
                 'path': path,
                 'shareType': share_type.value,
@@ -173,8 +193,9 @@ class Shares(NextcloudModule):
                 'permissions': permissions.value,
                 'publicUpload': str(allow_public_upload).lower(),
                 'password': password,
-                'expireDate': expire_date,
+                'expireDate': expire_date.strftime(r'%Y-%m-%d') if expire_date else None,
                 'note': note})
+        return(Share(response, self))
 
     async def delete(self, share_id: int):
         """Delete an existing share.
@@ -229,7 +250,6 @@ class Shares(NextcloudModule):
             List: responses from update queries
 
         """
-        reqs: List[Dict[Hashable, Any]] = []
         attrs: List[Tuple[str, Any]] = [
             ('permissions', permissions),
             ('password', password),
@@ -237,43 +257,10 @@ class Shares(NextcloudModule):
             ('expireDate', expire_date),
             ('note', note)]
 
-        for a in attrs:
-            if a[1]:
-                reqs.append(self.__update_share(share_id, *a))  # type: ignore
-
+        reqs = [self.__update_share(share_id, k, v) for k, v in attrs if v]
         return await asyncio.gather(*reqs)  # type: ignore
 
     async def __update_share(self, share_id: int, key: str, value: Any) -> Dict[Hashable, Any]:
         return await self._put(
             path=f'/{share_id}',
             data={key: value})
-
-    # TODO : vvv this vvv
-
-    async def search_sharees(
-            self,
-            item_type: str,
-            lookup: bool = False,
-            limit: int = 200,
-            page: int = 1,
-            search: Optional[str] = None):
-        """Search for people or groups to share things with.
-
-        Args
-        ----
-            item_type (str): Item type (`file`, `folder`, `calendar`, etc...)
-
-            lookup (bool, optional): Whether to use global Nextcloud lookup service.
-            Defaults to False.
-
-            limit (int, optional): How many results to return per request. Defaults to 200.
-
-            page (int, optional): Return this page of results. Defaults to 1.
-
-            search (str, optional): Search term. Defaults to None.
-
-        Returns
-        -------
-            Dictionary of exact and potential matches.
-
-        """

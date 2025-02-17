@@ -8,15 +8,16 @@ whatever you want for 'id' in most of them, and it'll be accepted
 and entered into the chat.
 """
 
+from typing import Dict, Any
 
 class NextcloudTalkRichObject:
     """Base Class for Rich Objects."""
 
     object_type = None
 
-    def __init__(self, id: str, name: str, **kwargs):
+    def __init__(self, id: str, name: str, **kwargs):  # type: ignore
         """Set object metadata."""
-        self.__dict__.update(kwargs)
+        self.__dict__.update(**kwargs)
         self.id = id
         self.name = name
 
@@ -104,7 +105,7 @@ class File(NextcloudTalkRichObject):
 
     allowed_props = ['size', 'link', 'mimetype', 'preview-available', 'mtime']
 
-    def __init__(self, name: str, path: str, **kwargs):
+    def __init__(self, name: str, path: str, **kwargs):  # type: ignore
         """Set file object metadata."""
 
         if not all(key in self.allowed_props for key in kwargs):
@@ -115,8 +116,8 @@ class File(NextcloudTalkRichObject):
             'name': name,
             'path': path,
         }
-        data = { **init, **kwargs }
-        super().__init__(**data)
+        data: Dict[str, Any] = { **init, **kwargs }
+        super(NextcloudTalkRichObject).__init__(**data)
 
     @property
     def metadata(self):
@@ -143,14 +144,14 @@ class GeoLocation(NextcloudTalkRichObject):
             'name': name,
             'longitude': longitude,
             'latitude': latitude}
-        super().__init__(**data)
+        super(NextcloudTalkRichObject).__init__(**data)
 
     def __str__(self):
         return f'{__class__.__name__}'\
                f'(latitude={self.latitude}, longitude={self.longitude}, name={self.name})'
 
     @property
-    def metadata(self):
+    def metadata(self) -> Dict[str, Any]:
         """Return geolocation metadata."""
         return {
             'id': f'geo:{self.latitude},{self.longitude}',

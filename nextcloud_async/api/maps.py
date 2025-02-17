@@ -4,12 +4,44 @@ https://github.com/nextcloud/maps/blob/master/openapi.yml
 
 """
 
-import json
+from dataclasses import dataclass
 
-from typing import List, Hashable, Any, Dict
+from typing import List, Any, Dict
 
 from nextcloud_async.client import NextcloudClient
-from nextcloud_async.driver import NextcloudBaseApi, NextcloudModule
+from nextcloud_async.driver import NextcloudModule, NextcloudBaseApi
+
+
+@dataclass
+class MapFavorite:
+    data: Dict[str, Any]
+    maps_api: 'Maps'
+
+    def __getattr__(self, k: str) -> Any:
+        return self.data[k]
+
+    def __str__(self):
+        return f'<MapFavorite "{self.name}">'
+
+    def __repr__(self):
+        return str(self)
+
+    @property
+    def latitude(self):
+        return self.lat
+
+    @property
+    def longitude(self):
+        return self.lng
+
+    async def delete(self) -> None:
+        await self.maps_api.delete(self.id)
+
+    async def update(self, **kwargs):  # type: ignore
+        await self.maps_api.update(id=self.id, **kwargs)  # type: ignore
+
+
+
 
 class Maps(NextcloudModule):
     """Interact with Nextcloud Maps API.
@@ -23,7 +55,7 @@ class Maps(NextcloudModule):
         self.stub = f'/apps/maps/api/{api_version}'
         self.api = NextcloudBaseApi(client)
 
-    async def list_favorites(self) -> List[str]:
+    async def list(self) -> List[MapFavorite]:
         """Get a list of map favorites.
 
         Returns
@@ -32,9 +64,10 @@ class Maps(NextcloudModule):
 
         """
         response = await self._get(path='/favorites')
-        return json.loads(response.content.decode('utf-8'))
+        # return json.loads(response.content.decode('utf-8'))
+        return [MapFavorite(data, self) for data in response]
 
-    async def delete_favorite(self, id: int) -> None:
+    async def delete(self, id: int) -> None:
         """Remove a map favorite by Id.
 
         Args:
@@ -47,8 +80,9 @@ class Maps(NextcloudModule):
 
         """
         await self._delete(path=f'/favorites/{id}')
+        self.data = {'deleted': True}
 
-    async def update_favorite(self, id: int, data: Dict[Hashable, Any]) -> Dict[Hashable, Any]:
+    async def update(self, id: int, data: Dict[str, Any]) -> MapFavorite:
         """Update an existing map favorite.
 
         Args
@@ -68,9 +102,9 @@ class Maps(NextcloudModule):
                         path=f'/favorites/{id}',
                         data=data)
 
-        return json.loads(response.content.decode('utf-8'))
+        return MapFavorite(response, self)
 
-    async def add_favorite(self, data: Dict[Hashable, Any]) -> Dict[Hashable, Any]:
+    async def add(self, data: Dict[str, Any]) -> MapFavorite:
         """Add a new map favorite.
 
         Args
@@ -84,7 +118,7 @@ class Maps(NextcloudModule):
             dict: Result of update
 
         """
-        response = await self.api.post(
+        response = await self._post(
                         path='/favorites',
                         data=data)
-        return json.loads(response.content.decode('utf-8'))
+        return MapFavorite(response, self)

@@ -1,13 +1,15 @@
 """Implement Nextcloud Group Folders Interaction.
 
 https://github.com/nextcloud/groupfolders#api
+https://github.com/nextcloud/groupfolders/blob/master/openapi.json
 """
 
 from enum import IntFlag
+from dataclasses import dataclass
 
 from typing import List, Dict, Hashable, Any
 
-from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
+from nextcloud_async.driver import NextcloudOcsApi, NextcloudModule
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.helpers import str2bool
 
@@ -21,20 +23,35 @@ class Permissions(IntFlag):
     share = 16
     all = 31
 
+@dataclass
+class GroupFolder:
+    data: Dict[str, Any]
+    groupfolder_api: 'GroupFolders'
 
+    def __getattr__(self, k: str) -> Any:
+        return self.data[k]
+
+    def __str__(self):
+        return f'<GroupFolder "">'
+
+    def __repr__(self):
+        return str(self)
+
+
+# TODO: well, this is borked...
 class GroupFolders(NextcloudModule):
     """Manage Group Folders.
 
     Must have Group Folders application enabled on server.  If groupfolders is not enabled,
-    all requests will throw NextcloudNotFound exception.  You can check capabilities of the
-    server before sending a request: self.get_capabilities('groupfolders')
+    all requests will throw NextcloudNotFound exception.  Check for 'groupfolders' in server
+    capabilitites before using.
     """
 
     def __init__(
             self,
             client: NextcloudClient):
-        self.api = NextcloudOcsApi(client, stub='/index.php/apps')
-        self.stub = 'groupfolders/folders'
+        self.stub = '/index.php/apps/groupfolders/folders'
+        self.api = NextcloudOcsApi(client, ocs_version='2')
 
     async def list(self) -> List[Dict[Hashable, Any]]:
         """Get list of all group folders.
@@ -44,7 +61,7 @@ class GroupFolders(NextcloudModule):
             list: List of group folders.
 
         """
-        response = await self.api.get(path=self.stub)
+        response = await self._get()
         if isinstance(response, dict):
             return [response]
         return response
@@ -65,7 +82,7 @@ class GroupFolders(NextcloudModule):
                 { 'id': 1 }
 
         """
-        return await self.api.post(path=self.stub, data={'mountpoint': path})
+        return await self._post(data={'mountpoint': path})
 
     async def get(self, folder_id: int) -> Dict[Hashable, Any]:
         """Get group folder with id `folder_id`.
@@ -79,7 +96,7 @@ class GroupFolders(NextcloudModule):
             dict: Group folder description.
 
         """
-        return await self.api.get(path=f'{self.stub}/{folder_id}')
+        return await self._get(path=f'/{folder_id}')
 
     async def delete(self, folder_id: int) -> bool:
         """Delete group folder with id `folder_id`.
@@ -93,7 +110,7 @@ class GroupFolders(NextcloudModule):
             bool: success(True) or failure(False)
 
         """
-        response = await self.api.delete(path=f'{self.stub}/{folder_id}')
+        response = await self._delete(path=f'/{folder_id}')
         return str2bool(response['success'])
 
     async def permit_group(self, group_id: str, folder_id: int) -> bool:
@@ -110,7 +127,7 @@ class GroupFolders(NextcloudModule):
             bool: success(True) or failure(False)
 
         """
-        response = await self.api.post(path=f'{self.stub}/{folder_id}/groups', data={'group': group_id})
+        response = await self._post(path=f'/{folder_id}/groups', data={'group': group_id})
         return str2bool(response['success'])
 
     async def deny_group(self, group_id: str, folder_id: int) -> bool:
@@ -127,7 +144,7 @@ class GroupFolders(NextcloudModule):
             bool: success(True) or failure(False)
 
         """
-        response = await self.api.delete(path=f'/apps/groupfolders/folders/{folder_id}/groups/{group_id}')
+        response = await self._delete(path=f'/apps/groupfolders/folders/{folder_id}/groups/{group_id}')
         return str2bool(response['success'])
 
     async def enable_advanced_permissions(self, folder_id: int) -> bool:
@@ -159,8 +176,8 @@ class GroupFolders(NextcloudModule):
         return await self.__advanced_permissions(folder_id, False)
 
     async def __advanced_permissions(self, folder_id: int, enable: bool) -> bool:
-        response = await self.api.post(
-            path=f'{self.stub}/{folder_id}/acl',
+        response = await self._post(
+            path=f'/{folder_id}/acl',
             data={'acl': 1 if enable else 0})
         return str2bool(response['success'])
 
@@ -223,8 +240,8 @@ class GroupFolders(NextcloudModule):
             object_id: str,
             object_type: str,
             manage_acl: bool) -> bool:
-        response = await self.api.post(
-            path=f'{self.stub}/{folder_id}/manageACL',
+        response = await self._post(
+            path=f'/{folder_id}/manageACL',
             data={
                 'mappingId': object_id,
                 'mappingType': object_type,
@@ -253,8 +270,8 @@ class GroupFolders(NextcloudModule):
             bool: success(True) or failure(False)
 
         """
-        response = await self.api.post(
-            path=f'{self.stub}/{folder_id}/groups/{group_id}',
+        response = await self._post(
+            path=f'/{folder_id}/groups/{group_id}',
             data={'permissions': permissions.value})
         return str2bool(response['success'])
 
@@ -272,8 +289,8 @@ class GroupFolders(NextcloudModule):
             bool: success(True) or failure(False)
 
         """
-        response = await self.api.post(
-            path=f'{self.stub}/{folder_id}/quota',
+        response = await self._post(
+            path=f'/{folder_id}/quota',
             data={'quota': quota})
         return str2bool(response['successs'])
 
@@ -291,7 +308,7 @@ class GroupFolders(NextcloudModule):
             bool: success(True) or failure(False)
 
         """
-        response = await self.api.post(
-            path=f'{self.stub}/{folder_id}/mountpoint',
+        response = await self._post(
+            path=f'/{folder_id}/mountpoint',
             data={'mountpoint': mountpoint})
         return str2bool(response['success'])

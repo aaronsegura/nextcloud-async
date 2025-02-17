@@ -11,15 +11,7 @@ from typing import Optional, Any, Dict, Hashable
 from nextcloud_async.driver import NextcloudHttpApi
 from nextcloud_async.client import NextcloudClient
 
-from nextcloud_async.exceptions import (
-    NextcloudBadRequest,
-    NextcloudForbidden,
-    NextcloudNotModified,
-    NextcloudUnauthorized,
-    NextcloudNotFound,
-    NextcloudRequestTimeout,
-    NextcloudTooManyRequests)
-
+from nextcloud_async.exceptions import NextcloudRequestTimeout
 
 class NextcloudBaseApi(NextcloudHttpApi):
     """The Base API interface."""
@@ -38,7 +30,7 @@ class NextcloudBaseApi(NextcloudHttpApi):
             method: str = 'GET',
             path: Optional[str] = None,
             data: Optional[Dict[Hashable, Any]] = dict(),
-            headers: Optional[Dict[Hashable, Any]] = {}) -> httpx.Response:
+            headers: Optional[Dict[Hashable, Any]] = {}) -> Dict[Hashable, Any]:
         """Send a request to the Nextcloud endpoint.
 
         Args
@@ -62,6 +54,8 @@ class NextcloudBaseApi(NextcloudHttpApi):
 
             403 - NextcloudForbidden
 
+            403 - NextcloudDeviceWipeRequested
+
             404 - NextcloudNotFound
 
             429 - NextcloudTooManyRequests
@@ -78,35 +72,21 @@ class NextcloudBaseApi(NextcloudHttpApi):
                 data = None
 
         if headers:
-            headers['user-agent'] = self.user_agent
+            headers['user-agent'] = self.client.user_agent
         else:
-            headers = {'user-agent' : self.user_agent}
+            headers = {'user-agent' : self.client.user_agent}
 
         try:
-            response = await self.client.request(
+            print(f'REQUEST {self.client.endpoint}{self.stub}{path}')
+            response = await self.client.http_client.request(
                 method=method,
-                auth=(self.user, self.password),
-                url=f'{self.endpoint}{self.stub}{path}',
+                auth=(self.client.user, self.client.password),
+                url=f'{self.client.endpoint}{self.stub}{path}',
                 data=data,   # type: ignore
                 headers=headers) # type: ignore
-
         except httpx.ReadTimeout:
             raise NextcloudRequestTimeout()
 
-        match response.status_code:
-            case 304:
-                raise NextcloudNotModified()
-            case 400:
-                raise NextcloudBadRequest()
-            case 401:
-                raise NextcloudUnauthorized()
-            case 403:
-                raise NextcloudForbidden()
-            case 404:
-                raise NextcloudNotFound()
-            case 429:
-                raise NextcloudTooManyRequests()
-            case _:
-                pass
+        await self.raise_response_exception(response.status_code)
 
-        return response
+        return response.json()

@@ -5,21 +5,11 @@ import httpx
 import xmltodict
 import json
 
-from typing import Dict, Any, Hashable, Optional, cast
+from typing import Dict, Any, Hashable, Optional, cast, ByteString
 
 from nextcloud_async.driver import NextcloudHttpApi
 from nextcloud_async.client import NextcloudClient
-
-from nextcloud_async.exceptions import NextcloudException
-
-from nextcloud_async.exceptions import (
-    NextcloudBadRequest,
-    NextcloudForbidden,
-    NextcloudNotModified,
-    NextcloudUnauthorized,
-    NextcloudNotFound,
-    NextcloudRequestTimeout,
-    NextcloudTooManyRequests)
+from nextcloud_async.exceptions import NextcloudException, NextcloudRequestTimeout
 
 
 class NextcloudDavApi(NextcloudHttpApi):
@@ -39,7 +29,8 @@ class NextcloudDavApi(NextcloudHttpApi):
             method: str = 'GET',
             path: str = '',
             data: Any = {},
-            headers: Optional[Dict[Hashable, Any]] = {}) -> Dict[Hashable, Any]:
+            headers: Optional[Dict[Hashable, Any]] = {},
+            raw_response: bool = False) -> Dict[Hashable, Any] | ByteString:
         """Send a query to the Nextcloud DAV Endpoint.
 
         Args
@@ -62,29 +53,21 @@ class NextcloudDavApi(NextcloudHttpApi):
 
         """
         try:
-            response = await self.client.request(
+            print(f'QUERY: {self.client.endpoint}{self.stub}{path}')
+            response = await self.client.http_client.request(
                 method,
-                url=f'{self.endpoint}{self.stub}{path}',
+                auth=(self.client.user, self.client.password),
+                url=f'{self.client.endpoint}{self.stub}{path}',
                 data=data,
                 headers=cast(Dict[str, Any], headers))
         except httpx.ReadTimeout:
             raise NextcloudRequestTimeout()
 
-        match response.status_code:
-            case 304:
-                raise NextcloudNotModified()
-            case 400:
-                raise NextcloudBadRequest()
-            case 401:
-                raise NextcloudUnauthorized()
-            case 403:
-                raise NextcloudForbidden()
-            case 404:
-                raise NextcloudNotFound()
-            case 429:
-                raise NextcloudTooManyRequests()
-            case _:
-                pass
+        await self.raise_response_exception(response.status_code)
+
+        if raw_response:
+            ret: ByteString = response.content
+            return ret
 
         if response.content:
             response_data = json.loads(json.dumps(xmltodict.parse(response.content)))
@@ -97,3 +80,7 @@ class NextcloudDavApi(NextcloudHttpApi):
             return response_data['d:multistatus']['d:response']
         else:
             return {}
+
+    async def raw_request(self, **kwargs) -> ByteString:  # type: ignore
+        response = cast(ByteString, await self.request(**kwargs, raw_response=True))  # type: ignore
+        return response

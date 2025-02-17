@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nextcloud_async"
-version = "0.0.8"
+version = "0.1.0b"
 authors = [
   { name="Aaron Segura" },
 ]

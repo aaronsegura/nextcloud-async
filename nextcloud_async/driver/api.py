@@ -3,14 +3,23 @@ from typing import Dict, Any, Optional, Hashable
 
 from nextcloud_async.client import NextcloudClient
 
+from nextcloud_async.exceptions import (
+    NextcloudBadRequest,
+    NextcloudForbidden,
+    NextcloudNotModified,
+    NextcloudUnauthorized,
+    NextcloudDeviceWipeRequested,
+    NextcloudNotFound,
+    NextcloudTooManyRequests,
+    NextcloudTalkConflict,
+    NextcloudTalkPreconditionFailed,
+    NextcloudNotCapable)
+
+
 class NextcloudHttpApi(ABC):
     """Base HTTP methods imported by different Nextcloud API drivers."""
     def __init__(self, client: NextcloudClient):
-        self.client = client.http_client
-        self.user = client.user
-        self.password = client.password
-        self.endpoint = client.endpoint
-        self.user_agent = client.user_agent
+        self.client = client
 
     @abstractmethod
     async def request(
@@ -21,12 +30,63 @@ class NextcloudHttpApi(ABC):
             headers: Optional[Dict[Hashable, Any]] = {}) -> Any:
         ...
 
+    async def raw_request(
+            self,
+            method: str = 'GET',
+            path: str = '',
+            data: Optional[Any] = None,
+            headers: Optional[Dict[Hashable, Any]] = {}) -> Any:
+        ...
+
+    async def raise_response_exception(self, status_code: int):
+        from nextcloud_async.api import Wipe
+
+        match status_code:
+            case 304:
+                raise NextcloudNotModified()
+            case 400:
+                raise NextcloudBadRequest()
+            case 401:
+                wipe = Wipe(self.client)
+                wipe_status = await wipe.check()
+                if wipe_status:
+                    raise NextcloudDeviceWipeRequested()
+                else:
+                    raise NextcloudUnauthorized()
+            case 403:
+                wipe = Wipe(self.client)
+                wipe_status = await wipe.check()
+                if wipe_status:
+                    raise NextcloudDeviceWipeRequested()
+                else:
+                    raise NextcloudForbidden()
+            case 404:
+                raise NextcloudNotFound()
+            case 429:
+                raise NextcloudTooManyRequests()
+            case 409:
+                raise NextcloudTalkConflict()
+            case 412:
+                raise NextcloudTalkPreconditionFailed()
+            case 499:
+                raise NextcloudNotCapable()
+            case _:
+                pass
+
+
     async def get(
             self,
             path: str = '',
             data: Optional[Any] = None,
             headers: Optional[Dict[Hashable, Any]] = {}) -> Any:
         return await self.request(method='GET', path=path, data=data, headers=headers)
+
+    async def get_raw(
+            self,
+            path: str = '',
+            data: Optional[Any] = None,
+            headers: Optional[Dict[Hashable, Any]] = {}) -> Any:
+        return await self.raw_request(method='GET', path=path, data=data, headers=headers)
 
     async def post(
             self,
@@ -102,6 +162,13 @@ class NextcloudModule(ABC):
             data: Optional[Any] = None,
             headers: Optional[Dict[Hashable, Any]] = {}) -> Any:
         return await self.api.get(path=f'{self.stub}{path}', data=data, headers=headers)
+
+    async def _get_raw(
+            self,
+            path: str = '',
+            data: Optional[Any] = None,
+            headers: Optional[Dict[Hashable, Any]] = {}) -> Any:
+        return await self.api.get_raw(path=f'{self.stub}{path}', data=data, headers=headers)
 
     async def _post(
             self,

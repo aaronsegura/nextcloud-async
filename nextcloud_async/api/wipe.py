@@ -9,11 +9,11 @@ See api.loginflow.LoginFlowV2.
 import json
 import httpx
 
-from nextcloud_async.api.base import NextcloudBaseApi
+from nextcloud_async.driver import NextcloudModule, NextcloudBaseApi
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.exceptions import NextcloudBadRequest, NextcloudNotFound
 
-class Wipe:
+class Wipe(NextcloudModule):
     """Interact with Nextcloud Remote Wipe API.
 
     Two simple functions: one to check if the user wants their data
@@ -25,33 +25,30 @@ class Wipe:
             os.remove('.appdatata')  # for example
             await notify_wipe_status()
     """
-
-    sub = '/index.php/core/wipe'
-
     def __init__(
             self,
             client: NextcloudClient):
         self.api = NextcloudBaseApi(client)
+        self.stub = '/index.php/core/wipe'
 
     async def check(self) -> bool:
         """Check for remote wipe flag.
-
-        Here we must use the direct httpx.post method without authentication.
 
         Returns
         -------
             bool: Whether user has flagged this device for remote wiping.
 
         """
+        #Here we must use the direct httpx.post method without authentication.
         try:
-            response = await self.api.client.post(
-                url=f'{self.api.endpoint}{self.sub}/check',
-                data={'token': self.api.password})
+            response = await self.api.client.http_client.post(
+                url=f'{self.api.client.endpoint}{self.stub}/check',
+                data={'token': self.api.client.password})
         except NextcloudNotFound:
             return False
 
         try:
-            result= response.json()
+            result = response.json()
         except json.decoder.JSONDecodeError:
             raise NextcloudBadRequest
 
@@ -69,6 +66,6 @@ class Wipe:
             Empty 200 Response
 
         """
-        return await self.api.client.post(
-            url=f'{self.api.endpoint}{self.sub}/success',
-            data={'token': self.api.password})
+        return await self.api.client.http_client.post(
+            url=f'{self.api.client.endpoint}{self.stub}/success',
+            data={'token': self.api.client.password})

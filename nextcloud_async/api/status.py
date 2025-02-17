@@ -5,12 +5,13 @@ https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-st
 
 import datetime as dt
 
+from dataclasses import dataclass
+
 from enum import Enum
-from typing import Optional, Union, Dict, Hashable, Any, cast
+from typing import Optional, Dict, Hashable, Any, List
 
 from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
 from nextcloud_async.client import NextcloudClient
-from nextcloud_async.exceptions import NextcloudException
 
 
 class StatusType(Enum):
@@ -23,6 +24,65 @@ class StatusType(Enum):
     offline = 'offline'
 
 
+@dataclass
+class PredefinedStatus:
+    data: Dict[str, Any]
+
+    def __getattr__(self, k: str) -> Any:
+        return self.data[k]
+
+    def __str__(self):
+        return f'<Predefined Status "{self.icon} {self.id}">'
+
+    def __repr__(self):
+        return str(self)
+
+
+@dataclass
+class MyStatus:
+    data: Dict[Hashable, Any]
+    status_api: 'Status'
+
+    def __getattr__(self, k: str) -> Any:
+        return self.data[k]
+
+    def __str__(self):
+        return f'<My Status {self.status} "{self.message}">'
+
+    def __repr__(self):
+        return str(self)
+
+    async def set(self, *args, **kwargs) -> None:  # type: ignore
+        response = await self.status_api.set(*args, **kwargs)  # type: ignore
+        self.data = response
+
+    async def set_predefined_status(self, *args, **kwargs) -> None:  # type: ignore
+        response = await self.status_api.choose_predefined_status(*args, **kwargs)  # type: ignore
+        self.data = response
+
+    async def set_message(self, *args, **kwargs) -> None:  # type: ignore
+        response = await self.status_api.set_message(*args, **kwargs)  # type: ignore
+        self.data = response
+
+    async def clear_message(self) -> None:
+        await self.status_api.clear_message()
+        self.message = ''
+
+
+@dataclass
+class UserStatus:
+    data: Dict[Hashable, Any]
+
+    def __getattr__(self, k: str) -> Any:
+        return self.data[k]
+
+    def __str__(self):
+        return f'<User Status {self.status} "{self.message}">'
+
+    def __repr__(self):
+        return str(self)
+
+
 class Status(NextcloudModule):
     """Manage a user's status on Nextcloud instances."""
 
@@ -33,7 +93,7 @@ class Status(NextcloudModule):
         self.stub = f'/apps/user_status/api/v{api_version}'
         self.api = NextcloudOcsApi(client, ocs_version = '2')
 
-    async def get(self):
+    async def get(self) -> MyStatus:
         """Get current status.
 
         Returns
@@ -41,7 +101,9 @@ class Status(NextcloudModule):
             dict: Status description
 
         """
-        return await self._get('/user_status')
+        response = await self._get('/user_status')
+        return MyStatus(response, self)
+
 
     async def set(self, status_type: StatusType):
         """Set user status.
@@ -57,30 +119,9 @@ class Status(NextcloudModule):
         """
         return await self._put(
             path='/user_status/status',
-            data={'statusType': status_type.name})
+            data={'statusType': status_type.value})
 
-    def __validate_future_timestamp(self, ts: Union[float, int]) -> None:
-        """Verify the given unix timestamp is valid and in the future.
-
-        Args
-        ----
-            ts (float or int): Timestamp
-
-        Raises
-        ------
-            NextcloudException: Invalid timestamp or timestamp in the past
-
-        """
-        try:
-            clear_dt = dt.datetime.fromtimestamp(ts)
-        except (TypeError, ValueError):
-            raise NextcloudException(status_code=406, reason='Invalid `clear_at`.  Should be unix timestamp.')
-
-        now = dt.datetime.now()
-        if clear_dt <= now:
-            raise NextcloudException(status_code=406, reason='Invalid `clear_at`.  Should be in the future.')
-
-    async def get_predefined_statuses(self):
+    async def get_predefined_statuses(self) -> List[PredefinedStatus]:
         """Get list of predefined statuses.
 
         Returns
@@ -88,12 +129,13 @@ class Status(NextcloudModule):
             list: Predefined statuses
 
         """
-        return await self._get(path='/predefined_statuses')
+        response = await self._get(path='/predefined_statuses')
+        return [PredefinedStatus(data) for data in response]
 
     async def choose_predefined_status(
             self,
-            message_id: int,
-            clear_at: Union[int, None] = None) -> Dict[Hashable, Any]:
+            status: PredefinedStatus,
+            clear_at: Optional[dt.datetime] = None) -> Dict[Hashable, Any]:
         """Choose from predefined status messages.
 
         Args
@@ -108,19 +150,20 @@ class Status(NextcloudModule):
             dict: New status description
 
         """
-        data: Dict[Hashable, int] = {'messageId': message_id}
+        data: Dict[str, int|str] = {'messageId': status.id}
         if clear_at:
-            self.__validate_future_timestamp(clear_at)
-            data.update({'clearAt': clear_at})
-        return await self._put(
+            if dt.datetime.now() < clear_at:
+                data.update({'clearAt': clear_at.strftime('%s')})
+        response = await self._put(
             path='/user_status/message/predefined',
             data=data)
+        return response
 
     async def set_message(
             self,
             message: str,
             status_icon: Optional[str] = None,
-            clear_at: Optional[int] = None) -> Dict[Hashable, Any]:
+            clear_at: Optional[dt.datetime] = None) -> Dict[Hashable, Any]:
         """Set a custom status message.
 
         Args
@@ -141,8 +184,8 @@ class Status(NextcloudModule):
         if status_icon:
             data.update({'statusIcon': status_icon})
         if clear_at:
-            self.__validate_future_timestamp(clear_at)
-            data.update(cast(Dict[Hashable, Any], {'clearAt': clear_at}))
+            if dt.datetime.now() < clear_at:
+                data.update({'clearAt': clear_at.strftime('%s')})
         return await self._put(
             path='/user_status/message/custom',
             data=data)
@@ -178,7 +221,7 @@ class Status(NextcloudModule):
             path='/statuses',
             data={'limit': limit, 'offset': offset})
 
-    async def get_user_status(self, user: str):
+    async def get_user_status(self, user: str) -> UserStatus:
         """Get the status for a specific user.
 
         Args
@@ -190,5 +233,5 @@ class Status(NextcloudModule):
             dict: User status description
 
         """
-        return await self._get(
-            path=f'/statuses/{user}')
+        response = await self._get(path=f'/statuses/{user}')
+        return UserStatus(response)

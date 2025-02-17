@@ -3,8 +3,14 @@
 https://nextcloud-talk.readthedocs.io/en/latest/constants/
 """
 
-from enum import IntFlag, Enum
+import httpx
 
+from enum import IntFlag, Enum
+from typing import Hashable, Dict, Any, List, Tuple
+
+
+ResponseTupleDict = Tuple[Dict[Hashable, Any], httpx.Headers]
+ResponseTupleList = Tuple[List[Any], httpx.Headers]
 
 class ConversationType(Enum):
     """Conversation Types."""
@@ -13,6 +19,8 @@ class ConversationType(Enum):
     group = 2
     public = 3
     changelog = 4
+    former_one_to_one = 5
+    note_to_self = 6
 
 
 class NotificationLevel(Enum):
@@ -22,6 +30,13 @@ class NotificationLevel(Enum):
     always_notify = 1
     notify_on_mention = 2
     never_notify = 3
+
+
+class MentionPermissions(Enum):
+    """Mention Permissions."""
+
+    everyone = 0
+    moderators = 1
 
 
 class CallNotificationLevel(Enum):
@@ -46,7 +61,7 @@ class ListableScope(Enum):
     everyone = 2
 
 
-class Permissions(IntFlag):
+class ParticipantPermissions(IntFlag):
     """Participant permissions."""
 
     default = 0
@@ -54,10 +69,14 @@ class Permissions(IntFlag):
     start_call = 2
     join_call = 4
     can_ignore_lobby = 8
-    can_publish_audio = 16
-    can_publish_video = 32
-    can_publish_screen_sharing = 64
+    publish_audio = 16
+    publish_video = 32
+    publish_screen_sharing = 64
+    post_share_react = 128
 
+class PermissionAction(Enum):
+    add = 'add'
+    remove = 'remove'
 
 class ParticipantType(Enum):
     """Participant Types."""
@@ -85,3 +104,31 @@ class WebinarLobbyStates(Enum):
 
     no_lobby = 0
     lobby = 1
+
+class SessionStates(Enum):
+    inactive = 0
+    active = 1
+
+
+class ObjectSources(Enum):
+    user = 'users'
+    group = 'groups'
+    email = 'emails'
+    circle = 'circles'
+
+
+class FileShareMessageType(Enum):
+    voice_message = 'voice-message'
+    comment = 'comment'
+
+
+class SharedItemType(Enum):
+    audio = 'audio'
+    deckcard = 'deckcard'
+    file = 'file'
+    location = 'location'
+    media = 'media'
+    other = 'other'
+    voice = 'voice'
+    recording = 'recording'
+

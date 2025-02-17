@@ -1,4 +1,14 @@
-from .api import NextcloudHttpApi, NextcloudModule  # type: ignore # noqa: F401
-from .base import NextcloudBaseApi  # type: ignore # noqa: F401
-from .ocs import NextcloudOcsApi  # type: ignore # noqa: F401
-from .dav import NextcloudDavApi  # type: ignore # noqa: F401
+from .api import NextcloudHttpApi, NextcloudModule
+from .base import NextcloudBaseApi
+from .ocs import NextcloudOcsApi
+from .dav import NextcloudDavApi
+from .talk import NextcloudTalkApi
+
+__all__ = [
+    "NextcloudHttpApi",
+    "NextcloudModule",
+    "NextcloudBaseApi",
+    "NextcloudOcsApi",
+    "NextcloudDavApi",
+    "NextcloudTalkApi"
+]
