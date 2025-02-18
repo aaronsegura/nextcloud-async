@@ -4,6 +4,8 @@
 """
 import httpx
 
+from dataclasses import dataclass, field
+
 from typing import Dict, Optional, Any, List, Tuple
 
 from nextcloud_async.driver import NextcloudTalkApi, NextcloudModule
@@ -25,37 +27,23 @@ from .constants import (
     MentionPermissions)
 
 
+@dataclass
 class Conversation:
-    def __init__(
-            self,
-            api: 'Conversations',
-            avatar_api: ConversationAvatars,
-            participant_api: Participants,
-            chat_api: Chat,
-            data: Dict[str, Any]):
-        self.data = data
-        self.api = api
-        self.avatar_api = avatar_api
-        self.participants_api = participant_api
-        self.chat_api = chat_api
+    data: Dict[str, Any]
+    api: 'Conversations'
+    avatar_api: ConversationAvatars = field(init=False)
+    participant_api: Participants = field(init=False)
+    chat_api: Chat = field(init=False)
 
-        self._participants: List[Participant] = []
+    _participants: List[Participant] = field(init=False, default_factory=list)
 
-    @classmethod
-    async def init(
-            cls,
-            api: 'Conversations',
-            data: Dict[str, Any]):
-        avatar_api = await ConversationAvatars.init(api.client)
-        participant_api = await Participants.init(api.client)
-        chat_api = await Chat.init(api.client)
+    def __post_init__(self):
+        self.avatar_api = ConversationAvatars(self.api.client, self.api.api)
+        self.participant_api = Participants(self.api.client, self.api.api)
+        self.chat_api = Chat(self.api.client, self.api.api)
 
-        return cls(
-            api=api,
-            avatar_api=avatar_api,
-            participant_api=participant_api,
-            chat_api=chat_api,
-            data=data)
+    def __getattr__(self, k: str) -> Any:
+        return self.data[k]
 
     def __str__(self):
         return f'<Conversation: "{self.data['displayName']}" token: "{self.data['token']}">'
@@ -101,7 +89,7 @@ class Conversation:
         await self.participants_api.add_to_conversation(room_token=self.token, invitee=email, source=ObjectSources.email)
 
     async def add_circle(self, circle_id: str) -> None:
-        if not self.api.api.has_capability('circles-support'):
+        if not self.api.api.has_feature('circles-support'):
             raise NextcloudNotCapable()
         await self.participants_api.add_to_conversation(room_token=self.token, invitee=circle_id, source=ObjectSources.circle)
 
@@ -172,20 +160,14 @@ class Conversations(NextcloudModule):
     def __init__(
             self,
             client: NextcloudClient,
-            api: NextcloudTalkApi,
             api_version: Optional[str] = '4'):
+
         self.client: NextcloudClient = client
         self.stub = f'/apps/spreed/api/v{api_version}'
-        self.api: NextcloudTalkApi = api
-
-    @classmethod
-    async def init(
-            cls,
-            client: NextcloudClient,
-            skip_capabilities: bool = False):
-        api = await NextcloudTalkApi.init(client, skip_capabilities=skip_capabilities, ocs_version='2')
-
-        return cls(client, api)
+        self.api = NextcloudTalkApi(client)
+        self.avatar_api = ConversationAvatars(client, self.api)
+        self.participants_api = Participants(client, self.api)
+        self.chat_api = Chat(client, self.api)
 
     async def list(
             self,
@@ -214,7 +196,7 @@ class Conversations(NextcloudModule):
             path='/room',
             data=data)
 
-        return [await Conversation.init(api=self, data=x) for x in response]
+        return [Conversation(data, self) for data in response]
 
     async def create(
             self,
@@ -260,7 +242,7 @@ class Conversations(NextcloudModule):
 
         # TODO: headers
         response, _ = await self._post(path='/room', data=data)
-        return await Conversation.init(api=self, data=response)
+        return Conversation(data, self)
 
     async def get(self, room_token: str) -> Conversation:
         """Get a specific conversation.
@@ -273,17 +255,17 @@ class Conversations(NextcloudModule):
         """
         # TODO: headers
         data, _ = await self._get(path=f'/room/{room_token}')
-        return await Conversation.init(data=data, api=self)
+        return Conversation(data, self)
 
     async def get_note_to_self(self) -> Conversation:
         # TODO: headers
         data, _ = await self._get(path='/room/note-to-self')
-        return await Conversation.init(api=self, data=data)
+        return Conversation(data, self)
 
     async def list_open(self) -> List[Conversation]:
         """Get list of open rooms."""
         response, _ = await self._get(path='/listed-room')
-        return [await Conversation.init(data=x, api=self) for x in response]
+        return [Conversation(data, self) for data in response]
 
     async def rename(self, room_token: str, new_name: str) -> None:
         """Rename the room.
@@ -346,7 +328,7 @@ class Conversations(NextcloudModule):
 
         NextcloudNotCapable When server is lacking required capability
         """
-        if self.api.has_capability('room-description'):
+        if await self.api.has_feature('room-description'):
             raise NextcloudNotCapable()
 
         await self._put(
@@ -371,7 +353,7 @@ class Conversations(NextcloudModule):
         """
         data: Dict[str, str] = {}
         if password:
-            if not self.api.has_capability('conversation-creation-password'):
+            if not await self.api.has_feature('conversation-creation-password'):
                 raise NextcloudNotCapable()
             else:
                 data = {'password': password}
@@ -418,7 +400,7 @@ class Conversations(NextcloudModule):
 
         NextcloudNotCapable When server is lacking required capability
         """
-        if self.api.has_capability('read-only-rooms'):
+        if await self.api.has_feature('read-only-rooms'):
             raise NextcloudNotCapable()
 
         await self._put(path=f'/room/{room_token}/read-only', data={'state': state})
@@ -468,7 +450,7 @@ class Conversations(NextcloudModule):
 
         NextcloudNotCapable When server is lacking required capability
         """
-        if self.api.has_capability('favorites'):
+        if await self.api.has_feature('favorites'):
             raise NextcloudNotCapable()
 
         await self._post(path=f'/room/{room_token}/favorite')
@@ -487,7 +469,7 @@ class Conversations(NextcloudModule):
 
         NextcloudNotCapable When server is lacking required capability
         """
-        if self.api.has_capability('favorites'):
+        if await self.api.has_feature('favorites'):
             raise NextcloudNotCapable()
 
         await self._delete(path=f'/room/{room_token}/favorites')
@@ -541,7 +523,7 @@ class Conversations(NextcloudModule):
 
         NextcloudNotCapable When server is lacking required capability
         """
-        if not self.api.has_capability('notification-calls'):
+        if not await self.api.has_feature('notification-calls'):
             raise NextcloudNotCapable()
 
         data = {
@@ -555,7 +537,7 @@ class Conversations(NextcloudModule):
             self,
             room_token: str,
             seconds: int) -> None:
-        if not self.api.has_capability('message-expiration'):
+        if not await self.api.has_feature('message-expiration'):
             raise NextcloudNotCapable()
 
         await self._post(
@@ -566,7 +548,7 @@ class Conversations(NextcloudModule):
             self,
             room_token: str,
             consent: bool = True) -> None:
-        if not self.api.has_capability('recording-consent'):
+        if not await self.api.has_feature('recording-consent'):
             raise NextcloudNotCapable()
 
         await self._put(
@@ -577,7 +559,7 @@ class Conversations(NextcloudModule):
             self,
             room_token: str,
             scope: ListableScope) -> None:
-        if not self.api.has_capability('listable-rooms'):
+        if not await self.api.has_feature('listable-rooms'):
             raise NextcloudNotCapable()
 
         await self._put(
@@ -588,7 +570,7 @@ class Conversations(NextcloudModule):
             self,
             room_token: str,
             permissions: MentionPermissions) -> None:
-        if not self.api.has_capability('mention-permissions'):
+        if not await self.api.has_feature('mention-permissions'):
             raise NextcloudNotCapable()
 
         await self._put(

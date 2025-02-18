@@ -158,7 +158,7 @@ class NextcloudHttpApi(ABC):
 
 
 class NextcloudModule(ABC):
-    api: NextcloudHttpApi
+    api: Any
     stub: str
 
     async def _get(
@@ -237,3 +237,64 @@ class NextcloudModule(ABC):
             data: Optional[Any] = None,
             headers: Optional[Dict[str, Any]] = {}) -> Any:
         return await self.api.report(path=f'{self.stub}{path}', data=data, headers=headers)
+
+
+class NextcloudCapabilities:
+    _instance: Optional['NextcloudCapabilities'] = None
+    _capabilities: Dict[str, Any] = {}
+
+    client: NextcloudClient
+
+    def __new__(cls, client: NextcloudClient):
+        if not cls._instance:
+            cls._instance = super(NextcloudCapabilities, cls).__new__(cls)
+        return cls._instance
+
+    def __init__(self, client: NextcloudClient):
+        self.client = client
+
+    async def _get_capabilities(self) -> Dict[str, Any]:
+        """Populate local capabilities cache for this server."""
+        response = await self.client.http_client.request(
+            method='GET',
+            auth=(self.client.user, self.client.password),
+            url=f'{self.client.endpoint}/ocs/v1.php/cloud/capabilities?format=json',
+            headers={'OCS-APIRequest' : 'true'})
+        return response.json()['ocs']['data']['capabilities']
+
+    async def _pop_capabilities(self):
+        self._capabilities = await self._get_capabilities()
+
+    async def list(self) -> Dict[str, Any]:
+        if not self._capabilities:
+            await self._pop_capabilities()
+        return self._capabilities
+
+    async def supported(self, capability: str) -> bool:
+        if not self._capabilities:
+            self._capabilities = await self._get_capabilities()
+
+        current_node = self._capabilities
+        for item in capability.split('.'):
+            try:
+                current_node = current_node[item]
+            except TypeError:
+                try:
+                    if item not in current_node:
+                        return False
+                except TypeError:
+                    return False
+            except KeyError:
+                try:
+                    if item not in current_node:
+                        return False
+                except TypeError:
+                    return False
+
+        return True
+
+# capability = {
+#     'thing': [1,2,3,4],
+#     'thing2': {
+#       'subthing2' : [1,2,3,4]}#
+# }

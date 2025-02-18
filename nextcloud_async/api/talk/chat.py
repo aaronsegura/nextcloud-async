@@ -106,15 +106,6 @@ class Chat(NextcloudModule):
         self.stub = f'/apps/spreed/api/v{api_version}'
         self.api: NextcloudTalkApi = api
 
-    @classmethod
-    async def init(
-            cls,
-            client: NextcloudClient,
-            skip_capabilities: bool = False):
-        api = await NextcloudTalkApi.init(client, skip_capabilities=skip_capabilities, ocs_version='2')
-
-        return cls(client, api)
-
     async def get_messages(
             self,
             room_token: str,
@@ -228,7 +219,7 @@ class Chat(NextcloudModule):
         if last_common_read_id:
             data['lastCommonReadId'] = last_common_read_id
 
-        if mark_notifications_as_read is False and not self.api.has_capability('chat-keep-notifications'):
+        if mark_notifications_as_read is False and not await self.api.has_feature('chat-keep-notifications'):
             raise NextcloudNotCapable()
 
         response, headers = await self._get(
@@ -305,7 +296,7 @@ class Chat(NextcloudModule):
             "silent": silent}
 
         if reference_id:
-            if not self.api.has_capability('chat-reference-id'):
+            if not await self.api.has_feature('chat-reference-id'):
                 raise NextcloudNotCapable()
             elif len(reference_id) != 64:
                 raise NextcloudBadRequest()
@@ -365,7 +356,7 @@ class Chat(NextcloudModule):
         of a conversation
         """
         return_headers = ['x-chat-last-common-read']
-        if not self.api.has_capability('rich-object-sharing'):
+        if not await self.api.has_feature('rich-object-sharing'):
             raise NextcloudNotCapable()
 
         data: Dict[str, Any] = {
@@ -375,7 +366,7 @@ class Chat(NextcloudModule):
             'actorDisplayName': actor_display_name}
 
         if reference_id:
-            if not self.api.has_capability('chat-reference-id'):
+            if not await self.api.has_feature('chat-reference-id'):
                 raise NextcloudNotCapable()
             elif len(reference_id) != 64:
                 raise NextcloudBadRequest()
@@ -424,7 +415,7 @@ class Chat(NextcloudModule):
             'talkMetaData': json.dumps(metadata)}
 
         if reference_id:
-            if not self.api.has_capability('chat-reference-id'):
+            if not await self.api.has_feature('chat-reference-id'):
                 raise NextcloudNotCapable()
             elif len(reference_id) != 64:
                 raise NextcloudBadRequest()
@@ -441,7 +432,7 @@ class Chat(NextcloudModule):
             self,
             room_token: str,
             limit: int = 7) -> List[Message]:
-        if not self.api.has_capability('rich-object-list-media'):
+        if not await self.api.has_feature('rich-object-list-media'):
             raise NextcloudNotCapable
 
         response, _ = await self._get(
@@ -458,7 +449,7 @@ class Chat(NextcloudModule):
             limit: int = 7) -> Tuple[List[Message], httpx.Headers]:
         return_headers = ['x-chat-last-given']
 
-        if not self.api.has_capability('rich-object-list-media'):
+        if not await self.api.has_feature('rich-object-list-media'):
             raise NextcloudNotCapable
         data: Dict[str, Any] = {
             'objectType': object_type.value,
@@ -473,7 +464,7 @@ class Chat(NextcloudModule):
     async def clear_history(
             self,
             room_token: str) -> Message:
-        if not self.api.has_capability('clear-history'):
+        if not await self.api.has_feature('clear-history'):
             raise NextcloudNotCapable()
 
         response = await self._delete(path=f'/chat/{room_token}')
@@ -499,7 +490,7 @@ class Chat(NextcloudModule):
         return_headers = ['x-chat-last-common-read']
 
         # TODO: Validate if is regular message or rich media
-        if not self.api.has_capability('delete-messages'):
+        if not await self.api.has_feature('delete-messages'):
             raise NextcloudNotCapable()
 
         response, headers = await self._delete(path=f'/chat/{room_token}/{message_id}')
@@ -512,7 +503,7 @@ class Chat(NextcloudModule):
             message: str) -> Tuple[Message, httpx.Headers]:
         return_headers = ['x-chat-last-common-read']
 
-        if not self.api.has_capability('edit-messages'):
+        if not await self.api.has_feature('edit-messages'):
             raise NextcloudNotCapable()
 
         response, headers = await self._put(
@@ -526,7 +517,7 @@ class Chat(NextcloudModule):
             room_token: str,
             message_id: int,
             timestamp: dt.datetime) -> MessageReminder:
-        if not self.api.has_capability('remind-me-later'):
+        if not await self.api.has_feature('remind-me-later'):
             raise NextcloudNotCapable()
 
         response, _ = await self._post(
@@ -539,7 +530,7 @@ class Chat(NextcloudModule):
             self,
             room_token: str,
             message_id: int) -> MessageReminder:
-        if not self.api.has_capability('remind-me-later'):
+        if not await self.api.has_feature('remind-me-later'):
             raise NextcloudNotCapable()
 
         response, _ = await self._get(
@@ -551,7 +542,7 @@ class Chat(NextcloudModule):
             self,
             room_token: str,
             message_id: int) -> None:
-        if not self.api.has_capability('remind-me-later'):
+        if not await self.api.has_feature('remind-me-later'):
             raise NextcloudNotCapable()
 
         await self._delete(path=f'/chat/{room_token}/{message_id}/reminder')
@@ -561,12 +552,12 @@ class Chat(NextcloudModule):
             room_token: str,
             last_read_message: Optional[int] = None) -> httpx.Headers:
         return_headers = ['x-chat-last-common-read']
-        if not self.api.has_capability('chat-read-marker'):
+        if not await self.api.has_feature('chat-read-marker'):
             raise NextcloudNotCapable()
 
         data: Dict[str, Any] = {}
         if last_read_message:
-            if not self.api.has_capability('chat-read-last'):
+            if not await self.api.has_feature('chat-read-last'):
                 raise NextcloudNotCapable()
             else:
                 data = {'lastReadMessage': last_read_message}
@@ -578,7 +569,7 @@ class Chat(NextcloudModule):
             self,
             room_token: str) -> httpx.Headers:
         return_headers = ['x-chat-last-common-read']
-        if not self.api.has_capability('chat-unread'):
+        if not await self.api.has_feature('chat-unread'):
             raise NextcloudNotCapable()
 
         _, headers = await self._delete(path=f'/chat/{room_token}/read')

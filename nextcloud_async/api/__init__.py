@@ -13,11 +13,13 @@ from .notifications import Notifications
 from .shares import Shares, Share, ShareType, SharePermission
 from .sharees import Sharees
 from .status import Status, StatusType
+from .talk import Conversations
 from .users import Users
 from .wipe import Wipe
 
 __all__ = [
     "Apps", "App",
+    "Conversations",
     "Files", "File",
     "GroupFolders",
     "Groups",

@@ -11,7 +11,7 @@ from urllib.parse import urlencode
 from typing import Dict, Any, Optional, List
 
 from nextcloud_async.client import NextcloudClient
-from nextcloud_async.driver import NextcloudHttpApi
+from nextcloud_async.driver import NextcloudHttpApi, NextcloudCapabilities
 from nextcloud_async.exceptions import NextcloudException
 
 from nextcloud_async.exceptions import NextcloudRequestTimeout
@@ -35,6 +35,7 @@ class NextcloudOcsApi(NextcloudHttpApi):
             self.stub = ocs_stub
         else:
             self.stub = f'/ocs/v{ocs_version}.php'
+        self.capabilities_api = NextcloudCapabilities(client)
 
     async def request(
             self,
@@ -147,50 +148,8 @@ class NextcloudOcsApi(NextcloudHttpApi):
         else:
             raise NextcloudException(status_code=500, reason='Invalid response from server.')
 
-
-    # TODO: Move this to another module
-
-    async def get_capabilities(self, capability: Optional[str] = None) -> Dict[str, Any]:
-        """Return capabilities for this server.
-
-        Args
-        ----
-            slice (str optional): Only return specific portion of results. Defaults to ''.
-
-        Raises
-        ------
-            NextcloudException(404) on capability mising
-            NextcloudException(400) invalid capability string
-
-        Returns
-        -------
-            Dict: Capabilities filtered by slice.
-
-        """
-        if not self.__capabilities:
-            response = await self.client.http_client.request(
-                method='GET',
-                auth=(self.client.user, self.client.password),
-                url=f'{self.client.endpoint}/ocs/v1.php/cloud/capabilities?format=json',
-                headers={'OCS-APIRequest' : 'true'})
-            self.__capabilities = response.json()['ocs']['data']['capabilities']
-
-        ret = self.__capabilities
-
-        if capability:
-            if capability:
-                for item in capability.split('.'):
-                    if item in ret:
-                        try:
-                            ret = ret[item]
-                        except TypeError:
-                            raise NextcloudException(status_code=404, reason=f'Capability not found: {item}')
-                    else:
-                        raise NextcloudException(status_code=404, reason=f'Capability not found: {item}')
-            else:
-                raise NextcloudException(status_code=400, reason='`capability` must be a string.')
-
-        return ret
+    async def has_capability(self, capability: str) -> bool:
+        return await self.capabilities_api.supported(capability)
 
     # TODO: Move this to another module
 

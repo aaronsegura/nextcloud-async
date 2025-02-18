@@ -29,24 +29,23 @@ class ConversationAvatars(NextcloudModule):
             cls,
             client: NextcloudClient,
             skip_capabilities: bool = False):
-        api = await NextcloudTalkApi.init(client, skip_capabilities=skip_capabilities, ocs_version='2')
+        api = NextcloudTalkApi(client, ocs_version='2')
         return cls(client, api)
 
     async def set(self, room_token:str, image_file: bytes) -> None:
-        if not self.api.has_capability('avatar'):
+        if not await self.api.has_feature('avatar'):
             raise NextcloudNotCapable
 
         await self._post(
             path=f'/room/{room_token}/avatar',
-            data={
-                'file': image_file})
+            data={'file': image_file})
 
     async def set_emoji(
             self,
             room_token: str ,
             emoji: str,
             color: Optional[str] = "none") -> None:
-        if not self.api.has_capability('avatar'):
+        if not await self.api.has_feature('avatar'):
             raise NextcloudNotCapable
 
         await self._post(
@@ -56,28 +55,26 @@ class ConversationAvatars(NextcloudModule):
                 'color': color})
 
     async def delete(self, room_token: str):
-        if not self.api.has_capability('avatar'):
+        if not await self.api.has_feature('avatar'):
             raise NextcloudNotCapable
 
         await self._delete(path=f'/room/{room_token}/avatar')
 
     async def get(self, room_token: str, dark_mode: Optional[bool] = False) -> bytes:
-        if not self.api.has_capability('avatar'):
+        if not await self.api.has_feature('avatar'):
             raise NextcloudNotCapable
 
         if dark_mode:
-            response = await self.api.client.http_client.request(
-                method='GET',
-                url=f'{self.client.endpoint}/ocs/v2.php/apps/spreed/api/v1/room/{room_token}/avatar/dark')
+            response = await self._get_raw(
+                path=f'/room/{room_token}/avatar/dark')
         else:
-            response = await self.api.client.http_client.request(
-                method='GET',
-                url=f'{self.client.endpoint}/ocs/v2.php/apps/spreed/api/v1/room/{room_token}/avatar')
+            response = await self._get_raw(
+                path=f'/room/{room_token}/avatar')
 
         return response.content
 
     async def get_federated(self, room_token: str, cloud_id: str, size: int, dark_mode: Optional[bool] = False) -> bytes:
-        if not self.api.has_capability('avatar') or not self.api.has_capability('federated-v1'):
+        if not await self.api.has_feature('avatar') or not await self.api.has_feature('federated-v1'):
             raise NextcloudNotCapable
 
         if dark_mode:

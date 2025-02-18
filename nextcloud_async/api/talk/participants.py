@@ -16,7 +16,6 @@ from .constants import (
     ParticipantPermissions,
     SessionStates,
     PermissionAction,
-    ResponseTupleDict,
     ObjectSources)
 
 
@@ -62,14 +61,6 @@ class Participants(NextcloudModule):
         self.stub = f'/apps/spreed/api/v{api_version}'
         self.api: NextcloudTalkApi = api
 
-    @classmethod
-    async def init(
-            cls,
-            client: NextcloudClient,
-            skip_capabiliites: bool = False):
-        api = await NextcloudTalkApi.init(client, skip_capabilities=skip_capabiliites, ocs_version='2')
-        return cls(client, api)
-
     async def list(
             self,
             room_token: str,
@@ -78,7 +69,7 @@ class Participants(NextcloudModule):
         """Return list of participants."""
         path = f'/room/{room_token}/participants'
         if include_breakout_rooms:
-            if self.api.has_capability('breakout-rooms-v1'):
+            if await self.api.has_feature('breakout-rooms-v1'):
                 path = f'/room/{room_token}/breakout-rooms/participants'
             else:
                 raise NextcloudNotCapable()
@@ -137,7 +128,7 @@ class Participants(NextcloudModule):
     async def remove_from_conversation(
             self,
             room_token: str,
-            attendee_id: int) -> ResponseTupleDict:
+            attendee_id: int) -> None:
         """Delete an attendee from conversation.
 
         Method: DELETE
@@ -159,11 +150,11 @@ class Participants(NextcloudModule):
 
         404 Not Found When the participant to remove could not be found
         """
-        return await self._delete(
+        await self._delete(
             path=f'/room/{room_token}/attendees',
             data={'attendeeId': attendee_id})
 
-    async def set_state(self, room_token: str, state: SessionStates) -> ResponseTupleDict:
+    async def set_state(self, room_token: str, state: SessionStates) -> None:
         """Set user session state.
 
         SessionState.active: No notifications should be sent
@@ -183,19 +174,15 @@ class Participants(NextcloudModule):
 
             NextcloudNotCapable: _description_
 
-        Returns
-        -------
-
-            ResponseTupleDict: _description_
         """
-        if not self.api.has_capability('session-state'):
+        if not await self.api.has_feature('session-state'):
             raise NextcloudNotCapable()
 
-        return await self._put(
+        await self._put(
             path=f'/room/{room_token}/participants/state',
             data={'state': state.value})
 
-    async def leave(self, token: str) -> ResponseTupleDict:
+    async def leave(self, token: str) -> None:
         """Remove yourself from a conversation.
 
         Method: DELETE
@@ -207,13 +194,14 @@ class Participants(NextcloudModule):
 
         404 Not Found When the conversation could not be found for the participant
         """
-        return await self._delete(path=f'/room/{token}/participants/self')
+        await self._delete(path=f'/room/{token}/participants/self')
 
+    # TODO: Validate/fix return type
     async def join(
             self,
             room_token: str,
             password: Optional[str],
-            force: bool = True) -> ResponseTupleDict:
+            force: bool = True) -> None:
         """Join a conversation (available for call and chat)
 
         Method: POST
@@ -254,18 +242,18 @@ class Participants(NextcloudModule):
             'password': password,
             'force': bool2str(force)})
 
-    async def resend_invitation_emails(self, room_token: str, participant_id: Optional[int] = None) -> ResponseTupleDict:
-        if not self.api.has_capability('sip-support'):
+    async def resend_invitation_emails(self, room_token: str, participant_id: Optional[int] = None) -> None:
+        if not await self.api.has_feature('sip-support'):
             raise NextcloudNotCapable()
 
-        return await self._post(
+        await self._post(
             path=f'/room/{room_token}/participants/resend-invitations',
             data={'attendeeId': participant_id or "none"})
 
     async def promote_to_moderator(
             self,
             room_token: str,
-            attendee_id: int) -> ResponseTupleDict:
+            attendee_id: int) -> None:
         """Promote a user or guest to moderator.
 
         Method: POST
@@ -287,14 +275,14 @@ class Participants(NextcloudModule):
 
         404 Not Found When the participant to remove could not be found
         """
-        return await self._post(
+        await self._post(
             path=f'/room/{room_token}/moderators',
             data={'attendeeId': attendee_id})
 
     async def demote(
             self,
             room_token: str,
-            attendee_id: int) -> ResponseTupleDict:
+            attendee_id: int) -> None:
         """Demote a moderator to user or guest.
 
         Method: DELETE
@@ -315,7 +303,7 @@ class Participants(NextcloudModule):
 
         404 Not Found When the participant to demote could not be found
         """
-        return await self._delete(
+        await self._delete(
             path=f'/room/{room_token}/moderators',
             data={'attendeeId': attendee_id})
 
@@ -324,7 +312,7 @@ class Participants(NextcloudModule):
             room_token: str,
             attendee_id: int,
             permissions: ParticipantPermissions,
-            mode: PermissionAction) -> ResponseTupleDict:
+            mode: PermissionAction) -> None:
         """Set permissions for an attendee.
 
         Method: PUT
@@ -356,15 +344,16 @@ class Participants(NextcloudModule):
 
         404 Not Found When the attendee to set publishing permissions could not be found
         """
-        return await self._put(
+        await self._put(
             path=f'/room/{room_token}/attendees/permissions',
             data={
                 'attendeeId': attendee_id,
                 'mode': mode.value,
                 'permissions': permissions.value})
 
-    async def verify_dial_in_pin(self, room_token: str, pin: int) -> ResponseTupleDict:
-        if not self.api.has_capability('sip-support-dialout'):
+    # TODO: verify/fix return type
+    async def verify_dial_in_pin(self, room_token: str, pin: int) -> None:
+        if not await self.api.has_feature('sip-support-dialout'):
             raise NextcloudNotCapable()
         return await self._post(
             path=f'/room/{room_token}/verify-dialin',
@@ -408,7 +397,7 @@ class Participants(NextcloudModule):
 
             _type_: _description_
         """
-        if not self.api.has_capability('sip-support-dialout'):
+        if not await self.api.has_feature('sip-support-dialout'):
             raise NextcloudNotCapable()
 
         return await self._post(
@@ -433,7 +422,7 @@ class Participants(NextcloudModule):
 
             room_token (str): Room token
         """
-        if not self.api.has_capability('sip-support-dialout'):
+        if not await self.api.has_feature('sip-support-dialout'):
             raise NextcloudNotCapable
 
         return await self._delete(

@@ -7,12 +7,12 @@ import httpx
 
 from urllib.parse import urlencode
 
-from typing import Dict, Any, Optional, List, Tuple
+from typing import Dict, Any, Optional, Tuple
 
 from nextcloud_async.client import NextcloudClient
-from nextcloud_async.driver import NextcloudHttpApi
+from nextcloud_async.driver import NextcloudHttpApi, NextcloudCapabilities
 
-from nextcloud_async.exceptions import NextcloudRequestTimeout, NextcloudException
+from nextcloud_async.exceptions import NextcloudRequestTimeout
 
 
 class NextcloudTalkApi(NextcloudHttpApi):
@@ -21,58 +21,27 @@ class NextcloudTalkApi(NextcloudHttpApi):
     All OCS queries must have an {'OCS-APIRequest': 'true'} header. Additionally, we
     request all data to be returned to us in json format.
     """
-    capabilities: List[str] = []
 
     def __init__(
             self,
             client: NextcloudClient,
-            capabilities: Optional[List[str]] = [],
             ocs_version: Optional[str] = '2',
             stub: Optional[str] = None):
-        if not capabilities:
-            raise NextcloudException(status_code=400, reason='Cannot instantiate NextcloudTalkApi directly.  Use NextcloudTalkApi.create()')
-        else:
-            self.capabilities = capabilities
-        super().__init__(client)
+
         if stub:
             self.stub = stub
         else:
             self.stub = f'/ocs/v{ocs_version}.php'
 
         self.ocs_version = ocs_version
+        self.capabilities_api = NextcloudCapabilities(client)
 
-    @classmethod
-    async def init(
-            cls,
-            client: NextcloudClient,
-            skip_capabilities: bool = False,
-            ocs_version: Optional[str] = '1',
-            stub: Optional[str] = None):
-        capabilities: List[str] = []
-        if not skip_capabilities:
-            capabilities = await cls.get_capabilities(client)
-        return cls(client, capabilities, ocs_version, stub)
+        super().__init__(client)
 
-    @classmethod
-    async def get_capabilities(
-            cls,
-            client: NextcloudClient):
-        response = await client.http_client.get(
-            url=f'{client.endpoint}/ocs/v1.php/cloud/capabilities?format=json',
-            auth=(client.user, client.password),
-            headers={'OCS-APIRequest' : 'true'})
-        return response.json()['ocs']['data']['capabilities']['spreed']['features']
-
-    async def pop_capabilities(self):
-        self.capabilities = await self.get_capabilities(self.client)
-
-    def has_capability(self, capability: str) -> bool:
-        if not self.capabilities:
-            raise NextcloudException(
-                status_code=404,
-                reason='Talk API instantiated with `skip_capabilities`.  Run pop_capabilities().')
-
-        return capability in self.capabilities
+    async def has_feature(self, capability: str) -> bool:
+        features = await self.capabilities_api.supported('.'.join(['spreed.features', capability]))
+        local_features = await self.capabilities_api.supported('.'.join(['spreed.features-local', capability]))
+        return features or local_features
 
     async def request(
             self,

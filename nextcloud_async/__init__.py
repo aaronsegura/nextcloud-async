@@ -33,6 +33,7 @@ https://nextcloud-talk.readthedocs.io/en/latest/poll/
 
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async import api, driver
+
 __all__ = [
     "NextcloudClient",
     "api",

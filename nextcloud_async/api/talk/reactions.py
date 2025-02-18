@@ -21,21 +21,18 @@ class Reactions(NextcloudModule):
         self.stub = f'/apps/spreed/api/v{api_version}'
         self.api: NextcloudTalkApi = api
 
-    @classmethod
-    async def init(
-            cls,
-            client: NextcloudClient):
-        api = await NextcloudTalkApi.init(client, ocs_version='2')
-        if not api.has_capability('reactions'):
-            raise NextcloudNotCapable(reason='Instance does not support reactions.')
-        return cls(client, api)
-
     async def add(self, room_token: str, message_id: int, reaction: str):
+        if not self.api.has_feature('reactions'):
+            raise NextcloudNotCapable(reason='Instance does not support reactions.')
+
         await self._post(
             path=f'/reaction/{room_token}/{message_id}',
             data={'reaction': reaction})
 
     async def delete(self, room_token: str, message_id: int, reaction: str):
+        if not self.api.has_feature('reactions'):
+            raise NextcloudNotCapable(reason='Instance does not support reactions.')
+
         await self._delete(
             path=f'/reaction/{room_token}/{message_id}',
             data={'reaction': reaction})
