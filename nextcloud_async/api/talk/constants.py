@@ -68,9 +68,11 @@ class ParticipantPermissions(IntFlag):
     publish_screen_sharing = 64
     post_share_react = 128
 
+
 class PermissionAction(Enum):
     add = 'add'
     remove = 'remove'
+
 
 class ParticipantType(Enum):
     """Participant Types."""

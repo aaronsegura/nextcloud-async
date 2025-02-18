@@ -7,7 +7,6 @@ import httpx
 
 from typing import Optional, List, Dict, Any, Tuple
 
-from nextcloud_async import NextcloudClient
 from nextcloud_async.driver import NextcloudTalkApi, NextcloudModule
 from nextcloud_async.helpers import bool2str, phone_number_to_E164
 from nextcloud_async.exceptions import NextcloudNotCapable
@@ -22,10 +21,10 @@ from .constants import (
 class Participant:
     def __init__(
             self,
-            api: 'Participants',
-            data: Dict[str, Any]):
+            data: Dict[str, Any],
+            api: NextcloudTalkApi):
         self.data = data
-        self.api = api
+        self.api = Participants(api)
 
     def __str__(self):
         return f'<Participant, room: {self.data['roomToken']}, Id: {self.data['attendeeId']}>'
@@ -54,10 +53,9 @@ class Participants(NextcloudModule):
 
     def __init__(
             self,
-            client: NextcloudClient,
             api: NextcloudTalkApi,
             api_version: Optional[str] = '4'):
-        self.client: NextcloudClient = client
+
         self.stub = f'/apps/spreed/api/v{api_version}'
         self.api: NextcloudTalkApi = api
 
@@ -77,7 +75,7 @@ class Participants(NextcloudModule):
             path=path,
             data={'includeStatus': include_status})
 
-        return [Participant(self, data=x) for x in response], headers
+        return [Participant(data, self.api) for data in response], headers
 
     async def add_to_conversation(
             self,

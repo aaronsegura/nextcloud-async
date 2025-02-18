@@ -17,6 +17,7 @@ from nextcloud_async.helpers import bool2int
 from .avatars import ConversationAvatars
 from .participants import Participants, Participant
 from .chat import Chat, Message, MessageReminder, Suggestion
+from .calls import Calls
 
 from .constants import (
     ConversationType,
@@ -30,17 +31,16 @@ from .constants import (
 @dataclass
 class Conversation:
     data: Dict[str, Any]
-    api: 'Conversations'
-    avatar_api: ConversationAvatars = field(init=False)
-    participant_api: Participants = field(init=False)
-    chat_api: Chat = field(init=False)
+    talk_api: NextcloudTalkApi
 
     _participants: List[Participant] = field(init=False, default_factory=list)
 
     def __post_init__(self):
-        self.avatar_api = ConversationAvatars(self.api.client, self.api.api)
-        self.participant_api = Participants(self.api.client, self.api.api)
-        self.chat_api = Chat(self.api.client, self.api.api)
+        self.api = Conversations(self.talk_api.client)
+        self.avatar_api = ConversationAvatars(self.talk_api)
+        self.participant_api = Participants(self.talk_api)
+        self.chat_api = Chat(self.talk_api)
+        self.calls_api = Calls(self.talk_api)
 
     def __getattr__(self, k: str) -> Any:
         return self.data[k]
@@ -55,6 +55,14 @@ class Conversation:
     def token(self):
         return self.data['token']
 
+    @property
+    def display_name(self):
+        return self.data['displayName']
+
+    @display_name.setter
+    def display_name(self, v: str):
+        self.data['displayName'] = v
+
     async def get_participants(self):
         if not self._participants:
             await self.refresh_participants()
@@ -63,14 +71,6 @@ class Conversation:
 
     async def refresh_participants(self) -> None:
         self._participants, _ = await self.participants_api.list(self.token)
-
-    @property
-    def display_name(self):
-        return self.data['displayName']
-
-    @display_name.setter
-    def display_name(self, v: str):
-        self.data['displayName'] = v
 
     async def rename(self, new_name: str) -> None:
         await self.api.rename(room_token=self.token, new_name=new_name)
@@ -154,6 +154,25 @@ class Conversation:
     async def set_default_permissions(self, **kwargs) -> None:
         await self.api.set_default_permissions(room_token=self.token, **kwargs)
 
+    async def participants_connected_to_call(self):
+        return await self.calls_api.get_connected_participants(self.token)
+
+    async def join_call(self, **kwargs: Dict[str, Any]):
+        await self.calls_api.join_call(room_token=self.token, **kwargs)  # type: ignore
+
+    async def send_call_notification(self, **kwargs: Dict[str, Any]):
+        await self.calls_api.send_notification(room_token=self.token, **kwargs)  # type: ignore
+
+    async def send_call_sip_dialout_request(self, **kwargs: Dict[str, Any]):
+        await self.calls_api.send_sip_dialout_request(room_token=self.token, **kwargs)  # type: ignore
+
+    async def update_call_flags(self, **kwargs: Dict[str, Any]):
+        await self.calls_api.update_flags(room_token=self.token, **kwargs)  # type: ignore
+
+    async def leave_call(self, **kwargs: Dict[str, Any]):
+        await self.calls_api.leave(room_token=self.token, **kwargs)  # type: ignore
+
+
 class Conversations(NextcloudModule):
     """Interact with Nextcloud Talk API."""
 
@@ -165,9 +184,9 @@ class Conversations(NextcloudModule):
         self.client: NextcloudClient = client
         self.stub = f'/apps/spreed/api/v{api_version}'
         self.api = NextcloudTalkApi(client)
-        self.avatar_api = ConversationAvatars(client, self.api)
-        self.participants_api = Participants(client, self.api)
-        self.chat_api = Chat(client, self.api)
+        self.avatar_api = ConversationAvatars(self.api)
+        self.participants_api = Participants(self.api)
+        self.chat_api = Chat(self.api)
 
     async def list(
             self,
@@ -196,7 +215,7 @@ class Conversations(NextcloudModule):
             path='/room',
             data=data)
 
-        return [Conversation(data, self) for data in response]
+        return [Conversation(data, self.api) for data in response]
 
     async def create(
             self,
@@ -242,7 +261,7 @@ class Conversations(NextcloudModule):
 
         # TODO: headers
         response, _ = await self._post(path='/room', data=data)
-        return Conversation(data, self)
+        return Conversation(data, self.api)
 
     async def get(self, room_token: str) -> Conversation:
         """Get a specific conversation.
@@ -255,17 +274,17 @@ class Conversations(NextcloudModule):
         """
         # TODO: headers
         data, _ = await self._get(path=f'/room/{room_token}')
-        return Conversation(data, self)
+        return Conversation(data, self.api)
 
     async def get_note_to_self(self) -> Conversation:
         # TODO: headers
         data, _ = await self._get(path='/room/note-to-self')
-        return Conversation(data, self)
+        return Conversation(data, self.api)
 
     async def list_open(self) -> List[Conversation]:
         """Get list of open rooms."""
         response, _ = await self._get(path='/listed-room')
-        return [Conversation(data, self) for data in response]
+        return [Conversation(data, self.api) for data in response]
 
     async def rename(self, room_token: str, new_name: str) -> None:
         """Rename the room.

@@ -1,4 +1,6 @@
-
+"""
+    https://nextcloud-talk.readthedocs.io/en/latest/global/
+"""
 from .conversations import Conversations, Conversation
 from .participants import Participants, Participant
 from .avatars import ConversationAvatars

@@ -98,11 +98,36 @@ class NextcloudMethodNotAllowed(NextcloudException):
         super().__init__(reason=reason or self.reason)
 
 
+class NextcloudNotSupported(NextcloudException):
+    """Federation endpoints not enabled."""
+
+    status_code = 406
+    reason = "Federation not supported."
+
+    def __init__(self, reason: Optional[str] = None):
+        """Configure exception."""
+        super().__init__(reason=reason or self.reason)
+
+
 class NextcloudRequestTimeout(NextcloudException):
     """HTTP Request timed out."""
 
     status_code = 408
     reason = "Request timed out."
+
+    def __init__(self, reason: Optional[str] = None):
+        """Configure exception."""
+        super().__init__(reason=reason or self.reason)
+
+
+class NextcloudLoginFlowTimeout(NextcloudException):
+    """LoginFlowv2 request timed out.
+
+    The wait_confirm() function can be called multiple times.
+    """
+
+    status_code = 408
+    reason = "Login flow request timed out.  Try again."
 
     def __init__(self, reason: Optional[str] = None):
         """Configure exception."""
@@ -120,11 +145,33 @@ class NextcloudConflict(NextcloudException):
         super().__init__(reason=reason or self.reason)
 
 
-class NextcloudLoginFlowTimeout(NextcloudException):
-    """When the login flow times out."""
+class NextcloudPreconditionFailed(NextcloudException):
+    """Precondition of action failed."""
+
+    status_code = 412
+    reason = 'User tried to join chat room without going to lobby.'
+
+    def __init__(self, reason: Optional[str] = None):
+        """Configure exception."""
+        super().__init__(reason=reason or self.reason)
+
+
+class NextcloudFederationRemoteError(NextcloudException):
+    """Precondition of action failed."""
+
+    status_code = 422
+    reason = 'Remote federation peer error.'
+
+    def __init__(self, reason: Optional[str] = None):
+        """Configure exception."""
+        super().__init__(reason=reason or self.reason)
+
+
+class NextcloudUpgradeRequired(NextcloudException):
+    """Precondition of action failed."""
 
     status_code = 426
-    reason = "Client upgrade required."
+    reason = 'Client software update is required.'
 
     def __init__(self, reason: Optional[str] = None):
         """Configure exception."""
@@ -142,22 +189,22 @@ class NextcloudTooManyRequests(NextcloudException):
         super().__init__(reason=reason or self.reason)
 
 
-class NextcloudPreconditionFailed(NextcloudException):
-    """Precondition of action failed."""
+class NextcloudNotCapable(NextcloudException):
+    """Raised when server does not have required capability."""
 
-    status_code = 412
-    reason = 'User tried to join chat room without going to lobby.'
+    status_code = 499
+    reason = 'Server does not support required capability.'
 
     def __init__(self, reason: Optional[str] = None):
         """Configure exception."""
         super().__init__(reason=reason or self.reason)
 
 
-class NextcloudNotCapable(NextcloudException):
+class NextcloudServiceNotAvailable(NextcloudException):
     """Raised when server does not have required capability."""
 
-    status_code = 499
-    reason = 'Server does not support required capability.'
+    status_code = 503
+    reason = 'Service is not avaiable'
 
     def __init__(self, reason: Optional[str] = None):
         """Configure exception."""

@@ -17,20 +17,10 @@ class ConversationAvatars(NextcloudModule):
 
     def __init__(
             self,
-            client: NextcloudClient,
             api: NextcloudTalkApi,
             api_version: Optional[str] = '1'):
-        self.client: NextcloudClient = client
         self.stub = f'/apps/spreed/api/v{api_version}'
         self.api: NextcloudTalkApi = api
-
-    @classmethod
-    async def init(
-            cls,
-            client: NextcloudClient,
-            skip_capabilities: bool = False):
-        api = NextcloudTalkApi(client, ocs_version='2')
-        return cls(client, api)
 
     async def set(self, room_token:str, image_file: bytes) -> None:
         if not await self.api.has_feature('avatar'):
@@ -80,14 +70,14 @@ class ConversationAvatars(NextcloudModule):
         if dark_mode:
             response = await self.api.client.http_client.request(
                 method='GET',
-                url=f'{self.client.endpoint}/ocs/v2.php/apps/spreed/api/v1/proxy/{room_token}/user-avatar/{size}/dark',
+                url=f'{self.api.client.endpoint}/ocs/v2.php/apps/spreed/api/v1/proxy/{room_token}/user-avatar/{size}/dark',
                 data={
                     'cloudId': cloud_id,
                     'size': size})
         else:
             response = await self.api.client.http_client.request(
                 method='GET',
-                url=f'{self.client.endpoint}/ocs/v2.php/apps/spreed/api/v1/proxy/{room_token}/user-avatar/{size}',
+                url=f'{self.api.client.endpoint}/ocs/v2.php/apps/spreed/api/v1/proxy/{room_token}/user-avatar/{size}',
                 data={
                     'cloudId': cloud_id,
                     'size': size})

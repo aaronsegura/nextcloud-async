@@ -9,7 +9,6 @@ from dataclasses import dataclass
 
 from typing import Dict, Optional, List, Tuple, Any
 
-from nextcloud_async import NextcloudClient
 from nextcloud_async.driver import NextcloudTalkApi, NextcloudModule
 from nextcloud_async.exceptions import NextcloudNotCapable, NextcloudBadRequest
 from nextcloud_async.helpers import bool2int, filter_headers
@@ -22,10 +21,11 @@ from .constants import SharedItemType
 @dataclass
 class Message:
     data: Dict[str, Any]
-    chat_api: 'Chat'
+    talk_api: NextcloudTalkApi
 
     def __post_init__(self):
-        self.reaction_api = Reactions(self.chat_api.client, self.chat_api.api)
+        self.chat_api = Chat(self.talk_api)
+        self.reaction_api = Reactions(self.talk_api)
 
     def __getattr__(self, k: str) -> Any:
         return self.data[k]
@@ -99,10 +99,8 @@ class Chat(NextcloudModule):
 
     def __init__(
             self,
-            client: NextcloudClient,
             api: NextcloudTalkApi,
             api_version: Optional[str] = '1'):
-        self.client: NextcloudClient = client
         self.stub = f'/apps/spreed/api/v{api_version}'
         self.api: NextcloudTalkApi = api
 
@@ -225,7 +223,7 @@ class Chat(NextcloudModule):
         response, headers = await self._get(
             path=f'/chat/{room_token}',
             data=data)
-        return [Message(data, self) for data in response], filter_headers(return_headers, headers)
+        return [Message(data, self.api) for data in response], filter_headers(return_headers, headers)
 
     async def get_context(
             self,
@@ -236,7 +234,7 @@ class Chat(NextcloudModule):
             path=f'/chat/{room_token}/{message_id}/context',
             data={'limit': limit})
         return_headers: List[str] = ['x-chat-last-given', 'x-chat-last-common-read']
-        return [Message(data, self) for data in response], filter_headers(return_headers, headers)
+        return [Message(data, self.api) for data in response], filter_headers(return_headers, headers)
 
     async def send(
             self,
@@ -307,7 +305,7 @@ class Chat(NextcloudModule):
             path=f'/chat/{room_token}',
             data=data)
 
-        return Message(response, self), filter_headers(return_headers, headers)
+        return Message(response, self.api), filter_headers(return_headers, headers)
 
     async def send_rich_object(
             self,
@@ -376,7 +374,7 @@ class Chat(NextcloudModule):
         response, headers = await self._post(
             path=f'/chat/{room_token}/share',
             data=data)
-        return Message(response, self), filter_headers(return_headers, headers)
+        return Message(response, self.api), filter_headers(return_headers, headers)
 
     async def share_file(
             self,
@@ -439,7 +437,7 @@ class Chat(NextcloudModule):
             path=f'/chat/{room_token}/share/overview',
             data = {'limit': limit})
 
-        return [Message(data, self) for data in response]
+        return [Message(data, self.api) for data in response]
 
     async def list_shares_by_type(
             self,
@@ -459,7 +457,7 @@ class Chat(NextcloudModule):
         response, headers = await self._get(
             path=f'/chat/{room_token}/share',
             data=data)
-        return [Message(data, self) for data in response], filter_headers(return_headers, headers)
+        return [Message(data, self.api) for data in response], filter_headers(return_headers, headers)
 
     async def clear_history(
             self,
@@ -468,7 +466,7 @@ class Chat(NextcloudModule):
             raise NextcloudNotCapable()
 
         response = await self._delete(path=f'/chat/{room_token}')
-        return Message(response, self)
+        return Message(response, self.api)
 
     async def delete(
             self,
@@ -494,7 +492,7 @@ class Chat(NextcloudModule):
             raise NextcloudNotCapable()
 
         response, headers = await self._delete(path=f'/chat/{room_token}/{message_id}')
-        return Message(response, self), filter_headers(return_headers, headers)
+        return Message(response, self.api), filter_headers(return_headers, headers)
 
     async def edit(
             self,
@@ -510,7 +508,7 @@ class Chat(NextcloudModule):
             path=f'/chat/{room_token}/{message_id}',
             data={'message': message})
 
-        return Message(response, self), filter_headers(return_headers, headers)
+        return Message(response, self.api), filter_headers(return_headers, headers)
 
     async def set_reminder(
             self,

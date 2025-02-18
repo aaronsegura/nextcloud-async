@@ -4,7 +4,6 @@ https://nextcloud-talk.readthedocs.io/en/latest/reaction/
 
 from typing import Optional
 
-from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver import NextcloudModule, NextcloudTalkApi
 from nextcloud_async.exceptions import NextcloudNotCapable
 
@@ -14,10 +13,8 @@ class Reactions(NextcloudModule):
 
     def __init__(
             self,
-            client: NextcloudClient,
             api: NextcloudTalkApi,
             api_version: Optional[str] = '1'):
-        self.client: NextcloudClient = client
         self.stub = f'/apps/spreed/api/v{api_version}'
         self.api: NextcloudTalkApi = api
 
