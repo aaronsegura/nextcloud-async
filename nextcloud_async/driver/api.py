@@ -1,3 +1,5 @@
+import httpx
+
 from abc import ABC, abstractmethod
 from typing import Dict, Any, Optional, Hashable
 
@@ -11,9 +13,10 @@ from nextcloud_async.exceptions import (
     NextcloudDeviceWipeRequested,
     NextcloudNotFound,
     NextcloudTooManyRequests,
-    NextcloudTalkConflict,
-    NextcloudTalkPreconditionFailed,
-    NextcloudNotCapable)
+    NextcloudConflict,
+    NextcloudPreconditionFailed,
+    NextcloudNotCapable,
+    NextcloudException)
 
 
 class NextcloudHttpApi(ABC):
@@ -38,41 +41,43 @@ class NextcloudHttpApi(ABC):
             headers: Optional[Dict[Hashable, Any]] = {}) -> Any:
         ...
 
-    async def raise_response_exception(self, status_code: int):
+    async def _wipe_requested(self) -> bool:
         from nextcloud_async.api import Wipe
+        wipe = Wipe(self.client)
+        return await wipe.check()
 
-        match status_code:
+    async def raise_response_exception(self, response: httpx.Response):
+
+        match response.status_code:
             case 304:
                 raise NextcloudNotModified()
             case 400:
-                raise NextcloudBadRequest()
+                raise NextcloudBadRequest(response.json()['message'])
             case 401:
-                wipe = Wipe(self.client)
-                wipe_status = await wipe.check()
-                if wipe_status:
+                if await self._wipe_requested():
                     raise NextcloudDeviceWipeRequested()
                 else:
                     raise NextcloudUnauthorized()
             case 403:
-                wipe = Wipe(self.client)
-                wipe_status = await wipe.check()
-                if wipe_status:
+                if await self._wipe_requested():
                     raise NextcloudDeviceWipeRequested()
                 else:
                     raise NextcloudForbidden()
             case 404:
-                raise NextcloudNotFound()
+                raise NextcloudNotFound(response.json())
             case 429:
                 raise NextcloudTooManyRequests()
             case 409:
-                raise NextcloudTalkConflict()
+                raise NextcloudConflict(response.json()['message'])
             case 412:
-                raise NextcloudTalkPreconditionFailed()
+                raise NextcloudPreconditionFailed(response.json()['message'])
             case 499:
-                raise NextcloudNotCapable()
+                raise NextcloudNotCapable(response.json()['message'])
             case _:
                 pass
 
+        if response.status_code >= 400:
+            raise NextcloudException(status_code=response.status_code, reason=str(response.content))
 
     async def get(
             self,

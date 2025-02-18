@@ -50,21 +50,21 @@ class NextcloudTalkApi(NextcloudHttpApi):
             stub: Optional[str] = None):
         capabilities: List[str] = []
         if not skip_capabilities:
-            capabilities = await cls.get_capabilities(client, ocs_version)
+            capabilities = await cls.get_capabilities(client)
         return cls(client, capabilities, ocs_version, stub)
 
     @classmethod
     async def get_capabilities(
             cls,
-            client: NextcloudClient,
-            ocs_version: Optional[str] = '1'):
+            client: NextcloudClient):
         response = await client.http_client.get(
-            url=f'{client.endpoint}/ocs/v{ocs_version}.php/cloud/capabilities?format=json',
+            url=f'{client.endpoint}/ocs/v1.php/cloud/capabilities?format=json',
+            auth=(client.user, client.password),
             headers={'OCS-APIRequest' : 'true'})
         return response.json()['ocs']['data']['capabilities']['spreed']['features']
 
     async def pop_capabilities(self):
-        self.capabilities = await self.get_capabilities(self.client, self.ocs_version)
+        self.capabilities = await self.get_capabilities(self.client)
 
     def has_capability(self, capability: str) -> bool:
         if not self.capabilities:
@@ -140,6 +140,7 @@ class NextcloudTalkApi(NextcloudHttpApi):
             data = None
 
         try:
+            # print(f"TALK {method} {self.client.endpoint}{self.stub}{path}")
             response = await self.client.http_client.request(
                 method,
                 auth=(self.client.user, self.client.password),
@@ -149,6 +150,6 @@ class NextcloudTalkApi(NextcloudHttpApi):
         except httpx.ReadTimeout:
             raise NextcloudRequestTimeout()
 
-        await self.raise_response_exception(response.status_code)
+        await self.raise_response_exception(response)
         return response.json()['ocs']['data'], response.headers
 

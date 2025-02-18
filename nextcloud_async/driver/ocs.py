@@ -29,10 +29,10 @@ class NextcloudOcsApi(NextcloudHttpApi):
             self,
             client: NextcloudClient,
             ocs_version: Optional[str] = '1',
-            stub: Optional[str] = None):
+            ocs_stub: Optional[str] = None):
         super().__init__(client)
-        if stub:
-            self.stub = stub
+        if ocs_stub:
+            self.stub = ocs_stub
         else:
             self.stub = f'/ocs/v{ocs_version}.php'
 
@@ -117,7 +117,7 @@ class NextcloudOcsApi(NextcloudHttpApi):
             data = None
 
         try:
-            print(f"PATH={self.client.endpoint}{self.stub}{path}")
+            # print(f"OCS {method} {self.client.endpoint}{self.stub}{path}")
             response = await self.client.http_client.request(
                 method,
                 auth=(self.client.user, self.client.password),
@@ -127,7 +127,7 @@ class NextcloudOcsApi(NextcloudHttpApi):
         except httpx.ReadTimeout:
             raise NextcloudRequestTimeout()
 
-        await self.raise_response_exception(response.status_code)
+        await self.raise_response_exception(response)
 
         if response.content:
             try:
@@ -170,6 +170,7 @@ class NextcloudOcsApi(NextcloudHttpApi):
         if not self.__capabilities:
             response = await self.client.http_client.request(
                 method='GET',
+                auth=(self.client.user, self.client.password),
                 url=f'{self.client.endpoint}/ocs/v1.php/cloud/capabilities?format=json',
                 headers={'OCS-APIRequest' : 'true'})
             self.__capabilities = response.json()['ocs']['data']['capabilities']

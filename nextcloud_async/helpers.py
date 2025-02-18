@@ -113,7 +113,7 @@ def phone_number_to_E164(phone_number: str) -> str:
     return f'{".".join(new_format)}.e164.arpa'
 
 def filter_headers(filter: List[str], headers: httpx.Headers) -> httpx.Headers:
-    return httpx.Headers([headers.get(x) for x in filter])
+    return httpx.Headers([x for x in headers.items() if x[0].lower() in filter])
 
 def remove_key_prefix(d: Dict[str, Any]) -> Dict[str, Any]:
     return {k[k.find(':')+1:]: v for k, v in d.items()}

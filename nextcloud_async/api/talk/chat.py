@@ -14,25 +14,43 @@ from nextcloud_async.driver import NextcloudTalkApi, NextcloudModule
 from nextcloud_async.exceptions import NextcloudNotCapable, NextcloudBadRequest
 from nextcloud_async.helpers import bool2int, filter_headers
 
+from .reactions import Reactions
 from .rich_objects import NextcloudTalkRichObject
 from .constants import SharedItemType
 
-class Message:
-    def __init__(
-            self,
-            api: 'Chat',
-            data: Dict[str, Any]):
-        self.data = data
-        self.api = api
 
-    @classmethod
-    async def init(
-            cls,
-            api: 'Chat',
-            data: Dict[str, Any]):
-        return cls(
-            api=api,
-            data=data)
+@dataclass
+class Message:
+    data: Dict[str, Any]
+    chat_api: 'Chat'
+
+    def __post_init__(self):
+        self.reaction_api = Reactions(self.chat_api.client, self.chat_api.api)
+
+    def __getattr__(self, k: str) -> Any:
+        return self.data[k]
+
+    def __str__(self):
+        return f'<Talk Message {self.data}>'
+        #return f'<Talk Message from {self.actorDisplayName} at {self.timestamp}>'
+
+    def __repr__(self):
+        return str(self)
+
+    async def add_reaction(self, reaction: str):
+        await self.reaction_api.add(room_token=self.token, message_id=self.id, reaction=reaction)
+
+    async def remove_reaction(self, reaction: str):
+        await self.reaction_api.delete(room_token=self.token, message_id=self.id, reaction=reaction)
+
+    # @classmethod
+    # async def init(
+    #         cls,
+    #         api: 'Chat',
+    #         data: Dict[str, Any]):
+    #     return cls(
+    #         api=api,
+    #         data=data)
 
 @dataclass
 class MessageReminder:
@@ -90,11 +108,11 @@ class Chat(NextcloudModule):
             cls,
             client: NextcloudClient,
             skip_capabilities: bool = False):
-        api = await NextcloudTalkApi.init(client, skip_capabilities=skip_capabilities)
+        api = await NextcloudTalkApi.init(client, skip_capabilities=skip_capabilities, ocs_version='2')
 
         return cls(client, api)
 
-    async def get_conversation_messages(
+    async def get_messages(
             self,
             room_token: str,
             look_into_future: bool = False,
@@ -122,9 +140,9 @@ class Chat(NextcloudModule):
         limit	[int]	Number of chat messages to receive (100 by default, 200 at most)
 
         last_known_message	[int]	Serves as an offset for the query. The lastKnownMessageId
-        for the next page is available in the X-Chat-Last-Given header.
+        for the next page is available in the x-chat-last-given header.
 
-        last_common_read	[int]	Send the last X-Chat-Last-Common-Read header you got, if
+        last_common_read	[int]	Send the last x-chat-last-common-read header you got, if
         you are interested in updates of the common read value. A 304 response does not allow
         custom headers and otherwise the server can not know if your value is modified or not.
 
@@ -150,8 +168,8 @@ class Chat(NextcloudModule):
 
         #### Response Header:
 
-        X-Chat-Last-Given	[int]	Offset (lastKnownMessageId) for the next page.
-        X-Chat-Last-Common-Read	[int]	ID of the last message read by every user that has
+        x-chat-last-given	[int]	Offset (lastKnownMessageId) for the next page.
+        x-chat-last-common-read	[int]	ID of the last message read by every user that has
         read privacy set to public. When the user themself has it set to private the value
         the header is not set (only available with chat-read-status capability and when
         lastCommonReadId was sent)
@@ -193,7 +211,7 @@ class Chat(NextcloudModule):
         reactionsSelf	[array]	Optional: When the user reacted this is the list of emojis
         the user reacted with
         """
-        return_headers: List[str] = ['X-Chat-Last-Given', 'X-Chat-Last-Common-Read']
+        return_headers: List[str] = ['x-chat-last-given', 'x-chat-last-common-read']
         data = {
             'lookIntoFuture': bool2int(look_into_future),
             'limit': limit,
@@ -213,7 +231,7 @@ class Chat(NextcloudModule):
         response, headers = await self._get(
             path=f'/chat/{room_token}',
             data=data)
-        return response, filter_headers(return_headers, headers)
+        return [Message(data, self) for data in response], filter_headers(return_headers, headers)
 
     async def get_context(
             self,
@@ -223,8 +241,8 @@ class Chat(NextcloudModule):
         response, headers = await self._get(
             path=f'/chat/{room_token}/{message_id}/context',
             data={'limit': limit})
-        return_headers: List[str] = ['X-Chat-Last-Given', 'X-Chat-Last-Common-Read']
-        return [await Message.init(api=self, data=x) for x in response], filter_headers(return_headers, headers)
+        return_headers: List[str] = ['x-chat-last-given', 'x-chat-last-common-read']
+        return [Message(data, self) for data in response], filter_headers(return_headers, headers)
 
     async def send(
             self,
@@ -270,12 +288,12 @@ class Chat(NextcloudModule):
             => max-length capability for the limit)
 
         #### Response Header:
-        X-Chat-Last-Common-Read	[int]	ID of the last message read by every user that has
+        x-chat-last-common-read	[int]	ID of the last message read by every user that has
                                         read privacy set to public. When the user themself
                                         has it set to private the value the header is not
                                         set (only available with chat-read-status capability)
         """
-        return_headers: List[str] = ['X-Chat-Last-Common-Read']
+        return_headers: List[str] = ['x-chat-last-common-read']
 
         data: Dict[str, Any] = {
             "message": message,
@@ -295,7 +313,7 @@ class Chat(NextcloudModule):
             path=f'/chat/{room_token}',
             data=data)
 
-        return await Message.init(api=self, data=response), filter_headers(return_headers, headers)
+        return Message(response, self), filter_headers(return_headers, headers)
 
     async def send_rich_object(
             self,
@@ -335,7 +353,7 @@ class Chat(NextcloudModule):
         chat => max-length capability for the limit)
 
         #### Response Header:
-        X-Chat-Last-Common-Read	[int]	ID of the last message read by every user that has
+        x-chat-last-common-read	[int]	ID of the last message read by every user that has
         read privacy set to public. When the user themself has it set to private the value
         the header is not set (only available with chat-read-status capability)
 
@@ -343,7 +361,7 @@ class Chat(NextcloudModule):
         The full message array of the new message, as defined in Receive chat messages
         of a conversation
         """
-        return_headers = ['X-Chat-Last-Common-Read']
+        return_headers = ['x-chat-last-common-read']
         if not self.api.has_capability('rich-object-sharing'):
             raise NextcloudNotCapable()
 
@@ -364,7 +382,7 @@ class Chat(NextcloudModule):
         response, headers = await self._post(
             path=f'/chat/{room_token}/share',
             data=data)
-        return await Message.init(api=self, data=response), filter_headers(return_headers, headers)
+        return Message(response, self), filter_headers(return_headers, headers)
 
     async def share_file(
             self,
@@ -427,7 +445,7 @@ class Chat(NextcloudModule):
             path=f'/chat/{room_token}/share/overview',
             data = {'limit': limit})
 
-        return [await Message.init(api=self, data=x) for x in response]
+        return [Message(data, self) for data in response]
 
     async def list_shares_by_type(
             self,
@@ -435,7 +453,7 @@ class Chat(NextcloudModule):
             object_type: SharedItemType,
             last_known_message_id: int,
             limit: int = 7) -> Tuple[List[Message], httpx.Headers]:
-        return_headers = ['X-Chat-Last-Given']
+        return_headers = ['x-chat-last-given']
 
         if not self.api.has_capability('rich-object-list-media'):
             raise NextcloudNotCapable
@@ -447,17 +465,16 @@ class Chat(NextcloudModule):
         response, headers = await self._get(
             path=f'/chat/{room_token}/share',
             data=data)
-        return [await Message.init(api=self, data=x) for x in response], filter_headers(return_headers, headers)
+        return [Message(data, self) for data in response], filter_headers(return_headers, headers)
 
     async def clear_history(
             self,
-            room_token: str) -> Tuple[Message, httpx.Headers]:
-        return_headers = ['X-Chat-Last-Common-Read	']
+            room_token: str) -> Message:
         if not self.api.has_capability('clear-history'):
             raise NextcloudNotCapable()
 
-        response, headers = await self._delete(path=f'/chat/{room_token}')
-        return await Message.init(api=self, data=response), filter_headers(return_headers, headers)
+        response = await self._delete(path=f'/chat/{room_token}')
+        return Message(response, self)
 
     async def delete(
             self,
@@ -476,21 +493,21 @@ class Chat(NextcloudModule):
 
             message_id (int): Message
         """
-        return_headers = ['X-Chat-Last-Common-Read']
+        return_headers = ['x-chat-last-common-read']
 
         # TODO: Validate if is regular message or rich media
         if not self.api.has_capability('delete-messages'):
             raise NextcloudNotCapable()
 
         response, headers = await self._delete(path=f'/chat/{room_token}/{message_id}')
-        return await Message.init(api=self, data=response), filter_headers(return_headers, headers)
+        return Message(response, self), filter_headers(return_headers, headers)
 
     async def edit(
             self,
             room_token: str,
             message_id: int,
             message: str) -> Tuple[Message, httpx.Headers]:
-        return_headers = ['X-Chat-Last-Common-Read']
+        return_headers = ['x-chat-last-common-read']
 
         if not self.api.has_capability('edit-messages'):
             raise NextcloudNotCapable()
@@ -499,7 +516,7 @@ class Chat(NextcloudModule):
             path=f'/chat/{room_token}/{message_id}',
             data={'message': message})
 
-        return await Message.init(api=self, data=response), filter_headers(return_headers, headers)
+        return Message(response, self), filter_headers(return_headers, headers)
 
     async def set_reminder(
             self,
@@ -540,7 +557,7 @@ class Chat(NextcloudModule):
             self,
             room_token: str,
             last_read_message: Optional[int] = None) -> httpx.Headers:
-        return_headers = ['X-Chat-Last-Common-Read']
+        return_headers = ['x-chat-last-common-read']
         if not self.api.has_capability('chat-read-marker'):
             raise NextcloudNotCapable()
 
@@ -557,7 +574,7 @@ class Chat(NextcloudModule):
     async def mark_as_unread(
             self,
             room_token: str) -> httpx.Headers:
-        return_headers = ['X-Chat-Last-Common-Read']
+        return_headers = ['x-chat-last-common-read']
         if not self.api.has_capability('chat-unread'):
             raise NextcloudNotCapable()
 

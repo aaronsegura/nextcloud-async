@@ -77,7 +77,7 @@ class NextcloudBaseApi(NextcloudHttpApi):
             headers = {'user-agent' : self.client.user_agent}
 
         try:
-            print(f'REQUEST {self.client.endpoint}{self.stub}{path}')
+            print(f'BASE {method} {self.client.endpoint}{self.stub}{path}')
             response = await self.client.http_client.request(
                 method=method,
                 auth=(self.client.user, self.client.password),
@@ -87,6 +87,6 @@ class NextcloudBaseApi(NextcloudHttpApi):
         except httpx.ReadTimeout:
             raise NextcloudRequestTimeout()
 
-        await self.raise_response_exception(response.status_code)
+        await self.raise_response_exception(response)
 
         return response.json()

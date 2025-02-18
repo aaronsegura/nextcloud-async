@@ -53,7 +53,7 @@ class NextcloudDavApi(NextcloudHttpApi):
 
         """
         try:
-            print(f'QUERY: {self.client.endpoint}{self.stub}{path}')
+            # print(f'DAV {method} {self.client.endpoint}{self.stub}{path}')
             response = await self.client.http_client.request(
                 method,
                 auth=(self.client.user, self.client.password),
@@ -63,7 +63,7 @@ class NextcloudDavApi(NextcloudHttpApi):
         except httpx.ReadTimeout:
             raise NextcloudRequestTimeout()
 
-        await self.raise_response_exception(response.status_code)
+        await self.raise_response_exception(response)
 
         if raw_response:
             ret: ByteString = response.content

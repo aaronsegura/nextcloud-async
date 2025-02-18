@@ -115,7 +115,7 @@ class Conversation:
         await self.participants_api.resend_invitation_emails(room_token=self.token)
 
     async def get_messages(self, **kwargs) -> Tuple[List[Message], httpx.Headers]:  # type: ignore
-        return await self.chat_api.get_conversation_messages(room_token=self.token, **kwargs)  # type: ignore
+        return await self.chat_api.get_messages(room_token=self.token, **kwargs)  # type: ignore
 
     async def message_context(self, **kwargs) -> Tuple[List[Message], httpx.Headers]:  # type: ignore
         return await self.chat_api.get_context(room_token=self.token, **kwargs)  # type: ignore
@@ -135,7 +135,7 @@ class Conversation:
     async def list_share_by_type(self, **kwargs) -> Tuple[List[Message], httpx.Headers]:  # type: ignore
         return await self.chat_api.list_shares_by_type(room_token=self.token, **kwargs)  # type: ignore
 
-    async def clear_history(self) -> Tuple[Message, httpx.Headers]:
+    async def clear_history(self) -> Message:
         return await self.chat_api.clear_history(room_token=self.token)
 
     async def delete_message(self, **kwargs) -> Tuple[Message, httpx.Headers]:  # type: ignore
@@ -185,7 +185,7 @@ class Conversations(NextcloudModule):
             cls,
             client: NextcloudClient,
             skip_capabilities: bool = False):
-        api = await NextcloudTalkApi.init(client, skip_capabilities=skip_capabilities)
+        api = await NextcloudTalkApi.init(client, skip_capabilities=skip_capabilities, ocs_version='2')
 
         return cls(client, api)
 
@@ -279,7 +279,7 @@ class Conversations(NextcloudModule):
 
     async def get_note_to_self(self) -> Conversation:
         # TODO: headers
-        data, _ = await self._get(path=f'/room/note-to-self')
+        data, _ = await self._get(path='/room/note-to-self')
         return await Conversation.init(api=self, data=data)
 
     async def list_open(self) -> List[Conversation]:

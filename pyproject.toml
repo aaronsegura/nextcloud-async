@@ -26,3 +26,6 @@ dependencies = ["httpx", "xmltodict", "platformdirs", "PyNaCl"]
 [project.urls]
 "Homepage" = "https://github.com/aaronsegura/nextcloud-async"
 "Bug Tracker" = "https://github.com/aaronsegura/nextcloud-async/issues"
+
+[tool.pyright]
+reportUnknownTypeIssues = false
