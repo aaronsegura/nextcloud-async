@@ -3,14 +3,8 @@
 https://nextcloud-talk.readthedocs.io/en/latest/constants/
 """
 
-import httpx
-
 from enum import IntFlag, Enum
-from typing import Hashable, Dict, Any, List, Tuple
 
-
-ResponseTupleDict = Tuple[Dict[Hashable, Any], httpx.Headers]
-ResponseTupleList = Tuple[List[Any], httpx.Headers]
 
 class ConversationType(Enum):
     """Conversation Types."""

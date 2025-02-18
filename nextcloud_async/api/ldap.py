@@ -3,7 +3,7 @@
 https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/user_auth_ldap_api.html
 """
 
-from typing import Dict, Hashable, Any
+from typing import Dict, Any
 
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
@@ -22,7 +22,7 @@ class Ldap(NextcloudModule):
         self.stub = f'/apps/user_ldap/api/v{api_version}'
         self.api = NextcloudOcsApi(client, ocs_version = '2')
 
-    async def add_config(self) -> Dict[Hashable, Any]:
+    async def add_config(self) -> Dict[str, Any]:
         """Create a new LDAP configuration.
 
         Returns
@@ -42,7 +42,7 @@ class Ldap(NextcloudModule):
         """
         await self._delete(path=f'/config/{id}')
 
-    async def get_config(self, id: str) -> Dict[Hashable, Any]:
+    async def get_config(self, id: str) -> Dict[str, Any]:
         """Get an LDAP configuration.
 
         Args
@@ -56,7 +56,7 @@ class Ldap(NextcloudModule):
         """
         return await self._get(path=f'/config/{id}')
 
-    async def update_config(self, id: str, config_data: Dict[Hashable, Any]):
+    async def update_config(self, id: str, config_data: Dict[str, Any]):
         """Update/set the properties of a given LDAP configuration.
 
         Args

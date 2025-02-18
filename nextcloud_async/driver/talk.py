@@ -7,7 +7,7 @@ import httpx
 
 from urllib.parse import urlencode
 
-from typing import Dict, Any, Optional, Hashable, List, Tuple
+from typing import Dict, Any, Optional, List, Tuple
 
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver import NextcloudHttpApi
@@ -78,8 +78,8 @@ class NextcloudTalkApi(NextcloudHttpApi):
             self,
             method: str = 'GET',
             path: str = '',
-            data: Optional[Dict[Hashable, Any]] = {},
-            headers: Optional[Dict[Hashable, Any]] = {}) -> Tuple[Dict[Hashable, Any], httpx.Headers]:
+            data: Optional[Dict[str, Any]] = {},
+            headers: Optional[Dict[str, Any]] = {}) -> Tuple[Dict[str, Any], httpx.Headers]:
         """Submit OCS-type query to cloud endpoint.
 
         Args
@@ -145,8 +145,8 @@ class NextcloudTalkApi(NextcloudHttpApi):
                 method,
                 auth=(self.client.user, self.client.password),
                 url=f'{self.client.endpoint}{self.stub}{path}',
-                data=data, # type: ignore
-                headers=headers) # type: ignore
+                data=data,
+                headers=headers)
         except httpx.ReadTimeout:
             raise NextcloudRequestTimeout()
 

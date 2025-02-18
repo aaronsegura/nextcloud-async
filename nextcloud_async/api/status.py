@@ -8,7 +8,7 @@ import datetime as dt
 from dataclasses import dataclass
 
 from enum import Enum
-from typing import Optional, Dict, Hashable, Any, List
+from typing import Optional, Dict, Any, List
 
 from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
 from nextcloud_async.client import NextcloudClient
@@ -40,7 +40,7 @@ class PredefinedStatus:
 
 @dataclass
 class MyStatus:
-    data: Dict[Hashable, Any]
+    data: Dict[str, Any]
     status_api: 'Status'
 
     def __getattr__(self, k: str) -> Any:
@@ -52,16 +52,16 @@ class MyStatus:
     def __repr__(self):
         return str(self)
 
-    async def set(self, *args, **kwargs) -> None:  # type: ignore
-        response = await self.status_api.set(*args, **kwargs)  # type: ignore
+    async def set(self, *args, **kwargs) -> None:
+        response = await self.status_api.set(*args, **kwargs)
         self.data = response
 
-    async def set_predefined_status(self, *args, **kwargs) -> None:  # type: ignore
-        response = await self.status_api.choose_predefined_status(*args, **kwargs)  # type: ignore
+    async def set_predefined_status(self, *args, **kwargs) -> None:
+        response = await self.status_api.choose_predefined_status(*args, **kwargs)
         self.data = response
 
-    async def set_message(self, *args, **kwargs) -> None:  # type: ignore
-        response = await self.status_api.set_message(*args, **kwargs)  # type: ignore
+    async def set_message(self, *args, **kwargs) -> None:
+        response = await self.status_api.set_message(*args, **kwargs)
         self.data = response
 
     async def clear_message(self) -> None:
@@ -71,7 +71,7 @@ class MyStatus:
 
 @dataclass
 class UserStatus:
-    data: Dict[Hashable, Any]
+    data: Dict[str, Any]
 
     def __getattr__(self, k: str) -> Any:
         return self.data[k]
@@ -135,7 +135,7 @@ class Status(NextcloudModule):
     async def choose_predefined_status(
             self,
             status: PredefinedStatus,
-            clear_at: Optional[dt.datetime] = None) -> Dict[Hashable, Any]:
+            clear_at: Optional[dt.datetime] = None) -> Dict[str, Any]:
         """Choose from predefined status messages.
 
         Args
@@ -163,7 +163,7 @@ class Status(NextcloudModule):
             self,
             message: str,
             status_icon: Optional[str] = None,
-            clear_at: Optional[dt.datetime] = None) -> Dict[Hashable, Any]:
+            clear_at: Optional[dt.datetime] = None) -> Dict[str, Any]:
         """Set a custom status message.
 
         Args
@@ -180,7 +180,7 @@ class Status(NextcloudModule):
             dict: New status description
 
         """
-        data: Dict[Hashable, str] = {'message': message}
+        data: Dict[str, str] = {'message': message}
         if status_icon:
             data.update({'statusIcon': status_icon})
         if clear_at:

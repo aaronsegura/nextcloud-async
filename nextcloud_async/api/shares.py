@@ -13,7 +13,7 @@ import datetime as dt
 from dataclasses import dataclass
 
 from enum import Enum, IntFlag
-from typing import Any, Optional, List, Dict, Hashable, Tuple
+from typing import Any, Optional, List, Dict, Tuple
 
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
@@ -54,15 +54,15 @@ class SharePermission(IntFlag):
 
 @dataclass
 class Share:
-    data: Dict[Hashable, Any]
+    data: Dict[str, Any]
     shares_api: 'Shares'
 
     async def delete(self):
-        await self.shares_api.delete(self.id) # type: ignore
+        await self.shares_api.delete(self.id)
         self.data = {}
 
-    async def update(self, **kwargs):  # type: ignore
-        await self.shares_api.update(share_id=self.id, **kwargs)  # type: ignore
+    async def update(self, **kwargs):
+        await self.shares_api.update(share_id=self.id, **kwargs)
 
     def __getattr__(self, k: str) -> Any:
         return self.data[k]
@@ -220,7 +220,7 @@ class Shares(NextcloudModule):
             password: Optional[str] = None,
             allow_public_upload: Optional[bool] = None,
             expire_date: Optional[str] = None,  # YYYY-MM-DD
-            note: Optional[str] = None) -> List[Dict[Hashable, Any]]:
+            note: Optional[str] = None) -> List[Dict[str, Any]]:
         """Update properties of an existing share.
 
         This function makes asynchronous calls to the __update_share function
@@ -258,9 +258,9 @@ class Shares(NextcloudModule):
             ('note', note)]
 
         reqs = [self.__update_share(share_id, k, v) for k, v in attrs if v]
-        return await asyncio.gather(*reqs)  # type: ignore
+        return await asyncio.gather(*reqs)
 
-    async def __update_share(self, share_id: int, key: str, value: Any) -> Dict[Hashable, Any]:
+    async def __update_share(self, share_id: int, key: str, value: Any) -> Dict[str, Any]:
         return await self._put(
             path=f'/{share_id}',
             data={key: value})

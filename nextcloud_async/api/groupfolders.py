@@ -40,31 +40,31 @@ class GroupFolder:
         await self.groupfolder_api.delete(self.id)
         self.data = {'mount_point': '**deleted**'}
 
-    async def permit_group(self, **kwargs):  # type: ignore
-        return await self.groupfolder_api.permit_group(folder_id=self.id, **kwargs)  # type: ignore
+    async def permit_group(self, **kwargs):
+        return await self.groupfolder_api.permit_group(folder_id=self.id, **kwargs)
 
-    async def deny_group(self, **kwargs):  # type: ignore
-        return await self.groupfolder_api.deny_group(folder_id=self.id, **kwargs)  # type: ignore
+    async def deny_group(self, **kwargs):
+        return await self.groupfolder_api.deny_group(folder_id=self.id, **kwargs)
 
-    async def enable_advanced_permissions(self, **kwargs):  # type: ignore
-        return await self.groupfolder_api.enable_advanced_permissions(folder_id=self.id, **kwargs)  # type: ignore
+    async def enable_advanced_permissions(self, **kwargs):
+        return await self.groupfolder_api.enable_advanced_permissions(folder_id=self.id, **kwargs)
 
-    async def disable_advanced_permissions(self, **kwargs):  # type: ignore
-        return await self.groupfolder_api.disable_advanced_permissions(folder_id=self.id, **kwargs)  # type: ignore
+    async def disable_advanced_permissions(self, **kwargs):
+        return await self.groupfolder_api.disable_advanced_permissions(folder_id=self.id, **kwargs)
 
-    async def add_advanced_permission(self, **kwargs):  # type: ignore
-        return await self.groupfolder_api.add_advanced_permissions(folder_id=self.id, **kwargs)  # type: ignore
+    async def add_advanced_permission(self, **kwargs):
+        return await self.groupfolder_api.add_advanced_permissions(folder_id=self.id, **kwargs)
 
-    async def remove_advanced_permission(self, **kwargs):  # type: ignore
-        return await self.groupfolder_api.remove_advanced_permissions(folder_id=self.id, **kwargs)  # type: ignore
+    async def remove_advanced_permission(self, **kwargs):
+        return await self.groupfolder_api.remove_advanced_permissions(folder_id=self.id, **kwargs)
 
-    async def set_permissions(self, **kwargs):  # type: ignore
-        return await self.groupfolder_api.set_permissions(folder_id=self.id, **kwargs)  # type: ignore
+    async def set_permissions(self, **kwargs):
+        return await self.groupfolder_api.set_permissions(folder_id=self.id, **kwargs)
 
-    async def set_quota(self, **kwargs):  # type: ignore
-        return await self.groupfolder_api.set_quota(folder_id=self.id, **kwargs)  # type: ignore
+    async def set_quota(self, **kwargs):
+        return await self.groupfolder_api.set_quota(folder_id=self.id, **kwargs)
 
-    async def rename(self, mount_point: str):  # type: ignore
+    async def rename(self, mount_point: str):
         if await self.groupfolder_api.rename(folder_id=self.id, mount_point=mount_point):
             self.mount_point = mount_point
             return True

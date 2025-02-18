@@ -43,6 +43,9 @@ class Message:
     async def remove_reaction(self, reaction: str):
         await self.reaction_api.delete(room_token=self.token, message_id=self.id, reaction=reaction)
 
+    async def delete(self):
+        return await self.chat_api.delete(room_token=self.token, message_id=self.id)
+
     # @classmethod
     # async def init(
     #         cls,
@@ -101,7 +104,7 @@ class Chat(NextcloudModule):
             api_version: Optional[str] = '1'):
         self.client: NextcloudClient = client
         self.stub = f'/apps/spreed/api/v{api_version}'
-        self.api: NextcloudTalkApi = api  # type: ignore
+        self.api: NextcloudTalkApi = api
 
     @classmethod
     async def init(

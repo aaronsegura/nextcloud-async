@@ -37,8 +37,8 @@ class MapFavorite:
     async def delete(self) -> None:
         await self.maps_api.delete(self.id)
 
-    async def update(self, **kwargs):  # type: ignore
-        await self.maps_api.update(id=self.id, **kwargs)  # type: ignore
+    async def update(self, **kwargs):
+        await self.maps_api.update(id=self.id, **kwargs)
 
 
 

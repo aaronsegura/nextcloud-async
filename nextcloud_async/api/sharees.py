@@ -7,7 +7,7 @@ Not Implemented:
 """
 
 
-from typing import Any, Dict, Hashable
+from typing import Any, Dict
 
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
@@ -50,7 +50,7 @@ class Sharees(NextcloudModule):
             Dictionary of exact and potential matches.
 
         """
-        data: Dict[Hashable, Any] = {
+        data: Dict[str, Any] = {
             'search': search,
             'itemType': item_type,
             'perPage': limit,

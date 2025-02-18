@@ -8,7 +8,7 @@ import httpx
 
 from urllib.parse import urlencode
 
-from typing import Dict, Any, Optional, Hashable, List
+from typing import Dict, Any, Optional, List
 
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver import NextcloudHttpApi
@@ -23,7 +23,7 @@ class NextcloudOcsApi(NextcloudHttpApi):
     All OCS queries must have an {'OCS-APIRequest': 'true'} header. Additionally, we
     request all data to be returned to us in json format.
     """
-    __capabilities: Dict[Hashable, Any] = {}
+    __capabilities: Dict[str, Any] = {}
 
     def __init__(
             self,
@@ -40,9 +40,9 @@ class NextcloudOcsApi(NextcloudHttpApi):
             self,
             method: str = 'GET',
             path: str = '',
-            data: Optional[Dict[Hashable, Any]] = {},
-            headers: Optional[Dict[Hashable, Any]] = {},
-            return_full_response: bool = False) -> Dict[Hashable, Any] | List[Dict[Hashable, Any]]:
+            data: Optional[Dict[str, Any]] = {},
+            headers: Optional[Dict[str, Any]] = {},
+            return_full_response: bool = False) -> Dict[str, Any] | List[Dict[str, Any]]:
         """Submit OCS-type query to cloud endpoint.
 
         Args
@@ -122,8 +122,8 @@ class NextcloudOcsApi(NextcloudHttpApi):
                 method,
                 auth=(self.client.user, self.client.password),
                 url=f'{self.client.endpoint}{self.stub}{path}',
-                data=data, # type: ignore
-                headers=headers) # type: ignore
+                data=data,
+                headers=headers)
         except httpx.ReadTimeout:
             raise NextcloudRequestTimeout()
 
@@ -150,7 +150,7 @@ class NextcloudOcsApi(NextcloudHttpApi):
 
     # TODO: Move this to another module
 
-    async def get_capabilities(self, capability: Optional[str] = None) -> Dict[Hashable, Any]:
+    async def get_capabilities(self, capability: Optional[str] = None) -> Dict[str, Any]:
         """Return capabilities for this server.
 
         Args
@@ -230,7 +230,7 @@ class NextcloudOcsApi(NextcloudHttpApi):
     #         object_id: Optional[str] = None,
     #         object_type: Optional[str] = None,
     #         sort: Optional[str] = 'desc',
-    #         limit: Optional[int] = 50) -> Dict[Hashable, Any]:
+    #         limit: Optional[int] = 50) -> Dict[str, Any]:
     #     """Get Recent activity for the current user.
 
     #     Args
@@ -261,7 +261,7 @@ class NextcloudOcsApi(NextcloudHttpApi):
     #     """
     #     await self.get_capabilities('activity.apiv2')
 
-    #     data: Dict[Hashable, Any] = {}
+    #     data: Dict[str, Any] = {}
     #     filter = ''
     #     if object_id and object_type:
     #         filter = '/filter'

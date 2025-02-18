@@ -75,11 +75,11 @@ class File:
     async def delete(self):
         return await self.files_api.delete(self._path)
 
-    async def move(self, **kwargs):  # type: ignore
-        return await self.files_api.move(source=self._path, **kwargs)  # type: ignore
+    async def move(self, **kwargs):
+        return await self.files_api.move(source=self._path, **kwargs)
 
-    async def copy(self, **kwargs):  # type: ignore
-        return await self.files_api.copy(source=self._path, **kwargs)  # type: ignore
+    async def copy(self, **kwargs):
+        return await self.files_api.copy(source=self._path, **kwargs)
 
     async def set_favorite(self):
         await self.files_api.set_favorite(self._path)
@@ -162,7 +162,7 @@ class Files(NextcloudModule):
         data = self._namespace_properties(properties)
         response: List[Dict[str, Any]] | Dict[str, Any] = await self._propfind(
             path=f'/files/{self.client.user}/{path}',
-            data=data)  # type: ignore
+            data=data)
 
         if isinstance(response, list):
             return [File(data, self) for data in response]

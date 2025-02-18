@@ -9,20 +9,20 @@ from dataclasses import dataclass
 from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
 from nextcloud_async.client import NextcloudClient
 
-from typing import Optional, Dict, Hashable, Any, List
+from typing import Optional, Dict, Any, List
 
 
 @dataclass
 class App:
-    data: Dict[Hashable, Any]
+    data: Dict[str, Any]
     apps_api: 'Apps'
 
     async def disable(self):
-        await self.apps_api.disable(app_id=self.id) # type: ignore
+        await self.apps_api.disable(app_id=self.id)
         self.data = {}
 
-    async def enable(self, **kwargs):  # type: ignore
-        await self.apps_api.enable(app_id=self.id)  # type: ignore
+    async def enable(self, **kwargs):
+        await self.apps_api.enable(app_id=self.id)
 
     def __getattr__(self, k: str) -> Any:
         return self.data[k]
@@ -72,14 +72,14 @@ class Apps(NextcloudModule):
             list: List of application ids
 
         """
-        data: Dict[Hashable, str] = {}
+        data: Dict[str, str] = {}
         if filter:
             data = {'filter': filter}
 
         response = await self._get(data=data)
         return response['apps']
 
-    async def enable(self, app_id: str) -> Dict[Hashable, Any]:
+    async def enable(self, app_id: str) -> Dict[str, Any]:
         """Enable Application.
 
         Requires admin privileges.
@@ -95,7 +95,7 @@ class Apps(NextcloudModule):
         """
         return await self._post(path=f'/{app_id}')
 
-    async def disable(self, app_id: str) -> Dict[Hashable, Any]:
+    async def disable(self, app_id: str) -> Dict[str, Any]:
         """Disable Application.
 
         Requires admin privileges.

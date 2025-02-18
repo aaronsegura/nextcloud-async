@@ -5,7 +5,7 @@ https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/instruc
 
 import asyncio
 
-from typing import Optional, List, Dict, Hashable, Any
+from typing import Optional, List, Dict, Any
 
 from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
 from nextcloud_async.client import NextcloudClient
@@ -177,7 +177,7 @@ class Users(NextcloudModule):
     async def update_user(
             self,
             user_id: str,
-            new_data: Dict[Hashable, Any]) -> List[List[str]]:
+            new_data: Dict[str, Any]) -> List[List[str]]:
         """Update a user's information.
 
         Use async/await to update everything at once.
@@ -195,11 +195,11 @@ class Users(NextcloudModule):
         """
         reqs = []
         for k, v in new_data.items():
-            reqs.append(self.__update_user(user_id, k, v))  # type: ignore
+            reqs.append(self.__update_user(user_id, k, v))
 
-        return await asyncio.gather(*reqs)  # type: ignore
+        return await asyncio.gather(*reqs)
 
-    async def __update_user(self, user_id: int, k: str, v: str | int) -> List[str]:
+    async def __update_user(self, user_id: str, k: str, v: str | int) -> List[str]:
         return await self._put(
             path=f'/{user_id}',
             data={'key': k, 'value': v})

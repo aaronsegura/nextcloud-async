@@ -15,7 +15,7 @@ class NextcloudTalkRichObject:
 
     object_type = None
 
-    def __init__(self, id: str, name: str, **kwargs):  # type: ignore
+    def __init__(self, id: str, name: str, **kwargs):
         """Set object metadata."""
         self.__dict__.update(**kwargs)
         self.id = id
@@ -105,7 +105,7 @@ class File(NextcloudTalkRichObject):
 
     allowed_props = ['size', 'link', 'mimetype', 'preview-available', 'mtime']
 
-    def __init__(self, name: str, path: str, **kwargs):  # type: ignore
+    def __init__(self, name: str, path: str, **kwargs):
         """Set file object metadata."""
 
         if not all(key in self.allowed_props for key in kwargs):

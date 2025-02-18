@@ -5,7 +5,7 @@ import httpx
 import xmltodict
 import json
 
-from typing import Dict, Any, Hashable, Optional, cast, ByteString
+from typing import Dict, Any, Optional, cast, ByteString
 
 from nextcloud_async.driver import NextcloudHttpApi
 from nextcloud_async.client import NextcloudClient
@@ -29,8 +29,8 @@ class NextcloudDavApi(NextcloudHttpApi):
             method: str = 'GET',
             path: str = '',
             data: Any = {},
-            headers: Optional[Dict[Hashable, Any]] = {},
-            raw_response: bool = False) -> Dict[Hashable, Any] | ByteString:
+            headers: Optional[Dict[str, Any]] = {},
+            raw_response: bool = False) -> Dict[str, Any] | ByteString:
         """Send a query to the Nextcloud DAV Endpoint.
 
         Args
@@ -81,6 +81,11 @@ class NextcloudDavApi(NextcloudHttpApi):
         else:
             return {}
 
-    async def raw_request(self, **kwargs) -> ByteString:  # type: ignore
-        response = cast(ByteString, await self.request(**kwargs, raw_response=True))  # type: ignore
+    async def raw_request(
+            self,
+            method: str = 'GET',
+            path: str = '',
+            data: Optional[Any] = None,
+            headers: Optional[Dict[str, Any]] = {}) -> ByteString:
+        response = cast(ByteString, await self.request(method=method, path=path, data=data, headers=headers, raw_response=True))
         return response

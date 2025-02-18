@@ -4,10 +4,10 @@ from urllib.parse import quote
 import httpx
 # import asyncio
 
-from typing import Dict, Hashable, Any, List, Optional
+from typing import Dict, Any, List, Optional
 
 
-def recursive_urlencode(d: Dict[Hashable, Any]) -> str:
+def recursive_urlencode(d: Dict[str, Any]) -> str:
     """URL-encode a multidimensional dictionary PHP-style.
 
     https://stackoverflow.com/questions/4013838/urlencode-a-multidimensional-dictionary-in-python/4014164#4014164
@@ -24,7 +24,7 @@ def recursive_urlencode(d: Dict[Hashable, Any]) -> str:
         for key, value in d.items():
             new_base: List[str] = base + [key]
             if hasattr(value, 'values'):
-                pairs += _recursion(value, new_base)  # type: ignore
+                pairs += _recursion(value, new_base)   # type: ignore
             else:
                 new_pair = None
                 if len(new_base) > 1:
@@ -36,7 +36,7 @@ def recursive_urlencode(d: Dict[Hashable, Any]) -> str:
                 pairs.append(new_pair)
         return pairs
 
-    return '&'.join(_recursion(d))  # type: ignore
+    return '&'.join(_recursion(d))
 
 
 # def resolve_element_list(data: Dict|List, list_keys=[]):

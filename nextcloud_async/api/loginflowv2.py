@@ -20,7 +20,7 @@ from importlib.metadata import version
 
 import datetime as dt
 
-from typing import Dict, Hashable, Any
+from typing import Dict, Any
 
 from nextcloud_async.exceptions import NextcloudLoginFlowTimeout
 from nextcloud_async.driver import NextcloudModule, NextcloudBaseApi, NextcloudOcsApi
@@ -49,7 +49,7 @@ class LoginFlowV2(NextcloudModule):
         self.api = NextcloudBaseApi(client)
         self.stub = f'login/v{api_version}'
 
-    async def initiate(self) -> Dict[Hashable, Any]:
+    async def initiate(self) -> Dict[str, Any]:
         r"""Initiate login flow v2.
 
         Returns
@@ -75,7 +75,7 @@ class LoginFlowV2(NextcloudModule):
         response = await self._post(path=self.stub)
         return response
 
-    async def wait_confirm(self, token: str, timeout: int = 60) -> Dict[Hashable, Any]:
+    async def wait_confirm(self, token: str, timeout: int = 60) -> Dict[str, Any]:
         r"""Wait for user to confirm application authorization.
 
         Args

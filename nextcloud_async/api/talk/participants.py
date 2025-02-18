@@ -5,7 +5,7 @@ https://nextcloud-talk.readthedocs.io/en/latest/participant/
 """
 import httpx
 
-from typing import Optional, List, Dict, Hashable, Any, Tuple
+from typing import Optional, List, Dict, Any, Tuple
 
 from nextcloud_async import NextcloudClient
 from nextcloud_async.driver import NextcloudTalkApi, NextcloudModule
@@ -24,7 +24,7 @@ class Participant:
     def __init__(
             self,
             api: 'Participants',
-            data: Dict[Hashable, Any]):
+            data: Dict[str, Any]):
         self.data = data
         self.api = api
 
@@ -60,7 +60,7 @@ class Participants(NextcloudModule):
             api_version: Optional[str] = '4'):
         self.client: NextcloudClient = client
         self.stub = f'/apps/spreed/api/v{api_version}'
-        self.api: NextcloudTalkApi = api # type: ignore
+        self.api: NextcloudTalkApi = api
 
     @classmethod
     async def init(

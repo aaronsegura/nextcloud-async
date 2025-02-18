@@ -6,7 +6,7 @@ https://docs.nextcloud.com/server/latest/developer_manual/client_apis/
 import httpx
 
 from urllib.parse import urlencode
-from typing import Optional, Any, Dict, Hashable
+from typing import Optional, Any, Dict
 
 from nextcloud_async.driver import NextcloudHttpApi
 from nextcloud_async.client import NextcloudClient
@@ -29,8 +29,8 @@ class NextcloudBaseApi(NextcloudHttpApi):
             self,
             method: str = 'GET',
             path: Optional[str] = None,
-            data: Optional[Dict[Hashable, Any]] = dict(),
-            headers: Optional[Dict[Hashable, Any]] = {}) -> Dict[Hashable, Any]:
+            data: Optional[Dict[str, Any]] = dict(),
+            headers: Optional[Dict[str, Any]] = {}) -> Dict[str, Any]:
         """Send a request to the Nextcloud endpoint.
 
         Args
@@ -82,8 +82,8 @@ class NextcloudBaseApi(NextcloudHttpApi):
                 method=method,
                 auth=(self.client.user, self.client.password),
                 url=f'{self.client.endpoint}{self.stub}{path}',
-                data=data,   # type: ignore
-                headers=headers) # type: ignore
+                data=data,
+                headers=headers)
         except httpx.ReadTimeout:
             raise NextcloudRequestTimeout()
 

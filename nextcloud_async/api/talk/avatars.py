@@ -22,7 +22,7 @@ class ConversationAvatars(NextcloudModule):
             api_version: Optional[str] = '1'):
         self.client: NextcloudClient = client
         self.stub = f'/apps/spreed/api/v{api_version}'
-        self.api: NextcloudTalkApi = api # type: ignore
+        self.api: NextcloudTalkApi = api
 
     @classmethod
     async def init(

@@ -4,8 +4,7 @@
 """
 import httpx
 
-# TODO: Hashable extraction
-from typing import Dict, Optional, Any, Hashable, List, Tuple
+from typing import Dict, Optional, Any, List, Tuple
 
 from nextcloud_async.driver import NextcloudTalkApi, NextcloudModule
 from nextcloud_async import NextcloudClient
@@ -24,7 +23,6 @@ from .constants import (
     ParticipantPermissions,
     ListableScope,
     MentionPermissions)
-from .constants import ResponseTupleDict
 
 
 class Conversation:
@@ -34,7 +32,7 @@ class Conversation:
             avatar_api: ConversationAvatars,
             participant_api: Participants,
             chat_api: Chat,
-            data: Dict[Hashable, Any]):
+            data: Dict[str, Any]):
         self.data = data
         self.api = api
         self.avatar_api = avatar_api
@@ -47,7 +45,7 @@ class Conversation:
     async def init(
             cls,
             api: 'Conversations',
-            data: Dict[Hashable, Any]):
+            data: Dict[str, Any]):
         avatar_api = await ConversationAvatars.init(api.client)
         participant_api = await Participants.init(api.client)
         chat_api = await Chat.init(api.client)
@@ -114,59 +112,59 @@ class Conversation:
     async def resend_invitiation_emails(self):
         await self.participants_api.resend_invitation_emails(room_token=self.token)
 
-    async def get_messages(self, **kwargs) -> Tuple[List[Message], httpx.Headers]:  # type: ignore
-        return await self.chat_api.get_messages(room_token=self.token, **kwargs)  # type: ignore
+    async def get_messages(self, **kwargs) -> Tuple[List[Message], httpx.Headers]:
+        return await self.chat_api.get_messages(room_token=self.token, **kwargs)
 
-    async def message_context(self, **kwargs) -> Tuple[List[Message], httpx.Headers]:  # type: ignore
-        return await self.chat_api.get_context(room_token=self.token, **kwargs)  # type: ignore
+    async def message_context(self, **kwargs) -> Tuple[List[Message], httpx.Headers]:
+        return await self.chat_api.get_context(room_token=self.token, **kwargs)
 
-    async def send(self, **kwargs) -> Tuple[List[Message], httpx.Headers]:  # type: ignore
-        return await self.chat_api.send(room_token=self.token, **kwargs)  # type: ignore
+    async def send(self, **kwargs) -> Tuple[Message, httpx.Headers]:
+        return await self.chat_api.send(room_token=self.token, **kwargs)
 
-    async def send_rich_object(self, **kwargs) -> Tuple[Message, httpx.Headers]:  # type: ignore
-        return await self.chat_api.send_rich_object(room_token=self.token, **kwargs)  # type: ignore
+    async def send_rich_object(self, **kwargs) -> Tuple[Message, httpx.Headers]:
+        return await self.chat_api.send_rich_object(room_token=self.token, **kwargs)
 
-    async def share_file(self, **kwargs) -> int:  # type: ignore
-        return await self.chat_api.share_file(room_token=self.token, **kwargs)  # type: ignore
+    async def share_file(self, **kwargs) -> int:
+        return await self.chat_api.share_file(room_token=self.token, **kwargs)
 
-    async def list_shares(self, **kwargs) -> List[Message]:  # type: ignore
-        return await self.chat_api.list_shares(room_token=self.token, **kwargs)  # type: ignore
+    async def list_shares(self, **kwargs) -> List[Message]:
+        return await self.chat_api.list_shares(room_token=self.token, **kwargs)
 
-    async def list_share_by_type(self, **kwargs) -> Tuple[List[Message], httpx.Headers]:  # type: ignore
-        return await self.chat_api.list_shares_by_type(room_token=self.token, **kwargs)  # type: ignore
+    async def list_share_by_type(self, **kwargs) -> Tuple[List[Message], httpx.Headers]:
+        return await self.chat_api.list_shares_by_type(room_token=self.token, **kwargs)
 
     async def clear_history(self) -> Message:
         return await self.chat_api.clear_history(room_token=self.token)
 
-    async def delete_message(self, **kwargs) -> Tuple[Message, httpx.Headers]:  # type: ignore
-        return await self.chat_api.delete(room_token=self.token, **kwargs)  # type: ignore
+    async def delete_message(self, **kwargs) -> Tuple[Message, httpx.Headers]:
+        return await self.chat_api.delete(room_token=self.token, **kwargs)
 
-    async def edit_message(self, **kwargs) -> Tuple[Message, httpx.Headers]:  # type: ignore
-        return await self.chat_api.edit(room_token=self.token, **kwargs)  # type: ignore
+    async def edit_message(self, **kwargs) -> Tuple[Message, httpx.Headers]:
+        return await self.chat_api.edit(room_token=self.token, **kwargs)
 
-    async def set_message_reminder(self, **kwargs) -> MessageReminder:  # type: ignore
-        return await self.chat_api.set_reminder(room_token=self.token, **kwargs)  # type: ignore
+    async def set_message_reminder(self, **kwargs) -> MessageReminder:
+        return await self.chat_api.set_reminder(room_token=self.token, **kwargs)
 
-    async def get_message_reminder(self, **kwargs) -> MessageReminder:  # type: ignore
-        return await self.chat_api.get_reminder(room_token=self.token, **kwargs)  # type: ignore
+    async def get_message_reminder(self, **kwargs) -> MessageReminder:
+        return await self.chat_api.get_reminder(room_token=self.token, **kwargs)
 
-    async def delete_message_reminder(self, **kwargs) -> None:  # type: ignore
-        return await self.chat_api.delete_reminder(room_token=self.token, **kwargs)  # type: ignore
+    async def delete_message_reminder(self, **kwargs) -> None:
+        return await self.chat_api.delete_reminder(room_token=self.token, **kwargs)
 
-    async def mark_as_read(self, **kwargs) -> None:  # type: ignore
-        await self.chat_api.mark_as_read(room_token=self.token, **kwargs)  # type: ignore
+    async def mark_as_read(self, **kwargs) -> None:
+        await self.chat_api.mark_as_read(room_token=self.token, **kwargs)
 
     async def mark_as_unread(self) -> None:
         await self.chat_api.mark_as_unread(room_token=self.token)
 
-    async def suggest_autocompletes(self, **kwargs) -> List[Suggestion]:  # type: ignore
-        return await self.chat_api.suggest_autocompletes(room_token=self.token, **kwargs)  # type: ignore
+    async def suggest_autocompletes(self, **kwargs) -> List[Suggestion]:
+        return await self.chat_api.suggest_autocompletes(room_token=self.token, **kwargs)
 
-    async def set_name_as_guest(self, **kwargs) -> None:  # type: ignore
-        await self.participants_api.set_guest_display_name(room_token=self.token, **kwargs)  # type: ignore
+    async def set_name_as_guest(self, **kwargs) -> None:
+        await self.participants_api.set_guest_display_name(room_token=self.token, **kwargs)
 
-    async def set_default_permissions(self, **kwargs) -> None:   # type: ignore
-        await self.api.set_default_permissions(room_token=self.token, **kwargs)  # type: ignore
+    async def set_default_permissions(self, **kwargs) -> None:
+        await self.api.set_default_permissions(room_token=self.token, **kwargs)
 
 class Conversations(NextcloudModule):
     """Interact with Nextcloud Talk API."""
@@ -178,7 +176,7 @@ class Conversations(NextcloudModule):
             api_version: Optional[str] = '4'):
         self.client: NextcloudClient = client
         self.stub = f'/apps/spreed/api/v{api_version}'
-        self.api: NextcloudTalkApi = api # type: ignore
+        self.api: NextcloudTalkApi = api
 
     @classmethod
     async def init(
@@ -208,7 +206,7 @@ class Conversations(NextcloudModule):
         #### Exceptions:
         401 Unauthorized when the user is not logged in
         """
-        data: Dict[Hashable, Any] = {
+        data: Dict[str, Any] = {
             'noStatusUpdate': 1 if status_update else 0,
             'includeStatus': include_status
             }
@@ -253,7 +251,7 @@ class Conversations(NextcloudModule):
             404 Not Found When the target to invite does not exist
 
         """
-        data: Dict[Hashable, Any] = {
+        data: Dict[str, Any] = {
             'roomType': room_type.value,
             'invite': invite,
             'source': source,
@@ -287,7 +285,7 @@ class Conversations(NextcloudModule):
         response, _ = await self._get(path='/listed-room')
         return [await Conversation.init(data=x, api=self) for x in response]
 
-    async def rename(self, room_token: str, new_name: str) -> ResponseTupleDict:
+    async def rename(self, room_token: str, new_name: str) -> None:
         """Rename the room.
 
         Method: PUT
@@ -306,7 +304,7 @@ class Conversations(NextcloudModule):
         404 Not Found When the conversation could not be found for the
             participant
         """
-        return await self._put(
+        await self._put(
             path=f'/room/{room_token}',
             data={'roomName': new_name})
 
@@ -327,7 +325,7 @@ class Conversations(NextcloudModule):
         """
         await self._delete(path=f'/room/{room_token}')
 
-    async def set_description(self, room_token: str, description: str) -> ResponseTupleDict:
+    async def set_description(self, room_token: str, description: str) -> None:
         """Set description on room.
 
         Required capability: room-description
@@ -351,7 +349,7 @@ class Conversations(NextcloudModule):
         if self.api.has_capability('room-description'):
             raise NextcloudNotCapable()
 
-        return await self._put(
+        await self._put(
             path=f'/room/{room_token}/description',
             data={'description': description})
 
@@ -398,7 +396,7 @@ class Conversations(NextcloudModule):
         """
         return await self._delete(path=f'/room/{room_token}/public')
 
-    async def read_only(self, room_token: str, state: int) -> ResponseTupleDict:
+    async def read_only(self, room_token: str, state: int) -> None:
         """Set read-only for a conversation
 
         Required capability: read-only-rooms
@@ -423,9 +421,9 @@ class Conversations(NextcloudModule):
         if self.api.has_capability('read-only-rooms'):
             raise NextcloudNotCapable()
 
-        return await self._put(path=f'/room/{room_token}/read-only', data={'state': state})
+        await self._put(path=f'/room/{room_token}/read-only', data={'state': state})
 
-    async def set_conversation_password(self, token: str, password: str) -> ResponseTupleDict:
+    async def set_conversation_password(self, token: str, password: str) -> None:
         """Set password for a conversation
 
         Method: PUT
@@ -441,7 +439,7 @@ class Conversations(NextcloudModule):
 
         404 Not Found When the conversation could not be found for the participant
         """
-        return await self._put(
+        await self._put(
             path=f'/room/{token}/password',
             data={'password': password})
 
@@ -456,7 +454,7 @@ class Conversations(NextcloudModule):
         await self._put(
             path=f'/room/{room_token}/permissions/{mode}', data=data)
 
-    async def add_to_favorites(self, room_token: str) -> ResponseTupleDict:
+    async def add_to_favorites(self, room_token: str) -> None:
         """Add conversation to favorites
 
         Required capability: favorites
@@ -473,9 +471,9 @@ class Conversations(NextcloudModule):
         if self.api.has_capability('favorites'):
             raise NextcloudNotCapable()
 
-        return await self._post(path=f'/room/{room_token}/favorite')
+        await self._post(path=f'/room/{room_token}/favorite')
 
-    async def remove_from_favorites(self, room_token: str) -> ResponseTupleDict:
+    async def remove_from_favorites(self, room_token: str) -> None:
         """Remove conversation from favorites
 
         Required capability: favorites
@@ -492,12 +490,12 @@ class Conversations(NextcloudModule):
         if self.api.has_capability('favorites'):
             raise NextcloudNotCapable()
 
-        return await self._delete(path=f'/room/{room_token}/favorites')
+        await self._delete(path=f'/room/{room_token}/favorites')
 
     async def set_notification_level(
             self,
             token: str,
-            notification_level: str) -> ResponseTupleDict:
+            notification_level: str) -> None:
         """Set notification level
 
         Required capability: notification-levels
@@ -524,7 +522,7 @@ class Conversations(NextcloudModule):
     async def set_call_notification_level(
             self,
             room_token: str,
-            notification_level: str) -> ResponseTupleDict:
+            notification_level: str) -> None:
         """Set notification level for calls.
 
         Required capability: notification-calls
@@ -549,7 +547,7 @@ class Conversations(NextcloudModule):
         data = {
             'level': NotificationLevel[notification_level].value
         }
-        return await self._post(
+        await self._post(
             path=f'/room/{room_token}/notify-calls',
             data=data)
 
