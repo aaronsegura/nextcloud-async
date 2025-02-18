@@ -65,9 +65,11 @@ class OCSShareAPI(object):
 
     async def get_file_shares(
             self,
-            path: str,
-            reshares: bool = False,
-            subfiles: bool = False):
+            path: Optional[str] = '',
+            reshares: Optional[bool] = False,
+            subfiles: Optional[bool] = False,
+            shared_with_me: Optional[bool] = False,
+            include_tags: Optional[bool]  = False):
         """Return list of shares for given file/folder.
 
         Args
@@ -78,6 +80,10 @@ class OCSShareAPI(object):
 
             subfiles (bool, optional): List recursively if `path` is a folder. Defaults to
             False.
+
+            shared_with_me (bool, optional): Only get shares with the current user
+
+            include_tags (bool, optional): Include tags in the share
 
         Returns
         -------
@@ -90,7 +96,9 @@ class OCSShareAPI(object):
             data={
                 'path': path,
                 'reshares': str(reshares).lower(),
-                'subfiles': str(subfiles).lower()})
+                'subfiles': str(subfiles).lower(),
+                'shared_with_me': str(shared_with_me).lower(),
+                'include_tags': str(include_tags).lower()})
 
     async def get_share(self, share_id: int):
         """Return information about a known share.
