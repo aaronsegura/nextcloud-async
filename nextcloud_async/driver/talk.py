@@ -5,14 +5,12 @@ https://nextcloud-talk.readthedocs.io/en/latest/global/
 
 import httpx
 
-from urllib.parse import urlencode
-
 from typing import Dict, Any, Optional, Tuple
 
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver import NextcloudHttpApi, NextcloudCapabilities
 
-from nextcloud_async.exceptions import NextcloudRequestTimeout
+from nextcloud_async.exceptions import NextcloudRequestTimeout, NextcloudNotCapable
 
 
 class NextcloudTalkApi(NextcloudHttpApi):
@@ -38,10 +36,18 @@ class NextcloudTalkApi(NextcloudHttpApi):
 
         super().__init__(client)
 
-    async def has_feature(self, capability: str) -> bool:
+    async def has_talk_feature(self, capability: str) -> bool:
         features = await self.capabilities_api.supported('.'.join(['spreed.features', capability]))
         local_features = await self.capabilities_api.supported('.'.join(['spreed.features-local', capability]))
         return features or local_features
+
+    has_talk_capability = has_talk_feature
+
+    async def require_talk_feature(self, capability: str) -> None:
+        if not self.has_talk_feature(capability):
+            raise NextcloudNotCapable()
+
+    require_talk_capability = require_talk_feature
 
     async def request(
             self,

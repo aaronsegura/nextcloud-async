@@ -9,7 +9,6 @@ from typing import Optional, List, Dict, Any, Tuple
 
 from nextcloud_async.driver import NextcloudTalkApi, NextcloudModule
 from nextcloud_async.helpers import phone_number_to_E164
-from nextcloud_async.exceptions import NextcloudNotCapable
 
 from .constants import (
     ParticipantPermissions,
@@ -17,7 +16,7 @@ from .constants import (
     PermissionAction,
     ObjectSources)
 
-
+#TODO: Dataclass?
 class Participant:
     def __init__(
             self,
@@ -67,10 +66,9 @@ class Participants(NextcloudModule):
         """Return list of participants."""
         path = f'/room/{room_token}/participants'
         if include_breakout_rooms:
-            if await self.api.has_feature('breakout-rooms-v1'):
-                path = f'/room/{room_token}/breakout-rooms/participants'
-            else:
-                raise NextcloudNotCapable()
+            await self.api.require_talk_feature('breakout-rooms-v1')
+            path = f'/room/{room_token}/breakout-rooms/participants'
+
         response, headers = await self._get(
             path=path,
             data={'includeStatus': include_status})
@@ -173,9 +171,7 @@ class Participants(NextcloudModule):
             NextcloudNotCapable: _description_
 
         """
-        if not await self.api.has_feature('session-state'):
-            raise NextcloudNotCapable()
-
+        await self.api.require_talk_feature('session-state')
         await self._put(
             path=f'/room/{room_token}/participants/state',
             data={'state': state.value})
@@ -241,9 +237,7 @@ class Participants(NextcloudModule):
             'force': force})
 
     async def resend_invitation_emails(self, room_token: str, participant_id: Optional[int] = None) -> None:
-        if not await self.api.has_feature('sip-support'):
-            raise NextcloudNotCapable()
-
+        await self.api.require_talk_feature('sip-support')
         await self._post(
             path=f'/room/{room_token}/participants/resend-invitations',
             data={'attendeeId': participant_id or "none"})
@@ -351,8 +345,7 @@ class Participants(NextcloudModule):
 
     # TODO: verify/fix return type
     async def verify_dial_in_pin(self, room_token: str, pin: int) -> None:
-        if not await self.api.has_feature('sip-support-dialout'):
-            raise NextcloudNotCapable()
+        await self.api.require_talk_feature('sip-support-dialout')
         return await self._post(
             path=f'/room/{room_token}/verify-dialin',
             data={'pin': pin})
@@ -395,9 +388,7 @@ class Participants(NextcloudModule):
 
             _type_: _description_
         """
-        if not await self.api.has_feature('sip-support-dialout'):
-            raise NextcloudNotCapable()
-
+        await self.api.require_talk_feature('sip-support-dialout')
         return await self._post(
             path=f'/room/{room_token}/verify-dialout',
             data={
@@ -420,9 +411,7 @@ class Participants(NextcloudModule):
 
             room_token (str): Room token
         """
-        if not await self.api.has_feature('sip-support-dialout'):
-            raise NextcloudNotCapable
-
+        await self.api.require_talk_feature('sip-support-dialout')
         return await self._delete(
             path=f'/room/{room_token}/rejected-dialout',
             data={

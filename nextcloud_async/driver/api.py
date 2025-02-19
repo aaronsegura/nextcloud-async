@@ -20,7 +20,9 @@ from nextcloud_async.exceptions import (
 
 
 class NextcloudHttpApi(ABC):
-    """Base HTTP methods imported by different Nextcloud API drivers."""
+    """Methods imported by different Nextcloud API drivers."""
+    capabilities_api: 'NextcloudCapabilities'
+
     def __init__(self, client: NextcloudClient):
         self.client = client
 
@@ -56,6 +58,13 @@ class NextcloudHttpApi(ABC):
         from nextcloud_async.api import Wipe
         wipe = Wipe(self.client)
         return await wipe.check()
+
+    async def has_capability(self, capability: str) -> bool:
+        return await self.capabilities_api.supported(capability)
+
+    async def require_capability(self, capability: str) -> None:
+        if not self.has_capability(capability):
+            raise NextcloudNotCapable()
 
     async def raise_response_exception(self, response: httpx.Response):
 

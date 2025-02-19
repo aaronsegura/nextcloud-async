@@ -5,7 +5,6 @@ https://nextcloud-talk.readthedocs.io/en/latest/avatar/
 from typing import Optional
 
 from nextcloud_async.driver import NextcloudTalkApi, NextcloudModule
-from nextcloud_async.exceptions import NextcloudNotCapable
 
 
 # TODO: Verify all return values, do things, etc...
@@ -21,10 +20,11 @@ class ConversationAvatars(NextcloudModule):
         self.stub = f'/apps/spreed/api/v{api_version}'
         self.api: NextcloudTalkApi = api
 
-    async def set(self, room_token:str, image_file: bytes) -> None:
-        if not await self.api.has_feature('avatar'):
-            raise NextcloudNotCapable
+    async def _validate_capability(self) -> None:
+        await self.api.require_talk_feature('avatar')
 
+    async def set(self, room_token:str, image_file: bytes) -> None:
+        await self._validate_capability()
         await self._post(
             path=f'/room/{room_token}/avatar',
             data={'file': image_file})
@@ -34,9 +34,7 @@ class ConversationAvatars(NextcloudModule):
             room_token: str ,
             emoji: str,
             color: Optional[str] = "none") -> None:
-        if not await self.api.has_feature('avatar'):
-            raise NextcloudNotCapable
-
+        await self._validate_capability()
         await self._post(
             path=f'/room/{room_token}/avatar/emoji',
             data={
@@ -44,15 +42,11 @@ class ConversationAvatars(NextcloudModule):
                 'color': color})
 
     async def delete(self, room_token: str):
-        if not await self.api.has_feature('avatar'):
-            raise NextcloudNotCapable
-
+        await self._validate_capability()
         await self._delete(path=f'/room/{room_token}/avatar')
 
     async def get(self, room_token: str, dark_mode: Optional[bool] = False) -> bytes:
-        if not await self.api.has_feature('avatar'):
-            raise NextcloudNotCapable
-
+        await self._validate_capability()
         if dark_mode:
             response = await self._get_raw(
                 path=f'/room/{room_token}/avatar/dark')
@@ -63,8 +57,8 @@ class ConversationAvatars(NextcloudModule):
         return response.content
 
     async def get_federated(self, room_token: str, cloud_id: str, size: int, dark_mode: Optional[bool] = False) -> bytes:
-        if not await self.api.has_feature('avatar') or not await self.api.has_feature('federated-v1'):
-            raise NextcloudNotCapable
+        await self.api.require_talk_feature('avatar')
+        await self.api.require_talk_feature('federated-v1')
 
         if dark_mode:
             response = await self.api.client.http_client.request(

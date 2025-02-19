@@ -6,8 +6,6 @@ https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-ap
 import json
 import httpx
 
-from urllib.parse import urlencode
-
 from typing import Dict, Any, Optional, List
 
 from nextcloud_async.client import NextcloudClient
@@ -30,12 +28,17 @@ class NextcloudOcsApi(NextcloudHttpApi):
             client: NextcloudClient,
             ocs_version: Optional[str] = '1',
             ocs_stub: Optional[str] = None):
-        super().__init__(client)
+
         if ocs_stub:
             self.stub = ocs_stub
         else:
             self.stub = f'/ocs/v{ocs_version}.php'
+
+        self.ocs_version = ocs_version
         self.capabilities_api = NextcloudCapabilities(client)
+
+        super().__init__(client)
+
 
     async def request(
             self,
@@ -147,9 +150,6 @@ class NextcloudOcsApi(NextcloudHttpApi):
                     return response_content['ocs']['data']
         else:
             raise NextcloudException(status_code=500, reason='Invalid response from server.')
-
-    async def has_capability(self, capability: str) -> bool:
-        return await self.capabilities_api.supported(capability)
 
     # TODO: Move this to another module
 

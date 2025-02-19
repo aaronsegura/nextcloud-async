@@ -5,7 +5,6 @@ from typing import Optional, List, Dict, Any
 from dataclasses import dataclass
 
 from nextcloud_async.driver import NextcloudModule, NextcloudTalkApi
-from nextcloud_async.exceptions import NextcloudNotCapable
 
 from .constants import PollMode, PollStatus
 
@@ -81,9 +80,7 @@ class Polls(NextcloudModule):
             options: List[str],
             result_mode: PollMode,
             max_votes: int) -> Poll:
-        if not self.api.has_feature('edit-draft-poll'):
-            raise NextcloudNotCapable()
-
+        await self.api.require_talk_feature('edit-draft-poll')
         response, _ = await self._post(
             path=f'/{room_token}',
             data={
@@ -106,8 +103,7 @@ class Polls(NextcloudModule):
     async def list_drafts(
             self,
             room_token: str) -> List[Poll]:
-        if not self.api.has_feature('talk-polls-drafts'):
-            raise NextcloudNotCapable()
+        await self.api.require_talk_feature('talk-polls-drafts')
         response, _ = await self._get(
             path=f'/{room_token}/drafts')
 

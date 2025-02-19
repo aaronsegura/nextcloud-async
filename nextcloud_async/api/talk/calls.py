@@ -4,7 +4,6 @@
 from typing import Optional, List
 
 from nextcloud_async.driver import NextcloudTalkApi, NextcloudModule
-from nextcloud_async.exceptions import NextcloudNotCapable
 
 from .participants import Participant
 from .constants import ParticipantInCallFlags
@@ -47,8 +46,7 @@ class Calls(NextcloudModule):
             self,
             room_token: str,
             user_id: str) -> None:
-        if not self.api.has_feature('send-call-notification'):
-            raise NextcloudNotCapable()
+        await self.api.require_talk_feature('send-call-notification')
         await self._post(
             path=f'/{room_token}/ring/{user_id}',
             data={'attendeeId': user_id})
@@ -57,8 +55,7 @@ class Calls(NextcloudModule):
             self,
             room_token: str,
             user_id: str) -> None:
-        if not self.api.has_feature('sip-support-dialout'):
-            raise NextcloudNotCapable()
+        await self.api.require_talk_feature('sip-support-dialout')
         await self._post(
             path=f'/{room_token}/dialout/{user_id}',
             data={'attendeeId': user_id})

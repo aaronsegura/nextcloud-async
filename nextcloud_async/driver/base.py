@@ -5,7 +5,6 @@ https://docs.nextcloud.com/server/latest/developer_manual/client_apis/
 
 import httpx
 
-from urllib.parse import urlencode
 from typing import Optional, Any, Dict
 
 from nextcloud_async.driver import NextcloudHttpApi

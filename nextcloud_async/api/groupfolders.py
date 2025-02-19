@@ -11,7 +11,6 @@ from typing import List, Dict, Any
 
 from nextcloud_async.driver import NextcloudOcsApi, NextcloudModule
 from nextcloud_async.client import NextcloudClient
-from nextcloud_async.exceptions import NextcloudNotCapable
 
 class Permissions(IntFlag):
     """Groupfolders Permissions."""
@@ -89,8 +88,7 @@ class GroupFolders(NextcloudModule):
         self.api = NextcloudOcsApi(client, ocs_stub='/index.php')
 
     async def _validate_capability(self) -> None:
-        if not await self.api.has_capability('groupfolders'):
-            raise NextcloudNotCapable
+        await self.api.require_capability('groupfolders')
 
     # TODO: Fix when no groupfolders
     async def list(self) -> List[GroupFolder]:

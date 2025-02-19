@@ -19,6 +19,7 @@ from .participants import Participants, Participant
 from .chat import Chat, Message, MessageReminder, Suggestion
 from .calls import Calls
 from .polls import Polls, Poll
+from .bots import Bots, Bot
 
 from .constants import (
     ConversationType,
@@ -43,6 +44,7 @@ class Conversation:
         self.chat_api = Chat(self.talk_api)
         self.calls_api = Calls(self.talk_api)
         self.polls_api = Polls(self.talk_api)
+        self.bots_api = Bots(self.talk_api)
 
     def __getattr__(self, k: str) -> Any:
         return self.data[k]
@@ -117,11 +119,11 @@ class Conversation:
     async def share_file(self, **kwargs) -> int:
         return await self.chat_api.share_file(room_token=self.token, **kwargs)
 
-    async def list_shares(self, **kwargs) -> List[Message]:
-        return await self.chat_api.list_shares(room_token=self.token, **kwargs)
+    async def list_shared_items(self, **kwargs) -> List[Message]:
+        return await self.chat_api.list_shared_items(room_token=self.token, **kwargs)
 
-    async def list_share_by_type(self, **kwargs) -> Tuple[List[Message], httpx.Headers]:
-        return await self.chat_api.list_shares_by_type(room_token=self.token, **kwargs)
+    async def list_shared_items_by_type(self, **kwargs) -> Tuple[List[Message], httpx.Headers]:
+        return await self.chat_api.list_shared_items_by_type(room_token=self.token, **kwargs)
 
     async def clear_history(self) -> Message:
         return await self.chat_api.clear_history(room_token=self.token)
@@ -207,7 +209,11 @@ class Conversation:
     async def close_poll(self, **kwargs) -> None:
         await self.polls_api.close(room_token=self.token, **kwargs)
 
+    async def list_installed_bots(self) -> List[Bot]:
+        return await self.bots_api.list_installed()
 
+    async def list_bots(self) -> List[Bot]:
+        return await self.bots_api.list_conversation_bots(self.token)
 
 
 class Conversations(NextcloudModule):
