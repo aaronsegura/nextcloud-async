@@ -20,10 +20,11 @@ class Bot:
         return self.data[k]
 
     def __str__(self):
-        return f'<Talk Poll "{self.question}" from {self.actorId}>'
+        return f'<Talk Bot #{self.id}, {self.name}>'
 
+    # TODO: Maybe do self.data for all dataclass objects
     def __repr__(self):
-        return str(self)
+        return str(self.data)
 
     async def enable(self):
         await self.api.enable_bot(self.token, self.id)

@@ -292,7 +292,7 @@ class NextcloudCapabilities:
 
     async def supported(self, capability: str) -> bool:
         if not self._capabilities:
-            self._capabilities = await self._get_capabilities()
+            await self._pop_capabilities()
 
         current_node = self._capabilities
         for item in capability.split('.'):

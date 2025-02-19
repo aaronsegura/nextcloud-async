@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from typing import Dict, Optional, List, Tuple, Any
 
 from nextcloud_async.driver import NextcloudTalkApi, NextcloudModule
-from nextcloud_async.exceptions import NextcloudNotCapable, NextcloudBadRequest
+from nextcloud_async.exceptions import NextcloudBadRequest
 from nextcloud_async.helpers import bool2int, filter_headers
 
 from .reactions import Reactions
@@ -218,8 +218,8 @@ class Chat(NextcloudModule):
         if last_common_read_id:
             data['lastCommonReadId'] = last_common_read_id
 
-        if mark_notifications_as_read is False and not await self.api.has_talk_feature('chat-keep-notifications'):
-            raise NextcloudNotCapable()
+        if mark_notifications_as_read is False:
+            await self.api.require_talk_feature('chat-keep-notifications')
 
         response, headers = await self._get(
             path=f'/chat/{room_token}',
