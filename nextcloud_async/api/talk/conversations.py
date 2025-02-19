@@ -21,6 +21,7 @@ from .chat import Chat, Message, MessageReminder, Suggestion
 from .calls import Calls
 from .polls import Polls, Poll
 from .bots import Bots, Bot
+from .integrations import Integrations
 from .constants import (
     ConversationType,
     NotificationLevel,
@@ -45,13 +46,13 @@ class Conversation:
     def __post_init__(self):
         self.api = Conversations(self.talk_api.client)
         self.avatar_api = ConversationAvatars(self.talk_api)
-        self.participant_api = Participants(self.talk_api)
+        self.participants_api = Participants(self.talk_api)
         self.chat_api = Chat(self.talk_api)
         self.calls_api = Calls(self.talk_api)
         self.polls_api = Polls(self.talk_api)
         self.bots_api = Bots(self.talk_api)
         self.breakout_rooms_api = BreakoutRooms(self.talk_api)
-        self.webinars_api = Webinars(self.talk_Api)
+        self.webinars_api = Webinars(self.talk_api)
 
     def __getattr__(self, k: str) -> Any:
         return self.data[k]
@@ -683,8 +684,14 @@ class Conversations(NextcloudModule):
             path=f'/room/{room_token}/mention-permissions',
             data={'mentionPermissions': permissions.value})
 
-    async def create_password_request(self, share_id: int) -> Dict[str, Any]:
-        return await self.integrations_api.create_password_request_conversation(share_id)
+    async def get_token_for_internal_file(self, file_id: int) -> str:
+        return await self.integrations_api.get_interal_file_chat_token(file_id)
+
+    async def get_token_for_shared_file(self, share_token: str) -> str:
+        return await self.integrations_api.get_public_file_share_chat_token(share_token)
+
+    async def create_password_request(self, share_token: str) -> Dict[str, Any]:
+        return await self.integrations_api.create_password_request_conversation(share_token)
 
 @dataclass
 class BreakoutRoom:
@@ -859,36 +866,3 @@ class Webinars(NextcloudModule):
             data={'state': state.value})
         return Conversation(response, self.api)
 
-
-class Integrations(NextcloudModule):
-    """Interact with Nextcloud Talk Bots API.
-
-    https://nextcloud-talk.readthedocs.io/en/latest/integration/
-    """
-
-    def __init__(
-            self,
-            api: NextcloudTalkApi,
-            api_version: Optional[str] = '1'):
-        self.stub = f'/apps/spreed/api/v{api_version}'
-        self.api: NextcloudTalkApi = api
-
-    async def get_interal_file_conversation(
-            self,
-            file_id: int) -> str:
-        response, _ = await self._get(path=f'/file/{file_id}')
-        return response['token']
-
-    async def get_public_file_share_conversation(
-            self,
-            share_token: str) -> str:
-        response, _ = await self._get(path=f'/publicshare/{share_token}')
-        return response['token']
-
-    async def create_password_request_conversation(
-            self,
-            share_token: str) -> Dict[str, Any]:
-        response, _ = await self._post(
-            path='/publicshareauth',
-            data={'shareToken': share_token})
-        return response
