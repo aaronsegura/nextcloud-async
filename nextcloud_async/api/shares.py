@@ -144,13 +144,16 @@ class Shares(NextcloudModule):
     async def create(
             self,
             path: str,
-            share_type: ShareType,
             permissions: SharePermission,
+            share_type: ShareType,
             share_with: Optional[str] = None,
             allow_public_upload: bool = False,
             password: Optional[str] = None,
+            send_password_by_talk: Optional[bool] = False,
             expire_date: Optional[dt.datetime] = None,
-            note: Optional[str] = None):
+            note: Optional[str] = None,
+            label: Optional[str] = ''):
+
         """Create a new share.
 
         Args
@@ -197,7 +200,9 @@ class Shares(NextcloudModule):
                 'publicUpload': str(allow_public_upload).lower(),
                 'password': password,
                 'expireDate': expire_date.strftime(r'%Y-%m-%d') if expire_date else None,
-                'note': note})
+                'note': note,
+                'label': label,
+                'sendPasswordByTalk': send_password_by_talk})
         return(Share(response, self))
 
     async def delete(self, share_id: int):
