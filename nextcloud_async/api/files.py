@@ -1,4 +1,7 @@
-"""Implement Nextcloud DAV API for File Management."""
+"""Implement Nextcloud DAV API for File Management.
+
+    https://docs.nextcloud.com/server/latest/developer_manual/client_apis/WebDAV/index.html
+"""
 import io
 import os
 import uuid
@@ -27,11 +30,14 @@ from nextcloud_async.exceptions import (
 class File:
     data: Dict[str, Any]
     files_api: 'Files'
-    prefix = ''
 
     def __post_init__(self):
-        self.data.update(self.data['d:propstat']['d:prop'])
-        del(self.data['d:propstat'])
+        if isinstance(self.data['d:propstat'], list):
+            for prop in self.data['d:propstat']:
+                self.data.update(prop['d:prop'])
+        elif isinstance(self.data['d:propstat'], dict):
+            self.data.update(self.data['d:propstat'])
+
         self.data = remove_key_prefix(self.data)
 
     def __getattr__(self, k: str) -> Any:
@@ -41,7 +47,7 @@ class File:
         return f'<Nextcloud File "{self._path}">'
 
     def __repr__(self):
-        return str(self)
+        return f'<Nextcloud File {self.data}>'
 
     @property
     def _path(self):
@@ -184,7 +190,7 @@ class Files(NextcloudModule):
         return await self._get_raw(
             path=f'/files/{self.client.user}/{path}')
 
-    async def upload(self, local_path: str, remote_path: str):
+    async def upload(self, local_path: str, remote_path: str) -> None:
         """Upload a file.
 
         Args
@@ -192,14 +198,9 @@ class Files(NextcloudModule):
             local_path (str): Local path
 
             remote_path (str): Desination path
-
-        Returns
-        -------
-            Empty 200 Response
-
         """
         with open(local_path, 'rb') as fp:
-            return await self._put(
+            await self._put(
                 path=f'/files/{self.client.user}/{remote_path}',
                 data=fp.read())
 
@@ -211,11 +212,6 @@ class Files(NextcloudModule):
             path (str): Filesystem path
 
             create_parents (bool): Create directory parents (mkdir -p)
-
-        Returns
-        -------
-            Empty 200 Response
-
         """
         if create_parents:
             await self.mkdir_with_parents(path)
@@ -223,21 +219,17 @@ class Files(NextcloudModule):
 
         await self._mkcol(path=f'/files/{self.client.user}/{path}')
 
-    async def delete(self, path: str):
+    async def delete(self, path: str) -> None:
         """Delete file or folder.
 
         Args
         ----
             path (str): Filesystem path
 
-        Returns
-        -------
-            Empty 200 Response
-
         """
-        return await self._delete(path=f'/files/{self.client.user}/{path}')
+        await self._delete(path=f'/files/{self.client.user}/{path}')
 
-    async def move(self, source: str, dest: str, overwrite: bool = False):
+    async def move(self, source: str, dest: str, overwrite: bool = False) -> None:
         """Move a file or folder.
 
         Args
@@ -248,10 +240,6 @@ class Files(NextcloudModule):
 
             overwrite (bool, optional): Overwrite destination if exists. Defaults to False.
 
-        Returns
-        -------
-            Empty 200 Response
-
         """
         return await self._move(
             path=f'/files/{self.client.user}/{source}',
@@ -260,7 +248,7 @@ class Files(NextcloudModule):
                     f'{self.client.endpoint}/remote.php/dav/files/{self.client.user}/{quote(dest)}',
                 'Overwrite': 'T' if overwrite else 'F'})
 
-    async def copy(self, source: str, dest: str, overwrite: bool = False):
+    async def copy(self, source: str, dest: str, overwrite: bool = False) -> None:
         """Copy a file or folder.
 
         Args
@@ -271,12 +259,8 @@ class Files(NextcloudModule):
 
             overwrite (bool, optional): Overwrite destination if exists. Defaults to False.
 
-        Returns
-        -------
-            Empty 200 Response
-
         """
-        return await self._copy(
+        await self._copy(
             path=f'/files/{self.client.user}/{source}',
             headers={
                 'Destination':
@@ -310,7 +294,7 @@ class Files(NextcloudModule):
             path=f'/files/{self.client.user}/{path}',
             data=data)
 
-    async def set_favorite(self, path: str):
+    async def set_favorite(self, path: str) -> File:
         """Set file/folder as a favorite.
 
         Args
@@ -322,9 +306,10 @@ class Files(NextcloudModule):
             dict: File info
 
         """
-        return await self.__favorite(path, True)
+        response = await self.__favorite(path, True)
+        return File(response, self.api)
 
-    async def unset_favorite(self, path: str):
+    async def unset_favorite(self, path: str) -> File:
         """Remove file/folder as a favorite.
 
         Args
@@ -336,9 +321,10 @@ class Files(NextcloudModule):
             dict: File info
 
         """
-        return await self.__favorite(path, False)
+        response = await self.__favorite(path, False)
+        return File(response, self.api)
 
-    async def get_favorites(self, path: Optional[str] = '') -> List[str]:
+    async def get_favorites(self, path: Optional[str] = '') -> List[File]:
         """List favorites below given Path.
 
         Args
@@ -354,9 +340,10 @@ class Files(NextcloudModule):
         xmlns:oc="http://owncloud.org/ns" xmlns:nc="http://nextcloud.org/ns">
         <oc:filter-rules><oc:favorite>1</oc:favorite></oc:filter-rules>
         </oc:filter-files>'''
-        return await self._report(
+        response =  await self._report(
             path=f'/files/{self.client.user}/{path}',
             data=data)
+        return [File(data, self.api) for data in response]
 
     async def list_trash(self) -> List[File]:
         """Get items in the trash.
