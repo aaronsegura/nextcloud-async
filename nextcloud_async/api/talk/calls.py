@@ -5,10 +5,12 @@ from typing import Optional, List
 
 from nextcloud_async.driver import NextcloudTalkApi, NextcloudModule
 from nextcloud_async.exceptions import NextcloudNotCapable
-from nextcloud_async.helpers import bool2str
 
 from .participants import Participant
 from .constants import ParticipantInCallFlags
+
+
+
 
 
 class Calls(NextcloudModule):
@@ -72,4 +74,4 @@ class Calls(NextcloudModule):
     async def leave(self, room_token: str, end_for_all: bool = False):
         await self._delete(
             path=f'/{room_token}',
-            data={'all': bool2str(end_for_all)})
+            data={'all': end_for_all})

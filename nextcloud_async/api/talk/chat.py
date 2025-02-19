@@ -46,21 +46,20 @@ class Message:
     async def delete(self):
         return await self.chat_api.delete(room_token=self.token, message_id=self.id)
 
-    # @classmethod
-    # async def init(
-    #         cls,
-    #         api: 'Chat',
-    #         data: Dict[str, Any]):
-    #     return cls(
-    #         api=api,
-    #         data=data)
 
 @dataclass
 class MessageReminder:
-    userId: str
-    token: str
-    messageId: int
-    timestamp: int
+    data: Dict[str, Any]
+
+    def __getattr__(self, k: str) -> Any:
+        return self.data[k]
+
+    def __str__(self):
+        return f'<MessageReminder {self.userId}>'
+        #return f'<Talk Message from {self.actorDisplayName} at {self.timestamp}>'
+
+    def __repr__(self):
+        return str(self)
 
     @property
     def user_id(self):
@@ -72,14 +71,16 @@ class MessageReminder:
 
 @dataclass
 class Suggestion:
-    mentionId: Optional[str]
-    id: str
-    label: str
-    source: str
-    status: Optional[str]
-    statusIcon: Optional[str]
-    statusMessage: Optional[str]
-    details: Optional[str]
+    data: Dict[str, Any]
+
+    def __getattr__(self, k: str) -> Any:
+        return self.data[k]
+
+    def __str__(self):
+        return f'<Mention Suggestion {self.userId}>'
+
+    def __repr__(self):
+        return str(self)
 
     @property
     def mention_id(self):
@@ -522,7 +523,7 @@ class Chat(NextcloudModule):
             path=f'/chat/{room_token}/{message_id}/reminder',
             data={'timestamp': int(timestamp.timestamp())})
 
-        return MessageReminder(**response)
+        return MessageReminder(response)
 
     async def get_reminder(
             self,
@@ -534,7 +535,7 @@ class Chat(NextcloudModule):
         response, _ = await self._get(
             path=f'/chat/{room_token}/{message_id}/reminder')
 
-        return MessageReminder(**response)
+        return MessageReminder(response)
 
     async def delete_reminder(
             self,
@@ -588,4 +589,4 @@ class Chat(NextcloudModule):
             path=f'/chat/{room_token}/mentions',
             data=data)
 
-        return [Suggestion(**x) for x in response]
+        return [Suggestion(data) for data in response]

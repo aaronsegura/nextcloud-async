@@ -17,7 +17,6 @@ from typing import Any, Optional, List, Dict, Tuple
 
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
-from nextcloud_async.helpers import bool2str
 from nextcloud_async.exceptions import NextcloudException
 
 
@@ -68,7 +67,7 @@ class Share:
         return self.data[k]
 
     def __str__(self):
-        return f'<Nextcloud Share "{self.path}" by {self.owner}>'
+        return f'<Nextcloud Share "{self.path}" by {self.displayname_owner}>'
 
     def __repr__(self):
         return str(self)
@@ -95,9 +94,11 @@ class Shares(NextcloudModule):
 
     async def get_file_shares(
             self,
-            path: str,
+            path: str = '',
             reshares: bool = False,
-            subfiles: bool = False) -> List[Share]:
+            subfiles: bool = False,
+            shared_with_me: bool = False,
+            include_tags: bool = False) -> List[Share]:
         """Return list of shares for given file/folder.
 
         Args
@@ -117,8 +118,10 @@ class Shares(NextcloudModule):
         response = await self._get(
             data={
                 'path': path,
-                'reshares': bool2str(reshares),
-                'subfiles': bool2str(subfiles)})
+                'reshares': reshares,
+                'subfiles': subfiles,
+                'shared_with_me': shared_with_me,
+                'include_tags' : include_tags})
         return [Share(x, self) for x in response]
 
     async def get(self, share_id: int) -> Share:

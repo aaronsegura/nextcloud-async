@@ -5,7 +5,6 @@ https://nextcloud-talk.readthedocs.io/en/latest/avatar/
 from typing import Optional
 
 from nextcloud_async.driver import NextcloudTalkApi, NextcloudModule
-from nextcloud_async import NextcloudClient
 from nextcloud_async.exceptions import NextcloudNotCapable
 
 

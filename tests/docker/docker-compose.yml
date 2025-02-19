@@ -1,18 +1,38 @@
 version: '3'
 
 services:
-  nextcloud:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        NEXTCLOUD_VERSION: ${NEXTCLOUD_VERSION}
-        GROUPFOLDERS_URL: ${GROUPFOLDERS_URL}
-        GROUPFOLDERS_ARCHIVE_NAME: ${GROUPFOLDERS_ARCHIVE_NAME}
-    ports:
-      - 8181:80
+  db:
+    image: mariadb:10.11
+    restart: always
+    command: --transaction-isolation=READ-COMMITTED
+    volumes:
+      - db:/var/lib/mysql
     environment:
-      - SQLITE_DATABASE=nextcloud
-      - NEXTCLOUD_TRUSTED_DOMAINS=${NEXTCLOUD_HOSTNAME}
-      - NEXTCLOUD_ADMIN_USER
-      - NEXTCLOUD_ADMIN_PASSWORD
+      - MYSQL_ROOT_PASSWORD=XGonGiveItToYa
+      - MYSQL_PASSWORD=nextcloud
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+
+  redis:
+    image: redis:alpine
+    restart: always
+
+  app:
+    image: nextcloud
+    restart: always
+    ports:
+      - 8080:80
+    depends_on:
+      - redis
+      - db
+    volumes:
+      - nextcloud:/var/www/html
+    environment:
+      - MYSQL_PASSWORD=
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_HOST=db
+
+volumes:
+  nextcloud:
+  db:

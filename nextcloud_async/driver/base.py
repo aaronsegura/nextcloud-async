@@ -82,7 +82,7 @@ class NextcloudBaseApi(NextcloudHttpApi):
                 method=method,
                 auth=(self.client.user, self.client.password),
                 url=f'{self.client.endpoint}{self.stub}{path}',
-                data=data,
+                json=data,
                 headers=headers)
         except httpx.ReadTimeout:
             raise NextcloudRequestTimeout()

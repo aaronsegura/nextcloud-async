@@ -128,3 +128,13 @@ class SharedItemType(Enum):
     voice = 'voice'
     recording = 'recording'
 
+
+class PollMode(Enum):
+    public = 0
+    private = 1
+
+
+class PollStatus(Enum):
+    open = 0
+    closed = 1
+    draft = 2

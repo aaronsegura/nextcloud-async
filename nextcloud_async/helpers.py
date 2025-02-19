@@ -4,7 +4,7 @@ from urllib.parse import quote
 import httpx
 # import asyncio
 
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 
 
 def recursive_urlencode(d: Dict[str, Any]) -> str:
@@ -93,17 +93,9 @@ def recursive_urlencode(d: Dict[str, Any]) -> str:
 
 #     return ret
 
-def str2bool(s: str) -> bool:
-    return True if s.lower() in ["true", "t", "1", "yes"] else False
-
-def bool2str(b: bool) -> str:
-    return "true" if b else "false"
 
 def bool2int(b: bool) -> int:
     return 1 if b else 0
-
-def none2str(v: Optional[str]) -> Optional[str]:
-    return None if not v else v
 
 def phone_number_to_E164(phone_number: str) -> str:
     new_format: List[str] = []

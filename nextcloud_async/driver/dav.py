@@ -58,7 +58,7 @@ class NextcloudDavApi(NextcloudHttpApi):
                 method,
                 auth=(self.client.user, self.client.password),
                 url=f'{self.client.endpoint}{self.stub}{path}',
-                data=data,
+                json=data,
                 headers=cast(Dict[str, Any], headers))
         except httpx.ReadTimeout:
             raise NextcloudRequestTimeout()

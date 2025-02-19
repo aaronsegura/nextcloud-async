@@ -109,12 +109,12 @@ class NextcloudTalkApi(NextcloudHttpApi):
             data = None
 
         try:
-            # print(f"TALK {method} {self.client.endpoint}{self.stub}{path}")
+            print(f"TALK {method} {self.client.endpoint}{self.stub}{path}", data)
             response = await self.client.http_client.request(
                 method,
                 auth=(self.client.user, self.client.password),
                 url=f'{self.client.endpoint}{self.stub}{path}',
-                data=data,
+                json=data,
                 headers=headers)
         except httpx.ReadTimeout:
             raise NextcloudRequestTimeout()

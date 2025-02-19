@@ -18,6 +18,7 @@ from .avatars import ConversationAvatars
 from .participants import Participants, Participant
 from .chat import Chat, Message, MessageReminder, Suggestion
 from .calls import Calls
+from .polls import Polls, Poll
 
 from .constants import (
     ConversationType,
@@ -41,6 +42,7 @@ class Conversation:
         self.participant_api = Participants(self.talk_api)
         self.chat_api = Chat(self.talk_api)
         self.calls_api = Calls(self.talk_api)
+        self.polls_api = Polls(self.talk_api)
 
     def __getattr__(self, k: str) -> Any:
         return self.data[k]
@@ -157,20 +159,55 @@ class Conversation:
     async def participants_connected_to_call(self):
         return await self.calls_api.get_connected_participants(self.token)
 
-    async def join_call(self, **kwargs: Dict[str, Any]):
+    async def join_call(self, **kwargs):
         await self.calls_api.join_call(room_token=self.token, **kwargs)  # type: ignore
 
-    async def send_call_notification(self, **kwargs: Dict[str, Any]):
+    async def send_call_notification(self, **kwargs):
         await self.calls_api.send_notification(room_token=self.token, **kwargs)  # type: ignore
 
-    async def send_call_sip_dialout_request(self, **kwargs: Dict[str, Any]):
+    async def send_call_sip_dialout_request(self, **kwargs):
         await self.calls_api.send_sip_dialout_request(room_token=self.token, **kwargs)  # type: ignore
 
-    async def update_call_flags(self, **kwargs: Dict[str, Any]):
+    async def update_call_flags(self, **kwargs):
         await self.calls_api.update_flags(room_token=self.token, **kwargs)  # type: ignore
 
     async def leave_call(self, **kwargs: Dict[str, Any]):
         await self.calls_api.leave(room_token=self.token, **kwargs)  # type: ignore
+
+    async def set_avatar(self, **kwargs) -> None:
+        await self.avatar_api.set(self.token, **kwargs)  # type: ignore
+
+    async def set_avatar_emoji(self, **kwargs) -> None:
+        await self.avatar_api.set_emoji(room_token=self.token, **kwargs)  # type: ignore
+
+    async def delete_avatar(self) -> None:
+        await self.avatar_api.delete(room_token=self.token)
+
+    async def get_avatar(self, **kwargs) -> bytes:
+        return await self.avatar_api.get(room_token=self.token, **kwargs)
+
+    async def get_federated_avatar(self, **kwargs) -> bytes:
+        return await self.get_federated_avatar(room_token=self.token, **kwargs)
+
+    async def create_poll(self, **kwargs) -> Poll:
+        return await self.polls_api.create(room_token=self.token, **kwargs)
+
+    async def edit_draft_poll(self, **kwargs) -> Poll:
+        return await self.polls_api.edit_draft(room_token=self.token, **kwargs)
+
+    async def get_poll(self, **kwargs) -> Poll:
+        return await self.polls_api.get(room_token=self.token, **kwargs)
+
+    async def list_draft_polls(self, **kwargs) -> List[Poll]:
+        return await self.polls_api.list_drafts(room_token=self.token, **kwargs)
+
+    async def vote_on_poll(self, **kwargs) -> None:
+        await self.polls_api.vote(room_token=self.token, **kwargs)
+
+    async def close_poll(self, **kwargs) -> None:
+        await self.polls_api.close(room_token=self.token, **kwargs)
+
+
 
 
 class Conversations(NextcloudModule):

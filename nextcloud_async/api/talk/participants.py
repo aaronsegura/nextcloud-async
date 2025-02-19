@@ -8,7 +8,7 @@ import httpx
 from typing import Optional, List, Dict, Any, Tuple
 
 from nextcloud_async.driver import NextcloudTalkApi, NextcloudModule
-from nextcloud_async.helpers import bool2str, phone_number_to_E164
+from nextcloud_async.helpers import phone_number_to_E164
 from nextcloud_async.exceptions import NextcloudNotCapable
 
 from .constants import (
@@ -238,7 +238,7 @@ class Participants(NextcloudModule):
             path=f'/room/{room_token}/participants/active',
             data={
             'password': password,
-            'force': bool2str(force)})
+            'force': force})
 
     async def resend_invitation_emails(self, room_token: str, participant_id: Optional[int] = None) -> None:
         if not await self.api.has_feature('sip-support'):

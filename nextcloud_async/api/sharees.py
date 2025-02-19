@@ -11,7 +11,6 @@ from typing import Any, Dict
 
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
-from nextcloud_async.helpers import bool2str
 
 
 class Sharees(NextcloudModule):
@@ -55,7 +54,7 @@ class Sharees(NextcloudModule):
             'itemType': item_type,
             'perPage': limit,
             'page': page,
-            'lookup': bool2str(lookup)
+            'lookup': lookup
         }
         return await self._get(path='/sharees', data=data)
 
