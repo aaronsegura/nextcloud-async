@@ -138,3 +138,23 @@ class PollStatus(Enum):
     open = 0
     closed = 1
     draft = 2
+
+
+class BreakoutRoomMode(Enum):
+    not_configured = 0
+    automatic = 1
+    manual = 2
+    free = 3
+
+
+class BreakoutRoomStatus(Enum):
+    stopped = 0
+    started = 1
+
+
+class ObjectType(Enum):
+    file = 'file'
+    share_password = 'share:password'
+    room = 'room'
+    phone = 'phone'
+    sample = 'sample'

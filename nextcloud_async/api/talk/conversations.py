@@ -9,8 +9,7 @@ from dataclasses import dataclass, field
 from typing import Dict, Optional, Any, List, Tuple
 
 from nextcloud_async.driver import NextcloudTalkApi, NextcloudModule
-from nextcloud_async import NextcloudClient
-from nextcloud_async.exceptions import NextcloudNotCapable
+from nextcloud_async.client import NextcloudClient
 from nextcloud_async.helpers import bool2int
 
 
@@ -20,14 +19,16 @@ from .chat import Chat, Message, MessageReminder, Suggestion
 from .calls import Calls
 from .polls import Polls, Poll
 from .bots import Bots, Bot
-
 from .constants import (
     ConversationType,
     NotificationLevel,
     ObjectSources,
     ParticipantPermissions,
     ListableScope,
-    MentionPermissions)
+    MentionPermissions,
+    BreakoutRoomMode,
+    BreakoutRoomStatus,
+    ObjectType)
 
 
 @dataclass
@@ -45,6 +46,7 @@ class Conversation:
         self.calls_api = Calls(self.talk_api)
         self.polls_api = Polls(self.talk_api)
         self.bots_api = Bots(self.talk_api)
+        self.breakout_rooms_api = BreakoutRooms(self.talk_api)
 
     def __getattr__(self, k: str) -> Any:
         return self.data[k]
@@ -66,6 +68,10 @@ class Conversation:
     @display_name.setter
     def display_name(self, v: str):
         self.data['displayName'] = v
+
+    @property
+    def is_breakout_room(self):
+        return False
 
     async def get_participants(self):
         if not self._participants:
@@ -93,8 +99,7 @@ class Conversation:
         await self.participants_api.add_to_conversation(room_token=self.token, invitee=email, source=ObjectSources.email)
 
     async def add_circle(self, circle_id: str) -> None:
-        if not self.api.api.has_feature('circles-support'):
-            raise NextcloudNotCapable()
+        await self.talk_api.require_talk_feature('circles-support')
         await self.participants_api.add_to_conversation(room_token=self.token, invitee=circle_id, source=ObjectSources.circle)
 
     async def remove_participant(self, participant: Participant):
@@ -215,9 +220,36 @@ class Conversation:
     async def list_bots(self) -> List[Bot]:
         return await self.bots_api.list_conversation_bots(self.token)
 
+    async def list_breakout_rooms(self) -> List['BreakoutRoom']:
+        return await self.api.list_breakout_rooms(self.token)
+
+    async def configure_breakout_rooms(self, **kwargs) -> Tuple['Conversation', List['BreakoutRoom']]:
+        response = await self.breakout_rooms_api.configure(room_token=self.token, **kwargs)
+        return self._sort_room_types(response)
+
+    async def create_additional_breakout_room(self, **kwargs) -> 'BreakoutRoom':
+        response = await self.api.create(object_id=self.token, **kwargs)
+        return BreakoutRoom.from_conversation(response)
+
+    async def remove_breakout_rooms(self) -> 'Conversation':
+        return await self.breakout_rooms_api.remove(self.token)
+
+    async def start_breakout_rooms(self) -> Tuple['Conversation', List['BreakoutRoom']]:
+        return await self.breakout_rooms_api.start(self.token)
+
+    async def broadcast_breakout_rooms_message(self, **kwargs) -> None:
+        return await self.breakout_rooms_api.broadcast_message(self.token, **kwargs)
+
+    async def reorganize_breakout_room_attendees(self, **kwargs) -> Tuple['Conversation', List['BreakoutRoom']]:
+        return await self.breakout_rooms_api.reorganize_attendees(room_token=self.token, **kwargs)
+
+    async def switch_breakout_room(self, **kwargs) -> 'BreakoutRoom':
+        return await self.breakout_rooms_api.switch_rooms(room_token=self.token, **kwargs)
+
 
 class Conversations(NextcloudModule):
     """Interact with Nextcloud Talk API."""
+    api: NextcloudTalkApi
 
     def __init__(
             self,
@@ -265,6 +297,8 @@ class Conversations(NextcloudModule):
             room_type: ConversationType,
             invite: str = '',
             room_name: str = '',
+            object_type: ObjectType = ObjectType.room,
+            object_id: str = '',
             source: str = '') -> Conversation:
         """Create a new conversation.
 
@@ -302,6 +336,14 @@ class Conversations(NextcloudModule):
             'roomName': room_name
         }
 
+        ### For creating breakout rooms
+        # object_type is 'room'
+        # object_id is parent room_token
+        if object_type:
+            data.update({'objectType': object_type})
+        if object_id:
+            data.update({'objectId': object_id})
+
         # TODO: headers
         response, _ = await self._post(path='/room', data=data)
         return Conversation(data, self.api)
@@ -328,6 +370,11 @@ class Conversations(NextcloudModule):
         """Get list of open rooms."""
         response, _ = await self._get(path='/listed-room')
         return [Conversation(data, self.api) for data in response]
+
+    async def list_breakout_rooms(self, room_token: str) -> List['BreakoutRoom']:
+        await self.api.require_talk_feature('breakout-rooms-v1')
+        response, _ = await self._get(path=f'/{room_token}/breakout-rooms')
+        return [BreakoutRoom(data, self.api) for data in response]
 
     async def rename(self, room_token: str, new_name: str) -> None:
         """Rename the room.
@@ -390,9 +437,7 @@ class Conversations(NextcloudModule):
 
         NextcloudNotCapable When server is lacking required capability
         """
-        if await self.api.has_feature('room-description'):
-            raise NextcloudNotCapable()
-
+        await self.api.require_talk_feature('room-description')
         await self._put(
             path=f'/room/{room_token}/description',
             data={'description': description})
@@ -415,10 +460,8 @@ class Conversations(NextcloudModule):
         """
         data: Dict[str, str] = {}
         if password:
-            if not await self.api.has_feature('conversation-creation-password'):
-                raise NextcloudNotCapable()
-            else:
-                data = {'password': password}
+            await self.api.require_talk_feature('conversation-creation-password')
+            data = {'password': password}
 
         await self._post(path=f'/room/{room_token}/public', data=data)
 
@@ -462,9 +505,7 @@ class Conversations(NextcloudModule):
 
         NextcloudNotCapable When server is lacking required capability
         """
-        if await self.api.has_feature('read-only-rooms'):
-            raise NextcloudNotCapable()
-
+        await self.api.require_talk_feature('read-only-rooms')
         await self._put(path=f'/room/{room_token}/read-only', data={'state': state})
 
     async def set_conversation_password(self, token: str, password: str) -> None:
@@ -512,9 +553,7 @@ class Conversations(NextcloudModule):
 
         NextcloudNotCapable When server is lacking required capability
         """
-        if await self.api.has_feature('favorites'):
-            raise NextcloudNotCapable()
-
+        await self.api.require_talk_feature('favorites')
         await self._post(path=f'/room/{room_token}/favorite')
 
     async def remove_from_favorites(self, room_token: str) -> None:
@@ -531,9 +570,7 @@ class Conversations(NextcloudModule):
 
         NextcloudNotCapable When server is lacking required capability
         """
-        if await self.api.has_feature('favorites'):
-            raise NextcloudNotCapable()
-
+        await self.api.require_talk_feature('favorites')
         await self._delete(path=f'/room/{room_token}/favorites')
 
     async def set_notification_level(
@@ -585,9 +622,7 @@ class Conversations(NextcloudModule):
 
         NextcloudNotCapable When server is lacking required capability
         """
-        if not await self.api.has_feature('notification-calls'):
-            raise NextcloudNotCapable()
-
+        await self.api.require_talk_feature('notification-calls')
         data = {
             'level': NotificationLevel[notification_level].value
         }
@@ -599,9 +634,7 @@ class Conversations(NextcloudModule):
             self,
             room_token: str,
             seconds: int) -> None:
-        if not await self.api.has_feature('message-expiration'):
-            raise NextcloudNotCapable()
-
+        await self.api.require_talk_feature('message-expiration')
         await self._post(
             path=f'/room/{room_token}/message-expiration',
             data={'seconds': seconds})
@@ -610,9 +643,7 @@ class Conversations(NextcloudModule):
             self,
             room_token: str,
             consent: bool = True) -> None:
-        if not await self.api.has_feature('recording-consent'):
-            raise NextcloudNotCapable()
-
+        await self.api.require_talk_feature('recording-consent')
         await self._put(
             path=f'/room/{room_token}/recording-consent',
             data={'recordingConsent': bool2int(consent)})
@@ -621,9 +652,7 @@ class Conversations(NextcloudModule):
             self,
             room_token: str,
             scope: ListableScope) -> None:
-        if not await self.api.has_feature('listable-rooms'):
-            raise NextcloudNotCapable()
-
+        await self.api.require_talk_feature('listable-rooms')
         await self._put(
             path=f'/room/{room_token}/listable',
             data={'scope': scope.value})
@@ -632,9 +661,144 @@ class Conversations(NextcloudModule):
             self,
             room_token: str,
             permissions: MentionPermissions) -> None:
-        if not await self.api.has_feature('mention-permissions'):
-            raise NextcloudNotCapable()
-
+        await self.api.require_talk_feature('mention-permissions')
         await self._put(
             path=f'/room/{room_token}/mention-permissions',
             data={'mentionPermissions': permissions.value})
+
+
+@dataclass
+class BreakoutRoom:
+    data: Dict[str, Any]
+    talk_api: NextcloudTalkApi
+
+    def __post_init__(self):
+        self.api = BreakoutRooms(self.talk_api)
+        self.conversations_api = Conversations(self.talk_api.client)
+
+    def __getattr__(self, k: str) -> Any:
+        return self.data[k]
+
+    def __str__(self):
+        return f'<Talk BreakoutRoom token={self.token}, "{self.name}"">'
+
+    # TODO: Maybe do self.data for all dataclass objects
+    def __repr__(self):
+        return str(self.data)
+
+    @classmethod
+    def from_conversation(cls, conversation: Conversation) -> 'BreakoutRoom':
+        return cls(conversation.data, conversation.talk_api)
+
+    @property
+    def status(self):
+        return BreakoutRoomStatus(self.breakoutRoomStatus).name
+
+    @property
+    def mode(self):
+        return BreakoutRoomMode(self.breakoutRoomMode).name
+
+    @property
+    def is_breakout_room(self):
+        return True
+
+    async def delete(self) -> None:
+        await self.conversations_api.delete(self.token)
+
+    async def request_assistance(self) -> None:
+        await self.api.request_assistance(room_token=self.token)
+
+    async def reset_request_assistance(self) -> None:
+        await self.api.reset_request_assistance(room_token=self.token)
+
+class BreakoutRooms(NextcloudModule):
+    """Interact with Nextcloud Talk Bots API."""
+
+    def __init__(
+            self,
+            api: NextcloudTalkApi,
+            api_version: Optional[str] = '1'):
+        self.stub = f'/apps/spreed/api/v{api_version}/breakout-rooms'
+        self.api: NextcloudTalkApi = api
+
+    async def _validate_capability(self) -> None:
+            await self.api.require_talk_feature('breakout-rooms-v1')
+
+    def _create_room_by_type(self, rooms: List[Dict[str, Any]]) -> Tuple[Conversation, List[BreakoutRoom]]:
+        parent_room: Conversation = Conversation(rooms[0], self.api)
+        breakout_rooms: List[BreakoutRoom] = []
+
+        for room in rooms:
+            if hasattr(room, 'breakoutRoomStatus'):
+                breakout_rooms.append(BreakoutRoom(room, self.api))
+            else:
+                parent_room = Conversation(room, self.api)
+
+        return parent_room, breakout_rooms
+
+    async def configure(
+            self,
+            room_token: str,
+            mode: BreakoutRoomMode,
+            num_rooms: int,
+            attendee_map: Dict[str, int]) -> List[BreakoutRoom|Conversation]:
+        await self._validate_capability()
+        response, _ = await self._post(
+            path=f'/{room_token}',
+            data={
+                'mode': mode.value,
+                'amount': num_rooms,
+                'attendeeMap': attendee_map})
+        return [BreakoutRoom(data, self.api) for data in response]
+
+    async def create_additional_room(self):
+        """See talk.conversation.create_additional_breakout_room()."""
+        ...
+
+    async def delete_room(self):
+        """See talk.conversation.delete_breakout_room()."""
+        ...
+
+    async def remove(self, room_token: str) -> 'Conversation':
+        await self._validate_capability()
+        return await self._delete(path=f'/{room_token}')
+
+    async def start(self, room_token: str) -> Tuple[Conversation, List[BreakoutRoom]]:
+        await self._validate_capability()
+        response = await self._post(path=f'/{room_token}/rooms')
+        return self._create_room_by_type(response)
+
+    async def stop(self, room_token: str) -> Tuple[Conversation, List[BreakoutRoom]]:
+        await self._validate_capability()
+        response = await self._delete(path=f'/{room_token}/rooms')
+        return self._create_room_by_type(response)
+
+    async def broadcast_message(self, room_token: str, message: str) -> None:
+        await self._validate_capability()
+        await self._post(
+            path=f'/{room_token}/broadcast',
+            data={
+                'token': room_token,
+                'message': message})
+
+    async def reorganize_attendees(self, room_token: str, attendee_map: Dict[str, int]) -> Tuple[Conversation, List[BreakoutRoom]]:
+        await self._validate_capability()
+        response = await self._post(
+            path=f'/{room_token}/attendees',
+            data={'attendeeMap': attendee_map})
+        return self._create_room_by_type(response)
+
+    async def request_assistance(self, room_token: str) -> None:
+        await self._validate_capability()
+        await self._post(path=f'/{room_token}/request-assistance')
+
+    async def reset_request_assistance(self, room_token: str) -> None:
+        await self._validate_capability()
+        await self._delete(path=f'/{room_token}/request_assistance')
+
+    async def switch_rooms(self, room_token: str, target: int) -> BreakoutRoom:
+        await self._validate_capability()
+        response = await self._post(
+            path=f'/{room_token}/switch',
+            data={'target': target})
+        return BreakoutRoom(response, self.api)
