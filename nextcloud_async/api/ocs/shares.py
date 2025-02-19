@@ -51,17 +51,37 @@ class SharePermission(IntFlag):
 class OCSShareAPI(object):
     """Manage local shares on Nextcloud instances."""
 
-    async def get_all_shares(self):
+    async def get_all_shares(
+            self,
+            reshares: Optional[bool] = False,
+            subfiles: Optional[bool] = False,
+            shared_with_me: Optional[bool] = False,
+            include_tags: Optional[bool]  = False):
         """Return list of all shares.
+
+        This is just a wrapper for self.get_file_shares() with path set to ''.
+
+        Args
+        ----
+            reshares (bool, optional): Also list reshares. Defaults to False.
+
+            subfiles (bool, optional): List recursively if `path` is a folder. Defaults to
+            False.
+
+            shared_with_me (bool, optional): Only get shares with the current user
+
+            include_tags (bool, optional): Include tags in the share
 
         Returns
         -------
             list: Share descriptions
 
         """
-        return await self.ocs_query(
-            method='GET',
-            sub='/ocs/v2.php/apps/files_sharing/api/v1/shares')
+        return await self.get_file_shares(
+                reshares=reshares,
+                subfiles=subfiles,
+                shared_with_me=shared_with_me,
+                include_tags=include_tags)
 
     async def get_file_shares(
             self,
