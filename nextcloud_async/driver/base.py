@@ -66,10 +66,8 @@ class NextcloudBaseApi(NextcloudHttpApi):
 
         """
         if method.lower() == 'get':
-            if data:
-                path = f'{path}?{urlencode(data, True)}'
-            else:
-                data = None
+            path = self._massage_get_data(data, path)
+            data = None
 
         if headers:
             headers['user-agent'] = self.client.user_agent

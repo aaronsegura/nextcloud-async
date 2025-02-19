@@ -114,7 +114,7 @@ class NextcloudOcsApi(NextcloudHttpApi):
             data = {'format': 'json'}
 
         if method.lower() == 'get':
-            path = f'{path}?{urlencode(data, True)}'
+            path = self._massage_get_data(data, path)
             data = None
 
         try:

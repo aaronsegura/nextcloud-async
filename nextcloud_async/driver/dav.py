@@ -52,6 +52,10 @@ class NextcloudDavApi(NextcloudHttpApi):
             Dict: Response content
 
         """
+        if method.lower() == 'get':
+            path = self._massage_get_data(data, path)
+            data = None
+
         try:
             # print(f'DAV {method} {self.client.endpoint}{self.stub}{path}')
             response = await self.client.http_client.request(

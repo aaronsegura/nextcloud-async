@@ -105,11 +105,11 @@ class NextcloudTalkApi(NextcloudHttpApi):
             data = {'format': 'json'}
 
         if method.lower() == 'get':
-            path = f'{path}?{urlencode(data, True)}'
+            path = self._massage_get_data(data, path)
             data = None
 
         try:
-            print(f"TALK {method} {self.client.endpoint}{self.stub}{path}", data)
+            # print(f"TALK {method} {self.client.endpoint}{self.stub}{path}", data)
             response = await self.client.http_client.request(
                 method,
                 auth=(self.client.user, self.client.password),

@@ -41,6 +41,17 @@ class NextcloudHttpApi(ABC):
             headers: Optional[Dict[str, Any]] = {}) -> Any:
         ...
 
+    def _massage_get_data(self, data, path):
+        parts = []
+        for k, v in data.items():
+            if isinstance(v, bool):
+                parts.append(f'{k}={str(v).lower()}')
+            elif v is None:
+                parts.append(f'{k}=')
+            else:
+                parts.append(f'{k}={v}')
+        return f'{path}?{'&'.join(parts)}'
+
     async def _wipe_requested(self) -> bool:
         from nextcloud_async.api import Wipe
         wipe = Wipe(self.client)
