@@ -278,6 +278,7 @@ class Conversations(NextcloudModule):
         self.avatar_api = ConversationAvatars(self.api)
         self.participants_api = Participants(self.api)
         self.chat_api = Chat(self.api)
+        self.integrations_api = Integrations(self.api)
 
     async def list(
             self,
@@ -682,6 +683,8 @@ class Conversations(NextcloudModule):
             path=f'/room/{room_token}/mention-permissions',
             data={'mentionPermissions': permissions.value})
 
+    async def create_password_request(self, share_id: int) -> Dict[str, Any]:
+        return await self.integrations_api.create_password_request_conversation(share_id)
 
 @dataclass
 class BreakoutRoom:
@@ -821,13 +824,16 @@ class BreakoutRooms(NextcloudModule):
 
 
 class Webinars(NextcloudModule):
-    """Interact with Nextcloud Talk Bots API."""
+    """Interact with Nextcloud Talk Bots API.
+
+    https://nextcloud-talk.readthedocs.io/en/latest/webinar/
+    """
 
     def __init__(
             self,
             api: NextcloudTalkApi,
             api_version: Optional[str] = '4'):
-        self.stub = f'/ocs/v2.php/apps/spreed/api/v{api_version}'
+        self.stub = f'/apps/spreed/api/v{api_version}'
         self.api: NextcloudTalkApi = api
 
     async def set_lobby_state(
@@ -852,3 +858,37 @@ class Webinars(NextcloudModule):
             path=f'/room/{room_token}/webinar/sip',
             data={'state': state.value})
         return Conversation(response, self.api)
+
+
+class Integrations(NextcloudModule):
+    """Interact with Nextcloud Talk Bots API.
+
+    https://nextcloud-talk.readthedocs.io/en/latest/integration/
+    """
+
+    def __init__(
+            self,
+            api: NextcloudTalkApi,
+            api_version: Optional[str] = '1'):
+        self.stub = f'/apps/spreed/api/v{api_version}'
+        self.api: NextcloudTalkApi = api
+
+    async def get_interal_file_conversation(
+            self,
+            file_id: int) -> str:
+        response, _ = await self._get(path=f'/file/{file_id}')
+        return response['token']
+
+    async def get_public_file_share_conversation(
+            self,
+            share_token: str) -> str:
+        response, _ = await self._get(path=f'/publicshare/{share_token}')
+        return response['token']
+
+    async def create_password_request_conversation(
+            self,
+            share_token: str) -> Dict[str, Any]:
+        response, _ = await self._post(
+            path='/publicshareauth',
+            data={'shareToken': share_token})
+        return response
