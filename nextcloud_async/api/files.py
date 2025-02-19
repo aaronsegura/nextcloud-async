@@ -44,13 +44,13 @@ class File:
         return self.data[k]
 
     def __str__(self):
-        return f'<Nextcloud File "{self._path}">'
+        return f'<Nextcloud File "{self.path}">'
 
     def __repr__(self):
         return f'<Nextcloud File {self.data}>'
 
     @property
-    def _path(self):
+    def path(self):
         return '/{}'.format('/'.join(self.href.split('/')[5:]))
 
     @property
@@ -76,23 +76,23 @@ class File:
         return self.href.startswith('/remote.php/dav/versions/')
 
     async def download(self):
-        return await self.files_api.download(self._path)
+        return await self.files_api.download(self.path)
 
     async def delete(self):
-        return await self.files_api.delete(self._path)
+        return await self.files_api.delete(self.path)
 
     async def move(self, **kwargs):
-        return await self.files_api.move(source=self._path, **kwargs)
+        return await self.files_api.move(source=self.path, **kwargs)
 
     async def copy(self, **kwargs):
-        return await self.files_api.copy(source=self._path, **kwargs)
+        return await self.files_api.copy(source=self.path, **kwargs)
 
     async def set_favorite(self):
-        await self.files_api.set_favorite(self._path)
+        await self.files_api.set_favorite(self.path)
         self.favorite = True
 
     async def unset_favorite(self):
-        return await self.files_api.unset_favorite(self._path)
+        return await self.files_api.unset_favorite(self.path)
 
     async def restore_trash(self):
         return await self.files_api.restore_trash(self._trash_path)
