@@ -20,7 +20,8 @@ class Notification:
         return f'<Notification #{self.id} from "{self.app}">'
 
     def __repr__(self):
-        return str(self)
+        return str(self.data)
+
 
     @property
     def id(self):

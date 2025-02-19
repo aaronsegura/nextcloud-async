@@ -27,7 +27,8 @@ class Group:
         return f'<Nextcloud Group "{self.name}">'
 
     def __repr__(self):
-        return str(self)
+        return str(self.data)
+
 
     async def get_members(self):
         return await self.groups_api.get_members(self.name)

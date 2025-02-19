@@ -35,7 +35,8 @@ class Message:
         #return f'<Talk Message from {self.actorDisplayName} at {self.timestamp}>'
 
     def __repr__(self):
-        return str(self)
+        return str(self.data)
+
 
     async def add_reaction(self, reaction: str):
         await self.reaction_api.add(room_token=self.token, message_id=self.id, reaction=reaction)
@@ -59,7 +60,8 @@ class MessageReminder:
         #return f'<Talk Message from {self.actorDisplayName} at {self.timestamp}>'
 
     def __repr__(self):
-        return str(self)
+        return str(self.data)
+
 
     @property
     def user_id(self):
@@ -80,7 +82,8 @@ class Suggestion:
         return f'<Mention Suggestion {self.userId}>'
 
     def __repr__(self):
-        return str(self)
+        return str(self.data)
+
 
     @property
     def mention_id(self):

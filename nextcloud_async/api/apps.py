@@ -31,7 +31,8 @@ class App:
         return f'<Nextcloud App "{self.name}", {"enabled" if self.active else "disabled"}>'
 
     def __repr__(self):
-        return str(self)
+        return str(self.data)
+
 
 
 class Apps(NextcloudModule):

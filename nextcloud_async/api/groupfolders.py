@@ -34,7 +34,8 @@ class GroupFolder:
         return f'<GroupFolder "{self.mount_point}">'
 
     def __repr__(self):
-        return str(self)
+        return str(self.data)
+
 
     async def delete(self):
         await self.groupfolder_api.delete(self.id)

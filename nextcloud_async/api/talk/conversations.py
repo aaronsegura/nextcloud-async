@@ -63,7 +63,8 @@ class Conversation:
         return f'<Conversation: "{self.data['displayName']}" token: "{self.data['token']}">'
 
     def __repr__(self):
-        return str(self)
+        return str(self.data)
+
 
     @property
     def token(self):

@@ -24,7 +24,8 @@ class MapFavorite:
         return f'<MapFavorite "{self.name}">'
 
     def __repr__(self):
-        return str(self)
+        return str(self.data)
+
 
     @property
     def latitude(self):

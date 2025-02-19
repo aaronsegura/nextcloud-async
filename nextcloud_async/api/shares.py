@@ -70,7 +70,8 @@ class Share:
         return f'<Nextcloud Share "{self.path}" by {self.displayname_owner}>'
 
     def __repr__(self):
-        return str(self)
+        return str(self.data)
+
 
 
 class Shares(NextcloudModule):

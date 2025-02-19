@@ -29,7 +29,8 @@ class Participant:
         return f'<Participant, room: {self.data['roomToken']}, Id: {self.data['attendeeId']}>'
 
     def __repr__(self):
-        return str(self)
+        return str(self.data)
+
 
     def __get__(self, k: str):
         return self.data[k]

@@ -35,7 +35,8 @@ class PredefinedStatus:
         return f'<Predefined Status "{self.icon} {self.id}">'
 
     def __repr__(self):
-        return str(self)
+        return str(self.data)
+
 
 
 @dataclass
@@ -50,7 +51,8 @@ class MyStatus:
         return f'<My Status {self.status} "{self.message}">'
 
     def __repr__(self):
-        return str(self)
+        return str(self.data)
+
 
     async def set(self, *args, **kwargs) -> None:
         response = await self.status_api.set(*args, **kwargs)
@@ -80,7 +82,8 @@ class UserStatus:
         return f'<User Status {self.status} "{self.message}">'
 
     def __repr__(self):
-        return str(self)
+        return str(self.data)
+
 
 
 class Status(NextcloudModule):

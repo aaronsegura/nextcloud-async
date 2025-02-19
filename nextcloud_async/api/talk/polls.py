@@ -23,7 +23,8 @@ class Poll:
         return f'<Talk Poll "{self.question}" from {self.actorId}>'
 
     def __repr__(self):
-        return str(self)
+        return str(self.data)
+
 
     @property
     def status(self):
