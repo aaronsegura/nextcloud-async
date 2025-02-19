@@ -4,6 +4,8 @@
 """
 import httpx
 
+import datetime as dt
+
 from dataclasses import dataclass, field
 
 from typing import Dict, Optional, Any, List, Tuple
@@ -28,7 +30,9 @@ from .constants import (
     MentionPermissions,
     BreakoutRoomMode,
     BreakoutRoomStatus,
-    ObjectType)
+    RoomObjectType,
+    WebinarLobbyState,
+    SipState)
 
 
 @dataclass
@@ -47,6 +51,7 @@ class Conversation:
         self.polls_api = Polls(self.talk_api)
         self.bots_api = Bots(self.talk_api)
         self.breakout_rooms_api = BreakoutRooms(self.talk_api)
+        self.webinars_api = Webinars(self.talk_Api)
 
     def __getattr__(self, k: str) -> Any:
         return self.data[k]
@@ -246,6 +251,17 @@ class Conversation:
     async def switch_breakout_room(self, **kwargs) -> 'BreakoutRoom':
         return await self.breakout_rooms_api.switch_rooms(room_token=self.token, **kwargs)
 
+    async def enable_lobby(self, **kwargs) -> 'Conversation':
+        return await self.webinars_api.set_lobby_state(self.token, WebinarLobbyState.lobby, **kwargs)
+
+    async def disable_lobby(self, **kwargs) -> 'Conversation':
+        return await self.webinars_api.set_lobby_state(self.token, WebinarLobbyState.no_lobby)
+
+    async def enable_sip_dialin(self) -> 'Conversation':
+        return await self.webinars_api.set_sip_dialin(self.token, SipState.enabled)
+
+    async def disable_sip_dialin(self) -> 'Conversation':
+        return await self.webinars_api.set_sip_dialin(self.token, SipState.disabled)
 
 class Conversations(NextcloudModule):
     """Interact with Nextcloud Talk API."""
@@ -297,7 +313,7 @@ class Conversations(NextcloudModule):
             room_type: ConversationType,
             invite: str = '',
             room_name: str = '',
-            object_type: ObjectType = ObjectType.room,
+            object_type: RoomObjectType = RoomObjectType.room,
             object_id: str = '',
             source: str = '') -> Conversation:
         """Create a new conversation.
@@ -802,3 +818,37 @@ class BreakoutRooms(NextcloudModule):
             path=f'/{room_token}/switch',
             data={'target': target})
         return BreakoutRoom(response, self.api)
+
+
+class Webinars(NextcloudModule):
+    """Interact with Nextcloud Talk Bots API."""
+
+    def __init__(
+            self,
+            api: NextcloudTalkApi,
+            api_version: Optional[str] = '4'):
+        self.stub = f'/ocs/v2.php/apps/spreed/api/v{api_version}'
+        self.api: NextcloudTalkApi = api
+
+    async def set_lobby_state(
+            self,
+            room_token: str,
+            lobby_state: WebinarLobbyState,
+            reset_time: Optional[dt.datetime] = None) -> Conversation:
+        await self.api.require_capability('webinary-lobby')
+        response, _ = await self._put(
+            path=f'/room/{room_token}/webinar/lobby',
+            data={
+                'state': lobby_state.name,
+                'timer': reset_time.strftime('%s') if reset_time else 0})
+        return Conversation(response, self.api)
+
+    async def set_sip_dialin(
+            self,
+            room_token: str,
+            state: SipState) -> Conversation:
+        await self.api.require_capability('sip-support')
+        response, _ = await self._put(
+            path=f'/room/{room_token}/webinar/sip',
+            data={'state': state.value})
+        return Conversation(response, self.api)

@@ -95,12 +95,6 @@ class ParticipantInCallFlags(IntFlag):
     uses_sip_dial_in = 8
 
 
-class WebinarLobbyStates(Enum):
-    """Webinar Lobby States."""
-
-    no_lobby = 0
-    lobby = 1
-
 class SessionStates(Enum):
     inactive = 0
     active = 1
@@ -152,9 +146,20 @@ class BreakoutRoomStatus(Enum):
     started = 1
 
 
-class ObjectType(Enum):
+class RoomObjectType(Enum):
     file = 'file'
     share_password = 'share:password'
     room = 'room'
     phone = 'phone'
     sample = 'sample'
+
+
+class WebinarLobbyState(Enum):
+    no_lobby = 0
+    lobby = 1
+
+
+class SipState(Enum):
+    disabled = 0
+    enabled = 1
+    no_pin = 2
