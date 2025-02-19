@@ -163,3 +163,9 @@ class SipState(Enum):
     disabled = 0
     enabled = 1
     no_pin = 2
+
+
+class SignalingMode(Enum):
+    internal = 'internal'
+    external = 'external'
+    conversation_cluster = 'conversation_cluster'

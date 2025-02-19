@@ -22,6 +22,7 @@ from .calls import Calls
 from .polls import Polls, Poll
 from .bots import Bots, Bot
 from .integrations import Integrations
+from .signaling import InternalSignaling
 from .constants import (
     ConversationType,
     NotificationLevel,
@@ -53,6 +54,7 @@ class Conversation:
         self.bots_api = Bots(self.talk_api)
         self.breakout_rooms_api = BreakoutRooms(self.talk_api)
         self.webinars_api = Webinars(self.talk_api)
+        self.signaling_api = InternalSignaling(self.talk_api)
 
     def __getattr__(self, k: str) -> Any:
         return self.data[k]
@@ -263,6 +265,10 @@ class Conversation:
 
     async def disable_sip_dialin(self) -> 'Conversation':
         return await self.webinars_api.set_sip_dialin(self.token, SipState.disabled)
+
+    async def get_signaling_settings(self) -> Dict[str, Any]:
+        return await self.signaling_api.get_settings(self.token)
+
 
 class Conversations(NextcloudModule):
     """Interact with Nextcloud Talk API."""
