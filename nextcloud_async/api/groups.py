@@ -1,7 +1,6 @@
 """Nextcloud Group Management API.
 
-https://docs.nextcloud.com/server/22/admin_manual/configuration_user/\
-instruction_set_for_groups.html
+https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/instruction_set_for_groups.html
 """
 
 from dataclasses import dataclass
@@ -23,12 +22,11 @@ class Group:
     def __getattr__(self, k: str) -> Any:
         return self._data[k]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'<Nextcloud Group "{self.name}">'
 
-    def __repr__(self):
-        return str(self.data)
-
+    def __repr__(self) -> str:
+        return f'<Nextcloud Group {self.data}>'
 
     async def get_members(self):
         return await self.groups_api.get_members(self.name)
@@ -60,16 +58,17 @@ class Groups(NextcloudModule):
 
         This is the way to 'get' a group.
 
-        Args
-        ----
-            search (str): Search string, empty string for all groups.
+        Args:
+            search:
+                Search string, empty string for all groups.
 
-            limit (int, optional): Results per page. Defaults to 100.
+            limit:
+                Results per page. Defaults to 100.
 
-            offset (int, optional): Page offset. Defaults to 0.
+            offset:
+                Page offset. Defaults to 0.
 
-        Returns
-        -------
+        Returns:
             list: Group names.
 
         """
