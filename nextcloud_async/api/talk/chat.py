@@ -1,11 +1,11 @@
 """Nextcloud Talk Conversations API.
 
-    https://nextcloud-talk.readthedocs.io/en/latest/conversation/
+https://nextcloud-talk.readthedocs.io/en/latest/conversation/
 """
 import httpx
 import json
 import datetime as dt
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from typing import Dict, Optional, List, Tuple, Any
 
@@ -17,35 +17,108 @@ from .reactions import Reactions
 from .rich_objects import NextcloudTalkRichObject
 from .constants import SharedItemType
 
+_HASH_LENGTH = 64
+
+
+@dataclass
+class ChatFileShareMetadata:
+    message_type: SharedItemType
+    caption: str
+    reply_to: Optional[int] = field(default=None)
+    silent: bool = field(default=False)
+
 
 @dataclass
 class Message:
     data: Dict[str, Any]
     talk_api: NextcloudTalkApi
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.chat_api = Chat(self.talk_api)
         self.reaction_api = Reactions(self.talk_api)
 
     def __getattr__(self, k: str) -> Any:
         return self.data[k]
 
-    def __str__(self):
-        return f'<Talk Message {self.data}>'
-        #return f'<Talk Message from {self.actorDisplayName} at {self.timestamp}>'
+    def __str__(self) -> str:
+        return f'<Talk Message from {self.actorDisplayName} at {self.timestamp}>'
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self.data)
 
+    async def add_reaction(self, reaction: str) -> None:
+        """Add reaction to this message.
 
-    async def add_reaction(self, reaction: str):
-        await self.reaction_api.add(room_token=self.token, message_id=self.id, reaction=reaction)
+        Args:
+            reaction:
+                Reaction emoji to add
+        """
+        await self.reaction_api.add(
+            room_token=self.token,
+            message_id=self.id,
+            reaction=reaction)
 
-    async def remove_reaction(self, reaction: str):
-        await self.reaction_api.delete(room_token=self.token, message_id=self.id, reaction=reaction)
+    async def remove_reaction(self, reaction: str) -> None:
+        """Remove reaction from this message.
 
-    async def delete(self):
-        return await self.chat_api.delete(room_token=self.token, message_id=self.id)
+        Args:
+            reaction:
+                Reaction emoji to remove
+        """
+        await self.reaction_api.delete(
+            room_token=self.token,
+            message_id=self.id,
+            reaction=reaction)
+
+    async def set_reminder(self, timestamp: dt.datetime) -> 'MessageReminder':
+        """Set reminder for this message.
+
+        Requires capability: remind-me-later
+
+        Args:
+            timestamp:
+                DateTime for reminder.
+
+        Returns:
+            MessageReminder
+        """
+        reminder = await self.chat_api.set_reminder(
+            self.token,
+            self.message_id,
+            timestamp)
+        self._reminder = reminder
+        return reminder
+
+    async def get_reminder(self) -> 'MessageReminder':
+        """Get existing reminder for this message.
+
+        Requires capability: remind-me-later
+
+        Returns:
+            MessageReminder
+        """
+        if not self._reminder:
+            return await self.chat_api.get_reminder(self.token, self.message_id)
+        return self._reminder
+
+    async def delete_reminder(self) -> None:
+        """Delete reminder for this message.
+
+        Requires capability: remind-me-later
+        """
+        await self.chat_api.delete_reminder(self.token, self.message_id)
+
+    async def delete(self) -> httpx.Headers:
+        """Delete this message.
+
+        Returns:
+            Header: 'X-Chat-Last-Common-Read'
+        """
+        message, headers = await self.chat_api.delete(
+            room_token=self.token,
+            message_id=self.id)
+        self.data = message.data
+        return headers
 
 
 @dataclass
@@ -55,20 +128,29 @@ class MessageReminder:
     def __getattr__(self, k: str) -> Any:
         return self.data[k]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'<MessageReminder {self.userId}>'
-        #return f'<Talk Message from {self.actorDisplayName} at {self.timestamp}>'
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self.data)
 
 
     @property
-    def user_id(self):
+    def user_id(self) -> str:
+        """Alias for self.userId.
+
+        Returns:
+            self.userId
+        """
         return self.userId
 
     @property
-    def message_id(self):
+    def message_id(self) -> int:
+        """Alias for self.messageId.
+
+        Returns:
+            self.messageId
+        """
         return self.messageId
 
 @dataclass
@@ -78,23 +160,38 @@ class Suggestion:
     def __getattr__(self, k: str) -> Any:
         return self.data[k]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'<Mention Suggestion {self.userId}>'
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self.data)
 
 
     @property
-    def mention_id(self):
+    def mention_id(self) -> str:
+        """Alias for self.mentionId.
+
+        Returns:
+            self.mentionId
+        """
         return self.mentionId
 
     @property
-    def status_icon(self):
+    def status_icon(self) -> str:
+        """Alias for self.statusIcon.
+
+        Returns:
+            self.statusIcon
+        """
         return self.statusIcon
 
     @property
-    def status_message(self):
+    def status_message(self) -> str:
+        """Alias for self.statusMessage.
+
+        Returns:
+            self.statusMessage
+        """
         return self.statusMessage
 
 
@@ -104,7 +201,7 @@ class Chat(NextcloudModule):
     def __init__(
             self,
             api: NextcloudTalkApi,
-            api_version: Optional[str] = '1'):
+            api_version: Optional[str] = '1') -> None:
         self.stub = f'/apps/spreed/api/v{api_version}'
         self.api: NextcloudTalkApi = api
 
@@ -119,93 +216,65 @@ class Chat(NextcloudModule):
             set_read_marker: bool = True,
             include_last_known: bool = False,
             no_status_update: bool = False,
-            mark_notifications_as_read: bool = True) -> Tuple[List[Message], httpx.Headers]:
-        """Receive chat messages of a conversation.
+            mark_notifications_as_read: bool = True,
+        ) -> Tuple[List[Message], httpx.Headers]:
+        """Receive messages from a conversation.
 
-        More info:
-            https://nextcloud-talk.readthedocs.io/en/latest/chat/#receive-chat-messages-of-a-conversation
-            https://github.com/nextcloud/spreed/blob/88d1e4b11872f96745201c6e8921e7848eab0be8/openapi-full.json#L5659
-
-        Method: GET
-        Endpoint: /chat/{token}
-
-        #### Arguments:
-        look_into_future	[bool]	1 Poll and wait for new message or 0 get history
-        of a conversation
-
-        limit	[int]	Number of chat messages to receive (100 by default, 200 at most)
-
-        last_known_message	[int]	Serves as an offset for the query. The lastKnownMessageId
-        for the next page is available in the x-chat-last-given header.
-
-        last_common_read	[int]	Send the last x-chat-last-common-read header you got, if
-        you are interested in updates of the common read value. A 304 response does not allow
-        custom headers and otherwise the server can not know if your value is modified or not.
-
-        timeout	[int]	$lookIntoFuture = 1 only, Number of seconds to wait for new messages
-        (30 by default, 60 at most)
-
-        set_read_marker	[bool]	True to automatically set the read timer after fetching the
-        messages, use False when your client calls Mark chat as read manually. (Default: True)
-
-        include_last_known    [bool]	True to include the last known message as well (Default:
-        False)
-
-        no_status_update    [bool]  When the user status should not be automatically set to online
-        set to 1 (default 0)
+        https://nextcloud-talk.readthedocs.io/en/latest/chat/#receive-chat-messages-of-a-conversation
+        https://github.com/nextcloud/spreed/blob/88d1e4b11872f96745201c6e8921e7848eab0be8/openapi-full.json#L5659
 
 
-        #### Exceptions:
-        304 Not Modified When there were no older/newer messages
+        Args:
+            room_token:
+                Conversation token
 
-        404 Not Found When the conversation could not be found for the participant
+            look_into_future:
+                Poll and wait for new message (True) or get history of a conversation
+                (False)
 
-        412 Precondition Failed When the lobby is active and the user is not a moderator
+            limit:
+                Number of chat messages to receive (100 by default, 200 at most)
 
-        #### Response Header:
+            timeout:
+                Number of seconds to wait for new messages (30 by default, 60 at most)
+                Only valid if look_into_future=True.
 
-        x-chat-last-given	[int]	Offset (lastKnownMessageId) for the next page.
-        x-chat-last-common-read	[int]	ID of the last message read by every user that has
-        read privacy set to public. When the user themself has it set to private the value
-        the header is not set (only available with chat-read-status capability and when
-        lastCommonReadId was sent)
+            last_known_message_id:
+                Serves as an offset for the query. The lst_known_message_id for the next
+                page is available in the X-Chat-Last-Given header.
 
-        #### Response Data (As Message() object attributes):
-        id	[int]	ID of the comment
+            last_common_read_id:
+                Send the last X-Chat-Last-Common-Read header you got, if you are
+                interested in updates of the common read value. A 304 response does not
+                allow custom headers and otherwise the server can not know if your value
+                is modified or not.
 
-        token	[str]	Conversation token
+            set_read_marker:
+                True to automatically set the read timer after fetching the messages, use
+                False when your client calls Mark chat as read manually. (Default: True)
 
-        actorType	[str]	See Constants - Actor types of chat messages
+            include_last_known:
+                True to include the last known message as well (Default: False)
 
-        actorId	[str]	Actor id of the message author
+            no_status_update:
+                When the user status should not be automatically set to online set to True
+                (default False)
 
-        actorDisplayName	[str]	Display name of the message author
+            mark_notifications_as_read:
+                False to not mark notifications as read (Default: 1True, only available
+                with chat-keep-notifications capability)
 
-        timestamp	[int]	Timestamp in seconds and UTC time zone
+        Returns:
+            List of Messages, Headers
 
-        systemMessage	[str]	empty for normal chat message or the type of the system message
-        (untranslated)
+            Headers:
+                x-chat-last-given: Offset (last_known_message_id) for the next page.
 
-        messageType	[str]	Currently known types are comment, comment_deleted, system
-        and command
+                x-chat-last-common-read	[int]	ID of the last message read by every user
+                that has read privacy set to public. When the user themself has it set to
+                private the value the header is not set (only available with
+                chat-read-status capability and when last_common_read_id was sent)
 
-        isReplyable	[bool]	True if the user can post a reply to this message (only available
-        with chat-replies capability)
-
-        referenceId	[str]	A reference string that was given while posting the message to be
-        able to identify a sent message again (available with chat-reference-id capability)
-
-        message	[str]	Message string with placeholders (see Rich Object String)
-
-        messageParameters	[array]	Message parameters for message (see Rich Object String)
-
-        parent	[array]	Optional: See Parent data below
-
-        reactions	[array]	Optional: An array map with relation between reaction emoji and
-        total count of reactions with this emoji
-
-        reactionsSelf	[array]	Optional: When the user reacted this is the list of emojis
-        the user reacted with
         """
         return_headers: List[str] = ['x-chat-last-given', 'x-chat-last-common-read']
         data = {
@@ -214,8 +283,7 @@ class Chat(NextcloudModule):
             'timeout': timeout,
             'setReadMaker': bool2int(set_read_marker),
             'includeLastKnown': bool2int(include_last_known),
-            'noStatusUpdate': bool2int(no_status_update)
-        }
+            'noStatusUpdate': bool2int(no_status_update)}
         if last_known_message_id:
             data['lastKnownMessageId'] = last_known_message_id
         if last_common_read_id:
@@ -227,18 +295,40 @@ class Chat(NextcloudModule):
         response, headers = await self._get(
             path=f'/chat/{room_token}',
             data=data)
-        return [Message(data, self.api) for data in response], filter_headers(return_headers, headers)
+        return \
+            [Message(data, self.api) for data in response], \
+            filter_headers(return_headers, headers)
 
     async def get_context(
             self,
             room_token: str,
             message_id: int,
             limit: int = 50) -> Tuple[List[Message], httpx.Headers]:
+        """Get context around a message.
+
+        Requires Capability: chat-get-context
+        Args:
+            room_token:
+                Conversation token
+
+            message_id:
+                Message ID
+
+            limit:
+                Number of chat messages to receive into each direction (50 by default,
+                100 at most)
+
+        Returns:
+            Messages
+        """
+        await self.api.require_talk_feature('chat-get-context')
         response, headers = await self._get(
             path=f'/chat/{room_token}/{message_id}/context',
             data={'limit': limit})
         return_headers: List[str] = ['x-chat-last-given', 'x-chat-last-common-read']
-        return [Message(data, self.api) for data in response], filter_headers(return_headers, headers)
+        return \
+            [Message(data, self.api) for data in response], \
+            filter_headers(return_headers, headers)
 
     async def send(
             self,
@@ -248,58 +338,59 @@ class Chat(NextcloudModule):
             display_name: Optional[str] = 'Guest',
             reference_id: Optional[str] = None,
             silent: bool = False) -> Tuple[Message, httpx.Headers]:
-        """Sending a new chat message
+        """Send message to a conversation.
 
-        Method: POST
-        Endpoint: /chat/{token}
-        Data:
+        Args:
+            room_token:
+                Token of conversation
 
-        #### Arguments:
-        message	[str]	The message the user wants to say
+            message:
+                Message to send
 
-        actorDisplayName	[str]	Guest display name (ignored for logged in users)
+            reply_to:
+                The message ID this message is a reply to (only allowed for messages
+                from the same conversation and when the message type is not system
+                or command)
 
-        replyTo	[int]	The message ID this message is a reply to (only allowed for
-                        messages from the same conversation and when the message type
-                        is not system or command)
+            display_name:
+                Set the display name.  Only valid if guest.
 
-        referenceId	[str]	A reference string to be able to identify the message
-                                again in a "get messages" request, should be a random
-                                sha256 (only available with chat-reference-id capability)
+            reference_id:
+                A reference string to be able to identify the message again in a "get
+                messages" request, should be a random sha256 (only available with
+                chat-reference-id capability)
 
-        silent	[bool]	If sent silent the message will not create chat notifications
-                        even for mentions (only available with silent-send capability)
+            silent:
+                If sent silent the message will not create chat notifications even for
+                mentions (only available with silent-send capability)
 
-        #### Exceptions:
-        400 Bad Request In case of any other error
 
-        403 Forbidden When the conversation is read-only
+        Raises:
+            NextcloudBadRequest: Invalid reference_id given.
 
-        404 Not Found When the conversation could not be found for the participant
+        Returns:
+            New Message, Headers
 
-        412 Precondition Failed When the lobby is active and the user is not a moderator
-
-        413 Payload Too Large When the message was longer than the allowed limit of 32000
-            characters (or 1000 until Nextcloud 16.0.1, check the spreed => config => chat
-            => max-length capability for the limit)
-
-        #### Response Header:
-        x-chat-last-common-read	[int]	ID of the last message read by every user that has
-                                        read privacy set to public. When the user themself
-                                        has it set to private the value the header is not
-                                        set (only available with chat-read-status capability)
+            Headers:
+                x-chat-last-common-read	[int]	ID of the last message read by every user
+                that has read privacy set to public. When the user themself has it set to
+                private the value the header is not set (only available with
+                chat-read-status capability and when last_common_read_id was sent)
         """
         return_headers: List[str] = ['x-chat-last-common-read']
 
         data: Dict[str, Any] = {
             "message": message,
             "actorDisplayName": display_name,
-            "replyTo": reply_to,
-            "silent": silent}
+            "replyTo": reply_to}
+
+        if silent:
+            await self.api.require_talk_feature('silent-send')
+            data.update({"silent": silent})
 
         if reference_id:
             await self.api.require_talk_feature('chat-reference-id')
-            if len(reference_id) != 64:
+            if len(reference_id) != _HASH_LENGTH:
                 raise NextcloudBadRequest()
             else:
                 data['referenceId'] = reference_id
@@ -316,45 +407,36 @@ class Chat(NextcloudModule):
             rich_object: NextcloudTalkRichObject,
             reference_id: Optional[str] = None,
             actor_display_name: str = 'Guest') -> Tuple[Message, httpx.Headers]:
-        """Share a rich object to the chat.
+        """Share a rich object to the conversation.
 
         https://github.com/nextcloud/server/blob/master/lib/public/RichObjectStrings/Definitions.php
 
-        Required capability: rich-object-sharing
-        Method: POST
-        Endpoint: /chat/{token}/share
-        Data:
+        Args:
+            room_token:
+                Token of conversation
 
-        #### Arguments:
-        rich_object	[NextcloudTalkRichObject]	The rich object
+            rich_object:
+                NextcloudTalkRichObject
 
-        actor_display_name	[str]   Guest display name (ignored for logged in users)
+            reference_id:
+                A reference string to be able to identify the message again in a "get
+                messages" request, should be a random sha256 (only available with
+                chat-reference-id capability)
 
-        reference_id	[str]	A reference string to be able to identify the message
-        again in a "get messages" request, should be a random sha256 (only available
-        with chat-reference-id capability)
+            actor_display_name:
+                Guest display name (ignored for logged in users)
 
-        #### Exceptions:
-        400 Bad Request In case the meta data is invalid
+        Raises:
+            NextcloudBadRequest: Invalid reference_id given.
 
-        403 Forbidden When the conversation is read-only
+        Returns:
+            New Message, Headers
 
-        404 Not Found When the conversation could not be found for the participant
-
-        412 Precondition Failed When the lobby is active and the user is not a moderator
-
-        413 Payload Too Large When the message was longer than the allowed limit of
-        32000 characters (or 1000 until Nextcloud 16.0.1, check the spreed => config =>
-        chat => max-length capability for the limit)
-
-        #### Response Header:
-        x-chat-last-common-read	[int]	ID of the last message read by every user that has
-        read privacy set to public. When the user themself has it set to private the value
-        the header is not set (only available with chat-read-status capability)
-
-        #### Response Data:
-        The full message array of the new message, as defined in Receive chat messages
-        of a conversation
+            Headers:
+                x-chat-last-common-read	[int]	ID of the last message read by every user
+                that has read privacy set to public. When the user themself has it set to
+                private the value the header is not set (only available with
+                chat-read-status capability and when last_common_read_id was sent)
         """
         await self.api.require_talk_feature('rich-object-sharing')
         return_headers = ['x-chat-last-common-read']
@@ -366,7 +448,7 @@ class Chat(NextcloudModule):
 
         if reference_id:
             await self.api.require_talk_feature('chat-reference-id')
-            if len(reference_id) != 64:
+            if len(reference_id) != _HASH_LENGTH:
                 raise NextcloudBadRequest()
             else:
                 data['referenceId'] = reference_id
@@ -376,45 +458,55 @@ class Chat(NextcloudModule):
             data=data)
         return Message(response, self.api), filter_headers(return_headers, headers)
 
+
     async def share_file(
             self,
             room_token: str,
             path: str,
-            reference_id: Optional[str] = None,
-            metadata: Dict[str, Any]  = {}) -> int:
-        """Share a file to the chat.
+            metadata: ChatFileShareMetadata,
+            reference_id: Optional[str] = None) -> int:
+        """Share a file to the conversation.
 
-        More info:
-            https://nextcloud-talk.readthedocs.io/en/latest/chat/#share-a-file-to-the-chat
+        https://nextcloud-talk.readthedocs.io/en/latest/chat/#share-a-file-to-the-chat
 
-        Method: POST
-        Endpoint: /shares
+        Args:
+            room_token:
+                Token of conversation.
 
-        #### Arguments:
-        path	string	The file path inside the user's root to share
+            path:
+                The file path inside the user's root to share.
 
-        reference_id	string	A reference string to be able to identify the generated chat
-        message again in a "get messages" request, should be a random sha256 (only available
-        with chat-reference-id capability)
+            reference_id:
+                A reference string to be able to identify the generated chat message
+                again in a "get messages" request, should be a random sha256 (only
+                available with chat-reference-id capability)
 
-        metadata	[str]	See documenation # TODO: Fixme
+            metadata:
+                ChatFileShareMetadata:
+                The only valid values for metadata.message_type are 'comment' and 'voice'.
+                metadata.silent only valid with 'silent-send' capability.
 
-        #### metadata:
-        messageType [str]   A message type to show the message in different styles. Currently
-        known: `voice-message` and `comment`
+        Raises:
+            NextcloudBadRequest: Invalid reference_id given.
 
-        #### Exceptions:
-        403 When path is already shared
+        Returns:
+            Integer ID of new share.
         """
+        if metadata.silent:
+            await self.api.require_talk_feature('silent-send')
         data: Dict[str, Any] = {
             'shareType': 10,
             'shareWith': room_token,
             'path': path,
-            'talkMetaData': json.dumps(metadata)}
+            'talkMetaData': {
+                'messageType': metadata.message_type,
+                'caption': metadata.caption,
+                'replyTo': metadata.reply_to,
+                'silent': metadata.silent}}
 
         if reference_id:
             await self.api.require_talk_feature('chat-reference-id')
-            if len(reference_id) != 64:
+            if len(reference_id) != _HASH_LENGTH:
                 raise NextcloudBadRequest()
             else:
                 data['referenceId'] = reference_id
@@ -429,6 +521,18 @@ class Chat(NextcloudModule):
             self,
             room_token: str,
             limit: int = 7) -> List[Message]:
+        """List overview of items shared into a chat.
+
+        Args:
+            room_token:
+                Token of room
+
+            limit:
+                Number of chat messages with shares you want to get
+
+        Returns:
+            List of Messages with shares.
+        """
         await self.api.require_talk_feature('rich-object-list-media')
         response, _ = await self._get(
             path=f'/chat/{room_token}/share/overview',
@@ -442,6 +546,28 @@ class Chat(NextcloudModule):
             object_type: SharedItemType,
             last_known_message_id: int,
             limit: int = 7) -> Tuple[List[Message], httpx.Headers]:
+        """List items of type shared in a chat.
+
+        Args:
+            room_token:
+                Token of conversation.
+
+            object_type:
+                SharedItemType
+
+            last_known_message_id:
+                Serves as an offset for the query. The last_known_message_id for the next
+                page is available in the X-Chat-Last-Given header.
+
+            limit:
+                Number of chat messages with shares you want to get
+
+        Returns:
+            List of relevant Messages, Headers
+
+            Headers:
+                X-Chat-Last-Given [int] Offset for the next page.
+        """
         return_headers = ['x-chat-last-given']
 
         await self.api.require_talk_feature('rich-object-list-media')
@@ -453,11 +579,21 @@ class Chat(NextcloudModule):
         response, headers = await self._get(
             path=f'/chat/{room_token}/share',
             data=data)
-        return [Message(data, self.api) for data in response], filter_headers(return_headers, headers)
+        messages = [Message(data, self.api) for data in response]
+        return messages, filter_headers(return_headers, headers)
 
     async def clear_history(
             self,
             room_token: str) -> Message:
+        """Clear the message history in a conversation.
+
+        Args:
+            room_token:
+                Token of conversation.
+
+        Returns:
+            Message to display in empty channel.
+        """
         await self.api.require_talk_feature('clear-history')
         response = await self._delete(path=f'/chat/{room_token}')
         return Message(response, self.api)
@@ -466,18 +602,26 @@ class Chat(NextcloudModule):
             self,
             room_token: str,
             message_id: int) -> Tuple[Message, httpx.Headers]:
-        """Delete a message.
+        """Delete a message in a conversation.
 
-        More info:
-            https://nextcloud-talk.readthedocs.io/en/latest/chat/#deleting-a-chat-message
-            https://github.com/nextcloud/spreed/blob/88d1e4b11872f96745201c6e8921e7848eab0be8/openapi-full.json#L6485
+        https://nextcloud-talk.readthedocs.io/en/latest/chat/#deleting-a-chat-message
+        https://github.com/nextcloud/spreed/blob/88d1e4b11872f96745201c6e8921e7848eab0be8/openapi-full.json#L6485
 
-        Args
-        ----
+        Args:
+            room_token:
+                Token of conversation.
 
-            room_token (str): Room
+            message_id:
+                ID of message
 
-            message_id (int): Message
+        Returns:
+            Message, Headers
+
+            Headers:
+                X-Chat-Last-Common-Read	[int] ID of the last message read by every user
+                that has read privacy set to public. When the user themself has it set to
+                private the value the header is not set (only available with
+                chat-read-status capability)
         """
         return_headers = ['x-chat-last-common-read']
 
@@ -490,6 +634,27 @@ class Chat(NextcloudModule):
             room_token: str,
             message_id: int,
             message: str) -> Tuple[Message, httpx.Headers]:
+        """Edit an existing message in a conversation.
+
+        Args:
+            room_token:
+                Token of conversation.
+
+            message_id:
+                ID of message
+
+            message:
+                New message text.
+
+        Returns:
+            New Message, Headers
+
+            Headers:
+                X-Chat-Last-Common-Read	[int] ID of the last message read by every user
+                that has read privacy set to public. When the user themself has it set to
+                private the value the header is not set (only available with
+                chat-read-status capability)
+        """
         return_headers = ['x-chat-last-common-read']
 
         await self.api.require_talk_feature('edit-messages')
@@ -499,11 +664,29 @@ class Chat(NextcloudModule):
 
         return Message(response, self.api), filter_headers(return_headers, headers)
 
+    # TODO: Propagate reminder functions to objects
     async def set_reminder(
             self,
             room_token: str,
             message_id: int,
             timestamp: dt.datetime) -> MessageReminder:
+        """Set reminder for chat message.
+
+        Requires capability: remind-me-later
+
+        Args:
+            room_token:
+                Token of conversation.
+
+            message_id:
+                ID of message
+
+            timestamp:
+                DateTime for reminder.
+
+        Returns:
+            MessageReminder
+        """
         await self.api.require_talk_feature('remind-me-later')
         response, _ = await self._post(
             path=f'/chat/{room_token}/{message_id}/reminder',
@@ -515,6 +698,20 @@ class Chat(NextcloudModule):
             self,
             room_token: str,
             message_id: int) -> MessageReminder:
+        """Get reminder for chat message.
+
+        Requires capability: remind-me-later
+
+        Args:
+            room_token:
+                Token of conversation.
+
+            message_id:
+                ID of message
+
+        Returns:
+            MessageReminder
+        """
         await self.api.require_talk_feature('remind-me-later')
         response, _ = await self._get(
             path=f'/chat/{room_token}/{message_id}/reminder')
@@ -525,6 +722,17 @@ class Chat(NextcloudModule):
             self,
             room_token: str,
             message_id: int) -> None:
+        """Delete reminder for chat message.
+
+        Requires capability: remind-me-later
+
+        Args:
+            room_token:
+                Token for conversation
+
+            message_id:
+                ID of message
+        """
         await self.api.require_talk_feature('remind-me-later')
         await self._delete(path=f'/chat/{room_token}/{message_id}/reminder')
 
@@ -532,6 +740,23 @@ class Chat(NextcloudModule):
             self,
             room_token: str,
             last_read_message: Optional[int] = None) -> httpx.Headers:
+        """Mark conversation as read.
+
+        Args:
+            room_token:
+                Token of conversation.
+
+            last_read_message:
+                The last read message ID
+                Only valid with chat-read-last capability.
+
+        Returns:
+            Headers:
+                X-Chat-Last-Common-Read	[int] ID of the last message read by every user
+                that has read privacy set to public. When the user themself has it set to
+                private the value the header is not set (only available with
+                chat-read-status capability)
+        """
         return_headers = ['x-chat-last-common-read']
         await self.api.require_talk_feature('chat-read-marker')
         data: Dict[str, Any] = {}
@@ -545,6 +770,21 @@ class Chat(NextcloudModule):
     async def mark_as_unread(
             self,
             room_token: str) -> httpx.Headers:
+        """Mark conversation as unread.
+
+        Requires capability: chat-unread
+
+        Args:
+            room_token:
+                Token of conversation.
+
+        Returns:
+            Headers:
+                X-Chat-Last-Common-Read	[int] ID of the last message read by every user
+                that has read privacy set to public. When the user themself has it set to
+                private the value the header is not set (only available with
+                chat-read-status capability)
+        """
         return_headers = ['x-chat-last-common-read']
         await self.api.require_talk_feature('chat-unread')
         _, headers = await self._delete(path=f'/chat/{room_token}/read')
@@ -556,7 +796,24 @@ class Chat(NextcloudModule):
             search: str,
             include_status: bool = False,
             limit: int = 20) -> List[Suggestion]:
+        """Get mention autocomplete suggestions.
 
+        Args:
+            room_token:
+                Token of conversation
+
+            search:
+                Search term for name suggestions (should at least be 1 character)
+
+            include_status:
+                Whether the user status information also needs to be loaded
+
+            limit:
+                Number of suggestions to receive (20 by default)
+
+        Returns:
+            List of Suggestions
+        """
         data: Dict[str, Any] = {
             'search': search,
             'includeStatus': include_status,

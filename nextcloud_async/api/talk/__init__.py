@@ -1,6 +1,8 @@
+"""Connectivity to Nextcloud Talk back-end.
+
+https://nextcloud-talk.readthedocs.io/en/latest/global/
 """
-    https://nextcloud-talk.readthedocs.io/en/latest/global/
-"""
+
 from .avatars import ConversationAvatars
 from .bots import Bot, Bots
 from .calls import Calls
@@ -14,14 +16,14 @@ from .signaling import InternalSignaling
 
 
 from .constants import (
-    BreakoutRoomMode,
+    BreakoutRoomAssignmentMode,
     BreakoutRoomStatus,
     CallNotificationLevel,
     ConversationType,
     FileShareMessageType,
     ListableScope,
     MentionPermissions,
-    NotificationLevel,
+    ConversationNotificationLevel,
     ObjectSources,
     ParticipantInCallFlags,
     ParticipantPermissions,
@@ -35,7 +37,7 @@ from .constants import (
     SessionStates,
     SharedItemType,
     SipState,
-    WebinarLobbyState
+    WebinarLobbyState,
 )
 
 __all__ = [
@@ -49,14 +51,14 @@ __all__ = [
     "Polls", "Poll",
     "Reactions",
     "InternalSignaling",
-    "BreakoutRoomMode",
+    "BreakoutRoomAssignmentMode",
     "BreakoutRoomStatus",
     "CallNotificationLevel",
     "ConversationType",
     "FileShareMessageType",
     "ListableScope",
     "MentionPermissions",
-    "NotificationLevel",
+    "ConversationNotificationLevel",
     "ObjectSources",
     "ParticipantInCallFlags",
     "ParticipantPermissions",

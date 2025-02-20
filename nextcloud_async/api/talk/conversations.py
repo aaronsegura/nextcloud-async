@@ -1,6 +1,16 @@
-"""Nextcloud Talk Conversations API.
+"""Nextcloud Talk Entrypoint..
 
-    https://nextcloud-talk.readthedocs.io/en/latest/conversation/
+https://github.com/nextcloud/spreed/blob/b5bed8c1157df02492afb420cfa607e014212575/openapi-full.json
+
+Conversations() is the entry-point into the Spreed/Talk back-end.
+
+Where appropriate, functions return data and headers.
+
+All calls to the API are checked for status codes >=400 and an appropriate exception is
+raised. See .driver.talk.NextcloudTalkApi.request() for more information.
+
+Calls that require a specific capability that is missing on the server will raise a
+NextcloudNotCapable exception.
 """
 import httpx
 
@@ -8,7 +18,8 @@ import datetime as dt
 
 from dataclasses import dataclass, field
 
-from typing import Dict, Optional, Any, List, Tuple
+from typing import Dict, Optional, Any, List, Tuple, TypedDict
+from typing_extensions import Unpack
 
 from nextcloud_async.driver import NextcloudTalkApi, NextcloudModule
 from nextcloud_async.client import NextcloudClient
@@ -17,24 +28,29 @@ from nextcloud_async.helpers import bool2int
 
 from .avatars import ConversationAvatars
 from .participants import Participants, Participant
-from .chat import Chat, Message, MessageReminder, Suggestion
+from .chat import Chat, Message, MessageReminder, Suggestion, ChatFileShareMetadata
 from .calls import Calls
 from .polls import Polls, Poll
 from .bots import Bots, Bot
 from .integrations import Integrations
 from .signaling import InternalSignaling
+from .rich_objects import NextcloudTalkRichObject
 from .constants import (
     ConversationType,
-    NotificationLevel,
+    ConversationReadOnlyState,
+    ConversationNotificationLevel,
     ObjectSources,
     ParticipantPermissions,
     ListableScope,
     MentionPermissions,
-    BreakoutRoomMode,
+    BreakoutRoomAssignmentMode,
     BreakoutRoomStatus,
     RoomObjectType,
     WebinarLobbyState,
-    SipState)
+    SipState,
+    ConversationPermissionMode,
+    CallNotificationLevel,
+    SharedItemType)
 
 
 @dataclass
@@ -44,7 +60,8 @@ class Conversation:
 
     _participants: List[Participant] = field(init=False, default_factory=list)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
+        """Set up all of the APIs needed by this class."""
         self.api = Conversations(self.talk_api.client)
         self.avatar_api = ConversationAvatars(self.talk_api)
         self.participants_api = Participants(self.talk_api)
@@ -59,93 +76,456 @@ class Conversation:
     def __getattr__(self, k: str) -> Any:
         return self.data[k]
 
-    def __str__(self):
-        return f'<Conversation: "{self.data['displayName']}" token: "{self.data['token']}">'
+    def __str__(self) -> str:
+        return f'<Conversation: "{self.data['displayName']}" '\
+               f'token: "{self.data['token']}">'
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self.data)
 
-
     @property
-    def token(self):
-        return self.data['token']
+    def display_name(self) -> str:
+        """Translate displayName into more python display_name.
 
-    @property
-    def display_name(self):
+        Returns:
+            The display name of the conversation.
+        """
         return self.data['displayName']
 
     @display_name.setter
-    def display_name(self, v: str):
+    def display_name(self, v: str) -> None:
+        """Setter for self.display_name.
+
+        Args:
+            v:
+                New display name for this conversation.
+        """
         self.data['displayName'] = v
 
     @property
-    def is_breakout_room(self):
+    def is_breakout_room(self) -> bool:
+        """Return True if this conversation is a BreakoutRoom.
+
+        This is used in the room sorting function BreakoutRooms._create_rooms_by_type()
+
+        Returns:
+            True = BreakoutRoom, False = Not BreakoutRoom
+        """
         return False
 
-    async def get_participants(self):
+    async def get_participants(self) -> List[Participant]:
+        """Return list of Participants in this conversation.
+
+        Participants are pulled from the API on first run.  Best effort is made to
+        maintain the list of participants (for instance, when a Participant object
+        calls .leave())
+        # FIXME: REALLY?
+        but it is ultimately up to you to keep the list accurate.
+        Conversation.refresh_participants() can be called at will to keep the list up to
+        date.
+
+        Returns:
+            List of conversation participants.
+        """
         if not self._participants:
             await self.refresh_participants()
 
         return self._participants
 
     async def refresh_participants(self) -> None:
+        """Refresh the list of participants in this conversation."""
         self._participants, _ = await self.participants_api.list(self.token)
 
     async def rename(self, new_name: str) -> None:
+        """Rename this conversation.
+
+        The display_name property is updated after a successful call.
+
+        Args:
+            new_name:
+                New display name of the conversation.
+        """
         await self.api.rename(room_token=self.token, new_name=new_name)
         self.display_name = new_name
 
     async def delete(self) -> None:
+        """Delete this conversation."""
         await self.api.delete(self.token)
 
-    async def add_user(self, user_id: str) -> None:
-        await self.participants_api.add_to_conversation(room_token=self.token, invitee=user_id, source=ObjectSources.user)
+    async def add_user(self, name: str) -> None:
+        """Add a participant to this conversation.
 
-    async def add_group(self, group_id: str) -> None:
-        await self.participants_api.add_to_conversation(room_token=self.token, invitee=group_id, source=ObjectSources.group)
+        Args:
+            name:
+                Participant.display_name or a string representing the user's name.
+        """
+        await self.participants_api.add_to_conversation(
+            room_token=self.token,
+            invitee=name,
+            source=ObjectSources.user)
+
+    async def add_group(self, group_name: str) -> None:
+        """Add a group to this conversation.
+
+        Args:
+            group_name:
+                Group.name or str representing name of group.
+        """
+        await self.participants_api.add_to_conversation(
+            room_token=self.token,
+            invitee=group_name,
+            source=ObjectSources.group)
 
     async def add_email(self, email: str) -> None:
-        await self.participants_api.add_to_conversation(room_token=self.token, invitee=email, source=ObjectSources.email)
+        """Add user to conversation by e-mail.
+
+        Args:
+            email:
+                E-mail address of participant.
+        """
+        await self.participants_api.add_to_conversation(
+            room_token=self.token,
+            invitee=email,
+            source=ObjectSources.email)
 
     async def add_circle(self, circle_id: str) -> None:
-        await self.talk_api.require_talk_feature('circles-support')
-        await self.participants_api.add_to_conversation(room_token=self.token, invitee=circle_id, source=ObjectSources.circle)
+        """Add Nextcloud circle to this conversation.
 
-    async def remove_participant(self, participant: Participant):
-        await self.participants_api.remove_from_conversation(room_token=self.token, attendee_id=participant.id)
+        Args:
+            circle_id:
+                The ID of the circle to add.
+        """
+        await self.talk_api.require_talk_feature('circles-support')
+        await self.participants_api.add_to_conversation(
+            room_token=self.token,
+            invitee=circle_id,
+            source=ObjectSources.circle)
+
+    async def remove_participant(self, participant: Participant) -> None:
+        """Remove a Participant from this conversation.
+
+        Args:
+            participant:
+                Participant object.
+        """
+        await self.participants_api.remove_from_conversation(
+            room_token=self.token,
+            attendee_id=participant.id)
         self._participants.remove(participant)
 
-    async def resend_invitiation_emails(self):
+    async def resend_invitiation_emails(self) -> None:
+        """Re-send invitation e-mails for this conversation."""
         await self.participants_api.resend_invitation_emails(room_token=self.token)
 
-    async def get_messages(self, **kwargs) -> Tuple[List[Message], httpx.Headers]:
+    class _GetMessagesArgs(TypedDict):
+        look_into_future: bool
+        limit: int
+        timeout: int
+        last_known_message_id: Optional[int]
+        last_common_read_id: Optional[int]
+        set_read_marker: bool
+        include_last_known: bool
+        no_status_update: bool
+        mark_notifications_as_read: bool
+
+    async def get_messages(  # noqa: D417
+            self,
+            **kwargs: Unpack[_GetMessagesArgs]) -> Tuple[List[Message], httpx.Headers]:
+        """Receive messages from a conversation.
+
+        https://nextcloud-talk.readthedocs.io/en/latest/chat/#receive-chat-messages-of-a-conversation
+        https://github.com/nextcloud/spreed/blob/88d1e4b11872f96745201c6e8921e7848eab0be8/openapi-full.json#L5659
+
+
+        Args:
+            look_into_future:
+                Poll and wait for new message (True) or get history of a conversation
+                (False)
+
+            limit:
+                Number of chat messages to receive (100 by default, 200 at most)
+
+            timeout:
+                Number of seconds to wait for new messages (30 by default, 60 at most)
+                Only valid if look_into_future=True.
+
+            last_known_message_id:
+                Serves as an offset for the query. The lst_known_message_id for the next
+                page is available in the X-Chat-Last-Given header.
+
+            last_common_read_id:
+                Send the last X-Chat-Last-Common-Read header you got, if you are
+                interested in updates of the common read value. A 304 response does not
+                allow custom headers and otherwise the server can not know if your value
+                is modified or not.
+
+            set_read_marker:
+                True to automatically set the read timer after fetching the messages, use
+                False when your client calls Mark chat as read manually. (Default: True)
+
+            include_last_known:
+                True to include the last known message as well (Default: False)
+
+            no_status_update:
+                When the user status should not be automatically set to online set to True
+                (default False)
+
+            mark_notifications_as_read:
+                False to not mark notifications as read (Default: 1True, only available
+                with chat-keep-notifications capability)
+
+        Returns:
+            List of Messages, Headers
+
+            Headers:
+                x-chat-last-given: Offset (last_known_message_id) for the next page.
+
+                x-chat-last-common-read	[int]	ID of the last message read by every user
+                that has read privacy set to public. When the user themself has it set to
+                private the value the header is not set (only available with
+                chat-read-status capability and when last_common_read_id was sent)
+
+        """
         return await self.chat_api.get_messages(room_token=self.token, **kwargs)
 
-    async def message_context(self, **kwargs) -> Tuple[List[Message], httpx.Headers]:
+    class _MessageContextArgs(TypedDict):
+        message_id: int
+        limit: int
+
+    async def message_context(
+            self,
+            **kwargs: Unpack[_MessageContextArgs]) -> Tuple[List[Message], httpx.Headers]:
+        """Get context around a message.
+
+        Requires Capability: chat-get-context
+        Args:
+
+            message_id:
+                Message ID
+
+            limit:
+                Number of chat messages to receive into each direction (50 by default,
+                100 at most)
+
+        Returns:
+            Messages
+        """
         return await self.chat_api.get_context(room_token=self.token, **kwargs)
 
-    async def send(self, **kwargs) -> Tuple[Message, httpx.Headers]:
+    class _SendArgs(TypedDict):
+        message: str
+        reply_to: int
+        display_name: Optional[str]
+        reference_id: Optional[str]
+        silent: bool
+
+    async def send(self, **kwargs: Unpack[_SendArgs]) -> Tuple[Message, httpx.Headers]:  # noqa: D417
+        """Send message to the conversation.
+
+        Args:
+            message:
+                Message to send
+
+            reply_to:
+                The message ID this message is a reply to (only allowed for messages
+                from the same conversation and when the message type is not system
+                or command)
+
+            display_name:
+                Set the display name.  Only valid if guest.
+
+            reference_id:
+                A reference string to be able to identify the message again in a "get
+                messages" request, should be a random sha256 (only available with
+                chat-reference-id capability)
+
+            silent:
+                If sent silent the message will not create chat notifications even for
+                mentions (only available with silent-send capability)
+
+
+        Raises:
+            NextcloudBadRequest: Invalid reference_id given.
+
+        Returns:
+            New Message, Headers
+
+            Headers:
+                x-chat-last-common-read	[int]	ID of the last message read by every user
+                that has read privacy set to public. When the user themself has it set to
+                private the value the header is not set (only available with
+                chat-read-status capability and when last_common_read_id was sent)
+        """
         return await self.chat_api.send(room_token=self.token, **kwargs)
 
-    async def send_rich_object(self, **kwargs) -> Tuple[Message, httpx.Headers]:
+    class _SendRichObjectArgs(TypedDict):
+        rich_object: NextcloudTalkRichObject
+        reference_id: Optional[str]
+        actor_display_name: str
+
+    async def send_rich_object(  # noqa: D417
+            self,
+            **kwargs: Unpack[_SendRichObjectArgs]) -> Tuple[Message, httpx.Headers]:
+        """Share a rich object to the conversation.
+
+        https://github.com/nextcloud/server/blob/master/lib/public/RichObjectStrings/Definitions.php
+
+        Args:
+            rich_object:
+                NextcloudTalkRichObject
+
+            reference_id:
+                A reference string to be able to identify the message again in a "get
+                messages" request, should be a random sha256 (only available with
+                chat-reference-id capability)
+
+            actor_display_name:
+                Guest display name (ignored for logged in users)
+
+        Raises:
+            NextcloudBadRequest: Invalid reference_id given.
+
+        Returns:
+            New Message, Headers
+
+            Headers:
+                x-chat-last-common-read	[int]	ID of the last message read by every user
+                that has read privacy set to public. When the user themself has it set to
+                private the value the header is not set (only available with
+                chat-read-status capability and when last_common_read_id was sent)
+        """
         return await self.chat_api.send_rich_object(room_token=self.token, **kwargs)
 
-    async def share_file(self, **kwargs) -> int:
+    class _ShareFileArgs(TypedDict):
+        path: str
+        metadata: ChatFileShareMetadata
+        reference_id: Optional[str]
+
+    async def share_file(self, **kwargs: Unpack[_ShareFileArgs]) -> int:  # noqa: D417
+        """Share a file to the conversation.
+
+        https://nextcloud-talk.readthedocs.io/en/latest/chat/#share-a-file-to-the-chat
+
+        Args:
+            path:
+                The file path inside the user's root to share.
+
+            reference_id:
+                A reference string to be able to identify the generated chat message
+                again in a "get messages" request, should be a random sha256 (only
+                available with chat-reference-id capability)
+
+            metadata:
+                ChatFileShareMetadata:
+                The only valid values for metadata.message_type are 'comment' and 'voice'.
+                metadata.silent only valid with 'silent-send' capability.
+
+        Raises:
+            NextcloudBadRequest: Invalid reference_id given.
+
+        Returns:
+            Integer ID of new share.
+        """
         return await self.chat_api.share_file(room_token=self.token, **kwargs)
 
-    async def list_shared_items(self, **kwargs) -> List[Message]:
-        return await self.chat_api.list_shared_items(room_token=self.token, **kwargs)
+    async def list_shared_items(self, limit: int) -> List[Message]:
+        """List overview of items shared into this chat.
 
-    async def list_shared_items_by_type(self, **kwargs) -> Tuple[List[Message], httpx.Headers]:
-        return await self.chat_api.list_shared_items_by_type(room_token=self.token, **kwargs)
+        Args:
+            limit:
+                Number of chat messages with shares you want to get
+
+        Returns:
+            List of Messages with shares.
+        """
+        return await self.chat_api.list_shared_items(room_token=self.token, limit=limit)
+
+    class _SharedItemsByTypeArgs(TypedDict):
+        object_type: SharedItemType
+        last_known_message_id: int
+        limit: int
+
+    async def list_shared_items_by_type(  # noqa: D417
+            self,
+            **kwargs: Unpack[_SharedItemsByTypeArgs]) -> \
+            Tuple[List[Message], httpx.Headers]:
+        """List items of type shared in the chat.
+
+        Args:
+            object_type:
+                SharedItemType
+
+            last_known_message_id:
+                Serves as an offset for the query. The last_known_message_id for the next
+                page is available in the X-Chat-Last-Given header.
+
+            limit:
+                Number of chat messages with shares you want to get
+
+        Returns:
+            List of relevant Messages, Headers
+
+            Headers:
+                X-Chat-Last-Given [int] Offset for the next page.
+        """
+        return await self.chat_api.list_shared_items_by_type(
+            room_token=self.token,
+            **kwargs)
 
     async def clear_history(self) -> Message:
+        """Clear the message history in this conversation.
+
+        Returns:
+            Message to display in empty channel.
+        """
         return await self.chat_api.clear_history(room_token=self.token)
 
-    async def delete_message(self, **kwargs) -> Tuple[Message, httpx.Headers]:
-        return await self.chat_api.delete(room_token=self.token, **kwargs)
+    async def delete_message(self, message_id: int) -> Tuple[Message, httpx.Headers]:
+        """Delete a message in a conversation.
 
-    async def edit_message(self, **kwargs) -> Tuple[Message, httpx.Headers]:
+        https://nextcloud-talk.readthedocs.io/en/latest/chat/#deleting-a-chat-message
+        https://github.com/nextcloud/spreed/blob/88d1e4b11872f96745201c6e8921e7848eab0be8/openapi-full.json#L6485
+
+        Args:
+            message_id:
+                ID of message
+
+        Returns:
+            Message, Headers
+
+            Headers:
+                X-Chat-Last-Common-Read	[int] ID of the last message read by every user
+                that has read privacy set to public. When the user themself has it set to
+                private the value the header is not set (only available with
+                chat-read-status capability)
+        """
+        return await self.chat_api.delete(room_token=self.token, message_id=message_id)
+
+    class _EditMessageArgs(TypedDict):
+        message_id: int
+        message: str
+
+    async def edit_message(
+         self,
+         **kwargs: Unpack[_EditMessageArgs]) -> Tuple[Message, httpx.Headers]:
+        """Edit an existing message in a conversation.
+
+        Args:
+            message_id:
+                ID of message
+
+            message:
+                New message text.
+
+        Returns:
+            New Message, Headers
+
+            Headers:
+                X-Chat-Last-Common-Read	[int] ID of the last message read by every user
+                that has read privacy set to public. When the user themself has it set to
+                private the value the header is not set (only available with
+                chat-read-status capability)
+        """
         return await self.chat_api.edit(room_token=self.token, **kwargs)
 
     async def set_message_reminder(self, **kwargs) -> MessageReminder:
@@ -167,34 +547,36 @@ class Conversation:
         return await self.chat_api.suggest_autocompletes(room_token=self.token, **kwargs)
 
     async def set_name_as_guest(self, **kwargs) -> None:
-        await self.participants_api.set_guest_display_name(room_token=self.token, **kwargs)
+        await self.participants_api.set_guest_display_name(
+            room_token=self.token,
+            **kwargs)
 
     async def set_default_permissions(self, **kwargs) -> None:
         await self.api.set_default_permissions(room_token=self.token, **kwargs)
 
-    async def participants_connected_to_call(self):
+    async def participants_connected_to_call(self) -> List[Participant]:
         return await self.calls_api.get_connected_participants(self.token)
 
-    async def join_call(self, **kwargs):
-        await self.calls_api.join_call(room_token=self.token, **kwargs)  # type: ignore
+    async def join_call(self, **kwargs) -> None:
+        await self.calls_api.join_call(room_token=self.token, **kwargs)
 
-    async def send_call_notification(self, **kwargs):
-        await self.calls_api.send_notification(room_token=self.token, **kwargs)  # type: ignore
+    async def send_call_notification(self, **kwargs) -> None:
+        await self.calls_api.send_notification(room_token=self.token, **kwargs)
 
-    async def send_call_sip_dialout_request(self, **kwargs):
-        await self.calls_api.send_sip_dialout_request(room_token=self.token, **kwargs)  # type: ignore
+    async def send_call_sip_dialout_request(self, **kwargs) -> None:
+        await self.calls_api.send_sip_dialout_request(room_token=self.token, **kwargs)
 
-    async def update_call_flags(self, **kwargs):
-        await self.calls_api.update_flags(room_token=self.token, **kwargs)  # type: ignore
+    async def update_call_flags(self, **kwargs) -> None:
+        await self.calls_api.update_flags(room_token=self.token, **kwargs)
 
-    async def leave_call(self, **kwargs: Dict[str, Any]):
+    async def leave_call(self, **kwargs: Dict[str, Any]) -> None:
         await self.calls_api.leave(room_token=self.token, **kwargs)  # type: ignore
 
     async def set_avatar(self, **kwargs) -> None:
-        await self.avatar_api.set(self.token, **kwargs)  # type: ignore
+        await self.avatar_api.set(self.token, **kwargs)
 
     async def set_avatar_emoji(self, **kwargs) -> None:
-        await self.avatar_api.set_emoji(room_token=self.token, **kwargs)  # type: ignore
+        await self.avatar_api.set_emoji(room_token=self.token, **kwargs)
 
     async def delete_avatar(self) -> None:
         await self.avatar_api.delete(room_token=self.token)
@@ -249,17 +631,25 @@ class Conversation:
     async def broadcast_breakout_rooms_message(self, **kwargs) -> None:
         return await self.breakout_rooms_api.broadcast_message(self.token, **kwargs)
 
-    async def reorganize_breakout_room_attendees(self, **kwargs) -> Tuple['Conversation', List['BreakoutRoom']]:
-        return await self.breakout_rooms_api.reorganize_attendees(room_token=self.token, **kwargs)
+    async def reorganize_breakout_room_attendees(
+            self,
+            **kwargs) -> Tuple['Conversation', List['BreakoutRoom']]:
+        return await self.breakout_rooms_api.reorganize_attendees(
+            room_token=self.token,
+            **kwargs)
 
     async def switch_breakout_room(self, **kwargs) -> 'BreakoutRoom':
         return await self.breakout_rooms_api.switch_rooms(room_token=self.token, **kwargs)
 
     async def enable_lobby(self, **kwargs) -> 'Conversation':
-        return await self.webinars_api.set_lobby_state(self.token, WebinarLobbyState.lobby, **kwargs)
+        return await self.webinars_api.set_lobby_state(
+            self.token,
+            WebinarLobbyState.lobby, **kwargs)
 
-    async def disable_lobby(self, **kwargs) -> 'Conversation':
-        return await self.webinars_api.set_lobby_state(self.token, WebinarLobbyState.no_lobby)
+    async def disable_lobby(self) -> 'Conversation':
+        return await self.webinars_api.set_lobby_state(
+            self.token,
+            WebinarLobbyState.no_lobby)
 
     async def enable_sip_dialin(self) -> 'Conversation':
         return await self.webinars_api.set_sip_dialin(self.token, SipState.enabled)
@@ -272,13 +662,16 @@ class Conversation:
 
 
 class Conversations(NextcloudModule):
-    """Interact with Nextcloud Talk API."""
+    """Nextcloud Talk Conversations API.
+
+    https://nextcloud-talk.readthedocs.io/en/latest/conversation/
+    """
     api: NextcloudTalkApi
 
     def __init__(
             self,
             client: NextcloudClient,
-            api_version: Optional[str] = '4'):
+            api_version: Optional[str] = '4') -> None:
 
         self.client: NextcloudClient = client
         self.stub = f'/apps/spreed/api/v{api_version}'
@@ -294,23 +687,25 @@ class Conversations(NextcloudModule):
             include_status: bool = False) -> List[Conversation]:
         """Return list of user's conversations.
 
-        Method: GET
-        Endpoint: /room
+        Args:
+            status_update:
+                Whether the "online" user status of the current user should
+                be "kept-alive" or not.
 
-        #### Arguments:
-        status_update  [bool]  Whether the "online" user status of the current
-        user should be "kept-alive" (True) or not (False) (defaults to False)
+            include_status:
+                Whether the user status information of all one-to-one
+                conversations should be loaded.
 
-        include_status   [bool] Whether the user status information of all
-        one-to-one conversations should be loaded (default false)
+        Returns:
+            List of conversation objects.
 
-        #### Exceptions:
-        401 Unauthorized when the user is not logged in
+        Raises:
+            Appropriate exception on HTTP status_code >= 400
+
         """
         data: Dict[str, Any] = {
             'noStatusUpdate': 1 if status_update else 0,
-            'includeStatus': include_status
-            }
+            'includeStatus': include_status}
         response, _ = await self._get(
             path='/room',
             data=data)
@@ -327,43 +722,39 @@ class Conversations(NextcloudModule):
             source: str = '') -> Conversation:
         """Create a new conversation.
 
-        More info:
-            https://nextcloud-talk.readthedocs.io/en/latest/conversation/#creating-a-new-conversation
-            https://github.com/nextcloud/spreed/blob/88d1e4b11872f96745201c6e8921e7848eab0be8/openapi-full.json#L11726
+        Args:
+            room_type:
+                See constants.ConversationType
 
-        Args
-        -----
-            room_type   [str]   See constants list
-            invite	[str]	user id (roomType = 1), group id (roomType = 2 - optional),
-            circle id (roomType = 2, source = 'circles'], only available
-            with circles-support capability))
+            invite:
+                Object ID to invite, dependent on room_type
 
-            source	[str]	The source for the invite, only supported on roomType = 2 for
-            groups and circles (only available with circles-support capability)
+            room_name:
+                Conversation Name (not valid for roomType =
+                ConversationType.one_to_one)
 
-            room_name	[str]	conversation name (Not available for roomType = 1)
+            object_type:
+                RoomObjectType of an object this room references, currently only allowed
+                value is room to indicate the parent of a breakout room
 
-        Raises
-        ------
-            400 Bad Request When an invalid conversation type was given
+            object_id:
+                Id of an object this room references, room token is used for the parent
+                of a breakout room
 
-            400 Bad Request When the conversation name is empty for type = 3
+            source:
+                The source for the invite, only supported with ConversationType.group
+                for groups and circles (only available with 'circles-support' capability)
 
-            401 Unauthorized When the user is not logged in
-
-            404 Not Found When the target to invite does not exist
+        Returns:
+            New Conversation object
 
         """
         data: Dict[str, Any] = {
             'roomType': room_type.value,
             'invite': invite,
             'source': source,
-            'roomName': room_name
-        }
+            'roomName': room_name}
 
-        ### For creating breakout rooms
-        # object_type is 'room'
-        # object_id is parent room_token
         if object_type:
             data.update({'objectType': object_type})
         if object_id:
@@ -375,89 +766,82 @@ class Conversations(NextcloudModule):
     async def get(self, room_token: str) -> Conversation:
         """Get a specific conversation.
 
-        Method: GET
-        Endpoint: /room/{token}
+        Args:
+            room_token:
+                The room token to get.
 
-        #### Exceptions:
-        404 Not Found When the conversation could not be found for the participant
+        Returns:
+            Conversation object.
         """
         data, _ = await self._get(path=f'/room/{room_token}')
         return Conversation(data, self.api)
 
     async def get_note_to_self(self) -> Conversation:
+        """Get special note-to-self channel.
+
+        Returns:
+            Conversation object.
+
+        """
         data, _ = await self._get(path='/room/note-to-self')
         return Conversation(data, self.api)
 
     async def list_open(self) -> List[Conversation]:
-        """Get list of open rooms."""
+        """Get list of open joinable rooms.
+
+        Returns:
+            List of open Conversation objects.
+
+        """
         response, _ = await self._get(path='/listed-room')
         return [Conversation(data, self.api) for data in response]
 
     async def list_breakout_rooms(self, room_token: str) -> List['BreakoutRoom']:
+        """List breakout rooms associated with a conversation.
+
+        Requires 'breakout-rooms-v1' capability.
+
+        Returns:
+            List of BreakoutRoom objects.
+        """
         await self.api.require_talk_feature('breakout-rooms-v1')
         response, _ = await self._get(path=f'/{room_token}/breakout-rooms')
         return [BreakoutRoom(data, self.api) for data in response]
 
     async def rename(self, room_token: str, new_name: str) -> None:
-        """Rename the room.
+        """Rename a Conversation.
 
-        Method: PUT
-        Endpoint: /room/{token}
+        Args:
+            room_token:
+                Token of conversation to rename.
 
-        #### Arguments:
-        roomName  [str]  New name for the conversation (1-200 characters)
-
-        #### Exceptions:
-        400 Bad Request When the name is too long or empty
-
-        400 Bad Request When the conversation is a one to one conversation
-
-        403 Forbidden When the current user is not a moderator/owner
-
-        404 Not Found When the conversation could not be found for the
-            participant
+            new_name:
+                New displayName
         """
         await self._put(
             path=f'/room/{room_token}',
             data={'roomName': new_name})
 
     async def delete(self, room_token: str) -> None:
-        """Delete the room.
+        """Delete a conversation.
 
-        Method: DELETE
-        Endpoint: /room/{token}
-
-        #### Exceptions:
-        400 Bad Request When the conversation is a one-to-one conversation
-            (Use Remove yourself from a conversation instead)
-
-        403 Forbidden When the current user is not a moderator/owner
-
-        404 Not Found When the conversation could not be found for the
-            participant
+        Args:
+            room_token:
+                Token of conversation to delete.
         """
         await self._delete(path=f'/room/{room_token}')
 
     async def set_description(self, room_token: str, description: str) -> None:
-        """Set description on room.
+        """Set description on a conversation.
 
-        Required capability: room-description
-        Method: PUT
-        Endpoint: /room/{token}/description
+        Requires 'room-description' capability.
 
-        #### Arguments:
-        description [str] New description for the conversation
+        Args:
+            room_token:
+                Token of conversation to set.
 
-        #### Exceptions:
-        400 Bad Request When the description is too long
-
-        400 Bad Request When the conversation is a one to one conversation
-
-        403 Forbidden When the current user is not a moderator/owner
-
-        404 Not Found When the conversation could not be found for the participant
-
-        NextcloudNotCapable When server is lacking required capability
+            description:
+                New description.
         """
         await self.api.require_talk_feature('room-description')
         await self._put(
@@ -465,20 +849,15 @@ class Conversations(NextcloudModule):
             data={'description': description})
 
     async def allow_guests(self, room_token: str, password: Optional[str]) -> None:
-        """Allow guests in a conversation.
+        """Allow guests into a conversation.
 
-        Method: POST
-        Endpoint: /room/{token}/public
+        Args:
+            room_token:
+                Token of conversation
 
-        #### Arguments:
-        allow_guests [bool] Allow (True) or disallow (False) guests
-
-        #### Exceptions:
-        400 Bad Request When the conversation is not a group conversation
-
-        403 Forbidden When the current user is not a moderator/owner
-
-        404 Not Found When the conversation could not be found for the participant
+            password:
+                Require guests to provide this password to join.  Requires
+                'conversation-creation-password' capability.
         """
         data: Dict[str, str] = {}
         if password:
@@ -490,61 +869,36 @@ class Conversations(NextcloudModule):
     async def disallow_guests(self, room_token: str) -> None:
         """Disallow guests in a conversation.
 
-        Method: DELETE
-        Endpoint: /room/{token}/public
-
-        #### Arguments:
-        allow_guests [bool] Allow (True) or disallow (False) guests
-
-        #### Exceptions:
-        400 Bad Request When the conversation is not a group conversation
-
-        403 Forbidden When the current user is not a moderator/owner
-
-        404 Not Found When the conversation could not be found for the participant
+        Args:
+            room_token:
+                Token of conversation
         """
-        return await self._delete(path=f'/room/{room_token}/public')
+        await self._delete(path=f'/room/{room_token}/public')
 
-    async def read_only(self, room_token: str, state: int) -> None:
-        """Set read-only for a conversation
+    async def read_only(self, room_token: str, state: ConversationReadOnlyState) -> None:
+        """Set read-only status of a conversation.
 
-        Required capability: read-only-rooms
-        Method: PUT
-        Endpoint: /room/{token}/read-only
+        Requires 'read-only-rooms' capability.
 
-        #### Arguments:
-        state	[int]	New state for the conversation, see constants list
+        Args:
+            room_token:
+                Token of the conversation.
 
-        #### Exceptions:
-        400 Bad Request When the conversation type does not support read-only
-            (only group and public conversation)
-
-        403 Forbidden When the current user is not a moderator/owner or the
-            conversation is not a public conversation
-
-        404 Not Found When the conversation could not be found for the
-            participant
-
-        NextcloudNotCapable When server is lacking required capability
+            state:
+                ConversationReadOnlyState
         """
         await self.api.require_talk_feature('read-only-rooms')
-        await self._put(path=f'/room/{room_token}/read-only', data={'state': state})
+        await self._put(path=f'/room/{room_token}/read-only', data={'state': state.value})
 
     async def set_conversation_password(self, token: str, password: str) -> None:
-        """Set password for a conversation
+        """Set a password on a conversation.
 
-        Method: PUT
-        Endpoint: /room/{token}/password
+        Args:
+            token:
+                Token of conversation.
 
-        #### Arguments:
-        password	string	New password for the conversation
-
-        #### Exceptions
-        403 Forbidden When the current user is not a moderator or owner
-
-        403 Forbidden When the conversation is not a public conversation
-
-        404 Not Found When the conversation could not be found for the participant
+            password:
+                The new password.
         """
         await self._put(
             path=f'/room/{token}/password',
@@ -554,7 +908,24 @@ class Conversations(NextcloudModule):
             self,
             room_token: str,
             permissions: ParticipantPermissions,
-            mode: str = 'default') -> None:
+            mode: ConversationPermissionMode = \
+                  ConversationPermissionMode.default) -> None:
+        """Set default permissions for participants of a conversation.
+
+        Args:
+            room_token:
+                Token of conversation.
+
+            permissions:
+                New permissions for the attendees, see ParticipantPermissions. If
+                permissions are not 0 (default), the 1 (custom) permission will always be
+                added. Note that this will reset all custom permissions that have been
+                given to attendees so far.
+
+            mode:
+               ConversationPermissionMode, in case of .call the permissions will be reset
+               to 0 (default) after the end of a call. (🏁 .call is no-op since Talk 20)
+        """
         data: Dict[str, Any] = {
             'mode': mode,
             'permissions': permissions.value}
@@ -562,35 +933,25 @@ class Conversations(NextcloudModule):
             path=f'/room/{room_token}/permissions/{mode}', data=data)
 
     async def add_to_favorites(self, room_token: str) -> None:
-        """Add conversation to favorites
+        """Add a conversation to user favorites.
 
-        Required capability: favorites
-        Method: POST
-        Endpoint: /room/{token}/favorite
+        Requires 'favorites' capability.
 
-        #### Exceptions:
-        401 Unauthorized When the participant is a guest
-
-        404 Not Found When the conversation could not be found for the participant
-
-        NextcloudNotCapable When server is lacking required capability
+        Args:
+            room_token:
+                Token of conversation.
         """
         await self.api.require_talk_feature('favorites')
         await self._post(path=f'/room/{room_token}/favorite')
 
     async def remove_from_favorites(self, room_token: str) -> None:
-        """Remove conversation from favorites
+        """Remove conversation from user favorites.
 
-        Required capability: favorites
-        Method: DELETE
-        Endpoint: /room/{token}/favorite
+        Requires 'favorites' capability.
 
-        #### Exceptions:
-        401 Unauthorized When the participant is a guest
-
-        404 Not Found When the conversation could not be found for the participant
-
-        NextcloudNotCapable When server is lacking required capability
+        Args:
+            room_token:
+                Token of conversation.
         """
         await self.api.require_talk_feature('favorites')
         await self._delete(path=f'/room/{room_token}/favorites')
@@ -598,64 +959,58 @@ class Conversations(NextcloudModule):
     async def set_notification_level(
             self,
             token: str,
-            notification_level: str) -> None:
-        """Set notification level
+            notification_level: ConversationNotificationLevel) -> None:
+        """Set notification level for a conversation.
 
-        Required capability: notification-levels
-        Method: POST
-        Endpoint: /room/{token}/notify
+        Requires capability: notification-levels
 
-        #### Arguments:
-        notification_level	[str]	The notification level (See constants)
+        Args:
+            token:
+                Token of conversation.
 
-        #### Exceptions:
-        400 Bad Request When the given level is invalid
-
-        401 Unauthorized When the participant is a guest
-
-        404 Not Found When the conversation could not be found for the participant
+            notification_level:
+                NotificationLevel
         """
-        data = {
-            'level': NotificationLevel[notification_level].value
-        }
-        return await self._post(
+        await self._post(
             path=f'/room/{token}/notify',
-            data=data)
+            data={'level': notification_level.value})
 
     async def set_call_notification_level(
             self,
             room_token: str,
-            notification_level: str) -> None:
-        """Set notification level for calls.
+            notification_level: CallNotificationLevel) -> None:
+        """Set notification level for calls in a conversation.
 
-        Required capability: notification-calls
-        Method: POST
-        Endpoint: /room/{token}/notify-calls
+        Requires capability: notification-calls
 
-        #### Arguments:
-        level [int]	The call notification level (See constants)
+        Args:
+            room_token:
+                Token of conversation.
 
-        #### Exceptions:
-        400 Bad Request When the given level is invalid
-
-        401 Unauthorized When the participant is a guest
-
-        404 Not Found When the conversation could not be found for the participant
-
-        NextcloudNotCapable When server is lacking required capability
+            notification_level:
+                CallNotificationLevel
         """
         await self.api.require_talk_feature('notification-calls')
-        data = {
-            'level': NotificationLevel[notification_level].value
-        }
         await self._post(
             path=f'/room/{room_token}/notify-calls',
-            data=data)
+            data={'level': notification_level.value})
 
     async def set_message_expiration(
             self,
             room_token: str,
             seconds: int) -> None:
+        """Set automatic message expiration for conversation.
+
+        Requires capability: message-expiration
+
+        Args:
+            room_token:
+                Token of conversation.
+
+            seconds:
+                Number of seconds before deleting messages.  If is 0, messages will not
+                be deleted automatically.
+        """
         await self.api.require_talk_feature('message-expiration')
         await self._post(
             path=f'/room/{room_token}/message-expiration',
@@ -664,16 +1019,40 @@ class Conversations(NextcloudModule):
     async def set_recording_consent(
             self,
             room_token: str,
-            consent: bool = True) -> None:
+            consent_required: bool = True) -> None:
+        """Set recording-consent requirement on a conversation.
+
+        Requires capability: recording-consent
+
+        Args:
+            room_token:
+                Token of conversation
+
+            consent_required:
+                New consent setting for the conversation
+        """
         await self.api.require_talk_feature('recording-consent')
         await self._put(
             path=f'/room/{room_token}/recording-consent',
-            data={'recordingConsent': bool2int(consent)})
+            data={'recordingConsent': bool2int(consent_required)})
 
     async def set_scope(
             self,
             room_token: str,
             scope: ListableScope) -> None:
+        """Set scope of a conversation.
+
+        Use this to modify visibility of this room to all users.
+
+        Requires capability: listable-rooms
+
+        Args:
+            room_token:
+                Token of conversation
+
+            scope:
+                ListableScope
+        """
         await self.api.require_talk_feature('listable-rooms')
         await self._put(
             path=f'/room/{room_token}/listable',
@@ -683,77 +1062,178 @@ class Conversations(NextcloudModule):
             self,
             room_token: str,
             permissions: MentionPermissions) -> None:
+        """Set mention permissions for this conversation.
+
+        Requires capability: mention-permissions
+
+        Args:
+            room_token:
+                Token of conversation
+
+            permissions:
+                MentionPermissions
+        """
         await self.api.require_talk_feature('mention-permissions')
         await self._put(
             path=f'/room/{room_token}/mention-permissions',
             data={'mentionPermissions': permissions.value})
 
     async def get_token_for_internal_file(self, file_id: int) -> str:
+        """Return conversation token for discussion of internal file.
+
+        Args:
+            file_id:
+                ID of file
+
+        Returns:
+            Conversation token
+        """
         return await self.integrations_api.get_interal_file_chat_token(file_id)
 
     async def get_token_for_shared_file(self, share_token: str) -> str:
+        """Return conversationtoken for discussion of shared file.
+
+        Args:
+            share_token:
+                Share token.
+
+        Returns:
+            Conversation token
+        """
         return await self.integrations_api.get_public_file_share_chat_token(share_token)
 
-    async def create_password_request(self, share_token: str) -> Dict[str, Any]:
-        return await self.integrations_api.create_password_request_conversation(share_token)
+    async def create_password_request(self, share_token: str) -> Dict[str, str]:
+        """Create a conversation to request the password for a public share.
+
+        Args:
+            share_token:
+                Share token
+
+        Returns:
+            Dictionary
+                token:  The token of the conversation for this file
+                name:   A technical name for the conversation
+                displayName: The visual name of the conversation
+        """
+        return await self.integrations_api.create_password_request_conversation(
+            share_token)
+
 
 @dataclass
 class BreakoutRoom:
     data: Dict[str, Any]
     talk_api: NextcloudTalkApi
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
+        """Set up required external APIs."""
         self.api = BreakoutRooms(self.talk_api)
         self.conversations_api = Conversations(self.talk_api.client)
 
     def __getattr__(self, k: str) -> Any:
         return self.data[k]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'<Talk BreakoutRoom token={self.token}, "{self.name}"">'
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self.data)
 
     @classmethod
     def from_conversation(cls, conversation: Conversation) -> 'BreakoutRoom':
+        """Instantiate a BreakoutRoom from an existing Conversation object.
+
+        Args:
+            conversation:
+                Conversation object
+
+        Returns:
+            BreakoutRoom
+        """
         return cls(conversation.data, conversation.talk_api)
 
     @property
-    def status(self):
-        return BreakoutRoomStatus(self.breakoutRoomStatus).name
+    def status(self) -> BreakoutRoomStatus:
+        """Return status of breakout room.
+
+        See constants.BreakoutRoomStatus for more info.
+
+        Returns:
+            Status of breakout room
+        """
+        return BreakoutRoomStatus(self.breakoutRoomStatus)
 
     @property
-    def mode(self):
-        return BreakoutRoomMode(self.breakoutRoomMode).name
+    def mode(self) -> BreakoutRoomAssignmentMode:
+        """Returns BreakoutRoom mode.
+
+        See constants.BreakoutRoomMode for mor info.
+
+        Returns:
+            BreakoutRoom mode.
+        """
+        return BreakoutRoomAssignmentMode(self.breakoutRoomMode)
 
     @property
-    def is_breakout_room(self):
+    def is_breakout_room(self) -> bool:
+        """Shortcut to allow quick determination of room type.
+
+        Distinguishses between Conversation and BreakoutRoom.
+
+        Returns:
+            True
+        """
         return True
 
     async def delete(self) -> None:
+        """Delete this breakout room."""
         await self.conversations_api.delete(self.token)
 
     async def request_assistance(self) -> None:
+        """Request moderator assistance to this breakout room."""
         await self.api.request_assistance(room_token=self.token)
 
     async def reset_request_assistance(self) -> None:
+        """Reset request for moderator assistance."""
         await self.api.reset_request_assistance(room_token=self.token)
 
 class BreakoutRooms(NextcloudModule):
-    """Interact with Nextcloud Talk Bots API."""
+    """Nextcloud BreakoutRooms API.
 
+    Requires capability: breakout-rooms-v1
+
+    Group and public conversations can be used to host breakout rooms.
+
+    * Only moderators can configure and remove breakout rooms
+    * Only moderators can start and stop breakout rooms
+    * Moderators in the parent conversation are added as moderators to all breakout rooms
+    and remove from all on demotion
+
+    https://nextcloud-talk.readthedocs.io/en/latest/breakout-rooms/
+
+    Typical lifecycle of breakout rooms:
+        * .configure()
+        * .start()
+        * Optionally:
+            * .create_additional_room()
+            * .delete_room()
+            * .broadcast_message()
+            * .reorganize_attendees()
+        * .stop()
+        * .remove()
+    """
     def __init__(
             self,
             api: NextcloudTalkApi,
-            api_version: Optional[str] = '1'):
+            api_version: Optional[str] = '1') -> None:
         self.stub = f'/apps/spreed/api/v{api_version}/breakout-rooms'
         self.api: NextcloudTalkApi = api
 
     async def _validate_capability(self) -> None:
             await self.api.require_talk_feature('breakout-rooms-v1')
 
-    def _create_room_by_type(self, rooms: List[Dict[str, Any]]) -> Tuple[Conversation, List[BreakoutRoom]]:
+    def _create_rooms_by_type(
+            self,
+            rooms: List[Dict[str, Any]]) -> Tuple[Conversation, List[BreakoutRoom]]:
         parent_room: Conversation = Conversation(rooms[0], self.api)
         breakout_rooms: List[BreakoutRoom] = []
 
@@ -768,9 +1248,28 @@ class BreakoutRooms(NextcloudModule):
     async def configure(
             self,
             room_token: str,
-            mode: BreakoutRoomMode,
+            mode: BreakoutRoomAssignmentMode,
             num_rooms: int,
-            attendee_map: Dict[str, int]) -> List[BreakoutRoom|Conversation]:
+            attendee_map: Dict[str, int]) -> Tuple[Conversation, List[BreakoutRoom]]:
+        """Configure breakout rooms for Conversation.
+
+        Args:
+            room_token:
+                Token of parent Conversation
+
+            mode:
+                Participant assignment mode
+
+            num_rooms:
+                Number of breakout rooms to create
+
+            attendee_map:
+                A Dict of {attendeeId: room_number} (0 based)
+                Only considered when the mode is BreakoutRoomAssignmentMode.manual
+
+        Returns:
+            Parent room and all breakout rooms.
+        """
         await self._validate_capability()
         response, _ = await self._post(
             path=f'/{room_token}',
@@ -778,31 +1277,70 @@ class BreakoutRooms(NextcloudModule):
                 'mode': mode.value,
                 'amount': num_rooms,
                 'attendeeMap': attendee_map})
-        return [BreakoutRoom(data, self.api) for data in response]
+        return self._create_rooms_by_type(response)
 
-    async def create_additional_room(self):
+    async def create_additional_room(self) -> None:
         """See talk.conversation.create_additional_breakout_room()."""
-        ...
+        raise NotImplementedError(
+            'Use Conversation.create_additional_breakout_room() instead.')
 
-    async def delete_room(self):
+    async def delete_room(self) -> None:
         """See talk.conversation.delete_breakout_room()."""
-        ...
+        raise NotImplementedError('Use Conversation.delete_breakout_room() instead.')
 
     async def remove(self, room_token: str) -> 'Conversation':
+        """Remove breakout rooms from conversation.
+
+        Args:
+            room_token:
+                Token of parent Conversation.
+
+        Returns:
+            Parent Conversation object
+        """
         await self._validate_capability()
         return await self._delete(path=f'/{room_token}')
 
     async def start(self, room_token: str) -> Tuple[Conversation, List[BreakoutRoom]]:
+        """Start breakout rooms.
+
+        Args:
+            room_token:
+                Token of parent Conversation
+
+        Returns:
+            Parent room and all breakout rooms.
+        """
         await self._validate_capability()
         response = await self._post(path=f'/{room_token}/rooms')
-        return self._create_room_by_type(response)
+        return self._create_rooms_by_type(response)
 
     async def stop(self, room_token: str) -> Tuple[Conversation, List[BreakoutRoom]]:
+        """Stop breakout rooms for a conversation.
+
+        Args:
+            room_token:
+                Token of parent Conversation.
+
+        Returns:
+            Parent conversation and all breakout rooms.
+        """
         await self._validate_capability()
         response = await self._delete(path=f'/{room_token}/rooms')
-        return self._create_room_by_type(response)
+        return self._create_rooms_by_type(response)
 
     async def broadcast_message(self, room_token: str, message: str) -> None:
+        """Broadcast message to all breakout rooms.
+
+        Must be a moderator in parent Conversation.
+
+        Args:
+            room_token:
+                Token of parent conversation
+
+            message:
+                Message to broadcast
+        """
         await self._validate_capability()
         await self._post(
             path=f'/{room_token}/broadcast',
@@ -810,22 +1348,65 @@ class BreakoutRooms(NextcloudModule):
                 'token': room_token,
                 'message': message})
 
-    async def reorganize_attendees(self, room_token: str, attendee_map: Dict[str, int]) -> Tuple[Conversation, List[BreakoutRoom]]:
+    async def reorganize_attendees(
+            self,
+            room_token: str,
+            attendee_map: Dict[str, int]) -> Tuple[Conversation, List[BreakoutRoom]]:
+        """Reorganize attendees in breakout rooms.
+
+        Args:
+            room_token:
+                Token of parent Conversation
+
+            attendee_map:
+                A Dict of {attendeeId: room_number} (0 based)
+
+        Returns:
+            Parent conversation and all breakout rooms.
+        """
         await self._validate_capability()
         response = await self._post(
             path=f'/{room_token}/attendees',
             data={'attendeeMap': attendee_map})
-        return self._create_room_by_type(response)
+        return self._create_rooms_by_type(response)
 
     async def request_assistance(self, room_token: str) -> None:
+        """Request assistance in a breakout room.
+
+        Args:
+            room_token:
+                Token of breakout room
+        """
         await self._validate_capability()
         await self._post(path=f'/{room_token}/request-assistance')
 
     async def reset_request_assistance(self, room_token: str) -> None:
+        """Cancel a request for assistance.
+
+        Args:
+            room_token:
+                Token of breakout room
+        """
         await self._validate_capability()
         await self._delete(path=f'/{room_token}/request_assistance')
 
     async def switch_rooms(self, room_token: str, target: int) -> BreakoutRoom:
+        """Switch breakout rooms.
+
+        This endpoint allows participants to switch between breakout rooms when they are
+        allowed to choose the breakout room and not are automatically or manually
+        assigned by the moderator.
+
+        Args:
+            room_token:
+                Token of parent conversation
+
+            target:
+                Token of new breakout room
+
+        Returns:
+            New breakout room.
+        """
         await self._validate_capability()
         response = await self._post(
             path=f'/{room_token}/switch',
@@ -834,7 +1415,7 @@ class BreakoutRooms(NextcloudModule):
 
 
 class Webinars(NextcloudModule):
-    """Interact with Nextcloud Talk Bots API.
+    """Nextcloud Talk Webinars API.
 
     https://nextcloud-talk.readthedocs.io/en/latest/webinar/
     """
@@ -842,7 +1423,7 @@ class Webinars(NextcloudModule):
     def __init__(
             self,
             api: NextcloudTalkApi,
-            api_version: Optional[str] = '4'):
+            api_version: Optional[str] = '4') -> None:
         self.stub = f'/apps/spreed/api/v{api_version}'
         self.api: NextcloudTalkApi = api
 
@@ -851,6 +1432,21 @@ class Webinars(NextcloudModule):
             room_token: str,
             lobby_state: WebinarLobbyState,
             reset_time: Optional[dt.datetime] = None) -> Conversation:
+        """Set lobby requirement for Conversation.
+
+        Args:
+            room_token:
+                Token of conversation
+
+            lobby_state:
+                WebinarLobbyState
+
+            reset_time:
+                Time at which to remove lobby requirement.
+
+        Returns:
+            Updated Conversation object.
+        """
         await self.api.require_capability('webinary-lobby')
         response, _ = await self._put(
             path=f'/room/{room_token}/webinar/lobby',
@@ -863,6 +1459,18 @@ class Webinars(NextcloudModule):
             self,
             room_token: str,
             state: SipState) -> Conversation:
+        """Enable or Disable SIP dialin for webinar.
+
+        Args:
+            room_token:
+                Token of conversation.
+
+            state:
+                SipState
+
+        Returns:
+            Updated Conversation object
+        """
         await self.api.require_capability('sip-support')
         response, _ = await self._put(
             path=f'/room/{room_token}/webinar/sip',

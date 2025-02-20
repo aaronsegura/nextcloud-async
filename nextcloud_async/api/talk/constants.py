@@ -17,7 +17,12 @@ class ConversationType(Enum):
     note_to_self = 6
 
 
-class NotificationLevel(Enum):
+class ConversationReadOnlyState(Enum):
+    read_write = 0
+    read_only = 1
+
+
+class ConversationNotificationLevel(Enum):
     """Notification Levels."""
 
     default = 0
@@ -121,6 +126,8 @@ class SharedItemType(Enum):
     other = 'other'
     voice = 'voice'
     recording = 'recording'
+    comment = 'comment'
+    voice_message = 'voice-message'
 
 
 class PollMode(Enum):
@@ -134,7 +141,7 @@ class PollStatus(Enum):
     draft = 2
 
 
-class BreakoutRoomMode(Enum):
+class BreakoutRoomAssignmentMode(Enum):
     not_configured = 0
     automatic = 1
     manual = 2
@@ -169,3 +176,7 @@ class SignalingMode(Enum):
     internal = 'internal'
     external = 'external'
     conversation_cluster = 'conversation_cluster'
+
+class ConversationPermissionMode(Enum):
+    default = 'default'
+    call = 'call'

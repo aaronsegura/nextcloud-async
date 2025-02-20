@@ -17,6 +17,7 @@ class Reactions(NextcloudModule):
         self.stub = f'/apps/spreed/api/v{api_version}'
         self.api: NextcloudTalkApi = api
 
+    # TODO : Handle return values of these functions
     async def add(self, room_token: str, message_id: int, reaction: str):
         await self.api.require_talk_feature('reactions')
         await self._post(

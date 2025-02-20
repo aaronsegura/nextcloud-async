@@ -32,7 +32,12 @@ class Participant:
         return self.data[k]
 
     @property
-    def id(self):
+    def id(self) -> int:
+        """Translate attendeeId to pythonic 'id'.
+
+        Returns:
+            int: _description_
+        """
         return self.data['attendeeId']
 
     @property
@@ -43,6 +48,7 @@ class Participant:
     def room_token(self):
         return self.data['roomToken']
 
+    # TODO: leave a conversation
 
 class Participants(NextcloudModule):
     """Interact with Nextcloud Talk API."""
