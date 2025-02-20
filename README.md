@@ -5,7 +5,6 @@ This module provides an asyncio-friendly interface to Nextcloud.
 
 ### Covered APIs
 * App Management
-
 * File Management
 * Group Management
 * GroupFolders
@@ -18,21 +17,33 @@ This module provides an asyncio-friendly interface to Nextcloud.
 * Sharee
 * Status
 * Talk/spreed
+  * Conversation Avatars
+  * Bots
+  * Calls
+  * Chats
+  * Conversations
+  * Integrations
+  * Participants
+  * Polls
+  * Reactions
+  * Rich Objects
+  * Signaling
 * User Management
 
 
-###s To Do
-* Reaction
-* User Preferences
-* Federated Shares
+### To Do
+* Activity
+* Calendar CalDAV
+* Comments
+* Contacts CardDAV
 * Cookbook
+* Deck
+* Federated Shares
 * Passwords
 * Notes
-* Deck
-* Calendar CalDAV
 * Tasks CalDAV
-* Contacts CardDAV
-* Comments
+* User Preferences
+
 
 If you know of any APIs missing from this list, please open an issue at
 https://github.com/aaronsegura/nextcloud-async/issues with a link to
@@ -53,8 +64,7 @@ cover any provided by Nextcloud and commonly used Nextcloud apps.
 
     async def main():
         apps = Apps(nc)
-        capabilities = await apps.api.get_capabilities()
-        if 'groupfolders' not in capabilities['capabilities']:
+        if not apps.api.has_capability('groupfolders):
             print('Enabling GroupFolders')
             await apps.enable('groupfolders')
         else:
