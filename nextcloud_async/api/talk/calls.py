@@ -9,9 +9,6 @@ from .participants import Participant
 from .constants import ParticipantInCallFlags
 
 
-
-
-
 class Calls(NextcloudModule):
     """Interact with Nextcloud Talk API."""
 
