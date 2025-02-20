@@ -664,7 +664,6 @@ class Chat(NextcloudModule):
 
         return Message(response, self.api), filter_headers(return_headers, headers)
 
-    # TODO: Propagate reminder functions to objects
     async def set_reminder(
             self,
             room_token: str,
