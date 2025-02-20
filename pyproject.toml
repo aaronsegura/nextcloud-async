@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools>=68.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -13,19 +13,72 @@ readme = "README.md"
 license = { text="License :: OSI Approved :: GNU General Public License v3 (GPLv3)" }
 requires-python = ">=3.10"
 classifiers = [
-    "Development Status :: 3 - Alpha",
-    "Framework :: Flake8",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Framework :: Pytest",
     "Natural Language :: English",
-    "Programming Language :: Python :: 3.10"
-]
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.10",
+    "Typing :: Typed"]
+
 keywords = ["nextcloud", "asynchronous", "spreed"]
-dependencies = ["httpx", "xmltodict", "platformdirs", "PyNaCl"]
+
+dependencies = [
+  "httpx",
+  "xmltodict",
+  "platformdirs"]
 
 [project.urls]
 "Homepage" = "https://github.com/aaronsegura/nextcloud-async"
 "Bug Tracker" = "https://github.com/aaronsegura/nextcloud-async/issues"
 
+[tool.ruff]
+line-length = 120
+select = [
+  "D",      # pydocstyle
+  "E",      # pycodestyle
+  "F",      # pyflakes
+  "N",      # pep8-naming
+  "ANN",    # flake8-annotations
+  "ARG",    # flake8-arguments
+  "ASYNC",  # flake8-async
+  "COM",    # flake8-comma
+  "C4",     # flake8-comprehensions
+  "DOC",    # pydoclint
+  "DTZ",    # flake8-datetimez
+  "ERA",    # flake8-eradicate
+  "FIX",    # flake8-fix
+  "ICN",    # flake8-import-conventions
+  "PL",     # pylint
+  # "PT",     # flake8-pytest
+  "SLF",    # flake8-self,
+  "T20",    # flake8-print
+  "TC",     # flake8-type-checking
+  "TD",     # flake9-todos
+]
+
+[tool.ruff.lint]
+ignore = [
+  "D100",     # Missing docstring in public module
+  "D101",     # Missing docstring in public class
+  "D104",     # Missing docstring in public package
+  "D105",     # Missing docstring in magic method
+  "D107",     # Missing docstring in __init__
+  # "D203",  # 1 blank line required before class docstring
+  # "D213",  # Multi-line docstring summary should start at the second line
+  "ANN401",   # Dynamically typed expressions (typing.Any) are disallowed
+  "TD002",    # Missing author in TODO
+  ]
+
+[tool.ruff.pydocstyle]
+convention = "google"  # https://google.github.io/styleguide/pyguide.html
+
+[tool.ruff.mccabe]
+max-complexity = 10
+
 [tool.pyright]
-reportUnknownTypeIssues = false
+reportOptionalMemberAccess = false
+ignore = ["alembic", "tests"]
+typeCheckingMode = "basic"
+reportUnnecessaryTypeIgnoreComment = "warning"
