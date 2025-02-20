@@ -1,15 +1,15 @@
-"""Nextcloud Talk Entrypoint..
+"""Nextcloud Talk Entrypoint.
 
 https://github.com/nextcloud/spreed/blob/b5bed8c1157df02492afb420cfa607e014212575/openapi-full.json
 
 Conversations() is the entry-point into the Spreed/Talk back-end.
 
-Where appropriate, functions return data and headers.
+Where appropriate, functions return a tuple of data and headers.
 
 All calls to the API are checked for status codes >=400 and an appropriate exception is
 raised. See .driver.talk.NextcloudTalkApi.request() for more information.
 
-Calls that require a specific capability that is missing on the server will raise a
+API calls that require a specific capability that is missing on the server will raise a
 NextcloudNotCapable exception.
 """
 import httpx
@@ -505,7 +505,7 @@ class Conversation:
         message_id: int
         message: str
 
-    async def edit_message(
+    async def edit_message(  # noqa: D417
          self,
          **kwargs: Unpack[_EditMessageArgs]) -> Tuple[Message, httpx.Headers]:
         """Edit an existing message in a conversation.
@@ -528,22 +528,114 @@ class Conversation:
         """
         return await self.chat_api.edit(room_token=self.token, **kwargs)
 
-    async def set_message_reminder(self, **kwargs) -> MessageReminder:
-        return await self.chat_api.set_reminder(room_token=self.token, **kwargs)
+    async def set_message_reminder(
+            self,
+            message_id: int,
+            timestamp: dt.datetime) -> MessageReminder:
+        """Set reminder for chat message.
 
-    async def get_message_reminder(self, **kwargs) -> MessageReminder:
-        return await self.chat_api.get_reminder(room_token=self.token, **kwargs)
+        Requires capability: remind-me-later
 
-    async def delete_message_reminder(self, **kwargs) -> None:
-        return await self.chat_api.delete_reminder(room_token=self.token, **kwargs)
+        Args:
+            message_id:
+                ID of message
 
-    async def mark_as_read(self, **kwargs) -> None:
-        await self.chat_api.mark_as_read(room_token=self.token, **kwargs)
+            timestamp:
+                DateTime for reminder.
+
+        Returns:
+            MessageReminder
+        """
+        return await self.chat_api.set_reminder(
+            room_token=self.token,
+            message_id=message_id,
+            timestamp=timestamp)
+
+    async def get_message_reminder(self, message_id: int) -> MessageReminder:
+        """Get existing reminder for chat message.
+
+        Requires capability: remind-me-later
+
+        Args:
+            message_id:
+                ID of message
+
+        Returns:
+            MessageReminder
+        """
+        return await self.chat_api.get_reminder(
+            room_token=self.token,
+            message_id=message_id)
+
+    async def delete_message_reminder(self, message_id: int) -> None:
+        """Delete reminder for chat message.
+
+        Requires capability: remind-me-later
+
+        Args:
+            message_id:
+                ID of message
+        """
+        return await self.chat_api.delete_reminder(
+            room_token=self.token,
+            message_id=message_id)
+
+    async def mark_as_read(self, last_read_message_id: int) -> None:
+        """Mark conversation as read.
+
+        Args:
+            last_read_message_id:
+                The last read message ID
+                Only valid with chat-read-last capability.
+
+        Returns:
+            Headers:
+                X-Chat-Last-Common-Read	[int] ID of the last message read by every user
+                that has read privacy set to public. When the user themself has it set to
+                private the value the header is not set (only available with
+                chat-read-status capability)
+        """
+        await self.chat_api.mark_as_read(
+            room_token=self.token,
+            last_read_message_id=last_read_message_id)
 
     async def mark_as_unread(self) -> None:
+        """Mark conversation as unread.
+
+        Requires capability: chat-unread
+
+        Returns:
+            Headers:
+                X-Chat-Last-Common-Read	[int] ID of the last message read by every user
+                that has read privacy set to public. When the user themself has it set to
+                private the value the header is not set (only available with
+                chat-read-status capability)
+        """
         await self.chat_api.mark_as_unread(room_token=self.token)
 
-    async def suggest_autocompletes(self, **kwargs) -> List[Suggestion]:
+    class _SuggestAutocompletesArgs(TypedDict):
+        search: str
+        include_status: bool
+        limit: int
+
+    async def suggest_autocompletes(  # noqa: D417
+            self,
+            **kwargs: Unpack[_SuggestAutocompletesArgs]) -> List[Suggestion]:
+        """Get mention autocomplete suggestions.
+
+        Args:
+            search:
+                Search term for name suggestions (should at least be 1 character)
+
+            include_status:
+                Whether the user status information also needs to be loaded
+
+            limit:
+                Number of suggestions to receive (20 by default)
+
+        Returns:
+            List of Suggestions
+        """
         return await self.chat_api.suggest_autocompletes(room_token=self.token, **kwargs)
 
     async def set_name_as_guest(self, **kwargs) -> None:
@@ -660,11 +752,18 @@ class Conversation:
     async def get_signaling_settings(self) -> Dict[str, Any]:
         return await self.signaling_api.get_settings(self.token)
 
+    async def join(self, password: Optional[str], force: bool = True) -> 'Conversation':
+        return await self.participants_api.join(
+            self.token,
+            password=password,
+            force=force)
 
 class Conversations(NextcloudModule):
     """Nextcloud Talk Conversations API.
 
     https://nextcloud-talk.readthedocs.io/en/latest/conversation/
+
+    This is your entry-point into the Talk/Spreed back-end.
     """
     api: NextcloudTalkApi
 
@@ -1117,6 +1216,28 @@ class Conversations(NextcloudModule):
         """
         return await self.integrations_api.create_password_request_conversation(
             share_token)
+
+    class _JoinArgs(TypedDict):
+        room_token: str
+        password: Optional[str]
+        force: bool
+
+    async def join(self, **kwargs: Unpack[_JoinArgs]) -> Conversation:  # noqa: D417
+        """Join a conversation.
+
+        Args:
+            password:
+                Optional: Password is only required for users which are self joined or
+                guests and only when the conversation has hasPassword set to true.
+
+            force:
+                If set to false and the user has an active session already a 409 Conflict
+                will be returned (Default: true - to keep the old behaviour)
+
+        Returns:
+            Conversation
+        """
+        return await self.participants_api.join(**kwargs)
 
 
 @dataclass

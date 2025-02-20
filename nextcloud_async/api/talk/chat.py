@@ -698,7 +698,7 @@ class Chat(NextcloudModule):
             self,
             room_token: str,
             message_id: int) -> MessageReminder:
-        """Get reminder for chat message.
+        """Get existing reminder for chat message.
 
         Requires capability: remind-me-later
 
@@ -739,14 +739,14 @@ class Chat(NextcloudModule):
     async def mark_as_read(
             self,
             room_token: str,
-            last_read_message: Optional[int] = None) -> httpx.Headers:
+            last_read_message_id: Optional[int] = None) -> httpx.Headers:
         """Mark conversation as read.
 
         Args:
             room_token:
                 Token of conversation.
 
-            last_read_message:
+            last_read_message_id:
                 The last read message ID
                 Only valid with chat-read-last capability.
 
@@ -760,9 +760,9 @@ class Chat(NextcloudModule):
         return_headers = ['x-chat-last-common-read']
         await self.api.require_talk_feature('chat-read-marker')
         data: Dict[str, Any] = {}
-        if last_read_message:
+        if last_read_message_id:
             await self.api.require_talk_feature('chat-read-last')
-            data = {'lastReadMessage': last_read_message}
+            data = {'lastReadMessage': last_read_message_id}
 
         _, headers = await self._post(path=f'/chat/{room_token}/read', data=data)
         return filter_headers(return_headers, headers)

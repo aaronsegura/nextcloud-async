@@ -42,7 +42,7 @@ from .talk import (
     ReadStatusPrivacy,
     RoomObjectType,
     SignalingMode,
-    SessionStates,
+    SessionState,
     SharedItemType,
     SipState,
     WebinarLobbyState
@@ -98,7 +98,7 @@ __all__ = [
     "ReadStatusPrivacy",
     "RoomObjectType",
     "SignalingMode",
-    "SessionStates",
+    "SessionState",
     "SharedItemType",
     "SipState",
     "WebinarLobbyState"

@@ -100,7 +100,7 @@ class ParticipantInCallFlags(IntFlag):
     uses_sip_dial_in = 8
 
 
-class SessionStates(Enum):
+class SessionState(Enum):
     inactive = 0
     active = 1
 
