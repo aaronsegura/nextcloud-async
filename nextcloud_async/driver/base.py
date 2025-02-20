@@ -69,9 +69,9 @@ class NextcloudBaseApi(NextcloudHttpApi):
             data = None
 
         if headers:
-            headers['user-agent'] = self.client.user_agent
+            headers['User-Agent'] = self.client.user_agent
         else:
-            headers = {'user-agent' : self.client.user_agent}
+            headers = {'User-Agent': self.client.user_agent}
 
         try:
             print(f'BASE {method} {self.client.endpoint}{self.stub}{path}')

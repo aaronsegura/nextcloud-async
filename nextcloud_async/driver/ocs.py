@@ -108,8 +108,11 @@ class NextcloudOcsApi(NextcloudHttpApi):
         """
         if headers:
             headers.update({'OCS-APIRequest': 'true'})
+            headers['User-Agent'] = self.client.user_agent
         else:
-            headers = {'OCS-APIRequest' : 'true'}
+            headers = {
+                'OCS-APIRequest': 'true',
+                'User-Agent': self.client.user_agent}
 
         if data:
             data.update({'format': 'json'})

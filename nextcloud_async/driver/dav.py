@@ -52,6 +52,11 @@ class NextcloudDavApi(NextcloudHttpApi):
             Dict: Response content
 
         """
+        if headers:
+            headers['User-Agent'] = self.client.user_agent
+        else:
+            headers = {'User-Agent': self.client.user_agent}
+
         if method.lower() == 'get':
             path = self._massage_get_data(data, path)
             data = None
@@ -62,7 +67,7 @@ class NextcloudDavApi(NextcloudHttpApi):
                 method,
                 auth=(self.client.user, self.client.password),
                 url=f'{self.client.endpoint}{self.stub}{path}',
-                json=data,
+                data=data,
                 headers=cast(Dict[str, Any], headers))
         except httpx.ReadTimeout:
             raise NextcloudRequestTimeout()
