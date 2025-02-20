@@ -481,7 +481,6 @@ class Chat(NextcloudModule):
         """
         return_headers = ['x-chat-last-common-read']
 
-        # TODO: Validate if is regular message or rich media
         await self.api.require_talk_feature('delete-messages')
         response, headers = await self._delete(path=f'/chat/{room_token}/{message_id}')
         return Message(response, self.api), filter_headers(return_headers, headers)

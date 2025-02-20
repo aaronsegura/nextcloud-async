@@ -5,6 +5,7 @@ https://nextcloud-talk.readthedocs.io/en/latest/participant/
 """
 import httpx
 
+from dataclasses import dataclass
 from typing import Optional, List, Dict, Any, Tuple
 
 from nextcloud_async.driver import NextcloudTalkApi, NextcloudModule
@@ -16,21 +17,16 @@ from .constants import (
     PermissionAction,
     ObjectSources)
 
-#TODO: Dataclass?
+@dataclass
 class Participant:
-    def __init__(
-            self,
-            data: Dict[str, Any],
-            api: NextcloudTalkApi):
-        self.data = data
-        self.api = Participants(api)
+    data: Dict[str, Any]
+    api: NextcloudTalkApi
 
     def __str__(self):
         return f'<Participant, room: {self.data['roomToken']}, Id: {self.data['attendeeId']}>'
 
     def __repr__(self):
         return str(self.data)
-
 
     def __get__(self, k: str):
         return self.data[k]
@@ -419,7 +415,6 @@ class Participants(NextcloudModule):
                 'options': options,
                 'callId': call_id})
 
-    # TODO: ResponseTupleDict
     async def set_guest_display_name(
             self,
             room_token: str,

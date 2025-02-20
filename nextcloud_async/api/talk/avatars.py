@@ -7,9 +7,6 @@ from typing import Optional
 from nextcloud_async.driver import NextcloudTalkApi, NextcloudModule
 
 
-# TODO: Verify all return values, do things, etc...
-# TODO: Add to Conversation object
-
 class ConversationAvatars(NextcloudModule):
     """Interact with Nextcloud Talk API."""
 

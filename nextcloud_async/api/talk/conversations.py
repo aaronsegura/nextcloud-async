@@ -369,9 +369,8 @@ class Conversations(NextcloudModule):
         if object_id:
             data.update({'objectId': object_id})
 
-        # TODO: headers
         response, _ = await self._post(path='/room', data=data)
-        return Conversation(data, self.api)
+        return Conversation(response, self.api)
 
     async def get(self, room_token: str) -> Conversation:
         """Get a specific conversation.
@@ -382,12 +381,10 @@ class Conversations(NextcloudModule):
         #### Exceptions:
         404 Not Found When the conversation could not be found for the participant
         """
-        # TODO: headers
         data, _ = await self._get(path=f'/room/{room_token}')
         return Conversation(data, self.api)
 
     async def get_note_to_self(self) -> Conversation:
-        # TODO: headers
         data, _ = await self._get(path='/room/note-to-self')
         return Conversation(data, self.api)
 
@@ -715,7 +712,6 @@ class BreakoutRoom:
     def __str__(self):
         return f'<Talk BreakoutRoom token={self.token}, "{self.name}"">'
 
-    # TODO: Maybe do self.data for all dataclass objects
     def __repr__(self):
         return str(self.data)
 

@@ -22,7 +22,6 @@ class Bot:
     def __str__(self):
         return f'<Talk Bot #{self.id}, {self.name}>'
 
-    # TODO: Maybe do self.data for all dataclass objects
     def __repr__(self):
         return str(self.data)
 
