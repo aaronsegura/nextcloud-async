@@ -15,20 +15,20 @@ from typing import Optional, Dict, Any, List
 @dataclass
 class App:
     data: Dict[str, Any]
-    apps_api: 'Apps'
+    api: 'Apps'
 
     async def disable(self):
-        await self.apps_api.disable(app_id=self.id)
+        await self.api.disable(app_id=self.id)
         self.data = {}
 
     async def enable(self, **kwargs):
-        await self.apps_api.enable(app_id=self.id)
+        await self.api.enable(app_id=self.id)
 
     def __getattr__(self, k: str) -> Any:
         return self.data[k]
 
     def __str__(self):
-        return f'<Nextcloud App "{self.name}", {"enabled" if self.active else "disabled"}>'
+        return f'<Nextcloud App {self.id} v{self.version}>'
 
     def __repr__(self):
         return str(self.data)
