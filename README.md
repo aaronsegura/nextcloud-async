@@ -34,6 +34,7 @@ This module provides an asyncio-friendly interface to Nextcloud.
 ### To Do
 * Activity
 * Calendar CalDAV
+* Circles
 * Comments
 * Contacts CardDAV
 * Cookbook

@@ -20,6 +20,7 @@ https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-sh
 https://nextcloud-talk.readthedocs.io/en/latest/poll/
 
 # TODO:
+https://github.com/nextcloud/circles/wiki/Javascript-API-v1
 https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-share-api.html#federated-cloud-shares
 https://nextcloud-talk.readthedocs.io/en/latest/reaction/
 https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-user-preferences-api.html
