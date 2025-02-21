@@ -443,7 +443,7 @@ class Chat(NextcloudModule):
             room_token: str,
             rich_object: NextcloudTalkRichObject,
             reference_id: Optional[str] = None,
-            actor_display_name: str = 'Guest') -> Tuple[Message, httpx.Headers]:
+            actor_display_name: Optional[str] = None) -> Tuple[Message, httpx.Headers]:
         """Share a rich object to the conversation.
 
         https://github.com/nextcloud/server/blob/master/lib/public/RichObjectStrings/Definitions.php
@@ -477,7 +477,7 @@ class Chat(NextcloudModule):
         """
         await self.api.require_talk_feature('rich-object-sharing')
         return_headers = ['x-chat-last-common-read']
-        data: Dict[str, Any] = {
+        data = {
             'objectType': rich_object.object_type,
             'objectId': rich_object.id,
             'metaData': json.dumps(rich_object.metadata),
