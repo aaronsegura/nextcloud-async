@@ -53,8 +53,8 @@ class NextcloudTalkApi(NextcloudHttpApi):
             self,
             method: str = 'GET',
             path: str = '',
-            data: Optional[Dict[str, Any]] = {},
-            headers: Optional[Dict[str, Any]] = {}) -> Tuple[Dict[str, Any], httpx.Headers]:
+            data: Optional[Dict[str, Any]] = None,
+            headers: Optional[Dict[str, Any]] = None) -> Tuple[Dict[str, Any], httpx.Headers]:
         """Submit OCS-type query to cloud endpoint.
 
         Args

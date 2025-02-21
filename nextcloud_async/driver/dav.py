@@ -1,6 +1,4 @@
-"""
-https://docs.nextcloud.com/server/latest/developer_manual/client_apis/WebDAV/index.html
-"""
+"""https://docs.nextcloud.com/server/latest/developer_manual/client_apis/WebDAV/index.html"""
 import httpx
 import xmltodict
 import json
@@ -29,7 +27,7 @@ class NextcloudDavApi(NextcloudHttpApi):
             method: str = 'GET',
             path: str = '',
             data: Any = {},
-            headers: Optional[Dict[str, Any]] = {},
+            headers: Optional[Dict[str, Any]] = None,
             raw_response: bool = False) -> Dict[str, Any] | ByteString:
         """Send a query to the Nextcloud DAV Endpoint.
 
@@ -50,7 +48,6 @@ class NextcloudDavApi(NextcloudHttpApi):
         Returns
         -------
             Dict: Response content
-
         """
         if headers:
             headers['User-Agent'] = self.client.user_agent
@@ -95,6 +92,13 @@ class NextcloudDavApi(NextcloudHttpApi):
             method: str = 'GET',
             path: str = '',
             data: Optional[Any] = None,
-            headers: Optional[Dict[str, Any]] = {}) -> ByteString:
-        response = cast(ByteString, await self.request(method=method, path=path, data=data, headers=headers, raw_response=True))
+            headers: Optional[Dict[str, Any]] = None) -> ByteString:
+        response = cast(
+            ByteString,
+            await self.request(
+                method=method,
+                path=path,
+                data=data,
+                headers=headers,
+                raw_response=True))
         return response

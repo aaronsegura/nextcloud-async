@@ -124,7 +124,7 @@ class Reactions(NextcloudModule):
             self,
             room_token: str,
             message_id: int,
-            reaction: Optional[str]) -> List[Reaction]:
+            reaction: Optional[str] = None) -> List[Reaction]:
         """Retrieve reactions of a message by type.
 
         Args:

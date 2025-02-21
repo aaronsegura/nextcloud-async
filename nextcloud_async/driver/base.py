@@ -28,8 +28,8 @@ class NextcloudBaseApi(NextcloudHttpApi):
             self,
             method: str = 'GET',
             path: Optional[str] = None,
-            data: Optional[Dict[str, Any]] = dict(),
-            headers: Optional[Dict[str, Any]] = {}) -> Dict[str, Any]:
+            data: Optional[Dict[str, Any]] = None,
+            headers: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """Send a request to the Nextcloud endpoint.
 
         Args:

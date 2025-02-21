@@ -316,7 +316,7 @@ class Files(NextcloudModule):
         response = await self.__favorite(path, False)
         return File(response, self.api)
 
-    async def get_favorites(self, path: Optional[str] = '') -> List[File]:
+    async def get_favorites(self, path: str = '') -> List[File]:
         """List favorites below given Path.
 
         Args

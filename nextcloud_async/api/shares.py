@@ -145,13 +145,13 @@ class Shares(NextcloudModule):
             path: str,
             permissions: SharePermission,
             share_type: ShareType,
-            share_with: Optional[str] = None,
+            share_with: Optional[Dict[str, Any]] = None,
             allow_public_upload: bool = False,
             password: Optional[str] = None,
-            send_password_by_talk: Optional[bool] = False,
+            send_password_by_talk: bool = False,
             expire_date: Optional[dt.datetime] = None,
             note: Optional[str] = None,
-            label: Optional[str] = ''):
+            label: Optional[str] = None):
         """Create a new share.
 
         Args

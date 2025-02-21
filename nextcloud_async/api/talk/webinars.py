@@ -16,7 +16,7 @@ class Webinars(NextcloudModule):
     def __init__(
             self,
             api: NextcloudTalkApi,
-            api_version: Optional[str] = '4') -> None:
+            api_version: str = '4') -> None:
         self.stub = f'/apps/spreed/api/v{api_version}'
         self.api: NextcloudTalkApi = api
 

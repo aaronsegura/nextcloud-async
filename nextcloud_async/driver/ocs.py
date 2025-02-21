@@ -44,8 +44,8 @@ class NextcloudOcsApi(NextcloudHttpApi):
             self,
             method: str = 'GET',
             path: str = '',
-            data: Optional[Dict[str, Any]] = {},
-            headers: Optional[Dict[str, Any]] = {},
+            data: Optional[Dict[str, Any]] = None,
+            headers: Optional[Dict[str, Any]] = None,
             return_full_response: bool = False) -> Dict[str, Any] | List[Dict[str, Any]]:
         """Submit OCS-type query to cloud endpoint.
 
@@ -104,7 +104,6 @@ class NextcloudOcsApi(NextcloudHttpApi):
         Raises
         ------
             NextcloudException - when invalid response from server
-
         """
         if headers:
             headers.update({'OCS-APIRequest': 'true'})

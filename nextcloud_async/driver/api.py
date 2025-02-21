@@ -23,7 +23,7 @@ class NextcloudHttpApi(ABC):
     """Methods imported by different Nextcloud API drivers."""
     capabilities_api: 'NextcloudCapabilities'
 
-    def __init__(self, client: NextcloudClient):
+    def __init__(self, client: NextcloudClient) -> None:
         self.client = client
 
     @abstractmethod
@@ -32,7 +32,7 @@ class NextcloudHttpApi(ABC):
             method: str = 'GET',
             path: str = '',
             data: Optional[Any] = None,
-            headers: Optional[Dict[str, Any]] = {}) -> Any:
+            headers: Optional[Dict[str, Any]] = None) -> Any:
         ...
 
     async def raw_request(
@@ -40,7 +40,7 @@ class NextcloudHttpApi(ABC):
             method: str = 'GET',
             path: str = '',
             data: Optional[Any] = None,
-            headers: Optional[Dict[str, Any]] = {}) -> Any:
+            headers: Optional[Dict[str, Any]] = None) -> Any:
         ...
 
     def _massage_get_data(self, data, path):
@@ -49,7 +49,7 @@ class NextcloudHttpApi(ABC):
             if isinstance(v, bool):
                 parts.append(f'{k}={str(v).lower()}')
             elif v is None:
-                parts.append(f'{k}=')
+                parts.append(f'{k}=')  # TODO: VERIFY THIS SHIZ
             else:
                 parts.append(f'{k}={v}')
         return f'{path}?{'&'.join(parts)}'
@@ -103,77 +103,77 @@ class NextcloudHttpApi(ABC):
             self,
             path: str = '',
             data: Optional[Any] = None,
-            headers: Optional[Dict[str, Any]] = {}) -> Any:
+            headers: Optional[Dict[str, Any]] = None) -> Any:
         return await self.request(method='GET', path=path, data=data, headers=headers)
 
     async def get_raw(
             self,
             path: str = '',
             data: Optional[Any] = None,
-            headers: Optional[Dict[str, Any]] = {}) -> Any:
+            headers: Optional[Dict[str, Any]] = None) -> Any:
         return await self.raw_request(method='GET', path=path, data=data, headers=headers)
 
     async def post(
             self,
             path: str = '',
             data: Optional[Any] = None,
-            headers: Optional[Dict[str, Any]] = {}) -> Any:
+            headers: Optional[Dict[str, Any]] = None) -> Any:
         return await self.request(method='POST', path=path, data=data, headers=headers)
 
     async def put(
             self,
             path: str = '',
             data: Optional[Any] = None,
-            headers: Optional[Dict[str, Any]] = {}) -> Any:
+            headers: Optional[Dict[str, Any]] = None) -> Any:
         return await self.request(method='PUT', path=path, data=data, headers=headers)
 
     async def delete(
             self,
             path: str = '',
             data: Optional[Any] = None,
-            headers: Optional[Dict[str, Any]] = {}) -> Any:
+            headers: Optional[Dict[str, Any]] = None) -> Any:
         return await self.request(method='DELETE', path=path, data=data, headers=headers)
 
     async def propfind(
             self,
             path: str = '',
             data: Optional[Any] = None,
-            headers: Optional[Dict[str, Any]] = {}) -> Any:
+            headers: Optional[Dict[str, Any]] = None) -> Any:
         return await self.request(method='PROPFIND', path=path, data=data, headers=headers)
 
     async def mkcol(
             self,
             path: str = '',
             data: Optional[Any] = None,
-            headers: Optional[Dict[str, Any]] = {}) -> Any:
+            headers: Optional[Dict[str, Any]] = None) -> Any:
         return await self.request(method='MKCOL', path=path, data=data, headers=headers)
 
     async def move(
             self,
             path: str = '',
             data: Optional[Any] = None,
-            headers: Optional[Dict[str, Any]] = {}) -> Any:
+            headers: Optional[Dict[str, Any]] = None) -> Any:
         return await self.request(method='MOVE', path=path, data=data, headers=headers)
 
     async def copy(
             self,
             path: str = '',
             data: Optional[Any] = None,
-            headers: Optional[Dict[str, Any]] = {}) -> Any:
+            headers: Optional[Dict[str, Any]] = None) -> Any:
         return await self.request(method='MOVE', path=path, data=data, headers=headers)
 
     async def proppatch(
             self,
             path: str = '',
             data: Optional[Any] = None,
-            headers: Optional[Dict[str, Any]] = {}) -> Any:
+            headers: Optional[Dict[str, Any]] = None) -> Any:
         return await self.request(method='PROPPATCH', path=path, data=data, headers=headers)
 
     async def report(
             self,
             path: str = '',
             data: Optional[Any] = None,
-            headers: Optional[Dict[str, Any]] = {}) -> Any:
+            headers: Optional[Dict[str, Any]] = None) -> Any:
         return await self.request(method='REPORT', path=path, data=data, headers=headers)
 
 
@@ -185,77 +185,77 @@ class NextcloudModule(ABC):
             self,
             path: str = '',
             data: Optional[Any] = None,
-            headers: Optional[Dict[str, Any]] = {}) -> Any:
+            headers: Optional[Dict[str, Any]] = None) -> Any:
         return await self.api.get(path=f'{self.stub}{path}', data=data, headers=headers)
 
     async def _get_raw(
             self,
             path: str = '',
             data: Optional[Any] = None,
-            headers: Optional[Dict[str, Any]] = {}) -> Any:
+            headers: Optional[Dict[str, Any]] = None) -> Any:
         return await self.api.get_raw(path=f'{self.stub}{path}', data=data, headers=headers)
 
     async def _post(
             self,
             data: Optional[Any] = None,
             path: str = '',
-            headers: Optional[Dict[str, Any]] = {}) -> Any:
+            headers: Optional[Dict[str, Any]] = None) -> Any:
         return await self.api.post(path=f'{self.stub}{path}', data=data, headers=headers)
 
     async def _put(
             self,
             data: Optional[Any] = None,
             path: str = '',
-            headers: Optional[Dict[str, Any]] = {}) -> Any:
+            headers: Optional[Dict[str, Any]] = None) -> Any:
         return await self.api.put(path=f'{self.stub}{path}', data=data, headers=headers)
 
     async def _delete(
             self,
             data: Optional[Any] = None,
             path: str = '',
-            headers: Optional[Dict[str, Any]] = {}) -> Any:
+            headers: Optional[Dict[str, Any]] = None) -> Any:
         return await self.api.delete(path=f'{self.stub}{path}', data=data, headers=headers)
 
     async def _propfind(
             self,
             path: str = '',
             data: Optional[Any] = None,
-            headers: Optional[Dict[str, Any]] = {}) -> Any:
+            headers: Optional[Dict[str, Any]] = None) -> Any:
         return await self.api.propfind(path=f'{self.stub}{path}', data=data, headers=headers)
 
     async def _mkcol(
             self,
             path: str = '',
             data: Optional[Any] = None,
-            headers: Optional[Dict[str, Any]] = {}) -> Any:
+            headers: Optional[Dict[str, Any]] = None) -> Any:
         return await self.api.mkcol(path=f'{self.stub}{path}', data=data, headers=headers)
 
     async def _move(
             self,
             path: str = '',
             data: Optional[Any] = None,
-            headers: Optional[Dict[str, Any]] = {}) -> Any:
+            headers: Optional[Dict[str, Any]] = None) -> Any:
         return await self.api.move(path=f'{self.stub}{path}', data=data, headers=headers)
 
     async def _copy(
             self,
             path: str = '',
             data: Optional[Any] = None,
-            headers: Optional[Dict[str, Any]] = {}) -> Any:
+            headers: Optional[Dict[str, Any]] = None) -> Any:
         return await self.api.copy(path=f'{self.stub}{path}', data=data, headers=headers)
 
     async def _proppatch(
             self,
             path: str = '',
             data: Optional[Any] = None,
-            headers: Optional[Dict[str, Any]] = {}) -> Any:
+            headers: Optional[Dict[str, Any]] = None) -> Any:
         return await self.api.proppatch(path=f'{self.stub}{path}', data=data, headers=headers)
 
     async def _report(
             self,
             path: str = '',
             data: Optional[Any] = None,
-            headers: Optional[Dict[str, Any]] = {}) -> Any:
+            headers: Optional[Dict[str, Any]] = None) -> Any:
         return await self.api.report(path=f'{self.stub}{path}', data=data, headers=headers)
 
 

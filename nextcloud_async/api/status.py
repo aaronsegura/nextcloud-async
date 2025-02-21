@@ -199,8 +199,8 @@ class Status(NextcloudModule):
 
     async def get_all_user_statuses(
             self,
-            limit: Optional[int] = 100,
-            offset: Optional[int] = 0):
+            limit: int = 100,
+            offset: int = 0):
         """Get all user statuses.
 
         Args

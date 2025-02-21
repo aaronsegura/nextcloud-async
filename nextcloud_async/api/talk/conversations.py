@@ -1149,7 +1149,7 @@ class Conversations(NextcloudModule):
     def __init__(
             self,
             client: NextcloudClient,
-            api_version: Optional[str] = '4') -> None:
+            api_version: str = '4') -> None:
 
         self.client: NextcloudClient = client
         self.stub = f'/apps/spreed/api/v{api_version}'
@@ -1321,7 +1321,7 @@ class Conversations(NextcloudModule):
             path=f'/room/{room_token}/description',
             data={'description': description})
 
-    async def allow_guests(self, room_token: str, password: Optional[str]) -> None:
+    async def allow_guests(self, room_token: str, password: Optional[str]= None) -> None:
         """Allow guests into a conversation.
 
         Args:

@@ -51,9 +51,9 @@ class Groups(NextcloudModule):
 
     async def search(
             self,
-            search: Optional[str] = '',
-            limit: Optional[int] = 100,
-            offset: Optional[int] = 0) -> List[Group]:
+            search: str = '',
+            limit: int = 100,
+            offset: int = 0) -> List[Group]:
         """Search groups.
 
         This is the way to 'get' a group.

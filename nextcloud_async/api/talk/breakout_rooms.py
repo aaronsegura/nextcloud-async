@@ -103,7 +103,7 @@ class BreakoutRooms(NextcloudModule):
     def __init__(
             self,
             api: NextcloudTalkApi,
-            api_version: Optional[str] = '1') -> None:
+            api_version: str = '1') -> None:
         self.stub = f'/apps/spreed/api/v{api_version}/breakout-rooms'
         self.api: NextcloudTalkApi = api
 

@@ -239,7 +239,7 @@ class Chat(NextcloudModule):
     def __init__(
             self,
             api: NextcloudTalkApi,
-            api_version: Optional[str] = '1') -> None:
+            api_version: str = '1') -> None:
         self.stub = f'/apps/spreed/api/v{api_version}'
         self.api: NextcloudTalkApi = api
 
@@ -372,7 +372,7 @@ class Chat(NextcloudModule):
             room_token: str,
             message: str,
             reply_to: int = 0,
-            display_name: Optional[str] = 'Guest',
+            display_name: Optional[str] = None,
             reference_id: Optional[str] = None,
             silent: bool = False) -> Tuple[Message, httpx.Headers]:
         """Send message to a conversation.
