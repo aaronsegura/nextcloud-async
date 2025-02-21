@@ -17,22 +17,23 @@ class App:
     data: Dict[str, Any]
     api: 'Apps'
 
-    async def disable(self):
+    async def disable(self) -> None:
+        """Disable this app."""
         await self.api.disable(app_id=self.id)
         self.data = {}
 
-    async def enable(self, **kwargs):
+    async def enable(self) -> None:
+        """Enable this app."""
         await self.api.enable(app_id=self.id)
 
     def __getattr__(self, k: str) -> Any:
         return self.data[k]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'<Nextcloud App {self.id} v{self.version}>'
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self.data)
-
 
 
 class Apps(NextcloudModule):
@@ -41,7 +42,7 @@ class Apps(NextcloudModule):
     def __init__(
             self,
             client: NextcloudClient,
-            ocs_version: str = '1'):
+            ocs_version: str = '1') -> None:
         self.client= client
         self.api = NextcloudOcsApi(client, ocs_version=ocs_version)
         self.stub = '/cloud/apps'
@@ -49,13 +50,11 @@ class Apps(NextcloudModule):
     async def get(self, app_id: str) -> App:
         """Get application information.
 
-        Args
-        ----
-            app_id (str): Application id
+        Args:
+            app_id: Application id
 
-        Returns
-        -------
-            dict: Application information
+        Returns:
+            App object
         """
         response = await self._get(path=f'/{app_id}')
         return App(response, self)
@@ -63,12 +62,10 @@ class Apps(NextcloudModule):
     async def list(self, filter: Optional[str] = None) -> List[str]:
         """Get list of applications.
 
-        Args
-        ----
-            filter (str, optional): "enaled" or "disabled". Defaults to None.
+        Args:
+            filter: "enaled" or "disabled". Defaults to None.
 
-        Returns
-        -------
+        Returns:
             list: List of application ids
         """
         data: Dict[str, str] = {}
@@ -78,32 +75,22 @@ class Apps(NextcloudModule):
         response = await self._get(data=data)
         return response['apps']
 
-    async def enable(self, app_id: str) -> Dict[str, Any]:
+    async def enable(self, app_id: str) -> None:
         """Enable Application.
 
         Requires admin privileges.
 
-        Args
-        ----
+        Args:
             app_id (str): Application ID
-
-        Returns
-        -------
-            Empty 100 Response
         """
         return await self._post(path=f'/{app_id}')
 
-    async def disable(self, app_id: str) -> Dict[str, Any]:
+    async def disable(self, app_id: str) -> None:
         """Disable Application.
 
         Requires admin privileges.
 
-        Args
-        ----
+        Args:
             app_id (str): Application ID
-
-        Returns
-        -------
-            Empty 100 Response
         """
-        return await self._delete(path=f'/{app_id}')
+        await self._delete(path=f'/{app_id}')
