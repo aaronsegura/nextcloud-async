@@ -11,6 +11,8 @@ from typing import Optional, List, Dict, Any, Tuple
 from nextcloud_async.driver import NextcloudTalkApi, NextcloudModule
 from nextcloud_async.helpers import phone_number_to_E164
 
+from .types import ConversationData
+
 from .constants import (
     ParticipantPermissions,
     SessionState,
@@ -170,7 +172,7 @@ class Participants(NextcloudModule):
             self,
             room_token: str,
             password: Optional[str],
-            force: bool = True) -> 'Conversation': # type: ignore  # noqa: F821
+            force: bool = True) -> ConversationData:
         """Join a conversation.
 
         Args:
@@ -186,15 +188,14 @@ class Participants(NextcloudModule):
                 will be returned (Default: true - to keep the old behaviour)
 
         Returns:
-            Conversation
+            ConversationData
         """
-        from .conversations import Conversation
         response, _ = await self._post(
             path=f'/room/{room_token}/participants/active',
             data={
             'password': password,
             'force': force})
-        return Conversation(response, self.api)
+        return response
 
     async def resend_invitation_emails(
             self,
