@@ -112,6 +112,11 @@ class ObjectSources(Enum):
     circle = 'circles'
 
 
+class RichObjectCallType(Enum):
+    one_to_one = 'one2one'
+    group = 'group'
+    public = 'public'
+
 class FileShareMessageType(Enum):
     voice_message = 'voice-message'
     comment = 'comment'

@@ -81,7 +81,7 @@ class Call(NextcloudTalkRichObject):
             message_id: Optional[str] = None) -> None:
         super().__init__(id, name)
         self.link = link
-        self.__dict__['call-type'] = call_type
+        self.__dict__['call-type'] = call_type.value
         self.__dict__['icon-url'] = icon_url
         self.__dict__['message-id'] = message_id
 
