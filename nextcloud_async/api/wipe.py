@@ -37,7 +37,6 @@ class Wipe(NextcloudModule):
         Returns
         -------
             bool: Whether user has flagged this device for remote wiping.
-
         """
         #Here we must use the direct httpx.post method without authentication.
         try:
@@ -64,7 +63,6 @@ class Wipe(NextcloudModule):
         Returns
         -------
             Empty 200 Response
-
         """
         return await self.api.client.http_client.post(
             url=f'{self.api.client.endpoint}{self.stub}/success',

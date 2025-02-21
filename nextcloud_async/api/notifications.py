@@ -47,7 +47,6 @@ class Notifications(NextcloudModule):
         Returns
         -------
             list: Notifications
-
         """
         response = await self._get()
         return [Notification(data, self) for data in response]
@@ -62,7 +61,6 @@ class Notifications(NextcloudModule):
         Returns
         -------
             Notification Object
-
         """
         response = await self._get(path=f'/{id}')
         return Notification(response, self)

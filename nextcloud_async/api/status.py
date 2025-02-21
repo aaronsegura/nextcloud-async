@@ -102,7 +102,6 @@ class Status(NextcloudModule):
         Returns
         -------
             dict: Status description
-
         """
         response = await self._get('/user_status')
         return MyStatus(response, self)
@@ -118,7 +117,6 @@ class Status(NextcloudModule):
         Returns
         -------
             dict: New status description.
-
         """
         return await self._put(
             path='/user_status/status',
@@ -130,7 +128,6 @@ class Status(NextcloudModule):
         Returns
         -------
             list: Predefined statuses
-
         """
         response = await self._get(path='/predefined_statuses')
         return [PredefinedStatus(data) for data in response]
@@ -151,7 +148,6 @@ class Status(NextcloudModule):
         Returns
         -------
             dict: New status description
-
         """
         data: Dict[str, int|str] = {'messageId': status.id}
         if clear_at:
@@ -181,7 +177,6 @@ class Status(NextcloudModule):
         Returns
         -------
             dict: New status description
-
         """
         data: Dict[str, str] = {'message': message}
         if status_icon:
@@ -199,7 +194,6 @@ class Status(NextcloudModule):
         Returns
         -------
             Empty 200 Response
-
         """
         return await self._delete(path=r'/user_status/message')
 
@@ -218,7 +212,6 @@ class Status(NextcloudModule):
         Returns
         -------
             list: User statuses
-
         """
         return await self._get(
             path='/statuses',
@@ -234,7 +227,6 @@ class Status(NextcloudModule):
         Returns
         -------
             dict: User status description
-
         """
         response = await self._get(path=f'/statuses/{user}')
         return UserStatus(response)

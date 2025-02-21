@@ -57,7 +57,6 @@ class Users(NextcloudModule):
             Example:
 
                 { 'id': 'YourNewUser' }
-
         """
         return await self._post(
             data={
@@ -88,7 +87,6 @@ class Users(NextcloudModule):
         Returns
         -------
             list: User ID matches
-
         """
         response = await self._get(
             data={
@@ -107,7 +105,6 @@ class Users(NextcloudModule):
         Returns
         -------
             dict: User description.
-
         """
 
         return await self._get(path=f'/{user_id}')
@@ -120,7 +117,6 @@ class Users(NextcloudModule):
         Returns
         -------
             List: User IDs
-
         """
         response = await self._get()
         return response['users']
@@ -191,7 +187,6 @@ class Users(NextcloudModule):
         Returns
         -------
             list: Responses
-
         """
         reqs = []
         for k, v in new_data.items():
@@ -210,7 +205,6 @@ class Users(NextcloudModule):
         Returns
         -------
             list: User-editable fields
-
         """
         return await self._get(path=r'/fields')
 
@@ -226,7 +220,6 @@ class Users(NextcloudModule):
         Returns
         -------
             Empty 100 Response
-
         """
         return await self._put(path=f'/{user_id}/disable')
 
@@ -240,7 +233,6 @@ class Users(NextcloudModule):
         Returns
         -------
             Empty 100 Response
-
         """
         return await self._put(path=f'/{user_id}/enable')
 
@@ -254,7 +246,6 @@ class Users(NextcloudModule):
         Returns
         -------
             Empty 100 Response
-
         """
         return await self._delete(path=f'/{user_id}')
 
@@ -268,7 +259,6 @@ class Users(NextcloudModule):
         Returns
         -------
             list: group ids
-
         """
         response = await self._get(path=f'/{user_id }/groups')
         return response['groups']
@@ -285,7 +275,6 @@ class Users(NextcloudModule):
         Returns
         -------
             Empty 100 Response
-
         """
         return await self._post(
             path=f'/{user_id}/groups',
@@ -303,7 +292,6 @@ class Users(NextcloudModule):
         Returns
         -------
             Empty 100 Response
-
         """
         return await self._delete(
             path=f'/{user_id}/groups',
@@ -321,7 +309,6 @@ class Users(NextcloudModule):
         Returns
         -------
             Empty 100 Response
-
         """
         return await self._post(
             path=f'/{user_id}/subadmins',
@@ -339,7 +326,6 @@ class Users(NextcloudModule):
         Returns
         -------
             Empty 100 Response
-
         """
         return await self._delete(
             path=f'/{user_id}/subadmins',
@@ -355,7 +341,6 @@ class Users(NextcloudModule):
         Returns
         -------
             list: group ids
-
         """
         return await self._get(path=f'/{user_id}/subadmins')
 
@@ -369,6 +354,5 @@ class Users(NextcloudModule):
         Returns
         -------
             Empty 100 Response
-
         """
         return await self._post(path=f'/{user_id}/welcome')

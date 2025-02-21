@@ -62,7 +62,6 @@ class Maps(NextcloudModule):
         Returns
         -------
             list of favorites
-
         """
         response = await self._get(path='/favorites')
         # return json.loads(response.content.decode('utf-8'))
@@ -78,7 +77,6 @@ class Maps(NextcloudModule):
         Raises:
         -------
             Appropriate NextcloudException
-
         """
         await self._delete(path=f'/favorites/{id}')
         self.data = {'deleted': True}
@@ -97,7 +95,6 @@ class Maps(NextcloudModule):
         Returns
         -------
             dict: Result of update
-
         """
         response = await self._put(
                         path=f'/favorites/{id}',
@@ -117,7 +114,6 @@ class Maps(NextcloudModule):
         Returns
         -------
             dict: Result of update
-
         """
         response = await self._post(
                         path='/favorites',

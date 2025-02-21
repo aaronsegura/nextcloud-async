@@ -47,7 +47,6 @@ class Sharees(NextcloudModule):
         Returns
         -------
             Dictionary of exact and potential matches.
-
         """
         data: Dict[str, Any] = {
             'search': search,

@@ -274,7 +274,6 @@ class Chat(NextcloudModule):
                 that has read privacy set to public. When the user themself has it set to
                 private the value the header is not set (only available with
                 chat-read-status capability and when last_common_read_id was sent)
-
         """
         return_headers: List[str] = ['x-chat-last-given', 'x-chat-last-common-read']
         data = {

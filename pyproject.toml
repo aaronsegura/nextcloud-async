@@ -82,6 +82,7 @@ ignore = [
   'TD002',    # Missing author in TODO
   'PLR0913',   # tOo MaNy ArGuMeNtS
   'TD003',     # Missing issue link for Todo
+  'TC004',    # Move import out of type-checking block
   ]
 
 [tool.ruff.pydocstyle]

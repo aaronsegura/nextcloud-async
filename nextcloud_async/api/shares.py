@@ -114,7 +114,6 @@ class Shares(NextcloudModule):
         Returns
         -------
             list: File share descriptions
-
         """
         response = await self._get(
             data={
@@ -135,7 +134,6 @@ class Shares(NextcloudModule):
         Returns
         -------
             dict: Share description
-
         """
         response = await self._get(
             path=f'/{share_id}',
@@ -154,7 +152,6 @@ class Shares(NextcloudModule):
             expire_date: Optional[dt.datetime] = None,
             note: Optional[str] = None,
             label: Optional[str] = ''):
-
         """Create a new share.
 
         Args
@@ -184,7 +181,6 @@ class Shares(NextcloudModule):
         Returns
         -------
             # TODO : fill me in
-
         """
 
         # Checks the expire_date argument exists before evaluation, otherwise continues.
@@ -216,7 +212,6 @@ class Shares(NextcloudModule):
         Returns
         -------
             Query results.
-
         """
         return await self._delete(
             path=f'/{share_id}',
@@ -257,7 +252,6 @@ class Shares(NextcloudModule):
         Returns
         -------
             List: responses from update queries
-
         """
         attrs: List[Tuple[str, Any]] = [
             ('permissions', permissions),

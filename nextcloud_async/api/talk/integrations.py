@@ -3,7 +3,7 @@ from typing import Optional, Dict, Any
 from nextcloud_async.driver import NextcloudTalkApi, NextcloudModule
 
 class Integrations(NextcloudModule):
-    """Interact with Nextcloud Talk Bots API.
+    """Nextcloud Talk Integrations API.
 
     https://nextcloud-talk.readthedocs.io/en/latest/integration/
     """
@@ -11,7 +11,7 @@ class Integrations(NextcloudModule):
     def __init__(
             self,
             api: NextcloudTalkApi,
-            api_version: Optional[str] = '1'):
+            api_version: Optional[str] = '1') -> None:
         self.stub = f'/apps/spreed/api/v{api_version}'
         self.api: NextcloudTalkApi = api
 

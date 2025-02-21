@@ -70,7 +70,6 @@ class Groups(NextcloudModule):
 
         Returns:
             list: Group names.
-
         """
         response = await self._get(
             data={
@@ -85,7 +84,6 @@ class Groups(NextcloudModule):
         Args
         ----
             group_name (str): Group name
-
         """
         await self._post(data={'groupid': group_name})
         return Group(group_name, self)
@@ -100,7 +98,6 @@ class Groups(NextcloudModule):
         Returns
         -------
             list: Users belonging to `group_id`
-
         """
         response = await self._get(
             path=f'/{group_name}')
@@ -116,7 +113,6 @@ class Groups(NextcloudModule):
         Returns
         -------
             list: Users who are subadmins of this group.
-
         """
         return await self._get(path=f'/{group_name}/subadmins')
 
@@ -130,7 +126,6 @@ class Groups(NextcloudModule):
         Returns
         -------
             Empty 100 Response
-
         """
         return await self._delete(
             path=f'/{group_name}')

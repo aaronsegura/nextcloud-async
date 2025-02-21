@@ -70,7 +70,6 @@ class LoginFlowV2(NextcloudModule):
                 "login":"https:\/\/cloud.example.com\/login\/v2\/flow\/guyjG...YFg"
 
             }
-
         """
         response = await self._post(path=self.stub)
         return response
@@ -104,7 +103,6 @@ class LoginFlowV2(NextcloudModule):
 
                 "appPassword":"yKTVA4zgx...olYSuJ6sCN"
             }
-
         """
         start_dt = dt.datetime.now()
         running_time = 0
@@ -135,7 +133,6 @@ class LoginFlowV2(NextcloudModule):
         Returns
         -------
             Empty 200 Response
-
         """
         # This requires OCS api
         ocs_api = NextcloudOcsApi(self.client, ocs_version='2')

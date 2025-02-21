@@ -98,7 +98,6 @@ class GroupFolders(NextcloudModule):
         Returns
         -------
             list: List of group folders.
-
         """
         await self._validate_capability()
         response = await self._get()
@@ -118,7 +117,6 @@ class GroupFolders(NextcloudModule):
             Example:
 
                 { 'id': 1 }
-
         """
         await self._validate_capability()
         response = await self._post(data={'mountpoint': path})
@@ -134,7 +132,6 @@ class GroupFolders(NextcloudModule):
         Returns
         -------
             dict: Group folder description.
-
         """
         await self._validate_capability()
         response = await self._get(path=f'/{folder_id}')
@@ -150,7 +147,6 @@ class GroupFolders(NextcloudModule):
         Returns
         -------
             bool: success(True) or failure(False)
-
         """
         await self._validate_capability()
         response = await self._delete(path=f'/{folder_id}')
@@ -168,7 +164,6 @@ class GroupFolders(NextcloudModule):
         Returns
         -------
             bool: success(True) or failure(False)
-
         """
         await self._validate_capability()
         response = await self._post(path=f'/{folder_id}/groups', data={'group': group_id})
@@ -186,7 +181,6 @@ class GroupFolders(NextcloudModule):
         Returns
         -------
             bool: success(True) or failure(False)
-
         """
         await self._validate_capability()
         response = await self._delete(path=f'/apps/groupfolders/folders/{folder_id}/groups/{group_id}')
@@ -202,7 +196,6 @@ class GroupFolders(NextcloudModule):
         Returns
         -------
             bool: success(True) or failure(False)
-
         """
         await self._validate_capability()
         return await self.__advanced_permissions(folder_id, True)
@@ -217,7 +210,6 @@ class GroupFolders(NextcloudModule):
         Returns
         -------
             bool: success(True) or failure(False)
-
         """
         await self._validate_capability()
         return await self.__advanced_permissions(folder_id, False)
@@ -246,7 +238,6 @@ class GroupFolders(NextcloudModule):
         Returns
         -------
             bool: success(True) or failure(False)
-
         """
         await self._validate_capability()
         return await self.__advanced_permissions_admin(
@@ -273,7 +264,6 @@ class GroupFolders(NextcloudModule):
         Returns
         -------
             bool: success(True) or failure(False)
-
         """
         await self._validate_capability()
         return await self.__advanced_permissions_admin(
@@ -315,7 +305,6 @@ class GroupFolders(NextcloudModule):
         Returns
         -------
             bool: success(True) or failure(False)
-
         """
         await self._validate_capability()
         response = await self._post(
@@ -335,7 +324,6 @@ class GroupFolders(NextcloudModule):
         Returns
         -------
             bool: success(True) or failure(False)
-
         """
         await self._validate_capability()
         response = await self._post(
@@ -355,7 +343,6 @@ class GroupFolders(NextcloudModule):
         Returns
         -------
             bool: success(True) or failure(False)
-
         """
         await self._validate_capability()
         response = await self._post(

@@ -41,7 +41,7 @@ class Apps(NextcloudModule):
     def __init__(
             self,
             client: NextcloudClient,
-            ocs_version: Optional[str] = '1'):
+            ocs_version: str = '1'):
         self.client= client
         self.api = NextcloudOcsApi(client, ocs_version=ocs_version)
         self.stub = '/cloud/apps'
@@ -56,7 +56,6 @@ class Apps(NextcloudModule):
         Returns
         -------
             dict: Application information
-
         """
         response = await self._get(path=f'/{app_id}')
         return App(response, self)
@@ -71,7 +70,6 @@ class Apps(NextcloudModule):
         Returns
         -------
             list: List of application ids
-
         """
         data: Dict[str, str] = {}
         if filter:
@@ -92,7 +90,6 @@ class Apps(NextcloudModule):
         Returns
         -------
             Empty 100 Response
-
         """
         return await self._post(path=f'/{app_id}')
 
@@ -108,6 +105,5 @@ class Apps(NextcloudModule):
         Returns
         -------
             Empty 100 Response
-
         """
         return await self._delete(path=f'/{app_id}')

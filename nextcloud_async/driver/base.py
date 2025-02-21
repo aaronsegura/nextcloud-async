@@ -32,7 +32,7 @@ class NextcloudBaseApi(NextcloudHttpApi):
             headers: Optional[Dict[str, Any]] = {}) -> Dict[str, Any]:
         """Send a request to the Nextcloud endpoint.
 
-        Args
+        Args:
         ----
             method (str, optional): HTTP Method. Defaults to 'GET'.
 
@@ -42,9 +42,8 @@ class NextcloudBaseApi(NextcloudHttpApi):
 
             headers (dict, optional): Headers for submission. Defaults to {}.
 
-        Raises
+        Raises:
         ------
-
             304 - NextcloudNotModified
 
             400 - NextcloudBadRequest
@@ -59,10 +58,9 @@ class NextcloudBaseApi(NextcloudHttpApi):
 
             429 - NextcloudTooManyRequests
 
-        Returns
+        Returns:
         -------
             httpx.Response: An httpx Response Object
-
         """
         if method.lower() == 'get':
             path = self._massage_get_data(data, path)

@@ -211,7 +211,6 @@ class Participants(NextcloudModule):
             participant_id:
                 Attendee id can be used for guests and users, not setting it will resend
                 all invitations
-
         """
         await self.api.require_talk_feature('sip-support')
         await self._post(

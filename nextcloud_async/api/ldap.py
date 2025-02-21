@@ -28,7 +28,6 @@ class Ldap(NextcloudModule):
         Returns
         -------
             dict: New configuration ID, { "configID": ID }
-
         """
         return await self._post(path='/config')
 
@@ -38,7 +37,6 @@ class Ldap(NextcloudModule):
         Args
         ----
             id (str): LDAP Configuration ID
-
         """
         await self._delete(path=f'/config/{id}')
 
@@ -52,7 +50,6 @@ class Ldap(NextcloudModule):
         Returns
         -------
             dict: LDAP configuration description
-
         """
         return await self._get(path=f'/config/{id}')
 

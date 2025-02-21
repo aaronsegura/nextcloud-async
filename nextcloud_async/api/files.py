@@ -163,7 +163,6 @@ class Files(NextcloudModule):
         Returns
         -------
             list: Files
-
         """
         data = self._namespace_properties(properties)
         response: List[Dict[str, Any]] | Dict[str, Any] = await self._propfind(
@@ -185,7 +184,6 @@ class Files(NextcloudModule):
         Returns
         -------
             str: File content
-
         """
         return await self._get_raw(
             path=f'/files/{self.client.user}/{path}')
@@ -225,7 +223,6 @@ class Files(NextcloudModule):
         Args
         ----
             path (str): Filesystem path
-
         """
         await self._delete(path=f'/files/{self.client.user}/{path}')
 
@@ -239,7 +236,6 @@ class Files(NextcloudModule):
             dest (str): Destination path
 
             overwrite (bool, optional): Overwrite destination if exists. Defaults to False.
-
         """
         return await self._move(
             path=f'/files/{self.client.user}/{source}',
@@ -258,7 +254,6 @@ class Files(NextcloudModule):
             dest (str): Destination path
 
             overwrite (bool, optional): Overwrite destination if exists. Defaults to False.
-
         """
         await self._copy(
             path=f'/files/{self.client.user}/{source}',
@@ -279,7 +274,6 @@ class Files(NextcloudModule):
         Returns
         -------
             dict: file info
-
         """
         data = f'''<?xml version="1.0"?>
                 <d:propertyupdate
@@ -304,7 +298,6 @@ class Files(NextcloudModule):
         Returns
         -------
             dict: File info
-
         """
         response = await self.__favorite(path, True)
         return File(response, self.api)
@@ -319,7 +312,6 @@ class Files(NextcloudModule):
         Returns
         -------
             dict: File info
-
         """
         response = await self.__favorite(path, False)
         return File(response, self.api)
@@ -334,7 +326,6 @@ class Files(NextcloudModule):
         Returns
         -------
             list: list of favorites
-
         """
         data = '''<?xml version="1.0"?><oc:filter-files  xmlns:d="DAV:"
         xmlns:oc="http://owncloud.org/ns" xmlns:nc="http://nextcloud.org/ns">
@@ -351,7 +342,6 @@ class Files(NextcloudModule):
         Returns
         -------
             list: Trashed items
-
         """
         response = await self._propfind(path=f'/trashbin/{self.client.user}/trash')
         return [File(data, self) for data in response]
@@ -362,7 +352,6 @@ class Files(NextcloudModule):
         Args
         ----
             path (str): Trash path
-
         """
         await self._move(
             path=path,
@@ -384,7 +373,6 @@ class Files(NextcloudModule):
         Returns
         -------
             list: File versions
-
         """
         response = await self._propfind(path=f'/versions/{self.client.user}/versions/{file_id}')
         return [File(data, self) for data in response]
@@ -395,7 +383,6 @@ class Files(NextcloudModule):
         Args
         ----
             path (str): File version path
-
         """
         await self._move(
             path=path,
@@ -417,7 +404,6 @@ class Files(NextcloudModule):
         Raises
         ------
             NextcloudException: Errors from self.create_folder()
-
         """
         path_chunks = path.strip('/').split('/')
         for count in range(1, len(path_chunks) + 1):
@@ -465,7 +451,6 @@ class Files(NextcloudModule):
         Raises
         ------
             NextcloudChunkedCacheExists: When previous failed attempt is detected.
-
         """
         file_position = 0
         padding = len(str(os.stat(local_path).st_size))
@@ -539,7 +524,6 @@ class Files(NextcloudModule):
         Returns
         -------
             list: ACL rules
-
         """
         data = None
         ruleprop = 'nc:acl-list'
@@ -589,7 +573,6 @@ class Files(NextcloudModule):
         Returns
         -------
             Empty 200 Response
-
         """
         data = None
 

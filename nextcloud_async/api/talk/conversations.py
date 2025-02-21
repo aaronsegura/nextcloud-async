@@ -290,7 +290,6 @@ class Conversation:
                 that has read privacy set to public. When the user themself has it set to
                 private the value the header is not set (only available with
                 chat-read-status capability and when last_common_read_id was sent)
-
         """
         return await self.chat_api.get_messages(room_token=self.token, **kwargs)
 
@@ -837,7 +836,6 @@ class Conversations(NextcloudModule):
 
         Raises:
             Appropriate exception on HTTP status_code >= 400
-
         """
         data: Dict[str, Any] = {
             'noStatusUpdate': 1 if status_update else 0,
@@ -883,7 +881,6 @@ class Conversations(NextcloudModule):
 
         Returns:
             New Conversation object
-
         """
         data: Dict[str, Any] = {
             'roomType': room_type.value,
@@ -917,7 +914,6 @@ class Conversations(NextcloudModule):
 
         Returns:
             Conversation object.
-
         """
         data, _ = await self._get(path='/room/note-to-self')
         return Conversation(data, self.api)
@@ -927,7 +923,6 @@ class Conversations(NextcloudModule):
 
         Returns:
             List of open Conversation objects.
-
         """
         response, _ = await self._get(path='/listed-room')
         return [Conversation(data, self.api) for data in response]

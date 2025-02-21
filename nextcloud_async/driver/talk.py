@@ -98,7 +98,6 @@ class NextcloudTalkApi(NextcloudHttpApi):
         Raises
         ------
             NextcloudException - when invalid response from server
-
         """
         if headers:
             headers.update({'OCS-APIRequest': 'true'})
