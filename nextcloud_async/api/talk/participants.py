@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from typing import Optional, List, Dict, Any, Tuple
 
 from nextcloud_async.driver import NextcloudTalkApi, NextcloudModule
-from nextcloud_async.helpers import phone_number_to_E164
+from nextcloud_async.helpers import phone_number_to_e164
 
 from .types import ConversationData
 
@@ -340,7 +340,7 @@ class Participants(NextcloudModule):
         response, _ = await self._post(
             path=f'/room/{room_token}/verify-dialout',
             data={
-                'number': phone_number_to_E164(number),
+                'number': phone_number_to_e164(number),
                 'actorId': actor_id,
                 'actorType': actor_type,
                 'attendeeId': attendee_id})

@@ -2,7 +2,6 @@
 
 from urllib.parse import quote
 import httpx
-# import asyncio
 
 from typing import Dict, Any, List
 
@@ -16,7 +15,7 @@ def recursive_urlencode(d: Dict[str, Any]) -> str:
 
     >>> data = {'a': 'b&c', 'd': {'e': {'fg': 'hi'}}, 'j': 'k'}
     >>> recursive_urlencode(data)
-    u'a=b%26c&j=k&d[e][f%26g]=h%2Ai'
+    'a=b%26c&d[e][fg]=hi&j=k'
     """
     def _recursion(d: Dict[str, str], base: List[str] = []) -> List[str]:
         pairs: List[str] = []
@@ -29,7 +28,7 @@ def recursive_urlencode(d: Dict[str, Any]) -> str:
                 new_pair = None
                 if len(new_base) > 1:
                     first = quote(new_base.pop(0))
-                    rest = map(lambda x: quote(x), new_base)
+                    rest = [quote(x) for x in new_base]
                     new_pair = f'{first}[{"][".join(rest)}]={quote(value)}'
                 else:
                     new_pair = f'{quote(key)}={quote(value)}'
@@ -38,66 +37,28 @@ def recursive_urlencode(d: Dict[str, Any]) -> str:
 
     return '&'.join(_recursion(d))
 
-
-# def resolve_element_list(data: Dict|List, list_keys=[]):
-#     """Resolve all 'element' items into a list.
-
-#     A side-effect of using xmltodict on nextcloud results is that lists of
-#     items come back differently depending on how many results there are, and
-#     there is always an unnecessary parent 'element' key wrapping the list:
-
-#     Zero results returns:
-#         {
-#             'items': 'None'
-#         }
-
-#     One or more results returns a dict containing a list:
-#         {
-#             'items': {
-#                 'element': [...]
-#             }
-#         }
-
-#     We want to get rid of the 'element' middle-man and turn all
-#     list items into their proper representation:
-
-#     Zero results:
-#         {
-#             'items': []
-#         }
-
-#     One or more results:
-#         {
-#             'items': [
-#                 ...,
-#                 ...,
-#             ]
-#         }
-#     """
-#     ret = {}
-#     if isinstance(data, dict):
-#         for k, v in data.items():
-#             if isinstance(v, dict):
-#                 if k == 'element':
-#                     ret = resolve_element_list(v, list_keys=list_keys)
-#                 else:
-#                     ret.setdefault(k, resolve_element_list(v, list_keys=list_keys))
-#             elif isinstance(v, list) and k == 'element':
-#                 ret = v
-#             elif k in list_keys and v is None:
-#                 ret = {k: []}
-#             else:
-#                 ret.setdefault(k, v)
-#     else:
-#         ret = resolve_element_list(data, list_keys=list_keys)
-
-#     return ret
-
-
 def bool2int(b: bool) -> int:
+    """Translate boolean values to integers.
+
+    Args:
+        b:
+            Boolean value
+
+    Returns:
+        0 if False, 1 if True
+    """
     return 1 if b else 0
 
-def phone_number_to_E164(phone_number: str) -> str:
+def phone_number_to_e164(phone_number: str) -> str:
+    """Translate phone number to E164 format.
+
+    Args:
+        phone_number:
+            Phone number
+
+    Returns:
+        E164 phone number
+    """
     new_format: List[str] = []
     for digit in reversed(phone_number):
         new_format.append(digit)
@@ -105,7 +66,32 @@ def phone_number_to_E164(phone_number: str) -> str:
     return f'{".".join(new_format)}.e164.arpa'
 
 def filter_headers(filter: List[str], headers: httpx.Headers) -> httpx.Headers:
+    """Filter result headers down to just the ones we want.
+
+    Args:
+        filter:
+            List of headers we want
+
+        headers:
+            List of all headers
+
+    Returns:
+        List of filtered headers
+    """
     return httpx.Headers([x for x in headers.items() if x[0].lower() in filter])
 
 def remove_key_prefix(d: Dict[str, Any]) -> Dict[str, Any]:
+    """Remove the namespace prefix on dictionary keys.
+
+    DAV Endpoint shenanigans.
+
+    {'oc:fileid': 3} -> {'fileid' : 3}
+
+    Args:
+        d:
+            Dictionary
+
+    Returns:
+        Dictionary with trimmed keys
+    """
     return {k[k.find(':')+1:]: v for k, v in d.items()}
