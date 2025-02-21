@@ -7,24 +7,25 @@ seem to enforce any kind of argument checking.  You can put in
 whatever you want for 'id' in most of them, and it'll be accepted
 and entered into the chat.
 """
+from typing import Dict, Optional
 
-from typing import Dict, Any
+from .constants import RichObjectCallType
 
 class NextcloudTalkRichObject:
     """Base Class for Rich Objects."""
 
     object_type = None
 
-    def __init__(self, id: str, name: str, **kwargs):
+    def __init__(self, id: str, name: str) -> None:
         """Set object metadata."""
-        self.__dict__.update(**kwargs)
         self.id = id
         self.name = name
+        self.object_type = self.object_type
 
     @property
-    def metadata(self):
+    def metadata(self) -> Dict[str, str]:
         """Return metadata array."""
-        return {'id': self.id, 'name': self.name}
+        return {k:v for k, v in self.__dict__.items() if k not in ['id', 'object_type']}
 
 
 class AddressBook(NextcloudTalkRichObject):
@@ -44,6 +45,10 @@ class Announcement(NextcloudTalkRichObject):
 
     object_type = 'announcement'
 
+    def __init__(self, id: str, name: str, link: Optional[str] = None) -> None:
+        super().__init__(id, name)
+        self.link = link
+
 
 class Calendar(NextcloudTalkRichObject):
     """Calendar."""
@@ -56,21 +61,29 @@ class CalendarEvent(NextcloudTalkRichObject):
 
     object_type = 'calendar-event'
 
+    def __init__(self, id: str, name: str, link: Optional[str] = None) -> None:
+        super().__init__(id, name)
+        self.link = link
+
 
 class Call(NextcloudTalkRichObject):
     """Nextcloud Talk Call."""
 
     object_type = 'call'
-    call_type = ''
 
-    @property
-    def metadata(self):
-        """Return object metadata."""
-        return {
-            'id': self.id,
-            'name': self.name,
-            'call-type': self.call_type
-        }
+    def __init__(
+            self,
+            id: str,
+            name: str,
+            call_type: RichObjectCallType,
+            link: Optional[str] = None,
+            icon_url: Optional[str] = None,
+            message_id: Optional[str] = None) -> None:
+        super().__init__(id, name)
+        self.link = link
+        self.__dict__['call-type'] = call_type
+        self.__dict__['icon-url'] = icon_url
+        self.__dict__['message-id'] = message_id
 
 
 class Circle(NextcloudTalkRichObject):
@@ -78,17 +91,41 @@ class Circle(NextcloudTalkRichObject):
 
     object_type = 'circle'
 
+    def __init__(self, id: str, name: str, link: str) -> None:
+        super().__init__(id, name)
+        self.link = link
+
 
 class DeckBoard(NextcloudTalkRichObject):
     """Deck board."""
 
     object_type = 'deck-board'
 
+    def __init__(
+            self,
+            id: str,
+            name: str,
+            link: str) -> None:
+        super().__init__(id, name)
+        self.link = link
+
 
 class DeckCard(NextcloudTalkRichObject):
     """Deck card."""
 
     object_type = 'deck-card'
+
+    def __init__(
+            self,
+            id: str,
+            name: str,
+            board_name: str,
+            stack_name: str,
+            link: str) -> None:
+        super().__init__(id, name)
+        self.link = link
+        self.boardname = board_name
+        self.stackname = stack_name
 
 
 class Email(NextcloudTalkRichObject):
@@ -101,33 +138,71 @@ class File(NextcloudTalkRichObject):
     """File."""
 
     object_type = 'file'
-    path = ''
+    def __init__(
+            self,
+            id: str,
+            name: str,
+            path: str,
+            size: Optional[str] = None,
+            link: Optional[str] = None,
+            mime_type: str = 'text/plain',
+            preview_available: Optional[str] = None,
+            mtime: Optional[str] = None,
+            etag: Optional[str] = None,
+            permissions: Optional[str] = None,
+            width: Optional[str] = None,
+            height: Optional[str] = None,
+            blur_hash: Optional[str] = None) -> None:
+        super().__init__(id, name)
+        self.link = link
+        self.path = path
 
-    allowed_props = ['size', 'link', 'mimetype', 'preview-available', 'mtime']
+        if size:
+            self.size = size
+        if mime_type:
+            self.__dict__['mimetype'] = mime_type
+        if preview_available:
+            self.__dict__['preview-available'] = preview_available
+        if mtime:
+            self.mtime = mtime
+        if etag:
+            self.etag = etag
+        if permissions:
+            self.permissions = permissions
+        if width:
+            self.width = width
+        if height:
+            self.height = height
+        if blur_hash:
+            self.blurHash = blur_hash
 
-    def __init__(self, name: str, path: str, **kwargs):
-        """Set file object metadata."""
-
-        if not all(key in self.allowed_props for key in kwargs):
-            raise ValueError(f'Supported properties {self.allowed_props}')
-
-        init = {
-            'id': name,
-            'name': name,
-            'path': path,
-        }
-        data: Dict[str, Any] = { **init, **kwargs }
-        super(NextcloudTalkRichObject).__init__(**data)
-
-    @property
-    def metadata(self):
-        """Return object metadata."""
-        return self.__dict__
 
 class Form(NextcloudTalkRichObject):
     """Form."""
 
     object_type = 'forms-form'
+
+    def __init__(
+            self,
+            id: str,
+            name: str,
+            link: str) -> None:
+        super().__init__(id, name)
+        self.link = link
+
+
+class Highlight(NextcloudTalkRichObject):
+    """Highlight."""
+
+    object_type = 'highlight'
+
+    def __init__(
+            self,
+            id: str,
+            name: str,
+            link: str) -> None:
+        super().__init__(id, name)
+        self.link = link
 
 
 class GeoLocation(NextcloudTalkRichObject):
@@ -137,28 +212,61 @@ class GeoLocation(NextcloudTalkRichObject):
     latitude = None
     longitude = None
 
-    def __init__(self, name: str, latitude: str, longitude: str):
-        """Set Geolocation metadata."""
-        data = {
-            'id': f'geo:{latitude},{longitude}',
-            'name': name,
-            'longitude': longitude,
-            'latitude': latitude}
-        super(NextcloudTalkRichObject).__init__(**data)
+    def __init__(
+            self,
+            id: str,
+            name: str,
+            latitude: str,
+            longitude: str) -> None:
+        super().__init__(id, name)
+        self.latitude = latitude
+        self.longitude = longitude
 
-    def __str__(self):
-        return f'{__class__.__name__}'\
-               f'(latitude={self.latitude}, longitude={self.longitude}, name={self.name})'
 
-    @property
-    def metadata(self) -> Dict[str, Any]:
-        """Return geolocation metadata."""
-        return {
-            'id': f'geo:{self.latitude},{self.longitude}',
-            'name': self.name,
-            'latitude': self.latitude,
-            'longitude': self.longitude,
-        }
+class OpenGraph(NextcloudTalkRichObject):
+    """Open-Graph Attachment."""
+
+    object_type = 'open-graph'
+
+    def __init__(
+            self,
+            id: str,
+            name: str,
+            description: Optional[str],
+            thumb: Optional[str],
+            website: Optional[str],
+            link: Optional[str]) -> None:
+        super().__init__(id, name)
+        if description:
+            self.description = description
+        if thumb:
+            self.thumb = thumb
+        if website:
+            self.website = website
+        if link:
+            self.link = link
+
+
+class PendingFederatedShare(NextcloudTalkRichObject):
+    """Talk Attachment."""
+
+    object_type = 'pending-federated-share'
+
+
+class SystemTag(NextcloudTalkRichObject):
+    """System Tag."""
+
+    object_type = 'systemtag'
+
+    def __init__(
+            self,
+            id: str,
+            name: str,
+            visibility: str,
+            assignable: str) -> None:
+        super().__init__(id, name)
+        self.visibility = visibility
+        self.assignable = assignable
 
 
 class TalkAttachment(NextcloudTalkRichObject):
@@ -166,11 +274,34 @@ class TalkAttachment(NextcloudTalkRichObject):
 
     object_type = 'talk-attachment'
 
+    def __init__(
+            self,
+            id: str,
+            name: str,
+            conversation: str,
+            mime_type: Optional[str] = None,
+            preview_available: Optional[str] = None) -> None:
+        super().__init__(id, name)
+        self.conversation = conversation
+        if mime_type:
+            self.mimetime = mime_type
+        if preview_available:
+            self.__dict__['preview-avialable'] = preview_available
+
 
 class User(NextcloudTalkRichObject):
     """User."""
 
     object_type = 'user'
+
+    def __init__(
+            self,
+            id: str,
+            name: str,
+            server: Optional[str] = None) -> None:
+        super().__init__(id, name)
+        if server:
+            self.server = server
 
 
 class UserGroup(NextcloudTalkRichObject):
