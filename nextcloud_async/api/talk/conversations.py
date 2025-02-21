@@ -19,7 +19,12 @@ import datetime as dt
 from dataclasses import dataclass, field
 
 from typing import Dict, Optional, Any, List, Tuple, TypedDict, TYPE_CHECKING
-from typing_extensions import Unpack
+
+import sys
+if sys.version_info < (3, 11):
+    from typing_extensions import TypedDict, NotRequired, Unpack
+else:
+    from typing import TypedDict, NotRequired, Unpack
 
 from nextcloud_async.driver import NextcloudTalkApi, NextcloudModule
 from nextcloud_async.client import NextcloudClient
@@ -228,8 +233,8 @@ class Conversation:
         look_into_future: bool
         limit: int
         timeout: int
-        last_known_message_id: Optional[int]
-        last_common_read_id: Optional[int]
+        last_known_message_id: NotRequired[int]
+        last_common_read_id: NotRequired[int]
         set_read_marker: bool
         include_last_known: bool
         no_status_update: bool
@@ -321,8 +326,8 @@ class Conversation:
     class _SendArgs(TypedDict):
         message: str
         reply_to: int
-        display_name: Optional[str]
-        reference_id: Optional[str]
+        display_name: NotRequired[str]
+        reference_id: NotRequired[str]
         silent: bool
 
     async def send(self, **kwargs: Unpack[_SendArgs]) -> Tuple[Message, httpx.Headers]:  # noqa: D417
@@ -366,8 +371,8 @@ class Conversation:
 
     class _SendRichObjectArgs(TypedDict):
         rich_object: NextcloudTalkRichObject
-        reference_id: Optional[str]
-        actor_display_name: str
+        reference_id: NotRequired[str]
+        actor_display_name: NotRequired[str]
 
     async def send_rich_object(  # noqa: D417
             self,
@@ -405,7 +410,7 @@ class Conversation:
     class _ShareFileArgs(TypedDict):
         path: str
         metadata: ChatFileShareMetadata
-        reference_id: Optional[str]
+        reference_id: NotRequired[str]
 
     async def share_file(self, **kwargs: Unpack[_ShareFileArgs]) -> int:  # noqa: D417
         """Share a file to the conversation.
@@ -1551,7 +1556,7 @@ class Conversations(NextcloudModule):
             path=f'/room/{room_token}/mention-permissions',
             data={'mentionPermissions': permissions.value})
 
-    async def get_token_for_internal_file(self, file_id: int) -> str:
+    async def get_conversation_for_internal_file(self, file_id: int) -> Conversation:
         """Return conversation token for discussion of internal file.
 
         Args:
@@ -1561,9 +1566,9 @@ class Conversations(NextcloudModule):
         Returns:
             Conversation token
         """
-        return await self.integrations_api.get_interal_file_chat_token(file_id)
+        return await self.integrations_api.get_interal_file_chat(file_id)
 
-    async def get_token_for_shared_file(self, share_token: str) -> str:
+    async def get_token_for_shared_file(self, share_token: str) -> Conversation:
         """Return conversationtoken for discussion of shared file.
 
         Args:
@@ -1573,7 +1578,7 @@ class Conversations(NextcloudModule):
         Returns:
             Conversation token
         """
-        return await self.integrations_api.get_public_file_share_chat_token(share_token)
+        return await self.integrations_api.get_public_file_share_chat(share_token)
 
     async def create_password_request(self, share_token: str) -> Dict[str, str]:
         """Create a conversation to request the password for a public share.

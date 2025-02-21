@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from typing import Any, Optional, List, Tuple, TYPE_CHECKING, Dict
+from typing import Any, List, Tuple, TYPE_CHECKING, Dict
 
 from nextcloud_async.driver import NextcloudModule, NextcloudTalkApi
 
