@@ -5,14 +5,16 @@ https://nextcloud-talk.readthedocs.io/en/latest/global/
 
 from .avatars import ConversationAvatars
 from .bots import Bot, Bots
+from .breakout_rooms import BreakoutRoom, BreakoutRooms
 from .calls import Calls
 from .chat import Chat, Message, MessageReminder, Suggestion
-from .conversations import Conversations, Conversation, Webinars, BreakoutRoom, BreakoutRooms
+from .conversations import Conversations, Conversation
 from .integrations import Integrations
 from .participants import Participants, Participant
 from .polls import Polls, Poll
 from .reactions import Reactions
 from .signaling import InternalSignaling
+from .webinars import Webinars
 
 
 from .constants import (
@@ -43,9 +45,10 @@ from .constants import (
 __all__ = [
     "ConversationAvatars",
     "Bot", "Bots",
+    "BreakoutRoom", "BreakoutRooms",
     "Calls",
     "Chat", "Message", "MessageReminder", "Suggestion",
-    "Conversations", "Conversation", "Webinars", "BreakoutRoom", "BreakoutRooms",
+    "Conversations", "Conversation",
     "Integrations",
     "Participants", "Participant",
     "Polls", "Poll",
@@ -72,4 +75,4 @@ __all__ = [
     "SessionState",
     "SharedItemType",
     "SipState",
-    "WebinarLobbyState"]
+    "Webinars", "WebinarLobbyState"]
