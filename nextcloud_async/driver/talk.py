@@ -44,7 +44,7 @@ class NextcloudTalkApi(NextcloudHttpApi):
     has_talk_capability = has_talk_feature
 
     async def require_talk_feature(self, capability: str) -> None:
-        if not self.has_talk_feature(capability):
+        if not await self.has_talk_feature(capability):
             raise NextcloudNotCapable()
 
     require_talk_capability = require_talk_feature
