@@ -706,8 +706,12 @@ class Conversation:
     async def list_breakout_rooms(self) -> List['BreakoutRoom']:
         return await self.api.list_breakout_rooms(self.token)
 
-    async def configure_breakout_rooms(self, **kwargs) -> Tuple['Conversation', List['BreakoutRoom']]:
-        response = await self.breakout_rooms_api.configure(room_token=self.token, **kwargs)
+    async def configure_breakout_rooms(
+            self,
+            **kwargs) -> Tuple['Conversation', List['BreakoutRoom']]:
+        response = await self.breakout_rooms_api.configure(
+            room_token=self.token,
+            **kwargs)
         return self._sort_room_types(response)
 
     async def create_additional_breakout_room(self, **kwargs) -> 'BreakoutRoom':
