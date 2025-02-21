@@ -45,7 +45,7 @@ from .talk import (
     SessionState,
     SharedItemType,
     SipState,
-    WebinarLobbyState
+    WebinarLobbyState,
   )
 from .users import Users
 from .wipe import Wipe
@@ -101,5 +101,5 @@ __all__ = [
     "SessionState",
     "SharedItemType",
     "SipState",
-    "WebinarLobbyState"
+    "WebinarLobbyState",
 ]

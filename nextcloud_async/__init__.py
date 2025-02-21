@@ -19,7 +19,7 @@ https://github.com/nextcloud/maps/blob/master/openapi.yml
 https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-sharee-api.html
 https://nextcloud-talk.readthedocs.io/en/latest/poll/
 
-# TODO:
+# To do:
 https://github.com/nextcloud/circles/wiki/Javascript-API-v1
 https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-share-api.html#federated-cloud-shares
 https://nextcloud-talk.readthedocs.io/en/latest/reaction/
@@ -38,5 +38,5 @@ from nextcloud_async import api, driver
 __all__ = [
     "NextcloudClient",
     "api",
-    "driver"
+    "driver",
 ]
