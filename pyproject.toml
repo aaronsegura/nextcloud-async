@@ -28,7 +28,8 @@ dependencies = [
   'httpx>=0.28,<=1.0',
   'xmltodict>=0.14,<=1.0',
   'platformdirs>=4.3,<=5.0',
-  'typing-extensions>=4.12,<=5.0']
+  'typing-extensions>=4.12,<=5.0',
+  'aiofile>=3.9.0,<=4.0']
 
 [project.urls]
 'Homepage' = 'https://github.com/aaronsegura/nextcloud-async'
