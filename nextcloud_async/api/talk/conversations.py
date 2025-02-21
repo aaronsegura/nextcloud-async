@@ -679,7 +679,8 @@ class Conversation:
             mode=mode)
 
     async def participants_connected_to_call(self) -> List[Participant]:
-        return await self.calls_api.get_connected_participants(self.token)
+        response = await self.calls_api.get_connected_participants(self.token)
+        return [Participant(data, self.talk_api) for data in response]
 
     async def join_call(self, **kwargs) -> None:
         await self.calls_api.join_call(room_token=self.token, **kwargs)
