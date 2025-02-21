@@ -13,7 +13,7 @@ from nextcloud_async.driver import NextcloudTalkApi, NextcloudModule
 from nextcloud_async.exceptions import NextcloudBadRequest
 from nextcloud_async.helpers import bool2int, filter_headers
 
-from .reactions import Reactions
+from .reactions import Reactions, Reaction
 from .rich_objects import NextcloudTalkRichObject
 from .constants import SharedItemType
 
@@ -34,6 +34,7 @@ class Message:
     talk_api: NextcloudTalkApi
 
     def __post_init__(self) -> None:
+        self._reactions: List[Reaction] = []
         self.chat_api = Chat(self.talk_api)
         self.reaction_api = Reactions(self.talk_api)
 
@@ -46,6 +47,20 @@ class Message:
     def __repr__(self) -> str:
         return str(self.data)
 
+    @property
+    def reactions(self) -> List[Reaction]:
+        """Property wrapper for lazy loading reactions.
+
+        Returns:
+            List of reactions to message
+        """
+        if not self._reactions:
+            self._pop_reactions
+        return self._reactions
+
+    async def _pop_reactions(self) -> None:
+        self._reactions = await self.get_reactions()
+
     async def add_reaction(self, reaction: str) -> None:
         """Add reaction to this message.
 
@@ -53,10 +68,11 @@ class Message:
             reaction:
                 Reaction emoji to add
         """
-        await self.reaction_api.add(
+        response = await self.reaction_api.add(
             room_token=self.token,
             message_id=self.id,
             reaction=reaction)
+        self._reactions = response
 
     async def remove_reaction(self, reaction: str) -> None:
         """Remove reaction from this message.
@@ -65,10 +81,11 @@ class Message:
             reaction:
                 Reaction emoji to remove
         """
-        await self.reaction_api.delete(
+        response = await self.reaction_api.delete(
             room_token=self.token,
             message_id=self.id,
             reaction=reaction)
+        self._reactions = response
 
     async def set_reminder(self, timestamp: dt.datetime) -> 'MessageReminder':
         """Set reminder for this message.
@@ -120,6 +137,26 @@ class Message:
         self.data = message.data
         return headers
 
+    async def get_reactions(self, reaction: Optional[str] = None) -> List[Reaction]:
+        """Retrieve reactions of a message by type.
+
+        Args:
+            room_token:
+                Token of conversation
+
+            message_id:
+                Message ID
+
+            reaction:
+                If present, filters by this type of reaction
+
+        Returns:
+            List of Reaction
+        """
+        response = await self.reaction_api.list(self.token, self.id, reaction)
+        self._reactions = response
+        return response
+
 
 @dataclass
 class MessageReminder:
@@ -152,6 +189,7 @@ class MessageReminder:
             self.messageId
         """
         return self.messageId
+
 
 @dataclass
 class Suggestion:
