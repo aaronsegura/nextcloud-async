@@ -30,7 +30,7 @@ class Calls(NextcloudModule):
                 Token of conversation
 
         Returns:
-            _description_
+            List of ParticipantData
         """
         response = await self._get(path=f'/{room_token}')
         return response
