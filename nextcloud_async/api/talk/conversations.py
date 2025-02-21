@@ -25,7 +25,6 @@ from nextcloud_async.driver import NextcloudTalkApi, NextcloudModule
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.helpers import bool2int
 
-
 from .avatars import ConversationAvatars
 from .bots import Bots, Bot
 from .calls import Calls
@@ -40,7 +39,6 @@ from .webinars import Webinars
 if TYPE_CHECKING:
     from .breakout_rooms import BreakoutRoom
 
-from .types import ConversationData
 from .constants import (
     ConversationType,
     ConversationReadOnlyState,
@@ -54,7 +52,10 @@ from .constants import (
     SipState,
     ConversationPermissionMode,
     CallNotificationLevel,
-    SharedItemType)
+    SharedItemType,
+    ParticipantInCallFlags,
+    PollMode,
+    BreakoutRoomAssignmentMode)
 
 
 @dataclass
@@ -678,121 +679,463 @@ class Conversation:
             mode=mode)
 
     async def participants_connected_to_call(self) -> List[Participant]:
+        """Get list of connected participants.
+
+        Returns:
+            List of ParticipantData
+        """
         response = await self.calls_api.get_connected_participants(self.token)
         return [Participant(data, self.talk_api) for data in response]
 
-    async def join_call(self, **kwargs) -> None:
+    class _JoinCallArgs(TypedDict):
+        flags: ParticipantInCallFlags
+        silent: bool
+        recording_consent: bool
+
+    async def join_call(self, **kwargs: Unpack[_JoinCallArgs]) -> None:  # noqa: D417
+        """Join a call.
+
+        Args:
+            flags:
+                ParticipantInCallFlags
+
+            silent:
+                Disable start call notifications for group/public calls
+
+            recording_consent:
+                When the user ticked a checkbox and agreed with being recorded (Only
+                needed when the config => call => recording-consent capability is set
+                to 1 or the capability is 2 and the conversation recordingConsent value
+                is 1)
+        """
         await self.calls_api.join_call(room_token=self.token, **kwargs)
 
-    async def send_call_notification(self, **kwargs) -> None:
-        await self.calls_api.send_notification(room_token=self.token, **kwargs)
+    async def send_call_notification(self, user_id: str) -> None:
+        """Send call notification.
 
-    async def send_call_sip_dialout_request(self, **kwargs) -> None:
-        await self.calls_api.send_sip_dialout_request(room_token=self.token, **kwargs)
+        Requires capability: send-call-notification
 
-    async def update_call_flags(self, **kwargs) -> None:
-        await self.calls_api.update_flags(room_token=self.token, **kwargs)
+        Args:
+            user_id:
+                Participant to notify.
+        """
+        await self.calls_api.send_notification(room_token=self.token, user_id=user_id)
 
-    async def leave_call(self, **kwargs: Dict[str, Any]) -> None:
-        await self.calls_api.leave(room_token=self.token, **kwargs)  # type: ignore
+    async def send_call_sip_dialout_request(self, user_id: str) -> None:
+        """Send SIP dial-out request.
 
-    async def set_avatar(self, **kwargs) -> None:
-        await self.avatar_api.set(self.token, **kwargs)
+        Requires capability: sip-support-dialout
 
-    async def set_avatar_emoji(self, **kwargs) -> None:
-        await self.avatar_api.set_emoji(room_token=self.token, **kwargs)
+        Args:
+            user_id:
+                The participant to call
+        """
+        await self.calls_api.send_sip_dialout_request(
+            room_token=self.token,
+            user_id=user_id)
+
+    async def update_call_flags(self, flags: ParticipantInCallFlags) -> None:
+        """Update call flags.
+
+        Args:
+            flags:
+                ParticipantInCallFlags
+        """
+        await self.calls_api.update_flags(room_token=self.token, flags=flags)
+
+    async def leave_call(self, end_for_all: bool) -> None:
+        """Leave a call (but staying in the conversation for future calls and chat).
+
+        Args:
+            end_for_all:
+                If sent as a moderator, end the meeting and all participants leave the
+                call.
+        """
+        await self.calls_api.leave(room_token=self.token, end_for_all=end_for_all)
+
+    async def set_avatar_image(self, image_data: bytes) -> None:
+        """Set conversations avatar.
+
+        Args:
+            room_token:
+                Token of conversation
+
+            image_data:
+                Image data
+        """
+        await self.avatar_api.set_image(self.token, image_data=image_data)
+
+    async def set_avatar_emoji(self, emoji: str, color: str) -> None:
+        """Set emoji as avatar.
+
+        Args:
+            emoji:
+                New emoji avatar
+
+            color:
+                HEX color code (6 times 0-9A-F) without the leading # character (omit to
+                fallback to the default bright/dark mode icon background color)
+        """
+        await self.avatar_api.set_emoji(room_token=self.token, emoji=emoji, color=color)
 
     async def delete_avatar(self) -> None:
+        """Delete conversation avatar.
+
+        To determine if the delete option should be presented to the user, it's
+        recommended to check the isCustomAvatar property of Conversation object.
+        """
         await self.avatar_api.delete(room_token=self.token)
 
-    async def get_avatar(self, **kwargs) -> bytes:
-        return await self.avatar_api.get(room_token=self.token, **kwargs)
+    async def get_avatar(self, dark_mode: bool) -> bytes:
+        """Get conversations avatar (binary).
 
-    async def get_federated_avatar(self, **kwargs) -> bytes:
-        return await self.get_federated_avatar(room_token=self.token, **kwargs)
+        Args:
+            dark_mode:
+                Whether to get Dark Mode version.
 
-    async def create_poll(self, **kwargs) -> Poll:
+        Returns:
+            Image data
+        """
+        return await self.avatar_api.get(room_token=self.token, dark_mode=dark_mode)
+
+    class _GetFederatedAvatarArgs(TypedDict):
+        cloud_id: str
+        size: int
+        dark_mode: bool
+
+    async def get_federated_avatar(  # noqa: D417
+            self,
+            **kwargs: Unpack[_GetFederatedAvatarArgs]) -> bytes:
+        """Get federated user avatar (binary).
+
+        Args:
+            cloud_id:
+                Federation CloudID to get the avatar for
+
+            size:
+                Only 64 and 512 are supported
+
+            dark_mode:
+                Whether to get Dark Mode version.
+
+        Returns:
+            Image data
+        """
+        return await self.avatar_api.get_federated(room_token=self.token, **kwargs)
+
+    class _CreatePollArgs(TypedDict):
+        question: str
+        options: List[str]
+        result_mode: PollMode
+        max_votes: int
+        draft: bool
+
+    async def create_poll(self, **kwargs: Unpack[_CreatePollArgs]) -> Poll:  # noqa: D417
+        """Create a poll in the conversation.
+
+        Args:
+            question:
+                The poll topic
+
+            options:
+                Voting options
+
+            result_mode:
+                PollMode
+
+            max_votes:
+                Maximum amount of options a participant can vote for
+
+            draft:
+                Whether or not to save this poll as a draft
+
+        Returns:
+            Poll object
+        """
         return await self.polls_api.create(room_token=self.token, **kwargs)
 
-    async def edit_draft_poll(self, **kwargs) -> Poll:
+    class _EditDraftPollArgs(TypedDict):
+        question: str
+        options: List[str]
+        result_mode: PollMode
+        max_votes: int
+
+    async def edit_draft_poll(self, **kwargs: Unpack[_EditDraftPollArgs]) -> Poll:  # noqa: D417
+        """Edit a draft poll in a conversation.
+
+        Args:
+            question:
+                Poll topic
+
+            options:
+                Voting options
+
+            result_mode:
+                PollMode
+
+            max_votes:
+                Maximum amount of options a participant can vote for
+
+        Returns:
+            Poll object
+        """
         return await self.polls_api.edit_draft(room_token=self.token, **kwargs)
 
-    async def get_poll(self, **kwargs) -> Poll:
-        return await self.polls_api.get(room_token=self.token, **kwargs)
+    async def get_poll(self, poll_id: int) -> Poll:
+        """Get state or result of a poll.
 
-    async def list_draft_polls(self, **kwargs) -> List[Poll]:
-        return await self.polls_api.list_drafts(room_token=self.token, **kwargs)
+        Args:
+            poll_id:
+                Poll ID
 
-    async def vote_on_poll(self, **kwargs) -> None:
-        await self.polls_api.vote(room_token=self.token, **kwargs)
+        Returns:
+            Poll object
+        """
+        return await self.polls_api.get(room_token=self.token, poll_id=poll_id)
 
-    async def close_poll(self, **kwargs) -> None:
-        await self.polls_api.close(room_token=self.token, **kwargs)
+    async def list_draft_polls(self) -> List[Poll]:
+        """Get a list of all poll drafts in the conversation.
+
+        Returns:
+            List of Poll objets
+        """
+        return await self.polls_api.list_drafts(room_token=self.token)
+
+    async def vote_on_poll(self, poll_id: int, votes: List[int]) -> None:
+        """Vote on a poll.
+
+        Args:
+            poll_id:
+                Poll ID
+
+            votes:
+                The option IDs the participant wants to vote for
+        """
+        await self.polls_api.vote(room_token=self.token, poll_id=poll_id, votes=votes)
+
+    async def close_poll(self, poll_id: int) -> None:
+        """Close a poll.
+
+        Args:
+             poll_id:
+                Poll ID
+        """
+        await self.polls_api.close(room_token=self.token, poll_id=poll_id)
 
     async def list_installed_bots(self) -> List[Bot]:
+        """Get list of bots installed on the server.
+
+        This is an administrator-only method.
+
+        Returns:
+            List of Bot objects
+        """
         return await self.bots_api.list_installed()
 
     async def list_bots(self) -> List[Bot]:
+        """Get list of bots for the conversation.
+
+        This is a moderator-level method.
+
+        Returns:
+            List of Bot objects
+        """
         return await self.bots_api.list_conversation_bots(self.token)
 
     async def list_breakout_rooms(self) -> List['BreakoutRoom']:
+        """Get breakout rooms.
+
+        Get all (for moderators and in case of "free selection") or the assigned breakout
+        room
+
+        Returns:
+            List of BreakoutRoom
+        """
         return await self.api.list_breakout_rooms(self.token)
 
-    async def configure_breakout_rooms(
+    class _ConfigureBreakoutRoomsArgs(TypedDict):
+        mode: BreakoutRoomAssignmentMode
+        num_rooms: int
+        attendee_map: Dict[str, int]
+
+    async def configure_breakout_rooms(  # noqa: D417
             self,
-            **kwargs) -> Tuple['Conversation', List['BreakoutRoom']]:
+            **kwargs: Unpack[_ConfigureBreakoutRoomsArgs]) -> \
+                Tuple['Conversation', List['BreakoutRoom']]:
+        """Configure breakout rooms for Conversation.
+
+        Args:
+            mode:
+                Participant assignment mode
+
+            num_rooms:
+                Number of breakout rooms to create
+
+            attendee_map:
+                A Dict of {attendeeId: room_number} (0 based)
+                Only considered when the mode is BreakoutRoomAssignmentMode.manual
+
+        Returns:
+            Parent room and all breakout rooms.
+        """
         response = await self.breakout_rooms_api.configure(
             room_token=self.token,
             **kwargs)
         return self._sort_room_types(response)
 
-    async def create_additional_breakout_room(self, **kwargs) -> 'BreakoutRoom':
+    class _CreateBreakoutRoomArgs(TypedDict):
+            room_type: ConversationType
+            object_type: RoomObjectType
+
+    async def create_additional_breakout_room(  # noqa: D417
+            self,
+            **kwargs: Unpack[_CreateBreakoutRoomArgs]) -> 'BreakoutRoom':
+        """Create a new breakout room in this conversation.
+
+        Args:
+            room_type:
+                See constants.ConversationType
+
+            object_type:
+                RoomObjectType of an object this room references, currently only allowed
+                value is room to indicate the parent of a breakout room
+
+            object_id:
+                Id of an object this room references, room token is used for the parent
+                of a breakout room
+
+        Returns:
+            New Conversation object
+        """
         response = await self.api.create(object_id=self.token, **kwargs)
         return BreakoutRoom(response.data, self.talk_api)
 
     async def remove_breakout_rooms(self) -> 'Conversation':
+        """Remove breakout rooms from conversation.
+
+        Returns:
+            Parent Conversation object
+        """
         return await self.breakout_rooms_api.remove(self.token)
 
     async def start_breakout_rooms(self) -> Tuple['Conversation', List['BreakoutRoom']]:
+        """Start breakout rooms.
+
+        Returns:
+            Parent room and all breakout rooms.
+        """
         return await self.breakout_rooms_api.start(self.token)
 
-    async def broadcast_breakout_rooms_message(self, **kwargs) -> None:
-        return await self.breakout_rooms_api.broadcast_message(self.token, **kwargs)
+    async def stop_breakout_rooms(self) -> Tuple['Conversation', List['BreakoutRoom']]:
+        """Stop breakout rooms for a conversation.
+
+        Returns:
+            Parent conversation and all breakout rooms.
+        """
+        return await self.breakout_rooms_api.stop(self.token)
+
+    async def broadcast_breakout_rooms_message(self, message: str) -> None:
+        """Broadcast message to all breakout rooms.
+
+        Must be a moderator in parent Conversation.
+
+        Args:
+            message:
+                Message to broadcast
+        """
+        return await self.breakout_rooms_api.broadcast_message(
+            self.token,
+            message=message)
 
     async def reorganize_breakout_room_attendees(
             self,
-            **kwargs) -> Tuple['Conversation', List['BreakoutRoom']]:
+            attendee_map: Dict[str, int]) -> Tuple['Conversation', List['BreakoutRoom']]:
+        """Reorganize attendees in breakout rooms.
+
+        Args:
+            attendee_map:
+                A Dict of {attendeeId: room_number} (0 based)
+
+        Returns:
+            Parent conversation and all breakout rooms.
+        """
         return await self.breakout_rooms_api.reorganize_attendees(
             room_token=self.token,
-            **kwargs)
+            attendee_map=attendee_map)
 
-    async def switch_breakout_room(self, **kwargs) -> 'BreakoutRoom':
-        return await self.breakout_rooms_api.switch_rooms(room_token=self.token, **kwargs)
+    async def switch_breakout_room(self, new_room: int) -> 'BreakoutRoom':
+        """Switch breakout rooms.
 
-    async def enable_lobby(self, **kwargs) -> ConversationData:
-        return await self.webinars_api.set_lobby_state(
+        This endpoint allows participants to switch between breakout rooms when they are
+        allowed to choose the breakout room and not are automatically or manually
+        assigned by the moderator.
+
+        Args:
+            new_room:
+                Token of new breakout room
+
+        Returns:
+            New breakout room.
+        """
+        return await self.breakout_rooms_api.switch_rooms(self.token, target=new_room)
+
+    async def enable_lobby(self, reset_time: dt.datetime) -> None:
+        """Enable lobby requirement for Conversation.
+
+        Args:
+            reset_time:
+                Time at which to remove lobby requirement.
+        """
+        response = await self.webinars_api.set_lobby_state(
             self.token,
-            WebinarLobbyState.lobby, **kwargs)
+            WebinarLobbyState.lobby,
+            reset_time)
+        self.data = response
 
-    async def disable_lobby(self) -> ConversationData:
-        return await self.webinars_api.set_lobby_state(
+    async def disable_lobby(self) -> None:
+        """Disable lobby requirement for Conversation."""
+        response = await self.webinars_api.set_lobby_state(
             self.token,
             WebinarLobbyState.no_lobby)
+        self.data = response
 
-    async def enable_sip_dialin(self) -> ConversationData:
-        return await self.webinars_api.set_sip_dialin(self.token, SipState.enabled)
+    async def enable_sip_dialin(self) -> None:
+        """Enable SIP dialin for webinar."""
+        response = await self.webinars_api.set_sip_dialin(self.token, SipState.enabled)
+        self.data = response
 
-    async def disable_sip_dialin(self) -> ConversationData:
-        return await self.webinars_api.set_sip_dialin(self.token, SipState.disabled)
+    async def disable_sip_dialin(self) -> None:
+        """Disable SIP dialin for webinar."""
+        response = await self.webinars_api.set_sip_dialin(self.token, SipState.disabled)
+        self.data = response
 
     async def get_signaling_settings(self) -> Dict[str, Any]:
+        """Get signaling settings."""
         return await self.signaling_api.get_settings(self.token)
 
-    async def join(self, password: Optional[str], force: bool = True) -> 'Conversation':
-        return await self.participants_api.join(
+    async def join(
+            self,
+            password: Optional[str] = None,
+            force: bool = True) -> 'Conversation':
+        """Join a conversation.
+
+        Args:
+            password:
+                Optional: Password is only required for users which are self joined or
+                guests and only when the conversation has hasPassword set to true.
+
+            force:
+                If set to false and the user has an active session already a 409 Conflict
+                will be returned (Default: true - to keep the old behaviour)
+
+        Returns:
+            Conversation object
+        """
+        response = await self.participants_api.join(
             self.token,
             password=password,
             force=force)
+        return Conversation(response, self.talk_api)
 
 class Conversations(NextcloudModule):
     """Nextcloud Talk Conversations API.
@@ -851,8 +1194,8 @@ class Conversations(NextcloudModule):
             room_type: ConversationType,
             invite: str = '',
             room_name: str = '',
-            object_type: RoomObjectType = RoomObjectType.room,
-            object_id: str = '',
+            object_type: Optional[RoomObjectType] = None,
+            object_id: Optional[str] = None,
             source: str = '') -> Conversation:
         """Create a new conversation.
 
@@ -864,8 +1207,7 @@ class Conversations(NextcloudModule):
                 Object ID to invite, dependent on room_type
 
             room_name:
-                Conversation Name (not valid for roomType =
-                ConversationType.one_to_one)
+                Conversation Name (not valid for roomType = ConversationType.one_to_one)
 
             object_type:
                 RoomObjectType of an object this room references, currently only allowed
@@ -1269,4 +1611,5 @@ class Conversations(NextcloudModule):
         Returns:
             Conversation
         """
-        return await self.participants_api.join(**kwargs)
+        response = await self.participants_api.join(**kwargs)
+        return Conversation(response, self.api)
