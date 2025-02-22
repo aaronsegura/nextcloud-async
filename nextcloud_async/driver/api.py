@@ -8,9 +8,9 @@ from nextcloud_async.client import NextcloudClient
 from nextcloud_async.exceptions import (
     NextcloudBadRequestError,
     NextcloudForbiddenError,
-    NextcloudNotModified,
+    NextcloudNotModifiedError,
     NextcloudUnauthorizedError,
-    NextcloudDeviceWipeRequested,
+    NextcloudDeviceWipeRequestedError,
     NextcloudNotFoundError,
     NextcloudTooManyRequestsError,
     NextcloudConflictError,
@@ -70,17 +70,17 @@ class NextcloudHttpApi(ABC):
 
         match response.status_code:
             case 304:
-                raise NextcloudNotModified()
+                raise NextcloudNotModifiedError()
             case 400:
                 raise NextcloudBadRequestError(response.json()['message'])
             case 401:
                 if await self._wipe_requested():
-                    raise NextcloudDeviceWipeRequested()
+                    raise NextcloudDeviceWipeRequestedError()
                 else:
                     raise NextcloudUnauthorizedError()
             case 403:
                 if await self._wipe_requested():
-                    raise NextcloudDeviceWipeRequested()
+                    raise NextcloudDeviceWipeRequestedError()
                 else:
                     raise NextcloudForbiddenError()
             case 404:

@@ -2,7 +2,6 @@
 
 from typing import Optional
 
-#TODO: https://peps.python.org/pep-0008/#exception-names
 
 class NextcloudError(Exception):
     """Generic Exception."""
@@ -25,7 +24,7 @@ class NextcloudError(Exception):
             return str(self.reason)
 
 
-class NextcloudNotModified:
+class NextcloudNotModifiedError(NextcloudError):
     """304 - Content not modified."""
 
     status_code = 304
@@ -67,7 +66,7 @@ class NextcloudForbiddenError(NextcloudError):
         super().__init__(reason=reason or self.reason)
 
 
-class NextcloudDeviceWipeRequested:
+class NextcloudDeviceWipeRequestedError(NextcloudError):
     """User has revoked this appKey, and requests a device wipe."""
 
     status_code = 403
