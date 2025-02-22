@@ -20,7 +20,7 @@ import datetime as dt
 
 from typing import Dict, Any
 
-from nextcloud_async.exceptions import NextcloudLoginFlowTimeout, NextcloudNotFound
+from nextcloud_async.exceptions import NextcloudLoginFlowTimeoutError, NextcloudNotFoundError
 from nextcloud_async.driver import NextcloudModule, NextcloudBaseApi, NextcloudOcsApi
 from nextcloud_async.client import NextcloudClient
 
@@ -82,14 +82,14 @@ class LoginFlowV2(NextcloudModule):
                 response = await self._post(
                     path=f'{self.stub}/poll',
                     data={'token': token})
-            except NextcloudNotFound:
+            except NextcloudNotFoundError:
                 pass
 
             running_time = (dt.datetime.now() - start_dt).seconds  # noqa: DTZ005
             await asyncio.sleep(1)
 
         if not response:
-            raise NextcloudLoginFlowTimeout()
+            raise NextcloudLoginFlowTimeoutError()
 
         return response
 

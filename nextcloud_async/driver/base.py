@@ -10,7 +10,7 @@ from typing import Optional, Any, Dict
 from nextcloud_async.driver import NextcloudHttpApi
 from nextcloud_async.client import NextcloudClient
 
-from nextcloud_async.exceptions import NextcloudRequestTimeout
+from nextcloud_async.exceptions import NextcloudRequestTimeoutError
 
 class NextcloudBaseApi(NextcloudHttpApi):
     """The Base API interface."""
@@ -80,7 +80,7 @@ class NextcloudBaseApi(NextcloudHttpApi):
                 json=data,
                 headers=headers)
         except httpx.ReadTimeout:
-            raise NextcloudRequestTimeout()
+            raise NextcloudRequestTimeoutError()
 
         await self.raise_response_exception(response)
 

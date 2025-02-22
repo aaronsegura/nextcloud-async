@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 from typing import Dict, Optional, List, Tuple, Any
 
 from nextcloud_async.driver import NextcloudTalkApi, NextcloudModule
-from nextcloud_async.exceptions import NextcloudBadRequest
+from nextcloud_async.exceptions import NextcloudBadRequestError
 from nextcloud_async.helpers import bool2int, filter_headers
 
 from .reactions import Reactions, Reaction
@@ -428,7 +428,7 @@ class Chat(NextcloudModule):
         if reference_id:
             await self.api.require_talk_feature('chat-reference-id')
             if len(reference_id) != _HASH_LENGTH:
-                raise NextcloudBadRequest()
+                raise NextcloudBadRequestError()
             else:
                 data['referenceId'] = reference_id
 
@@ -486,7 +486,7 @@ class Chat(NextcloudModule):
         if reference_id:
             await self.api.require_talk_feature('chat-reference-id')
             if len(reference_id) != _HASH_LENGTH:
-                raise NextcloudBadRequest()
+                raise NextcloudBadRequestError()
             else:
                 data['referenceId'] = reference_id
 
@@ -544,7 +544,7 @@ class Chat(NextcloudModule):
         if reference_id:
             await self.api.require_talk_feature('chat-reference-id')
             if len(reference_id) != _HASH_LENGTH:
-                raise NextcloudBadRequest()
+                raise NextcloudBadRequestError()
             else:
                 data['referenceId'] = reference_id
 

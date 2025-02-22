@@ -7,7 +7,7 @@ from typing import Dict, Any, Optional, cast, ByteString
 
 from nextcloud_async.driver import NextcloudHttpApi
 from nextcloud_async.client import NextcloudClient
-from nextcloud_async.exceptions import NextcloudException, NextcloudRequestTimeout
+from nextcloud_async.exceptions import NextcloudError, NextcloudRequestTimeoutError
 
 
 class NextcloudDavApi(NextcloudHttpApi):
@@ -67,7 +67,7 @@ class NextcloudDavApi(NextcloudHttpApi):
                 data=data,
                 headers=cast(Dict[str, Any], headers))
         except httpx.ReadTimeout:
-            raise NextcloudRequestTimeout()
+            raise NextcloudRequestTimeoutError()
 
         await self.raise_response_exception(response)
 
@@ -80,7 +80,7 @@ class NextcloudDavApi(NextcloudHttpApi):
             if 'd:error' in response_data:
                 err = response_data['d:error']
 
-                raise NextcloudException(
+                raise NextcloudError(
                     status_code=408, reason=f'{err["s:exception"]}: {err["s:message"]}'.replace('\n', ''))
 
             return response_data['d:multistatus']['d:response']

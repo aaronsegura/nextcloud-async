@@ -18,7 +18,7 @@ from typing import Any, Optional, List, Dict, Tuple, TypedDict, Unpack, NotRequi
 
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
-from nextcloud_async.exceptions import NextcloudException
+from nextcloud_async.exceptions import NextcloudError
 
 
 class ShareType(Enum):
@@ -232,7 +232,7 @@ class Shares(NextcloudModule):
         """
         if expire_date:
             if expire_date <= dt.datetime.now(tz=tzlocal()).date():
-                raise NextcloudException(
+                raise NextcloudError(
                     status_code=406,
                     reason='Invalid expiration date.  Should be in the future.')
 

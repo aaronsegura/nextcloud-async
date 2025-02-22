@@ -10,9 +10,9 @@ from typing import Dict, Any, Optional, List
 
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver import NextcloudHttpApi, NextcloudCapabilities
-from nextcloud_async.exceptions import NextcloudException
+from nextcloud_async.exceptions import NextcloudError
 
-from nextcloud_async.exceptions import NextcloudRequestTimeout
+from nextcloud_async.exceptions import NextcloudRequestTimeoutError
 
 
 class NextcloudOcsApi(NextcloudHttpApi):
@@ -131,7 +131,7 @@ class NextcloudOcsApi(NextcloudHttpApi):
                 json=data,
                 headers=headers)
         except httpx.ReadTimeout:
-            raise NextcloudRequestTimeout()
+            raise NextcloudRequestTimeoutError()
 
         await self.raise_response_exception(response)
 
@@ -139,10 +139,10 @@ class NextcloudOcsApi(NextcloudHttpApi):
             try:
                 response_content = json.loads(response.content.decode('utf-8'))
             except json.JSONDecodeError:
-                raise NextcloudException(status_code=500, reason='Error decoding JSON response.')
+                raise NextcloudError(status_code=500, reason='Error decoding JSON response.')
             ocs_meta = response_content['ocs']['meta']
             if ocs_meta['status'] != 'ok':
-                raise NextcloudException(
+                raise NextcloudError(
                     status_code=ocs_meta['statuscode'],
                     reason=ocs_meta['message'])
             else:
@@ -151,7 +151,7 @@ class NextcloudOcsApi(NextcloudHttpApi):
                 else:
                     return response_content['ocs']['data']
         else:
-            raise NextcloudException(status_code=500, reason='Invalid response from server.')
+            raise NextcloudError(status_code=500, reason='Invalid response from server.')
 
     # TODO: Move this to another module
 

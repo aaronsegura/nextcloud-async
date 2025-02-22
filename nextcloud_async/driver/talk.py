@@ -10,7 +10,7 @@ from typing import Dict, Any, Optional, Tuple
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver import NextcloudHttpApi, NextcloudCapabilities
 
-from nextcloud_async.exceptions import NextcloudRequestTimeout, NextcloudNotCapable
+from nextcloud_async.exceptions import NextcloudRequestTimeoutError, NextcloudNotCapableError
 
 
 class NextcloudTalkApi(NextcloudHttpApi):
@@ -45,7 +45,7 @@ class NextcloudTalkApi(NextcloudHttpApi):
 
     async def require_talk_feature(self, capability: str) -> None:
         if not await self.has_talk_feature(capability):
-            raise NextcloudNotCapable()
+            raise NextcloudNotCapableError()
 
     require_talk_capability = require_talk_feature
 
@@ -125,7 +125,7 @@ class NextcloudTalkApi(NextcloudHttpApi):
                 json=data,
                 headers=headers)
         except httpx.ReadTimeout:
-            raise NextcloudRequestTimeout()
+            raise NextcloudRequestTimeoutError()
 
         await self.raise_response_exception(response)
         return response.json()['ocs']['data'], response.headers

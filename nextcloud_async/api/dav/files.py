@@ -24,8 +24,8 @@ from nextcloud_async.client import NextcloudClient
 from nextcloud_async.helpers import remove_key_prefix
 
 from nextcloud_async.exceptions import (
-    NextcloudChunkedUploadException,
-    NextcloudException)
+    NextcloudChunkedUploadError,
+    NextcloudError)
 
 @dataclass
 class File:
@@ -72,7 +72,7 @@ class File:
         if self.is_trash:
             return '/{}'.format('/'.join(self.href.split('/')[3:]))
         else:
-            raise NextcloudException(
+            raise NextcloudError(
                 status_code=400,
                 reason='File is not a trashbin file.')
 
@@ -90,7 +90,7 @@ class File:
         if self.is_version:
             return '/{}'.format('/'.join(self.href.split('/')[3:]))
         else:
-            raise NextcloudException(
+            raise NextcloudError(
                 status_code=400,
                 reason='File is not a version file.')
 
@@ -157,7 +157,7 @@ class File:
             NextcloudException: File is not a trashbin file.
         """
         if not self.is_trash:
-            raise NextcloudException(
+            raise NextcloudError(
                 status_code=400,
                 reason='File is not a trashbin file.')
         return await self.files_api.restore_trash(self._trash_path)
@@ -170,7 +170,7 @@ class File:
             NextcloudException: File is not a version file.
         """
         if not self.is_version:
-            raise NextcloudException(
+            raise NextcloudError(
                 status_code=400,
                 reason='File is not a version file.')
         print(f"restoring {self._version_path}")
@@ -462,7 +462,7 @@ class Files(NextcloudModule):
         for count in range(1, len(path_chunks) + 1):
             try:
                 await self.mkdir("/".join(path_chunks[0:count]))
-            except NextcloudException as e:
+            except NextcloudError as e:
                 if 'already exists' not in str(e):
                     raise
 
@@ -533,7 +533,7 @@ class Files(NextcloudModule):
             # rest of file.
             if (span := re.match(r'[0-9]+-([0-9]+)$', file)):
                 if resume_chunk:
-                    raise NextcloudChunkedUploadException()
+                    raise NextcloudChunkedUploadError()
                 resume_chunk = file
                 file_position = int(span[1])
 

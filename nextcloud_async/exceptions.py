@@ -2,8 +2,9 @@
 
 from typing import Optional
 
+#TODO: https://peps.python.org/pep-0008/#exception-names
 
-class NextcloudException(Exception):  # noqa: N818
+class NextcloudError(Exception):
     """Generic Exception."""
 
     status_code = None
@@ -17,25 +18,24 @@ class NextcloudException(Exception):  # noqa: N818
         self.status_code = status_code
         self.reason = reason
 
-    def __str__(self) -> str:  # noqa: D105
+    def __str__(self) -> str:
         if self.status_code:
             return f'[{self.status_code}] {self.reason}'
         else:
             return str(self.reason)
 
 
-class NextcloudNotModified(NextcloudException):
+class NextcloudNotModified:
     """304 - Content not modified."""
 
     status_code = 304
     reason = 'Not modified.'
 
-    def __init__(self) -> None:
-        """Configure exception."""
-        super(NextcloudException, self).__init__()
+    def __str__(self) -> str:
+        return f'[{self.status_code}] {self.reason}'
 
 
-class NextcloudBadRequest(NextcloudException):
+class NextcloudBadRequestError(NextcloudError):
     """User made an invalid request."""
 
     status_code = 400
@@ -46,7 +46,7 @@ class NextcloudBadRequest(NextcloudException):
         super().__init__(reason=reason or self.reason)
 
 
-class NextcloudUnauthorized(NextcloudException):
+class NextcloudUnauthorizedError(NextcloudError):
     """User account is not authorized."""
 
     status_code = 401
@@ -56,7 +56,7 @@ class NextcloudUnauthorized(NextcloudException):
         """Configure exception."""
         super().__init__(reason=reason or self.reason)
 
-class NextcloudForbidden(NextcloudException):
+class NextcloudForbiddenError(NextcloudError):
     """Forbidden action due to permissions."""
 
     status_code = 403
@@ -67,19 +67,18 @@ class NextcloudForbidden(NextcloudException):
         super().__init__(reason=reason or self.reason)
 
 
-class NextcloudDeviceWipeRequested(NextcloudException):
+class NextcloudDeviceWipeRequested:
     """User has revoked this appKey, and requests a device wipe."""
 
     status_code = 403
     reason = 'User revoked key. Please wipe this device '\
              'and confirm with Wipe.notify_wiped().'
 
-    def __init__(self, reason: Optional[str] = None) -> None:
-        """Configure exception."""
-        super().__init__(reason=reason or self.reason)
+    def __str__(self) -> str:
+        return f'[{self.status_code}] {self.reason}'
 
 
-class NextcloudNotFound(NextcloudException):
+class NextcloudNotFoundError(NextcloudError):
     """Object not found."""
 
     status_code = 404
@@ -90,7 +89,7 @@ class NextcloudNotFound(NextcloudException):
         super().__init__(reason=reason or self.reason)
 
 
-class NextcloudMethodNotAllowed(NextcloudException):
+class NextcloudMethodNotAllowedError(NextcloudError):
     """HTTP Request timed out."""
 
     status_code = 405
@@ -101,18 +100,18 @@ class NextcloudMethodNotAllowed(NextcloudException):
         super().__init__(reason=reason or self.reason)
 
 
-class NextcloudNotSupported(NextcloudException):
-    """Federation endpoints not enabled."""
+class NextcloudNotSupportedError(NextcloudError):
+    """Action not supported."""
 
     status_code = 406
-    reason = "Federation not supported."
+    reason = "Action not supported."
 
     def __init__(self, reason: Optional[str] = None) -> None:
         """Configure exception."""
         super().__init__(reason=reason or self.reason)
 
 
-class NextcloudRequestTimeout(NextcloudException):
+class NextcloudRequestTimeoutError(NextcloudError):
     """HTTP Request timed out."""
 
     status_code = 408
@@ -123,7 +122,7 @@ class NextcloudRequestTimeout(NextcloudException):
         super().__init__(reason=reason or self.reason)
 
 
-class NextcloudLoginFlowTimeout(NextcloudException):
+class NextcloudLoginFlowTimeoutError(NextcloudError):
     """LoginFlowv2 request timed out.
 
     The wait_confirm() function can be called multiple times.
@@ -137,30 +136,30 @@ class NextcloudLoginFlowTimeout(NextcloudException):
         super().__init__(reason=reason or self.reason)
 
 
-class NextcloudConflict(NextcloudException):
+class NextcloudConflictError(NextcloudError):
     """Curent state disallows the action."""
 
     status_code = 409
-    reason = 'User has duplicate Talk sessions.'
+    reason = 'Current conditions disallow action.'
 
     def __init__(self, reason: Optional[str] = None) -> None:
         """Configure exception."""
         super().__init__(reason=reason or self.reason)
 
 
-class NextcloudPreconditionFailed(NextcloudException):
+class NextcloudPreconditionError(NextcloudError):
     """Precondition of action failed."""
 
     status_code = 412
-    reason = 'User tried to join chat room without going to lobby.'
+    reason = 'User attempted action that requires other actions first.'
 
     def __init__(self, reason: Optional[str] = None) -> None:
         """Configure exception."""
         super().__init__(reason=reason or self.reason)
 
 
-class NextcloudFederationRemoteError(NextcloudException):
-    """Precondition of action failed."""
+class NextcloudFederationRemoteError(NextcloudError):
+    """Federation peering error."""
 
     status_code = 422
     reason = 'Remote federation peer error.'
@@ -170,8 +169,8 @@ class NextcloudFederationRemoteError(NextcloudException):
         super().__init__(reason=reason or self.reason)
 
 
-class NextcloudUpgradeRequired(NextcloudException):
-    """Precondition of action failed."""
+class NextcloudUpgradeRequiredError(NextcloudError):
+    """Client upgrade required."""
 
     status_code = 426
     reason = 'Client software update is required.'
@@ -181,7 +180,7 @@ class NextcloudUpgradeRequired(NextcloudException):
         super().__init__(reason=reason or self.reason)
 
 
-class NextcloudTooManyRequests(NextcloudException):
+class NextcloudTooManyRequestsError(NextcloudError):
     """Too many requests."""
 
     status_code = 429
@@ -192,7 +191,7 @@ class NextcloudTooManyRequests(NextcloudException):
         super().__init__(reason=reason or self.reason)
 
 
-class NextcloudNotCapable(NextcloudException):
+class NextcloudNotCapableError(NextcloudError):
     """Raised when server does not have required capability."""
 
     status_code = 499
@@ -203,8 +202,8 @@ class NextcloudNotCapable(NextcloudException):
         super().__init__(reason=reason or self.reason)
 
 
-class NextcloudServiceNotAvailable(NextcloudException):
-    """Raised when server does not have required capability."""
+class NextcloudServiceNotAvailableError(NextcloudError):
+    """Raised when server returns 503 error."""
 
     status_code = 503
     reason = 'Service is not avaiable'
@@ -214,7 +213,7 @@ class NextcloudServiceNotAvailable(NextcloudException):
         super().__init__(reason=reason or self.reason)
 
 
-class NextcloudChunkedUploadException(NextcloudException):
+class NextcloudChunkedUploadError(NextcloudError):
     """When there is more than one chunk in the local cache directory."""
 
     status_code = 999

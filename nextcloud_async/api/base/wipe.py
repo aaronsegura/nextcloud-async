@@ -11,7 +11,7 @@ import httpx
 
 from nextcloud_async.driver import NextcloudModule, NextcloudBaseApi
 from nextcloud_async.client import NextcloudClient
-from nextcloud_async.exceptions import NextcloudBadRequest, NextcloudNotFound
+from nextcloud_async.exceptions import NextcloudBadRequestError, NextcloudNotFoundError
 
 class Wipe(NextcloudModule):
     """Interact with Nextcloud Remote Wipe API.
@@ -42,13 +42,13 @@ class Wipe(NextcloudModule):
             response = await self.api.client.http_client.post(
                 url=f'{self.api.client.endpoint}{self.stub}/check',
                 data={'token': self.api.client.password})
-        except NextcloudNotFound:
+        except NextcloudNotFoundError:
             return False
 
         try:
             result = response.json()
         except json.decoder.JSONDecodeError:
-            raise NextcloudBadRequest
+            raise NextcloudBadRequestError
 
         if 'wipe' in result:
             return result['wipe']

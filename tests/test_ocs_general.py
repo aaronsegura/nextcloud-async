@@ -8,7 +8,7 @@ from .base import BaseTestCase
 from .helpers import AsyncMock
 from .constants import USER, ENDPOINT, PASSWORD
 
-from nextcloud_async.exceptions import NextcloudException
+from nextcloud_async.exceptions import NextcloudError
 
 import asyncio
 import httpx
@@ -208,7 +208,7 @@ class OCSGeneralAPI(BaseTestCase):  # noqa: D101
                 content=capabilities_response)) as mock:
             try:
                 response = asyncio.run(self.ncc.get_capabilities('capabilities.invalid'))
-            except NextcloudException:
+            except NextcloudError:
                 pass
             finally:
                 mock.assert_called_with(
@@ -217,4 +217,4 @@ class OCSGeneralAPI(BaseTestCase):  # noqa: D101
                     url=f'{ENDPOINT}/ocs/v1.php/cloud/capabilities?format=json',
                     data=None,
                     headers={'OCS-APIRequest': 'true'})
-                self.assertRaises(NextcloudException)
+                self.assertRaises(NextcloudError)
