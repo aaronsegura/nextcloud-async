@@ -5,7 +5,7 @@ https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/instruc
 
 from dataclasses import dataclass
 
-from typing import Optional, List, Any
+from typing import List, Any
 
 from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
 from nextcloud_async.client import NextcloudClient
@@ -16,7 +16,7 @@ class Group:
     data: str
     groups_api: 'Groups'
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self._data = {'name': self.data}
 
     def __getattr__(self, k: str) -> Any:
@@ -28,13 +28,27 @@ class Group:
     def __repr__(self) -> str:
         return f'<Nextcloud Group {self.data}>'
 
-    async def get_members(self):
+    async def get_members(self) -> List[str]:
+        """Get group members.
+
+        Returns:
+            list: Users belonging to `group_id`
+        """
         return await self.groups_api.get_members(self.name)
 
-    async def get_subadmins(self):
+    async def get_subadmins(self) -> List[str]:
+        """Get `group_id` subadmins.
+
+        Args:
+            group_id (str): Group ID
+
+        Returns:
+            list: Users who are subadmins of this group.
+        """
         return await self.groups_api.get_subadmins(self.name)
 
     async def delete(self) -> None:
+        """Delete this group."""
         await self.groups_api.delete(self.name)
         self._data['name'] = '<deleted>'
 
@@ -44,7 +58,7 @@ class Groups(NextcloudModule):
 
     def __init__(
             self,
-            client: NextcloudClient):
+            client: NextcloudClient) -> None:
 
         self.api = NextcloudOcsApi(client)
         self.stub = '/cloud/groups'
@@ -69,7 +83,7 @@ class Groups(NextcloudModule):
                 Page offset. Defaults to 0.
 
         Returns:
-            list: Group names.
+            List of Groups
         """
         response = await self._get(
             data={
@@ -78,54 +92,47 @@ class Groups(NextcloudModule):
                 'search': search})
         return [Group(data, self) for data in response['groups']]
 
-    async def add(self, group_name: str) -> Group:
+    async def add(self, group_id: str) -> Group:
         """Create a new group.
 
-        Args
-        ----
-            group_name (str): Group name
-        """
-        await self._post(data={'groupid': group_name})
-        return Group(group_name, self)
+        Args:
+            group_id (str): Group name
 
-    async def get_members(self, group_name: str) -> List[str]:
+        Returns:
+            New Group
+        """
+        await self._post(data={'groupid': group_id})
+        return Group(group_id, self)
+
+    async def get_members(self, group_id: str) -> List[str]:
         """Get group members.
 
-        Args
-        ----
+        Args:
             group_id (str): _description_
 
-        Returns
-        -------
+        Returns:
             list: Users belonging to `group_id`
         """
         response = await self._get(
-            path=f'/{group_name}')
+            path=f'/{group_id}')
         return response['users']
 
-    async def get_subadmins(self, group_name: str) -> List[str]:
-        """Get `group_name` subadmins.
+    async def get_subadmins(self, group_id: str) -> List[str]:
+        """Get `group_id` subadmins.
 
-        Args
-        ----
-            group_name (str): Group ID
-
-        Returns
-        -------
-            list: Users who are subadmins of this group.
-        """
-        return await self._get(path=f'/{group_name}/subadmins')
-
-    async def delete(self, group_name: str) -> None:
-        """Remove `group_id`.
-
-        Args
-        ----
+        Args:
             group_id (str): Group ID
 
-        Returns
-        -------
-            Empty 100 Response
+        Returns:
+            list: Users who are subadmins of this group.
+        """
+        return await self._get(path=f'/{group_id}/subadmins')
+
+    async def delete(self, group_id: str) -> None:
+        """Remove `group_id`.
+
+        Args:
+            group_id (str): Group ID
         """
         return await self._delete(
-            path=f'/{group_name}')
+            path=f'/{group_id}')

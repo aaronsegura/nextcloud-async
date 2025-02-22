@@ -27,18 +27,17 @@ class Wipe(NextcloudModule):
     """
     def __init__(
             self,
-            client: NextcloudClient):
+            client: NextcloudClient) -> None:
         self.api = NextcloudBaseApi(client)
         self.stub = '/index.php/core/wipe'
 
     async def check(self) -> bool:
         """Check for remote wipe flag.
 
-        Returns
-        -------
+        Returns:
             bool: Whether user has flagged this device for remote wiping.
         """
-        #Here we must use the direct httpx.post method without authentication.
+        #Here we use the direct httpx.post method without authentication.
         try:
             response = await self.api.client.http_client.post(
                 url=f'{self.api.client.endpoint}{self.stub}/check',
@@ -60,8 +59,7 @@ class Wipe(NextcloudModule):
 
         Here we must use the direct httpx.post method without authentication.
 
-        Returns
-        -------
+        Returns:
             Empty 200 Response
         """
         return await self.api.client.http_client.post(

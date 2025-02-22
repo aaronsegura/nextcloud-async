@@ -6,14 +6,15 @@ https://github.com/nextcloud/server/blob/892c473b064af222570a0c7155d9603a229d731
 Not Implemented:
     Federated share management
 """
-
+import json
 import asyncio
 
 import datetime as dt
+from dateutil.tz import tzlocal
 from dataclasses import dataclass
 
 from enum import Enum, IntFlag
-from typing import Any, Optional, List, Dict, Tuple
+from typing import Any, Optional, List, Dict, Tuple, TypedDict, Unpack, NotRequired
 
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
@@ -56,22 +57,60 @@ class Share:
     data: Dict[str, Any]
     shares_api: 'Shares'
 
-    async def delete(self):
+    async def delete(self) -> None:
+        """Delete this share."""
         await self.shares_api.delete(self.id)
         self.data = {}
 
-    async def update(self, **kwargs):
+    class _ShareUpdateArgs(TypedDict):
+        permissions: NotRequired[SharePermission]
+        password: NotRequired[str]
+        allow_public_upload: NotRequired[bool]
+        expire_date: NotRequired[dt.date]
+        attributes: NotRequired[str]
+        send_mail: NotRequired[bool]
+        note: NotRequired[str]
+
+    async def update(self, **kwargs: Unpack[_ShareUpdateArgs]) -> None:  # noqa: D417
+        """Update properties of this share.
+
+        This function makes asynchronous calls to the __update_share function
+        since the underlying API can only accept one modification per query.
+        We launch one asynchronous request per given parameter.
+
+        Args:
+            permissions:
+                New permissions.
+
+            password:
+                New password.
+
+            allow_public_upload:
+                Whether to allow public uploads to shared folder.
+
+            expire_date:
+                Expiration date (YYYY-MM-DD).
+
+            note: \
+                Note for this share.  Defaults to None.
+
+            attributes: \
+                serialized JSON string for share attributes (see docs)
+
+            send_mail:
+                send an email to the recipient. This will not send an email on its
+                own. You will have to use the send-email endpoint to send the email.
+        """
         await self.shares_api.update(share_id=self.id, **kwargs)
 
     def __getattr__(self, k: str) -> Any:
         return self.data[k]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'<Nextcloud Share "{self.path}" by {self.displayname_owner}>'
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self.data)
-
 
 
 class Shares(NextcloudModule):
@@ -79,19 +118,10 @@ class Shares(NextcloudModule):
     def __init__(
             self,
             client: NextcloudClient,
-            api_version: str = '1'):
+            ocs_version: str = '2',
+            api_version: str = '1') -> None:
         self.stub = f'/apps/files_sharing/api/v{api_version}/shares'
-        self.api = NextcloudOcsApi(client, ocs_version = '2')
-
-    async def list(self) -> List[Share]:
-        """Return list of all shares.
-
-        Returns
-        -------
-            list: Share descriptions
-        """
-        response = await self._get()
-        return [Share(x, self) for x in response]
+        self.api = NextcloudOcsApi(client, ocs_version = ocs_version)
 
     async def get_file_shares(
             self,
@@ -102,18 +132,24 @@ class Shares(NextcloudModule):
             include_tags: bool = False) -> List[Share]:
         """Return list of shares for given file/folder.
 
-        Args
-        ----
-            path (str): Path to file
+        Args:
+            path:
+                Path to file
 
-            reshares (bool, optional): Also list reshares. Defaults to False.
+            reshares:
+                Also list reshares. Defaults to False.
 
-            subfiles (bool, optional): List recursively if `path` is a folder. Defaults to
-            False.
+            subfiles:
+                List recursively if `path` is a folder. Defaults to False.
 
-        Returns
-        -------
-            list: File share descriptions
+            shared_with_me:
+                Only list files shared with the current user
+
+            include_tags:
+                Include tags with listing
+
+        Returns:
+            List[Share]
         """
         response = await self._get(
             data={
@@ -127,20 +163,18 @@ class Shares(NextcloudModule):
     async def get(self, share_id: int) -> Share:
         """Return information about a known share.
 
-        Args
-        ----
-            share_id (int): Share ID
+        Args:
+            share_id: Share ID
 
-        Returns
-        -------
-            dict: Share description
+        Returns:
+            Share object
         """
         response = await self._get(
             path=f'/{share_id}',
             data={'share_id': share_id})
         return Share(response[0], self)
 
-    async def create(
+    async def create(  # noqa: D417
             self,
             path: str,
             permissions: SharePermission,
@@ -149,44 +183,58 @@ class Shares(NextcloudModule):
             allow_public_upload: bool = False,
             password: Optional[str] = None,
             send_password_by_talk: bool = False,
-            expire_date: Optional[dt.datetime] = None,
+            expire_date: Optional[dt.date] = None,
             note: Optional[str] = None,
-            label: Optional[str] = None):
+            label: Optional[str] = None,
+            send_mail: bool = False) -> Share:
         """Create a new share.
 
-        Args
-        ----
-            path (str): File to share
+        Args:
+            path:
+                File to share
 
-            share_type (ShareType): See ShareType Enum
+            share_type:
+                See ShareType Enum
 
-            permissions (SharePermission): See SharePermissions Enum
+            permissions:
+                See SharePermissions Enum
 
-            share_with (str, optional): Target of your sharing. Defaults to None.
+            share_with:
+                Target of your sharing.
 
-            allow_public_upload (bool, optional): Whether to allow public upload to shared
-            folder. Defaults to False.
+            allow_public_upload:
+                Whether to allow public upload to shared folder. Defaults to False.
 
-            password (str, optional): Set a password on this share. Defaults to None.
+            password:
+                Set a password on this share. Defaults to None.
 
-            expire_date (str, optional): Expiration date (YYYY-MM-DD) for this share.
-            Defaults to None.
+            expire_date:
+                Expiration datetime.date for this share.  Defaults to None.
 
-            note (str, optional): Optional note to sharees. Defaults to None.
+            label:
+                Adds a label for the share recipient.
 
-        Raises
-        ------
-            NextcloudException: Invalid expiration date or date in the past.
+            send_password_by_talk:
+                Allows to set up a 'request password' room in Talk to distribute the
+                password for this share.
 
-        Returns
-        -------
-            # TODO : fill me in
+            send_mail:
+                Whether to send an e-mail to the recipient(s) after creation
+
+            note: \
+                Optional note to sharees. Defaults to None.
+
+        Raises:
+            NextcloudException: Date in the past.
+
+        Returns:
+            New Share object.
         """
-
-        # Checks the expire_date argument exists before evaluation, otherwise continues.
         if expire_date:
-            if expire_date < dt.datetime.now():
-                raise NextcloudException(status_code=406, reason='Invalid expiration date.  Should be in the future.')
+            if expire_date <= dt.datetime.now(tz=tzlocal()).date():
+                raise NextcloudException(
+                    status_code=406,
+                    reason='Invalid expiration date.  Should be in the future.')
 
         response = await self._post(
             data={
@@ -199,71 +247,100 @@ class Shares(NextcloudModule):
                 'expireDate': expire_date.strftime(r'%Y-%m-%d') if expire_date else None,
                 'note': note,
                 'label': label,
-                'sendPasswordByTalk': send_password_by_talk})
+                'sendPasswordByTalk': send_password_by_talk,
+                'sendMail': send_mail})
         return(Share(response, self))
 
-    async def delete(self, share_id: int):
+    async def delete(self, share_id: int) -> None:
         """Delete an existing share.
 
-        Args
-        ----
+        Args:
             share_id (int): The Share ID to delete
 
-        Returns
-        -------
+        Returns:
             Query results.
         """
         return await self._delete(
             path=f'/{share_id}',
             data={'share_id': share_id})
 
+    #    This function makes asynchronous calls to the __update_share function
+    #     since the underlying API can only accept one modification per query.
+    #     We launch one asynchronous request per given parameter and return a
+    #     list containing the results of all queries.
+
     async def update(
             self,
             share_id: int,
-            permissions: Optional[SharePermission] = None,
-            password: Optional[str] = None,
-            allow_public_upload: Optional[bool] = None,
-            expire_date: Optional[str] = None,  # YYYY-MM-DD
-            note: Optional[str] = None) -> List[Dict[str, Any]]:
+            permissions: Optional[SharePermission] = None, # noqa: ARG002
+            password: Optional[str] = None, # noqa: ARG002
+            allow_public_upload: Optional[bool] = None, # noqa: ARG002
+            expire_date: Optional[dt.date] = None, # noqa: ARG002
+            attributes: Optional[str] = None, # noqa: ARG002
+            send_mail: Optional[bool] = None, # noqa: ARG002
+            note: Optional[str] = None) -> None: # noqa: ARG002
         """Update properties of an existing share.
 
         This function makes asynchronous calls to the __update_share function
         since the underlying API can only accept one modification per query.
-        We launch one asynchronous request per given parameter and return a
-        list containing the results of all queries.
+        We launch one asynchronous request per given parameter.
 
-        Args
-        ----
-            share_id (int): The share ID to update
+        Args:
+            share_id:
+                The share ID to update
 
-            permissions (SharePermission, optional): New permissions.
-            Defaults to None.
+            permissions:
+                New permissions.
 
-            password (str, optional): New password. Defaults to None.
+            password:
+                New password.
 
-            allow_public_upload bool, optional): Whether to allow
-            public uploads to shared folder. Defaults to None.
+            allow_public_upload:
+                Whether to allow public uploads to shared folder.
 
-            expire_date str, optional): Expiration date (YYYY-MM-DD).
-            Defaults to None.
+            expire_date:
+                Expiration date (YYYY-MM-DD).
 
-            note (str): Note for this share.  Defaults to None.
+            note: \
+                Note for this share.  Defaults to None.
 
-        Returns
-        -------
-            List: responses from update queries
+            attributes: \
+                serialized JSON string for share attributes (see docs)
+
+            send_mail:
+                send an email to the recipient. This will not send an email on its
+                own. You will have to use the send-email endpoint to send the email.
         """
-        attrs: List[Tuple[str, Any]] = [
-            ('permissions', permissions),
-            ('password', password),
-            ('publicUpload', str(allow_public_upload).lower()),
-            ('expireDate', expire_date),
-            ('note', note)]
-
-        reqs = [self.__update_share(share_id, k, v) for k, v in attrs if v]
-        return await asyncio.gather(*reqs)
+        if attributes:
+            attributes = json.dumps(attributes)
+        allowed_updates = [
+            'permissions',
+            'password',
+            'allow_public_upload',
+            'expire_date',
+            'note',
+            'attributes',
+            'send_mail']
+        updates: List[Tuple[str, Any]] = [(k,locals()[k]) for k in allowed_updates if k]
+        reqs = [self.__update_share(share_id, k, v) for k, v in updates]
+        await asyncio.gather(*reqs)
 
     async def __update_share(self, share_id: int, key: str, value: Any) -> Dict[str, Any]:
         return await self._put(
             path=f'/{share_id}',
             data={key: value})
+
+
+    async def send_email(self, share_id: int, password: str) -> None:
+        """Send an email to the recipients of a share.
+
+        Args:
+            share_id:
+                Share ID
+
+            password:
+                The share password if enabled.
+        """
+        await self._post(
+            path=f'/{share_id}/send-email',
+            data={'password': password} if password else None)

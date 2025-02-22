@@ -1,5 +1,6 @@
 # noqa: D400 D415
-"""
+"""Nextcloud LDAP Interface.
+
 https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/user_auth_ldap_api.html
 """
 
@@ -18,24 +19,22 @@ class Ldap(NextcloudModule):
     def __init__(
             self,
             client: NextcloudClient,
-            api_version: str = '1'):
+            api_version: str = '1') -> None:
         self.stub = f'/apps/user_ldap/api/v{api_version}'
         self.api = NextcloudOcsApi(client, ocs_version = '2')
 
     async def add_config(self) -> Dict[str, Any]:
         """Create a new LDAP configuration.
 
-        Returns
-        -------
+        Returns:
             dict: New configuration ID, { "configID": ID }
         """
         return await self._post(path='/config')
 
-    async def delete_config(self, id: str):
+    async def delete_config(self, id: str) -> None:
         """Remove the given LDAP configuration.
 
-        Args
-        ----
+        Args:
             id (str): LDAP Configuration ID
         """
         await self._delete(path=f'/config/{id}')
@@ -43,21 +42,18 @@ class Ldap(NextcloudModule):
     async def get_config(self, id: str) -> Dict[str, Any]:
         """Get an LDAP configuration.
 
-        Args
-        ----
+        Args:
             id (str): LDAP Configuration ID
 
-        Returns
-        -------
+        Returns:
             dict: LDAP configuration description
         """
         return await self._get(path=f'/config/{id}')
 
-    async def update_config(self, id: str, config_data: Dict[str, Any]):
+    async def update_config(self, id: str, config_data: Dict[str, Any]) -> None:
         """Update/set the properties of a given LDAP configuration.
 
-        Args
-        ----
+        Args:
             id (str): LDAP Configuration ID
 
             config_data (Dict): New values for configuration.

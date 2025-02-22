@@ -1,6 +1,6 @@
-"""Implement Nextcloud DAV API for File Management.
+"""Nextcloud DAV API for File Management.
 
-    https://docs.nextcloud.com/server/latest/developer_manual/client_apis/WebDAV/index.html
+https://docs.nextcloud.com/server/latest/developer_manual/client_apis/WebDAV/index.html
 """
 import io
 import os
@@ -8,15 +8,16 @@ import uuid
 import json
 import re
 import httpx
+from aiofile import async_open
 
 import platformdirs as pdir
-import xml.etree.ElementTree as etree
+import xml.etree.ElementTree as ET
 
 from urllib.parse import quote
 
 from dataclasses import dataclass
 
-from typing import List, Optional, Any, Dict, ByteString
+from typing import List, Any
 
 from nextcloud_async.driver import NextcloudModule, NextcloudDavApi
 from nextcloud_async.client import NextcloudClient
@@ -28,10 +29,10 @@ from nextcloud_async.exceptions import (
 
 @dataclass
 class File:
-    data: Dict[str, Any]
+    data: dict[str, Any]
     files_api: 'Files'
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if isinstance(self.data['d:propstat'], list):
             for prop in self.data['d:propstat']:
                 self.data.update(prop['d:prop'])
@@ -43,76 +44,149 @@ class File:
     def __getattr__(self, k: str) -> Any:
         return self.data[k]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'<Nextcloud File "{self.path}">'
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'<Nextcloud File {self.data}>'
 
     @property
-    def path(self):
+    def path(self) -> str:
+        """File path relative to user data directory.
+
+        Returns:
+            File path
+        """
         return '/{}'.format('/'.join(self.href.split('/')[5:]))
 
     @property
-    def _trash_path(self):
+    def _trash_path(self) -> str:
+        """Trashed file path relative to root directory.
+
+        Raises:
+            NextcloudException: When file is not a trashbin file
+
+        Returns:
+            File path.
+        """
         if self.is_trash:
             return '/{}'.format('/'.join(self.href.split('/')[3:]))
         else:
-            raise NextcloudException(status_code=400, reason='File is not a trashbin file.')
+            raise NextcloudException(
+                status_code=400,
+                reason='File is not a trashbin file.')
 
     @property
-    def is_trash(self):
+    def is_trash(self) -> bool:
+        """Return True if file is a trashbin file.
+
+        Returns:
+            True or False
+        """
         return self.href.startswith('/remote.php/dav/trashbin/')
 
     @property
-    def _version_path(self):
+    def _version_path(self) -> str:
         if self.is_version:
             return '/{}'.format('/'.join(self.href.split('/')[3:]))
         else:
-            raise NextcloudException(status_code=400, reason='File is not a version file.')
+            raise NextcloudException(
+                status_code=400,
+                reason='File is not a version file.')
 
     @property
-    def is_version(self):
+    def is_version(self) -> bool:
+        """Return True if this file represents a restorable version.
+
+        Returns:
+            True or False
+        """
         return self.href.startswith('/remote.php/dav/versions/')
 
-    async def download(self):
+    async def download(self) -> bytes:
+        """Download this file."""
         return await self.files_api.download(self.path)
 
-    async def delete(self):
+    async def delete(self) -> None:
+        """Delete this file."""
         return await self.files_api.delete(self.path)
 
-    async def move(self, **kwargs):
-        return await self.files_api.move(source=self.path, **kwargs)
+    async def move(self, dest: str, overwrite: bool = False) -> None:
+        """Move this file.
 
-    async def copy(self, **kwargs):
-        return await self.files_api.copy(source=self.path, **kwargs)
+        Args:
+            dest:
+                Destination path
 
-    async def set_favorite(self):
+            overwrite:
+                Overwrite destination if it exists
+        """
+        return await self.files_api.move(
+            source=self.path,
+            dest=dest,
+            overwrite=overwrite)
+
+    async def copy(self, dest: str, overwrite: bool= False) -> None:
+        """Copy file.
+
+        Args:
+            dest:
+                Copy destination relative to user root
+
+            overwrite:
+                Overwrite destination if it exists
+        """
+        await self.files_api.copy(
+            source=self.path,
+            dest=dest,
+            overwrite=overwrite)
+
+    async def set_favorite(self) -> None:
+        """Mark this file as a favorite."""
         await self.files_api.set_favorite(self.path)
         self.favorite = True
 
-    async def unset_favorite(self):
-        return await self.files_api.unset_favorite(self.path)
+    async def unset_favorite(self) -> None:
+        """Remove this file from favorites."""
+        await self.files_api.unset_favorite(self.path)
 
-    async def restore_trash(self):
+    async def restore_trash(self) -> None:
+        """Restore a trashbin file.
+
+        Raises:
+            NextcloudException: File is not a trashbin file.
+        """
+        if not self.is_trash:
+            raise NextcloudException(
+                status_code=400,
+                reason='File is not a trashbin file.')
         return await self.files_api.restore_trash(self._trash_path)
 
     # TODO: No errors, but also doesn't restore :/
-    async def restore_version(self):
+    async def restore_version(self) -> None:
+        """Restore version of a file.
+
+        Raises:
+            NextcloudException: File is not a version file.
+        """
+        if not self.is_version:
+            raise NextcloudException(
+                status_code=400,
+                reason='File is not a version file.')
         print(f"restoring {self._version_path}")
-        return await self.files_api.restore_version(self._version_path)
+        await self.files_api.restore_version(self._version_path)
 
 
 class Files(NextcloudModule):
     """Interact with Nextcloud DAV Files Endpoint."""
     def __init__(
             self,
-            client: NextcloudClient):
+            client: NextcloudClient) -> None:
         self.client= client
         self.api = NextcloudDavApi(client)
         self.stub = ''
 
-    def _namespace_properties(self, properties: List[str]):
+    def _namespace_properties(self, properties: List[str]) -> str:
         data: str = ''
 
         default_properties = [
@@ -126,17 +200,17 @@ class Files(NextcloudModule):
         # if user passes in parameters, they must be built into an Element
         # tree so they can be dumped to an XML document and then sent
         # as the query body
-        root = etree.Element(
+        root = ET.Element(
             "d:propfind",
             attrib={
                 'xmlns:d': 'DAV:',
                 'xmlns:oc': 'http://owncloud.org/ns',
                 'xmlns:nc': 'http://nextcloud.org/ns'})
-        prop = etree.SubElement(root, 'd:prop')
+        prop = ET.SubElement(root, 'd:prop')
         for t in default_properties + properties:
-            etree.SubElement(prop, t)
+            ET.SubElement(prop, t)
 
-        tree = etree.ElementTree(root)
+        tree = ET.ElementTree(root)
 
         # Write XML file to memory, then read it into `data`
         with io.BytesIO() as _mem:
@@ -154,18 +228,16 @@ class Files(NextcloudModule):
 
         Always return a list, even if path is a file.
 
-        Args
-        ----
+        Args:
             path (str): Filesystem path
 
             properties (list, optional): List of properties to return. Defaults to [].
 
-        Returns
-        -------
+        Returns:
             list: Files
         """
         data = self._namespace_properties(properties)
-        response: List[Dict[str, Any]] | Dict[str, Any] = await self._propfind(
+        response: List[dict[str, Any]] | dict[str, Any] = await self._propfind(
             path=f'/files/{self.client.user}/{path}',
             data=data)
 
@@ -174,15 +246,13 @@ class Files(NextcloudModule):
         else:
             return [File(response, self)]
 
-    async def download(self, path: str) -> ByteString:
+    async def download(self, path: str) -> bytes:
         """Download the file at `path`.
 
-        Args
-        ----
+        Args:
             path (str): File path
 
-        Returns
-        -------
+        Returns:
             str: File content
         """
         return await self._get_raw(
@@ -191,22 +261,20 @@ class Files(NextcloudModule):
     async def upload(self, local_path: str, remote_path: str) -> None:
         """Upload a file.
 
-        Args
-        ----
+        Args:
             local_path (str): Local path
 
             remote_path (str): Desination path
         """
-        with open(local_path, 'rb') as fp:
+        async with async_open(local_path, 'rb') as fp:
             await self._put(
                 path=f'/files/{self.client.user}/{remote_path}',
-                data=fp.read())
+                data=await fp.read())
 
     async def mkdir(self, path: str, create_parents: bool = False) -> None:
         """Create a new folder/directory.
 
-        Args
-        ----
+        Args:
             path (str): Filesystem path
 
             create_parents (bool): Create directory parents (mkdir -p)
@@ -220,8 +288,7 @@ class Files(NextcloudModule):
     async def delete(self, path: str) -> None:
         """Delete file or folder.
 
-        Args
-        ----
+        Args:
             path (str): Filesystem path
         """
         await self._delete(path=f'/files/{self.client.user}/{path}')
@@ -229,15 +296,15 @@ class Files(NextcloudModule):
     async def move(self, source: str, dest: str, overwrite: bool = False) -> None:
         """Move a file or folder.
 
-        Args
-        ----
+        Args:
             source (str): Source path
 
             dest (str): Destination path
 
-            overwrite (bool, optional): Overwrite destination if exists. Defaults to False.
+            overwrite (bool, optional): Overwrite destination if exists.
+            Defaults to False.
         """
-        return await self._move(
+        await self._move(
             path=f'/files/{self.client.user}/{source}',
             headers={
                 'Destination':
@@ -247,13 +314,13 @@ class Files(NextcloudModule):
     async def copy(self, source: str, dest: str, overwrite: bool = False) -> None:
         """Copy a file or folder.
 
-        Args
-        ----
+        Args:
             source (str): Source path
 
             dest (str): Destination path
 
-            overwrite (bool, optional): Overwrite destination if exists. Defaults to False.
+            overwrite (bool, optional): Overwrite destination if exists.
+            Defaults to False.
         """
         await self._copy(
             path=f'/files/{self.client.user}/{source}',
@@ -262,17 +329,15 @@ class Files(NextcloudModule):
                     f'{self.client.endpoint}/remote.php/dav/files/{self.client.user}/{quote(dest)}',
                 'Overwrite': 'T' if overwrite else 'F'})
 
-    async def __favorite(self, path: str, set: bool) -> Dict[str, Any]:
+    async def __favorite(self, path: str, set: bool) -> dict[str, Any]:
         """Set file/folder as a favorite.
 
-        Args
-        ----
+        Args:
             path (str): Filesystem path
 
             set (bool): Make favorite
 
-        Returns
-        -------
+        Returns:
             dict: file info
         """
         data = f'''<?xml version="1.0"?>
@@ -291,12 +356,10 @@ class Files(NextcloudModule):
     async def set_favorite(self, path: str) -> File:
         """Set file/folder as a favorite.
 
-        Args
-        ----
+        Args:
             path (str): Filesystem path
 
-        Returns
-        -------
+        Returns:
             dict: File info
         """
         response = await self.__favorite(path, True)
@@ -305,12 +368,10 @@ class Files(NextcloudModule):
     async def unset_favorite(self, path: str) -> File:
         """Remove file/folder as a favorite.
 
-        Args
-        ----
+        Args:
             path (str): Filesystem path
 
-        Returns
-        -------
+        Returns:
             dict: File info
         """
         response = await self.__favorite(path, False)
@@ -319,12 +380,10 @@ class Files(NextcloudModule):
     async def get_favorites(self, path: str = '') -> List[File]:
         """List favorites below given Path.
 
-        Args
-        ----
+        Args:
             path (str, optional): Filesystem path. Defaults to ''.
 
-        Returns
-        -------
+        Returns:
             list: list of favorites
         """
         data = '''<?xml version="1.0"?><oc:filter-files  xmlns:d="DAV:"
@@ -339,8 +398,7 @@ class Files(NextcloudModule):
     async def list_trash(self) -> List[File]:
         """Get items in the trash.
 
-        Returns
-        -------
+        Returns:
             list: Trashed items
         """
         response = await self._propfind(path=f'/trashbin/{self.client.user}/trash')
@@ -349,8 +407,7 @@ class Files(NextcloudModule):
     async def restore_trash(self, path: str) -> None:
         """Restore a file from the trash.
 
-        Args
-        ----
+        Args:
             path (str): Trash path
         """
         await self._move(
@@ -366,22 +423,20 @@ class Files(NextcloudModule):
     async def list_versions(self, file_id: int) -> List[File]:
         """List of file versions.
 
-        Args
-        ----
+        Args:
             file_id (int): File ID
 
-        Returns
-        -------
+        Returns:
             list: File versions
         """
-        response = await self._propfind(path=f'/versions/{self.client.user}/versions/{file_id}')
+        response = await self._propfind(
+            path=f'/versions/{self.client.user}/versions/{file_id}')
         return [File(data, self) for data in response]
 
     async def restore_version(self, path: str) -> None:
         """Restore an old file version.
 
-        Args
-        ----
+        Args:
             path (str): File version path
         """
         await self._move(
@@ -390,19 +445,17 @@ class Files(NextcloudModule):
                 'Destination':
                     f'{self.client.endpoint}/remote.php/dav/versions/{self.client.user}/restore/file'})
 
-    def __replace_slashes(self, string: str):
+    def _replace_slashes(self, string: str) -> str:
         """Replace path slashes with underscores."""
         return string.replace('/', '_').replace('\\', '_')
 
     async def mkdir_with_parents(self, path: str) -> None:
         """Create folder with parents (mkdir -p).
 
-        Args
-        ----
+        Args:
             path (str): Path to folder
 
-        Raises
-        ------
+        Raises:
             NextcloudException: Errors from self.create_folder()
         """
         path_chunks = path.strip('/').split('/')
@@ -414,10 +467,10 @@ class Files(NextcloudModule):
                     raise
 
     async def __upload_file_chunk(self, local_path: str, uuid_dir: str) -> httpx.Response:
-        with open(local_path, 'rb') as fp:
+        async with async_open(local_path, 'rb') as fp:
             return await self._put(
                 path=f'/uploads/{self.client.user}/{uuid_dir}/{os.path.basename(local_path)}',
-                data=fp.read())
+                data=await fp.read())
 
     async def __assemble_chunks(
             self,
@@ -435,28 +488,26 @@ class Files(NextcloudModule):
             self,
             local_path: str,
             remote_path: str,
-            chunk_size: int):
+            chunk_size: int) -> None:
         """Upload a large file in chunks.
 
         https://docs.nextcloud.com/server/latest/developer_manual/client_apis/WebDAV/chunking.html
 
-        Args
-        ----
+        Args:
             local_path (str): Local file to upload
 
             remote_path (str): Remote path for finished file
 
             chunk_size (int): Upload file this many bytes per chunk
 
-        Raises
-        ------
+        Raises:
             NextcloudChunkedCacheExists: When previous failed attempt is detected.
         """
         file_position = 0
         padding = len(str(os.stat(local_path).st_size))
 
-        local_path_escaped = self.__replace_slashes(local_path)
-        remote_path_escaped = self.__replace_slashes(remote_path)
+        local_path_escaped = self._replace_slashes(local_path)
+        remote_path_escaped = self._replace_slashes(remote_path)
         uuid_dir = str(uuid.uuid4())
 
         local_cache_dir = \
@@ -467,14 +518,14 @@ class Files(NextcloudModule):
             os.makedirs(local_cache_dir)
         except OSError:
             # Cache maybe exists, read metadata and attempt to resume upload
-            with open(f'{local_cache_dir}/metadata.json', 'r') as metadata_fp:
-                metadata = json.loads(metadata_fp.read())
+            async with async_open(f'{local_cache_dir}/metadata.json', 'r') as metadata_fp:
+                metadata = json.loads(await metadata_fp.read())
                 uuid_dir = metadata['uuid']
         else:
             # Write metadata to file in case of error uploading
-            with open(f'{local_cache_dir}/metadata.json', 'w') as metadata_fp:
+            async with async_open(f'{local_cache_dir}/metadata.json', 'w') as metadata_fp:
                 metadata = {'uuid': uuid_dir}
-                metadata_fp.write(json.dumps(metadata))
+                await metadata_fp.write(json.dumps(metadata))
 
         resume_chunk = None
         for file in os.listdir(local_cache_dir):
@@ -494,15 +545,17 @@ class Files(NextcloudModule):
             await self._mkcol(
                 path=f'/uploads/{self.client.user}/{uuid_dir}')
 
-        with open(local_path, 'rb') as source_fp:
+        async with async_open(local_path, 'rb') as source_fp:
             source_fp.seek(file_position)
-            while (data := source_fp.read(chunk_size)):
+            while (data := await source_fp.read(chunk_size)):
                 chunk_name = \
                     f'{file_position:0{padding}}-{(file_position + len(data)):0{padding}}'
-                with open(f'{local_cache_dir}/{chunk_name}', 'wb') as chunk_fp:
-                    chunk_fp.write(data)
+                async with async_open(
+                    f'{local_cache_dir}/{chunk_name}', 'wb') as chunk_fp:
+                    await chunk_fp.write(data)
                 file_position += len(data)
-                await self.__upload_file_chunk(f'{local_cache_dir}/{chunk_name}', uuid_dir)
+                await self.__upload_file_chunk(
+                    f'{local_cache_dir}/{chunk_name}', uuid_dir)
                 os.remove(f'{local_cache_dir}/{chunk_name}')
 
         # Assemble chunks.  Server takes care of directory removal.
@@ -513,16 +566,17 @@ class Files(NextcloudModule):
             os.remove(f'{local_cache_dir}/{file}')
         os.rmdir(local_cache_dir)
 
-    async def get_groupfolder_acl(self, path: str, inherited: bool=False) -> List[Dict[str, Any]]:
+    async def get_groupfolder_acl(
+            self,
+            path: str,
+            inherited: bool=False) -> List[dict[str, Any]]:
         """Return a list of groupfolder ACL rules set for `path`.
 
-        Args
-        ----
+        Args:
             path (str): Filesystem path
             inherited (bool): Return inherited rules instead of normal rules
 
-        Returns
-        -------
+        Returns:
             list: ACL rules
         """
         data = None
@@ -530,16 +584,16 @@ class Files(NextcloudModule):
         if inherited:
             ruleprop = 'nc:inherited-acl-list'
 
-        root = etree.Element(
+        root = ET.Element(
             "d:propfind",
             attrib={
                 'xmlns:d': 'DAV:',
                 'xmlns:oc': 'http://owncloud.org/ns',
                 'xmlns:nc': 'http://nextcloud.org/ns'})
-        prop = etree.SubElement(root, 'd:prop')
-        etree.SubElement(prop, ruleprop)
+        prop = ET.SubElement(root, 'd:prop')
+        ET.SubElement(prop, ruleprop)
 
-        tree = etree.ElementTree(root)
+        tree = ET.ElementTree(root)
 
         # Write XML file to memory, then read it into `data`
         with io.BytesIO() as _mem:
@@ -551,7 +605,7 @@ class Files(NextcloudModule):
             path=f'/files/{self.client.user}/{path}',
             data=data)
 
-        ret: List[Dict[str, Any]] = []
+        ret: List[dict[str, Any]] = []
         if result['d:propstat']['d:prop'][ruleprop]:
             ret = result['d:propstat']['d:prop'][ruleprop]['nc:acl']
         else:
@@ -562,37 +616,32 @@ class Files(NextcloudModule):
 
         return ret
 
-    async def set_groupfolder_acl(self, path: str, acls: List[Dict[str, Any]]):
+    async def set_groupfolder_acl(self, path: str, acls: List[dict[str, Any]]) -> None:
         """Apply a list of groupfolder ACL rules to `path`.
 
-        Args
-        ----
+        Args:
             path (str): Filesystem path
-            acls (List[Dict[str, Any]]): List of ACL rule dicts
-
-        Returns
-        -------
-            Empty 200 Response
+            acls (List[dict[str, Any]]): List of ACL rule dicts
         """
         data = None
 
-        root = etree.Element(
+        root = ET.Element(
             "d:propertyupdate",
             attrib={
                 'xmlns:d': 'DAV:',
                 'xmlns:oc': 'http://owncloud.org/ns',
                 'xmlns:nc': 'http://nextcloud.org/ns'})
-        prop = etree.SubElement(root, 'd:set')
-        prop = etree.SubElement(prop, 'd:prop')
-        prop = etree.SubElement(prop, 'nc:acl-list')
+        prop = ET.SubElement(root, 'd:set')
+        prop = ET.SubElement(prop, 'd:prop')
+        prop = ET.SubElement(prop, 'nc:acl-list')
         for acl in acls:
-            aclprop = etree.SubElement(prop, 'nc:acl')
+            aclprop = ET.SubElement(prop, 'nc:acl')
             for key, val in acl.items():
-                child = etree.Element(key)
+                child = ET.Element(key)
                 child.text = str(val)
                 aclprop.append(child)
 
-        tree = etree.ElementTree(root)
+        tree = ET.ElementTree(root)
 
         # Write XML file to memory, then read it into `data`
         with io.BytesIO() as _mem:

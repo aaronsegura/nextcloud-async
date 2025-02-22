@@ -31,10 +31,10 @@ class PredefinedStatus:
     def __getattr__(self, k: str) -> Any:
         return self.data[k]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'<Predefined Status "{self.icon} {self.id}">'
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self.data)
 
 
@@ -47,26 +47,64 @@ class MyStatus:
     def __getattr__(self, k: str) -> Any:
         return self.data[k]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'<My Status {self.status} "{self.message}">'
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self.data)
 
+    async def set(self, status_type: StatusType) -> None:
+        """Set user status.
 
-    async def set(self, *args, **kwargs) -> None:
-        response = await self.status_api.set(*args, **kwargs)
+        Args:
+            status_type: See StatusType Enum
+        """
+        response = await self.status_api.set(status_type=status_type)
         self.data = response
 
-    async def set_predefined_status(self, *args, **kwargs) -> None:
-        response = await self.status_api.choose_predefined_status(*args, **kwargs)
+    async def set_predefined_status(
+            self,
+            status: PredefinedStatus,
+            clear_at: dt.datetime) -> None:
+        """Choose from predefined status messages.
+
+        Args:
+            status:
+                PredefinedStatus (see get_predefined_statuses())
+
+            clear_at:
+                datetime at which to clear this status.
+        """
+        response = await self.status_api.choose_predefined_status(
+            status=status,
+            clear_at=clear_at)
         self.data = response
 
-    async def set_message(self, *args, **kwargs) -> None:
-        response = await self.status_api.set_message(*args, **kwargs)
+    async def set_message(
+            self,
+            message: str,
+            status_icon: str,
+            clear_at: dt.datetime) -> None:
+        """Set a custom status message.
+
+        Args:
+            message:
+                Your custom message
+
+            status_icon:
+                Emoji icon. Defaults to None.
+
+            clear_at:
+                datetime at which to clear this message.
+        """
+        response = await self.status_api.set_message(
+            message=message,
+            status_icon=status_icon,
+            clear_at=clear_at)
         self.data = response
 
     async def clear_message(self) -> None:
+        """Clear my status message."""
         await self.status_api.clear_message()
         self.message = ''
 
@@ -78,12 +116,11 @@ class UserStatus:
     def __getattr__(self, k: str) -> Any:
         return self.data[k]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'<User Status {self.status} "{self.message}">'
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self.data)
-
 
 
 class Status(NextcloudModule):
@@ -92,31 +129,30 @@ class Status(NextcloudModule):
     def __init__(
             self,
             client: NextcloudClient,
-            api_version: str = '1'):
+            ocs_version: str = '2',
+            api_version: str = '1') -> None:
         self.stub = f'/apps/user_status/api/v{api_version}'
-        self.api = NextcloudOcsApi(client, ocs_version = '2')
+        self.api = NextcloudOcsApi(client, ocs_version = ocs_version)
 
     async def get(self) -> MyStatus:
         """Get current status.
 
-        Returns
-        -------
+        Returns:
             dict: Status description
         """
         response = await self._get('/user_status')
         return MyStatus(response, self)
 
 
-    async def set(self, status_type: StatusType):
+    async def set(self, status_type: StatusType) -> Dict[str, Any]:
         """Set user status.
 
-        Args
-        ----
-            status_type (StatusType): See StatusType Enum
+        Args:
+            status_type:
+                See StatusType Enum
 
-        Returns
-        -------
-            dict: New status description.
+        Returns:
+            New status data
         """
         return await self._put(
             path='/user_status/status',
@@ -125,9 +161,8 @@ class Status(NextcloudModule):
     async def get_predefined_statuses(self) -> List[PredefinedStatus]:
         """Get list of predefined statuses.
 
-        Returns
-        -------
-            list: Predefined statuses
+        Returns:
+            PredefinedStatus list
         """
         response = await self._get(path='/predefined_statuses')
         return [PredefinedStatus(data) for data in response]
@@ -138,21 +173,19 @@ class Status(NextcloudModule):
             clear_at: Optional[dt.datetime] = None) -> Dict[str, Any]:
         """Choose from predefined status messages.
 
-        Args
-        ----
-            message_id (int): Message ID (see get_predefined_statuses())
+        Args:
+            status:
+                PredefinedStatus (see get_predefined_statuses())
 
-            clear_at (int, optional): Unix timestamp at which to clear this status. Defaults
-            to None.
+            clear_at:
+                datetime at which to clear this status.
 
-        Returns
-        -------
+        Returns:
             dict: New status description
         """
         data: Dict[str, int|str] = {'messageId': status.id}
         if clear_at:
-            if dt.datetime.now() < clear_at:
-                data.update({'clearAt': clear_at.strftime('%s')})
+            data.update({'clearAt': clear_at.strftime('%s')})
         response = await self._put(
             path='/user_status/message/predefined',
             data=data)
@@ -165,67 +198,55 @@ class Status(NextcloudModule):
             clear_at: Optional[dt.datetime] = None) -> Dict[str, Any]:
         """Set a custom status message.
 
-        Args
-        ----
-            message (str): Your custom message
+        Args:
+            message: Your custom message
 
-            status_icon (str, optional): Emoji icon. Defaults to None.
+            status_icon: Emoji icon. Defaults to None.
 
-            clear_at (int, optional): Unix timestamp at which to clear this message. Defaults
-            to None.
+            clear_at: datetime at which to clear this message.
 
-        Returns
-        -------
+        Returns:
             dict: New status description
         """
         data: Dict[str, str] = {'message': message}
         if status_icon:
             data.update({'statusIcon': status_icon})
         if clear_at:
-            if dt.datetime.now() < clear_at:
-                data.update({'clearAt': clear_at.strftime('%s')})
+            data.update({'clearAt': clear_at.strftime('%s')})
         return await self._put(
             path='/user_status/message/custom',
             data=data)
 
-    async def clear_message(self):
-        """Clear status message.
-
-        Returns
-        -------
-            Empty 200 Response
-        """
-        return await self._delete(path=r'/user_status/message')
+    async def clear_message(self) -> None:
+        """Clear status message."""
+        await self._delete(path=r'/user_status/message')
 
     async def get_all_user_statuses(
             self,
             limit: int = 100,
-            offset: int = 0):
+            offset: int = 0) -> list[UserStatus]:
         """Get all user statuses.
 
-        Args
-        ----
-            limit (int, optional): Results per page. Defaults to 100.
+        Args:
+            limit: Results per page. Defaults to 100.
 
-            offset (int, optional): Paging offset. Defaults to 0.
+            offset: Paging offset. Defaults to 0.
 
-        Returns
-        -------
+        Returns:
             list: User statuses
         """
-        return await self._get(
+        response = await self._get(
             path='/statuses',
             data={'limit': limit, 'offset': offset})
+        return [UserStatus(data) for data in response]
 
     async def get_user_status(self, user: str) -> UserStatus:
         """Get the status for a specific user.
 
-        Args
-        ----
+        Args:
             user (str): User ID
 
-        Returns
-        -------
+        Returns:
             dict: User status description
         """
         response = await self._get(path=f'/statuses/{user}')

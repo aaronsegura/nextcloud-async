@@ -1,5 +1,6 @@
 # noqa: D400 D415
-"""
+"""Nextcloud Users API.
+
 https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/instruction_set_for_users.html
 """
 
@@ -16,9 +17,10 @@ class Users(NextcloudModule):
 
     def __init__(
             self,
-            client: NextcloudClient):
+            client: NextcloudClient,
+            ocs_version: str = '1') -> None:
         self.stub = r'/cloud/users'
-        self.api = NextcloudOcsApi(client, ocs_version = '1')
+        self.api = NextcloudOcsApi(client, ocs_version = ocs_version)
 
     async def create_user(
             self,
@@ -32,8 +34,7 @@ class Users(NextcloudModule):
             password: Optional[str] = None) -> Dict[str, str]:
         """Create a new Nextcloud user.
 
-        Args
-        ----
+        Args:
             user_id (str): New user ID
 
             display_name (str): User display Name (eg. "Your Name")
@@ -50,8 +51,7 @@ class Users(NextcloudModule):
 
             password (Optional[str], optional): User password. Defaults to None.
 
-        Returns
-        -------
+        Returns:
             dict: New user ID
 
             Example:
@@ -76,16 +76,17 @@ class Users(NextcloudModule):
             offset: int = 0) -> List[str]:
         """Search for users.
 
-        Args
-        ----
-            search (str): Search string
+        Args:
+            search:
+                Search string
 
-            limit (int, optional): Results per request. Defaults to 100.
+            limit:
+                Results per request. Defaults to 100.
 
-            offset (int, optional): Paging offset. Defaults to 0.
+            offset:
+                Paging offset. Defaults to 0.
 
-        Returns
-        -------
+        Returns:
             list: User ID matches
         """
         response = await self._get(
@@ -98,15 +99,13 @@ class Users(NextcloudModule):
     async def get(self, user_id: str) -> Dict[str, str]:
         """Get a valid user.
 
-        Args
-        ----
-            user_id (str, optional): User ID. Defaults to None (current user).
+        Args:
+            user_id:
+                User ID to get.
 
-        Returns
-        -------
+        Returns:
             dict: User description.
         """
-
         return await self._get(path=f'/{user_id}')
 
     async def list(self) -> List[str]:
@@ -114,8 +113,7 @@ class Users(NextcloudModule):
 
         Admin required
 
-        Returns
-        -------
+        Returns:
             List: User IDs
         """
         response = await self._get()
@@ -178,14 +176,12 @@ class Users(NextcloudModule):
 
         Use async/await to update everything at once.
 
-        Args
-        ----
+        Args:
             user_id (str): User ID
 
             new_data (Dict): New key/value pairs
 
-        Returns
-        -------
+        Returns:
             list: Responses
         """
         reqs = []
@@ -202,8 +198,7 @@ class Users(NextcloudModule):
     async def get_editable_fields(self):
         """Get user-editable fields.
 
-        Returns
-        -------
+        Returns:
             list: User-editable fields
         """
         return await self._get(path=r'/fields')
@@ -213,12 +208,10 @@ class Users(NextcloudModule):
 
         Must be admin.
 
-        Args
-        ----
+        Args:
             user_id (str): User ID
 
-        Returns
-        -------
+        Returns:
             Empty 100 Response
         """
         return await self._put(path=f'/{user_id}/disable')
@@ -226,12 +219,10 @@ class Users(NextcloudModule):
     async def enable(self, user_id: str) -> List[str]:
         """Enable `user_id`.  Must be admin.
 
-        Args
-        ----
+        Args:
             user_id (str): User ID
 
-        Returns
-        -------
+        Returns:
             Empty 100 Response
         """
         return await self._put(path=f'/{user_id}/enable')
@@ -239,12 +230,10 @@ class Users(NextcloudModule):
     async def delete(self, user_id: str) -> List[str]:
         """Remove existing `user_id`.
 
-        Args
-        ----
+        Args:
             user_id (str): User ID
 
-        Returns
-        -------
+        Returns:
             Empty 100 Response
         """
         return await self._delete(path=f'/{user_id}')
@@ -252,12 +241,10 @@ class Users(NextcloudModule):
     async def get_group_membership(self, user_id: str) -> List[str]:
         """Get list of groups `user_id` belongs to.
 
-        Args
-        ----
+        Args:
             user_id (str, optional): User ID. Defaults to current user.
 
-        Returns
-        -------
+        Returns:
             list: group ids
         """
         response = await self._get(path=f'/{user_id }/groups')
@@ -266,14 +253,12 @@ class Users(NextcloudModule):
     async def add_to_group(self, user_id: str, group_id: str) -> List[str]:
         """Add `user_id` to `group_id`.
 
-        Args
-        ----
+        Args:
             user_id (str): User ID
 
             group_id (str): Group ID
 
-        Returns
-        -------
+        Returns:
             Empty 100 Response
         """
         return await self._post(
@@ -283,14 +268,12 @@ class Users(NextcloudModule):
     async def remove_from_group(self, user_id: str, group_id: str) -> List[str]:
         """Remove `user_id` from `group_id`.
 
-        Args
-        ----
+        Args:
             user_id (str): User ID
 
             group_id (str): Group Id
 
-        Returns
-        -------
+        Returns:
             Empty 100 Response
         """
         return await self._delete(
@@ -300,14 +283,12 @@ class Users(NextcloudModule):
     async def promote_to_subadmin(self, user_id: str, group_id: str) -> List[str]:
         """Make `user_id` a subadmin of `group_id`.
 
-        Args
-        ----
+        Args:
             user_id (str): User ID
 
             group_id (str): Group ID
 
-        Returns
-        -------
+        Returns:
             Empty 100 Response
         """
         return await self._post(
@@ -317,14 +298,12 @@ class Users(NextcloudModule):
     async def demote_from_subadmin(self, user_id: str, group_id: str) -> List[str]:
         """Demote `user_id` from subadmin of `group_id`.
 
-        Args
-        ----
+        Args:
             user_id (str): User ID
 
             group_id (str): Group ID
 
-        Returns
-        -------
+        Returns:
             Empty 100 Response
         """
         return await self._delete(
@@ -334,12 +313,10 @@ class Users(NextcloudModule):
     async def get_subadmin_groups(self, user_id: str) -> List[str]:
         """Return list of groups of which `user_id` is subadmin.
 
-        Args
-        ----
+        Args:
             user_id (str): User ID
 
-        Returns
-        -------
+        Returns:
             list: group ids
         """
         return await self._get(path=f'/{user_id}/subadmins')
@@ -347,12 +324,10 @@ class Users(NextcloudModule):
     async def resend_welcome_email(self, user_id: str) -> List[str]:
         """Re-send initial welcome e-mail to `user_id`.
 
-        Args
-        ----
+        Args:
             user_id (str): User ID
 
-        Returns
-        -------
+        Returns:
             Empty 100 Response
         """
         return await self._post(path=f'/{user_id}/welcome')

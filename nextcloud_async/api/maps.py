@@ -20,28 +20,35 @@ class MapFavorite:
     def __getattr__(self, k: str) -> Any:
         return self.data[k]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'<MapFavorite "{self.name}">'
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self.data)
 
-
     @property
-    def latitude(self):
+    def latitude(self) -> float:
+        """Alias for self.lat."""
         return self.lat
 
     @property
-    def longitude(self):
+    def longitude(self) -> float:
+        """Alias for self.lng."""
         return self.lng
 
     async def delete(self) -> None:
+        """Delete this favorite."""
         await self.maps_api.delete(self.id)
 
-    async def update(self, **kwargs):
-        await self.maps_api.update(id=self.id, **kwargs)
+    async def update(self, data: dict[str, str|float]) -> None:
+        """Update an existing map favorite.
 
-
+        Args:
+            data: Dictionary describing new data to use
+                Keys may be: ['name', 'lat', 'lng', 'category', 'comment', 'extensions']
+        """
+        response = await self.maps_api.update(id=self.id, data=data)
+        self.data = response.data
 
 
 class Maps(NextcloudModule):
@@ -52,19 +59,17 @@ class Maps(NextcloudModule):
     def __init__(
             self,
             client: NextcloudClient,
-            api_version: str = '1.0'):
+            api_version: str = '1.0') -> None:
         self.stub = f'/apps/maps/api/{api_version}'
         self.api = NextcloudBaseApi(client)
 
     async def list(self) -> List[MapFavorite]:
         """Get a list of map favorites.
 
-        Returns
-        -------
+        Returns:
             list of favorites
         """
         response = await self._get(path='/favorites')
-        # return json.loads(response.content.decode('utf-8'))
         return [MapFavorite(data, self) for data in response]
 
     async def delete(self, id: int) -> None:
@@ -72,29 +77,22 @@ class Maps(NextcloudModule):
 
         Args:
         ----
-            id (int): ID of favorite to remove
-
-        Raises:
-        -------
-            Appropriate NextcloudException
+            id: ID of favorite to remove
         """
         await self._delete(path=f'/favorites/{id}')
         self.data = {'deleted': True}
 
-    async def update(self, id: int, data: Dict[str, Any]) -> MapFavorite:
+    async def update(self, id: int, data: Dict[str, str|float]) -> MapFavorite:
         """Update an existing map favorite.
 
-        Args
-        ----
-            id (int): ID of favorite to update
+        Args:
+            id: ID of favorite to update
 
-            data (dict): Dictionary describing new data to use
-                Keys may be: ['name', 'lat', 'lng', 'category',
-                'comment', 'extensions']
+            data: Dictionary describing new data to use
+                Keys may be: ['name', 'lat', 'lng', 'category', 'comment', 'extensions']
 
-        Returns
-        -------
-            dict: Result of update
+        Returns:
+            MapFavorite
         """
         response = await self._put(
                         path=f'/favorites/{id}',
@@ -102,18 +100,15 @@ class Maps(NextcloudModule):
 
         return MapFavorite(response, self)
 
-    async def add(self, data: Dict[str, Any]) -> MapFavorite:
+    async def add(self, data: Dict[str, str|float]) -> MapFavorite:
         """Add a new map favorite.
 
-        Args
-        ----
-            data (dict): Dictionary describing new favorite
-                Keys are: ['name', 'lat', 'lng', 'category',
-                'comment', 'extensions']
+        Args:
+            data: Dictionary describing new favorite
+                Keys are: ['name', 'lat', 'lng', 'category', 'comment', 'extensions']
 
-        Returns
-        -------
-            dict: Result of update
+        Returns:
+            MapFavorite
         """
         response = await self._post(
                         path='/favorites',
