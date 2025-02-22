@@ -3,17 +3,18 @@
 https://docs.nextcloud.com/server/latest/developer_manual/client_apis/
 """
 
-from .apps import Apps, App
-from .files import Files, File
-from .groupfolders import GroupFolders
-from .groups import Groups
-from .loginflowv2 import LoginFlowV2
-from .maps import Maps
-from .notifications import Notifications
-from .shares import Shares, Share, ShareType, SharePermission
-from .sharees import Sharees
-from .status import Status, StatusType
-from .talk import (
+from .ocs.apps import Apps, App
+from .dav.files import Files, File
+from .ocs.groupfolders import GroupFolders
+from .ocs.groups import Groups
+from .base.loginflowv2 import LoginFlowV2
+from .base.maps import Maps
+from .ocs.notifications import Notifications
+from .ocs.shares import Shares, Share, ShareType, SharePermission
+from .ocs.sharees import Sharees
+from .ocs.status import Status, StatusType
+from .ocs.users import Users
+from .ocs.talk import (
     ConversationAvatars,
     Bot, Bots,
     Calls,
@@ -47,8 +48,7 @@ from .talk import (
     SipState,
     WebinarLobbyState,
   )
-from .users import Users
-from .wipe import Wipe
+from .base.wipe import Wipe
 
 __all__ = [
     "Apps", "App",
