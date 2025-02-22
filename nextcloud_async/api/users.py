@@ -54,8 +54,7 @@ class Users(NextcloudModule):
         Returns:
             dict: New user ID
 
-            Example:
-
+            Example: \
                 { 'id': 'YourNewUser' }
         """
         return await self._post(
@@ -177,9 +176,11 @@ class Users(NextcloudModule):
         Use async/await to update everything at once.
 
         Args:
-            user_id (str): User ID
+            user_id:
+                User ID
 
-            new_data (Dict): New key/value pairs
+            new_data:
+                New key/value pairs
 
         Returns:
             list: Responses
@@ -195,7 +196,7 @@ class Users(NextcloudModule):
             path=f'/{user_id}',
             data={'key': k, 'value': v})
 
-    async def get_editable_fields(self):
+    async def get_editable_fields(self) -> List[str]:
         """Get user-editable fields.
 
         Returns:
@@ -203,108 +204,96 @@ class Users(NextcloudModule):
         """
         return await self._get(path=r'/fields')
 
-    async def disable(self, user_id: str) -> List[str]:
+    async def disable(self, user_id: str) -> None:
         """Disable `user_id`.
 
         Must be admin.
 
         Args:
-            user_id (str): User ID
-
-        Returns:
-            Empty 100 Response
+            user_id: User ID
         """
-        return await self._put(path=f'/{user_id}/disable')
+        await self._put(path=f'/{user_id}/disable')
 
-    async def enable(self, user_id: str) -> List[str]:
+    async def enable(self, user_id: str) -> None:
         """Enable `user_id`.  Must be admin.
 
         Args:
-            user_id (str): User ID
-
-        Returns:
-            Empty 100 Response
+            user_id: User ID
         """
-        return await self._put(path=f'/{user_id}/enable')
+        await self._put(path=f'/{user_id}/enable')
 
-    async def delete(self, user_id: str) -> List[str]:
+    async def delete(self, user_id: str) -> None:
         """Remove existing `user_id`.
 
         Args:
-            user_id (str): User ID
-
-        Returns:
-            Empty 100 Response
+            user_id: User ID
         """
         return await self._delete(path=f'/{user_id}')
 
-    async def get_group_membership(self, user_id: str) -> List[str]:
+    async def get_group_membership(self, user_id: Optional[str] = None) -> List[str]:
         """Get list of groups `user_id` belongs to.
 
         Args:
-            user_id (str, optional): User ID. Defaults to current user.
+            user_id: User ID. Optional, defaults to current user.
 
         Returns:
             list: group ids
         """
-        response = await self._get(path=f'/{user_id }/groups')
+        response = await self._get(
+            path=f'/{user_id if user_id else self.api.client.user}/groups')
         return response['groups']
 
-    async def add_to_group(self, user_id: str, group_id: str) -> List[str]:
+    async def add_to_group(self, user_id: str, group_id: str) -> None:
         """Add `user_id` to `group_id`.
 
         Args:
-            user_id (str): User ID
+            user_id:
+                User ID
 
-            group_id (str): Group ID
-
-        Returns:
-            Empty 100 Response
+            group_id:
+                Group ID
         """
-        return await self._post(
+        await self._post(
             path=f'/{user_id}/groups',
             data={'groupid': group_id})
 
-    async def remove_from_group(self, user_id: str, group_id: str) -> List[str]:
+    async def remove_from_group(self, user_id: str, group_id: str) -> None:
         """Remove `user_id` from `group_id`.
 
         Args:
-            user_id (str): User ID
+            user_id:
+                User ID
 
-            group_id (str): Group Id
-
-        Returns:
-            Empty 100 Response
+            group_id:
+                Group Id
         """
-        return await self._delete(
+        await self._delete(
             path=f'/{user_id}/groups',
             data={'groupid': group_id})
 
-    async def promote_to_subadmin(self, user_id: str, group_id: str) -> List[str]:
-        """Make `user_id` a subadmin of `group_id`.
+    async def promote_to_group_subadmin(self, user_id: str, group_id: str) -> None:
+        """Make user_id a subadmin of group_id.
 
         Args:
-            user_id (str): User ID
+            user_id:
+                User ID
 
-            group_id (str): Group ID
-
-        Returns:
-            Empty 100 Response
+            group_id:
+                Group ID
         """
-        return await self._post(
+        await self._post(
             path=f'/{user_id}/subadmins',
             data={'groupid': group_id})
 
-    async def demote_from_subadmin(self, user_id: str, group_id: str) -> List[str]:
+    async def demote_from_group_subadmin(self, user_id: str, group_id: str) -> None:
         """Demote `user_id` from subadmin of `group_id`.
 
         Args:
-            user_id (str): User ID
+            user_id:
+                User ID
 
-            group_id (str): Group ID
-
-        Returns:
-            Empty 100 Response
+            group_id:
+                Group ID
         """
         return await self._delete(
             path=f'/{user_id}/subadmins',
@@ -314,20 +303,17 @@ class Users(NextcloudModule):
         """Return list of groups of which `user_id` is subadmin.
 
         Args:
-            user_id (str): User ID
+            user_id: User ID
 
         Returns:
             list: group ids
         """
         return await self._get(path=f'/{user_id}/subadmins')
 
-    async def resend_welcome_email(self, user_id: str) -> List[str]:
-        """Re-send initial welcome e-mail to `user_id`.
+    async def resend_welcome_email(self, user_id: str) -> None:
+        """Re-send initial welcome e-mail to user_id.
 
         Args:
-            user_id (str): User ID
-
-        Returns:
-            Empty 100 Response
+            user_id: User ID
         """
         return await self._post(path=f'/{user_id}/welcome')
