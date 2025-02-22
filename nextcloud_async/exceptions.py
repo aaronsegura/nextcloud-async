@@ -66,11 +66,10 @@ class NextcloudForbiddenError(NextcloudError):
         super().__init__(reason=reason or self.reason)
 
 
-class NextcloudDeviceWipeRequestedError(NextcloudError):
+class NextcloudDeviceWipeRequestedError(NextcloudForbiddenError):
     """User has revoked this appKey, and requests a device wipe."""
 
-    status_code = 403
-    reason = 'User revoked key. Please wipe this device '\
+    reason = 'User revoked key. Please remove user data from this device '\
              'and confirm with Wipe.notify_wiped().'
 
     def __str__(self) -> str:
