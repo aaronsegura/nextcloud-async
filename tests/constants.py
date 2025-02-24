@@ -1,18 +1,16 @@
-USER = 'dk'
-NAME = 'Darren King'
-PASSWORD = 'RIP MUTEMATH'
-EMAIL = 'IAmATree@GuidedByVoices.com'
-FILE = 'MatthewSweet.md'
+import os
 
-ENDPOINT = 'https://cloud.example.com'
+NEXTCLOUD_VERSION = os.environ.get('PYTEST_NEXTCLOUD_VERSION', '30')
+USER = os.environ.get('PYTEST_NEXTCLOUD_USER', 'admin')
+PASSWORD = os.environ.get('PYTEST_NEXTCLOUD_PASSWORD', 'admin')
+ENDPOINT = os.environ.get('PYTEST_NEXTCLOUD_ENDPOINT', 'http://localhost:8181')
 
-EMPTY_100 = bytes(
-    '{"ocs":{"meta":{"status":"ok","statuscode":100,"message":"OK",'
-    '"totalitems":"","itemsperpage":""},"data":[]}}', 'utf-8')
-
-EMPTY_200 = bytes(
-    '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK",'
-    '"totalitems":"","itemsperpage":""},"data":[]}}', 'utf-8')
-
-SIMPLE_100 = '{{"ocs":{{"meta":{{"status":"ok","statuscode":100,"message":"OK",'\
-    '"totalitems":"","itemsperpage":""}},"data": {0} }}}}'
+# test_files.py
+FILE_CONTENTS_ORIG = b'[File Contents]'
+FILE_CONTENTS_NEW  = b'[Updated File Contents]'
+REMOTE_TEST_BASE_DIR = '/.nextcloud-async-pytest'
+REMOTE_TEST_DIR_SRC = f'{REMOTE_TEST_BASE_DIR}/src'
+REMOTE_TEST_DIR_DEST = f'{REMOTE_TEST_BASE_DIR}/dest'
+REMOTE_TEST_SUBDIRS = f'{REMOTE_TEST_DIR_SRC}/some/sub/dirs'
+REMOTE_TEST_FILE_SRC = f'{REMOTE_TEST_DIR_SRC}/Somefile.md'
+REMOTE_TEST_FILE_DEST = f'{REMOTE_TEST_DIR_DEST}/Someotherfile.md'

@@ -1,37 +1,24 @@
-version: '3'
-
 services:
   db:
     image: mariadb:10.11
     restart: always
     command: --transaction-isolation=READ-COMMITTED
+    env_file: .env_${COMPOSE_PROJECT_NAME}
     volumes:
       - db:/var/lib/mysql
-    environment:
-      - MYSQL_ROOT_PASSWORD=XGonGiveItToYa
-      - MYSQL_PASSWORD=nextcloud
-      - MYSQL_DATABASE=nextcloud
-      - MYSQL_USER=nextcloud
-
-  redis:
-    image: redis:alpine
-    restart: always
 
   app:
-    image: nextcloud
+    image: "nextcloud:${NEXTCLOUD_VERSION}"
+    env_file: .env_${COMPOSE_PROJECT_NAME}
+    environment:
+      MYSQL_HOST: ${COMPOSE_PROJECT_NAME}-db-1
     restart: always
     ports:
-      - 8080:80
+      - ${NEXTCLOUD_PORT}:80
     depends_on:
-      - redis
       - db
     volumes:
       - nextcloud:/var/www/html
-    environment:
-      - MYSQL_PASSWORD=
-      - MYSQL_DATABASE=nextcloud
-      - MYSQL_USER=nextcloud
-      - MYSQL_HOST=db
 
 volumes:
   nextcloud:

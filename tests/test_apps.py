@@ -1,128 +1,55 @@
-# noqa: D100
-from .base import BaseTestCase
-from .helpers import AsyncMock
-from .constants import (
-    USER, ENDPOINT, PASSWORD, EMPTY_100)
+import pytest
+import pytest_asyncio
 
-import asyncio
-import httpx
+from nextcloud_async import NextcloudClient
+from nextcloud_async.api import Apps, App
 
-from unittest.mock import patch
+@pytest.fixture
+def apps(nc: NextcloudClient) -> Apps:
+    return Apps(nc)
 
+@pytest_asyncio.fixture
+async def ldap_app(apps: Apps) -> App:
+    return await apps.get('user_ldap')
 
-class OCSAppsAPI(BaseTestCase):  # noqa: D101
+@pytest.mark.vcr
+@pytest.mark.asyncio
+class TestApps:
+    _enabled_by_default = ['files', 'activity', 'dashboard']
 
-    def test_get_app(self):  # noqa: D102
-        APP = 'files'
-        json_response = bytes(
-            '{"ocs":{"meta":{"status":"ok","statuscode":100,"message":"OK","t'
-            f'otalitems":"","itemsperpage":""}},"data":{{"id":"{APP}","name":'
-            f'"{APP}","summary":"File Management","description":"File Managem'
-            'ent","version":"1.19.0","licence":"agpl","author":["Robin Appelm'
-            'an","Vincent Petry"],"default_enable":"","types":["filesystem"],'
-            '"documentation":{"user":"user-files"},"category":"files","bugs":'
-            '"https:\\/\\/github.com\\/nextcloud\\/server\\/issues","dependen'
-            'cies":{"nextcloud":{"@attributes":{"min-version":"24","max-versi'
-            r'on":"24"}}},"background-jobs":["OCA\\\\Files\\\\BackgroundJob'
-            '\\\\ScanFiles","OCA\\\\Files\\\\BackgroundJob\\\\DeleteOrphanedI'
-            'tems","OCA\\\\Files\\\\BackgroundJob\\\\CleanupFileLocks","OCA'
-            '\\\\Files\\\\BackgroundJob\\\\CleanupDirectEditingTokens"],"comm'
-            'ands":["OCA\\\\Files\\\\Command\\\\Scan","OCA\\\\Files\\\\Comman'
-            'd\\\\DeleteOrphanedFiles","OCA\\\\Files\\\\Command\\\\TransferOw'
-            'nership","OCA\\\\Files\\\\Command\\\\ScanAppData","OCA\\\\Files'
-            '\\\\Command\\\\RepairTree"],"activity":{"settings":["OCA\\\\Fil'
-            'es\\\\Activity\\\\Settings\\\\FavoriteAction","OCA\\\\Files\\\\'
-            'Activity\\\\Settings\\\\FileChanged","OCA\\\\Files\\\\Activity'
-            '\\\\Settings\\\\FileFavoriteChanged"],"filters":["OCA\\\\Files'
-            '\\\\Activity\\\\Filter\\\\FileChanges","OCA\\\\Files\\\\Activity'
-            '\\\\Filter\\\\Favorites"],"providers":["OCA\\\\Files\\\\Activity'
-            '\\\\FavoriteProvider","OCA\\\\Files\\\\Activity\\\\Provider"]},"'
-            'navigations":{"navigation":[{"name":"Files","route":"files.view.'
-            'index","order":"0"}]},"settings":{"personal":["OCA\\\\Files\\\\S'
-            'ettings\\\\PersonalSettings"],"admin":[],"admin-section":[],"per'
-            'sonal-section":[]},"info":[],"remote":[],"public":[],"repair-ste'
-            'ps":{"install":[],"pre-migration":[],"post-migration":[],"live-m'
-            'igration":[],"uninstall":[]},"two-factor-providers":[]}}}', 'utf-8')
-        with patch(
-                'httpx.AsyncClient.request',
-                new_callable=AsyncMock,
-                return_value=httpx.Response(
-                    status_code=100,
-                    content=json_response)) as mock:
-            response = asyncio.run(self.ncc.get_app(APP))
-            mock.assert_called_with(
-                method='GET',
-                auth=(USER, PASSWORD),
-                url=f'{ENDPOINT}/ocs/v1.php/cloud/apps/{APP}?format=json',
-                data=None,
-                headers={'OCS-APIRequest': 'true'})
+    def test_apps_init(self, nc):
+        apps = Apps(nc)
+        assert isinstance(apps, Apps)
 
-            match response:
-                case {'id': APP}:
-                    pass
-                case _:
-                    assert False
+    async def test_app_enable_disable(self, apps: Apps):
+        ldap_app = await apps.get('user_ldap')
+        await ldap_app.enable()
+        await ldap_app.disable()
 
-    def test_get_apps(self):  # noqa: D102
-        APPS = [
-            'serverinfo',
-            'files_trashbin',
-            'weather_status',
-            'systemtags',
-            'files_external',
-            'encryption',
-            'spreed']
-        json_response = bytes(
-            '{"ocs":{"meta":{"status":"ok","statuscode":100,"message":"OK",'
-            '"totalitems":"","itemsperpage":""},"data":{"apps":["serverinfo'
-            '","files_trashbin","weather_status","systemtags","files_extern'
-            'al","encryption","spreed"]}}}', 'utf-8')
-        with patch(
-                'httpx.AsyncClient.request',
-                new_callable=AsyncMock,
-                return_value=httpx.Response(
-                    status_code=100,
-                    content=json_response)) as mock:
-            response = asyncio.run(self.ncc.get_apps())
-            mock.assert_called_with(
-                method='GET',
-                auth=(USER, PASSWORD),
-                url=f'{ENDPOINT}/ocs/v1.php/cloud/apps?format=json',
-                data=None,
-                headers={'OCS-APIRequest': 'true'})
-            for app in APPS:
-                assert app in response
+    async def test_app_print(self, ldap_app: App):
+        string = str(ldap_app)
+        repr = ldap_app.__repr__()
+        assert string != repr
+        assert isinstance(string, str)
+        assert isinstance(repr, str)
+        assert ldap_app.id in string
+        assert ldap_app.version in string
 
-    def test_enable_app(self):  # noqa: D102
-        APP = 'FavoriteThing'
-        with patch(
-            'httpx.AsyncClient.request',
-            new_callable=AsyncMock,
-            return_value=httpx.Response(
-                status_code=100,
-                content=EMPTY_100)) as mock:
-            response = asyncio.run(self.ncc.enable_app(APP))
-            mock.assert_called_with(
-                method='POST',
-                auth=(USER, PASSWORD),
-                url=f'{ENDPOINT}/ocs/v1.php/cloud/apps/{APP}',
-                data={'format': 'json'},
-                headers={'OCS-APIRequest': 'true'})
-            assert response == []
+    async def test_apps_list(self, apps: Apps):
+        response = await apps.list('enabled')
+        assert isinstance(response, list)
 
-    def test_disable_app(self):  # noqa: D102
-        APP = 'FavoriteThing'
-        with patch(
-            'httpx.AsyncClient.request',
-            new_callable=AsyncMock,
-            return_value=httpx.Response(
-                status_code=100,
-                content=EMPTY_100)) as mock:
-            response = asyncio.run(self.ncc.disable_app(APP))
-            mock.assert_called_with(
-                method='DELETE',
-                auth=(USER, PASSWORD),
-                url=f'{ENDPOINT}/ocs/v1.php/cloud/apps/{APP}',
-                data={'format': 'json'},
-                headers={'OCS-APIRequest': 'true'})
-            assert response == []
+    async def test_apps_list_enabled(self, apps: Apps):
+        response = await apps.list_enabled()
+        assert isinstance(response, list)
+        for a in self._enabled_by_default:
+            assert a in response
+
+    async def test_apps_list_disabled(self, apps: Apps):
+        response = await apps.list_disabled()
+        assert isinstance(response, list)
+        for a in self._enabled_by_default:
+            assert a not in response
+
+if __name__ == 'main':
+    pytest.main()
