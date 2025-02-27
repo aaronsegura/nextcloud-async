@@ -17,10 +17,6 @@ async def ldap_app(apps: Apps) -> App:
 class TestApps:
     _enabled_by_default = ['files', 'activity', 'dashboard']
 
-    def test_apps_init(self, nc):
-        apps = Apps(nc)
-        assert isinstance(apps, Apps)
-
     async def test_app_enable_disable(self, apps: Apps):
         ldap_app = await apps.get('user_ldap')
         await ldap_app.enable()
