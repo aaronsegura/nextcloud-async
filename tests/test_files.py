@@ -7,13 +7,14 @@ import aiofile
 from pathlib import Path
 
 from nextcloud_async import NextcloudClient
-from nextcloud_async.api import Files, File, Path
+from nextcloud_async.api import Files, UserFile, UserPath, TrashFile
 from nextcloud_async.exceptions import (
     NextcloudError,
     NextcloudNotFoundError,
     NextcloudPreconditionError,
     NextcloudConflictError,
-    NextcloudMethodNotAllowedError)
+    NextcloudMethodNotAllowedError,
+    NextcloudUnsupportedMediaType)
 
 from .constants import ENDPOINT, USER, PASSWORD
 
@@ -29,6 +30,7 @@ def setup_module() -> None:
 
 def teardown_module() -> None:
     asyncio.run(remove_remote_test_dir())
+    pass
 
 async def create_remote_test_dir():
     # Prep the test environment
@@ -66,7 +68,7 @@ def class_tmp_path(tmp_path_factory: pytest.TempdirFactory) -> Path:
         numbered=True) # type: ignore
 
 @pytest_asyncio.fixture(loop_scope='class')
-async def local_test_file(class_tmp_path: Path):
+async def local_test_file(class_tmp_path: UserPath):
     _file = f'{class_tmp_path}/file'
     async with aiofile.async_open(_file, 'wb') as fp:
         await fp.write(FILE_CONTENTS_ORIG)
@@ -185,22 +187,19 @@ class TestFilesList:
         _remote_file = remote_test_files[0]
 
         path = await files_api.list(_remote_file, _props)
-        assert isinstance(path, Path)
+        assert isinstance(path, UserPath)
         assert len(path._files) == 1  # noqa: SLF001
-        assert len(path.files) == 0
         assert path.is_file
         assert not path.is_dir
 
         file = path.file
-        assert isinstance(file, File)
+        assert isinstance(file, UserFile)
         assert hasattr(file, 'fileid')
         assert hasattr(file, 'size')
         assert hasattr(file, 'has-preview')
         assert 'Nextcloud File' in str(file)
         assert 'Nextcloud File' in file.__repr__()
         assert file.path == _remote_file
-        assert not file.is_trash
-        assert not file.is_version
 
         try:
             hasattr(file, 'noexist')
@@ -235,7 +234,6 @@ class TestFilesList:
 
         assert root_dir_only.is_dir
         assert not root_dir_only.is_file
-        assert len(root_dir_only.files) == 0
         assert root_dir_only.dir.path.rstrip('/') == REMOTE_TEST_DIR.rstrip('/')
 
     async def test_list_directory_with_files(
@@ -244,10 +242,10 @@ class TestFilesList:
             test_directory: str,
             remote_test_files: list[str]):
         test_dir_with_files = await files_api.list(test_directory)
-        assert len(test_dir_with_files.files) == len(remote_test_files)
+        assert len(test_dir_with_files) == len(remote_test_files)
         assert test_dir_with_files.dir.path.rstrip('/') == test_directory.rstrip('/')
         for file in remote_test_files:
-            assert file in [f.path for f in test_dir_with_files.files]
+            assert file in [f.path for f in test_dir_with_files]
 
 
 @pytest.mark.vcr
@@ -475,111 +473,134 @@ class TestFilesDelete:
             assert False
 
 
-# @pytest.mark.vcr
-# @pytest.mark.asyncio(loop_scope='class')
-# class TestFilesFavorites:
+@pytest.mark.vcr
+@pytest.mark.asyncio(loop_scope='class')
+class TestFilesFavorites:
 
-#     async def test_set_favorite(
-#             self,
-#             files_api: Files,
-#             remote_test_file: str):
-#         await files_api.set_favorite(remote_test_file)
+    @pytest_asyncio.fixture(loop_scope='class')
+    async def test_directory(self, files_api: Files) -> str:
+        _dir = f'{REMOTE_TEST_DIR}/favorites'
+        try:
+            await files_api.mkdir(_dir)
+        except NextcloudMethodNotAllowedError:
+            await files_api.delete(_dir)
+            await files_api.mkdir(_dir)
+        return _dir
 
-#     async def test_remove_favorite(
-#             self,
-#             files_api: Files,
-#             remote_test_file: str):
-#         await files_api.unset_favorite(remote_test_file)
+    @pytest_asyncio.fixture(loop_scope='class')
+    async def remote_test_files(
+            self,
+            files_api: Files,
+            local_test_file: str,
+            test_directory: str) -> list[str]:
+        ret = []
+        for filenum in range(0,1):
+            filename = f'{test_directory}/file{filenum}.md'
+            await files_api.upload(local_test_file, filename)
+            ret.append(filename)
+        return ret
 
-#     async def test_get_single_favorite(
-#             self,
-#             files_api: Files,
-#             single_favorite_file: str):
-#         results = await files_api.get_favorites(REMOTE_TEST_DIR, ['oc:fileid'])
-#         assert len(results) == 1
+    @pytest_asyncio.fixture(loop_scope='class')
+    async def remote_favorited_files(
+            self,
+            files_api: Files,
+            local_test_file: str,
+            test_directory: str) -> list[str]:
+        ret = []
+        for filenum in range(0,2):
+            filename = f'{test_directory}/favorited{filenum}.md'
+            await files_api.upload(local_test_file, filename)
+            await files_api.set_favorite(filename)
+            ret.append(filename)
+        return ret
+
+    async def test_set_favorite(
+            self,
+            files_api: Files,
+            remote_test_files: str):
+        await files_api.set_favorite(remote_test_files[0])
+
+    async def test_remove_favorite(
+            self,
+            files_api: Files,
+            remote_test_files: str):
+        await files_api.unset_favorite(remote_test_files[0])
+
+    async def test_get_single_favorite(
+            self,
+            files_api: Files,
+            remote_favorited_files: list[str]):
+        try:
+            await files_api.get_favorites(
+                remote_favorited_files[0], ['oc:fileid'])
+        except NextcloudUnsupportedMediaType:
+            assert True
+        else:
+            assert False
+
+    async def test_get_multiple_favorites(
+            self,
+            files_api: Files,
+            test_directory: str,
+            remote_favorited_files: list[str]):
+        results = await files_api.get_favorites(
+            test_directory, ['oc:fileid'])
+        assert len(results) == len(remote_favorited_files)
 
 
-#     # def test_get_trashbin(self):  # noqa: D102
-#     #     xml_response = bytes(
-#     #         '<?xml version="1.0"?>\n<d:multistatus xmlns:d="DAV:" '
-#     #         'xmlns:s="http://sabredav.org/ns" xmlns:oc="http://owncloud.org/ns" x'
-#     #         'mlns:nc="http://nextcloud.org/ns"><d:response><d:href>/remote.php/da'
-#     #         f'v/trashbin/{USER}/trash/</d:href><d:propstat><d:prop><d:resourcetyp'
-#     #         'e><d:collection/></d:resourcetype></d:prop><d:status>HTTP/1.1 200 OK'
-#     #         '</d:status></d:propstat></d:response><d:response><d:href>/remote.php'
-#     #         f'/dav/trashbin/{USER}/trash/{FILE}.d1655760269</d:href><d:propstat><'
-#     #         'd:prop><d:getlastmodified>Mon, 20 Jun 2022 21:24:29 GMT</d:getlastmo'
-#     #         'dified><d:getcontentlength>0</d:getcontentlength><d:resourcetype/><d'
-#     #         ':getetag>1655760269</d:getetag><d:getcontenttype>text/markdown</d:ge'
-#     #         'tcontenttype></d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propst'
-#     #         'at><d:propstat><d:prop><d:quota-used-bytes/><d:quota-available-bytes'
-#     #         '/></d:prop><d:status>HTTP/1.1 404 Not Found</d:status></d:propstat><'
-#     #         '/d:response></d:multistatus>\n', 'utf-8')
-#     #     with patch(
-#     #             'httpx.AsyncClient.request',
-#     #             new_callable=AsyncMock,
-#     #             return_value=httpx.Response(
-#     #                 status_code=200,
-#     #                 content=xml_response)) as mock:
-#     #         response = asyncio.run(self.ncc.get_trashbin())
-#     #         mock.assert_called_with(
-#     #             method='PROPFIND',
-#     #             auth=(USER, PASSWORD),
-#     #             url=f'{ENDPOINT}/remote.php/dav/trashbin/{USER}/trash',
-#     #             data={}, headers={})
+@pytest.mark.vcr
+@pytest.mark.asyncio(loop_scope='class')
+class TestFilesTrashbin:
 
-#     #         assert {
-#     #             'd:href': f'/remote.php/dav/trashbin/{USER}/trash/{FILE}.d1655760269',
-#     #             'd:propstat': [
-#     #                 {
-#     #                     'd:prop': {
-#     #                         'd:getlastmodified': 'Mon, 20 Jun 2022 21:24:29 GMT',
-#     #                         'd:getcontentlength': '0',
-#     #                         'd:resourcetype': None,
-#     #                         'd:getetag': '1655760269',
-#     #                         'd:getcontenttype': 'text/markdown'},
-#     #                     'd:status': 'HTTP/1.1 200 OK'},
-#     #                 {
-#     #                     'd:prop': {
-#     #                         'd:quota-used-bytes': None,
-#     #                         'd:quota-available-bytes': None},
-#     #                     'd:status': 'HTTP/1.1 404 Not Found'}]} in response
+    @pytest_asyncio.fixture(loop_scope='class')
+    async def test_directory(self, files_api: Files) -> str:
+        _dir = f'{REMOTE_TEST_DIR}/trashbin'
+        try:
+            await files_api.mkdir(_dir)
+        except NextcloudMethodNotAllowedError:
+            await files_api.delete(_dir)
+            await files_api.mkdir(_dir)
+        return _dir
 
-#     # def test_restore_from_trashbin(self):  # noqa: D102
-#     #     TRASH_FILE = f'{ENDPOINT}/remote.php/dav/trashbin/{USER}/trash/{FILE}.d1655760269'
+    @pytest_asyncio.fixture(loop_scope='class')
+    async def remote_test_files(
+            self,
+            files_api: Files,
+            local_test_file: str,
+            test_directory: str) -> list[str]:
+        ret = []
+        for filenum in range(0,1):
+            filename = f'{test_directory}/file{filenum}.md'
+            await files_api.upload(local_test_file, filename)
+            ret.append(filename)
+        return ret
 
-#     #     with patch(
-#     #             'httpx.AsyncClient.request',
-#     #             new_callable=AsyncMock,
-#     #             return_value=httpx.Response(
-#     #                 status_code=200,
-#     #                 content='')) as mock:
-#     #         asyncio.run(self.ncc.restore_from_trashbin(
-#     #             f'/remote.php/dav/trashbin/{USER}/trash/{FILE}.d1655760269'))
+    @pytest_asyncio.fixture(scope='class')
+    async def deleted_file(
+            self,
+            files_api: Files,
+            remote_test_files: list[str]):
+        _file = remote_test_files[0]
+        await files_api.delete(_file)
+        return _file
 
-#     #         mock.assert_called_with(
-#     #             method='MOVE',
-#     #             auth=(USER, PASSWORD),
-#     #             url=TRASH_FILE,
-#     #             data={},
-#     #             headers={
-#     #                 'Destination': f'{ENDPOINT}/remote.php/dav/trashbin/{USER}/restore/file'})
+    async def test_get_trashbin(
+            self,
+            files_api: Files,
+            deleted_file: str):
+        trash = await files_api.get_trashbin()
+        assert isinstance(trash, list)
+        for f in trash:
+            assert isinstance(f, TrashFile)
 
-#     # def test_empty_trash(self):  # noqa: D102
-#     #     with patch(
-#     #             'httpx.AsyncClient.request',
-#     #             new_callable=AsyncMock,
-#     #             return_value=httpx.Response(
-#     #                 status_code=200,
-#     #                 content='')) as mock:
-#     #         asyncio.run(self.ncc.empty_trashbin())
+    async def test_restore_from_trashbin(
+            self,
+            files_api: Files,
+            deleted_file: str):
+        ...
 
-#     #         mock.assert_called_with(
-#     #             method='DELETE',
-#     #             auth=(USER, PASSWORD),
-#     #             url=f'{ENDPOINT}/remote.php/dav/trashbin/{USER}/trash',
-#     #             data={},
-#     #             headers={})
+    async def test_empty_trash(self):
+        ...
 
 #     # def test_get_file_versions(self):  # noqa: D102
 #     #     xml_response = bytes(

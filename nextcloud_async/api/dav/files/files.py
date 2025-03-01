@@ -15,167 +15,19 @@ import xml.etree.ElementTree as ET
 
 from urllib.parse import quote
 
-from dataclasses import dataclass
-
 from typing import List, Any
 
 from nextcloud_async.driver import NextcloudModule, NextcloudDavApi
 from nextcloud_async.client import NextcloudClient
-from nextcloud_async.helpers import remove_key_prefix
 
 from nextcloud_async.exceptions import (
     NextcloudChunkedUploadError,
+    NextcloudBadRequestError,
     NextcloudError)
 
-@dataclass
-class File:
-    data: dict[str, Any]
-    files_api: 'Files'
-
-    def __post_init__(self) -> None:
-        if isinstance(self.data['d:propstat'], list):
-            for prop in self.data['d:propstat']:
-                self.data.update(prop['d:prop'])
-        elif isinstance(self.data['d:propstat'], dict):
-            self.data.update(self.data['d:propstat'])
-
-        self.data = remove_key_prefix(self.data)
-
-    def __getattr__(self, k: str) -> Any:
-        return self.data[k]
-
-    def __str__(self) -> str:
-        return f'<Nextcloud File "{self.path}">'
-
-    def __repr__(self) -> str:
-        return f'<Nextcloud File {self.data}>'
-
-    @property
-    def path(self) -> str:
-        """File path relative to user data directory.
-
-        Returns:
-            File path
-        """
-        return '/{}'.format('/'.join(self.href.split('/')[5:]))
-
-    @property
-    def _trash_path(self) -> str:
-        """Trashed file path relative to root directory.
-
-        Raises:
-            NextcloudException: When file is not a trashbin file
-
-        Returns:
-            File path.
-        """
-        if self.is_trash:
-            return '/{}'.format('/'.join(self.href.split('/')[3:]))
-        else:
-            raise NextcloudError(
-                status_code=400,
-                reason='File is not a trashbin file.')
-
-    @property
-    def is_trash(self) -> bool:
-        """Return True if file is a trashbin file.
-
-        Returns:
-            True or False
-        """
-        return self.href.startswith('/remote.php/dav/trashbin/')
-
-    @property
-    def _version_path(self) -> str:
-        if self.is_version:
-            return '/{}'.format('/'.join(self.href.split('/')[3:]))
-        else:
-            raise NextcloudError(
-                status_code=400,
-                reason='File is not a version file.')
-
-    @property
-    def is_version(self) -> bool:
-        """Return True if this file represents a restorable version.
-
-        Returns:
-            True or False
-        """
-        return self.href.startswith('/remote.php/dav/versions/')
-
-    async def download(self) -> bytes:
-        """Download this file."""
-        return await self.files_api.download(self.path)
-
-    async def delete(self) -> None:
-        """Delete this file."""
-        return await self.files_api.delete(self.path)
-
-    async def move(self, dest: str, overwrite: bool = False) -> None:
-        """Move this file.
-
-        Args:
-            dest:
-                Destination path
-
-            overwrite:
-                Overwrite destination if it exists
-        """
-        return await self.files_api.move(
-            source=self.path,
-            dest=dest,
-            overwrite=overwrite)
-
-    async def copy(self, dest: str, overwrite: bool= False) -> None:
-        """Copy file.
-
-        Args:
-            dest:
-                Copy destination relative to user root
-
-            overwrite:
-                Overwrite destination if it exists
-        """
-        await self.files_api.copy(
-            source=self.path,
-            dest=dest,
-            overwrite=overwrite)
-
-    async def set_favorite(self) -> None:
-        """Mark this file as a favorite."""
-        await self.files_api.set_favorite(self.path)
-        self.favorite = True
-
-    async def unset_favorite(self) -> None:
-        """Remove this file from favorites."""
-        await self.files_api.unset_favorite(self.path)
-
-    async def restore_trash(self) -> None:
-        """Restore a trashbin file.
-
-        Raises:
-            NextcloudException: File is not a trashbin file.
-        """
-        if not self.is_trash:
-            raise NextcloudError(
-                status_code=400,
-                reason='File is not a trashbin file.')
-        return await self.files_api.restore_trash(self._trash_path)
-
-    # TODO: No errors, but also doesn't restore :/
-    async def restore_version(self) -> None:
-        """Restore version of a file.
-
-        Raises:
-            NextcloudException: File is not a version file.
-        """
-        if not self.is_version:
-            raise NextcloudError(
-                status_code=400,
-                reason='File is not a version file.')
-        print(f"restoring {self._version_path}")
-        await self.files_api.restore_version(self._version_path)
-
+from .user_files import UserPath, UserFile
+from .trashbin import Trashbin, TrashFile
+from .versions import Versions, Version
 
 class Files(NextcloudModule):
     """Interact with Nextcloud DAV Files Endpoint."""
@@ -186,16 +38,38 @@ class Files(NextcloudModule):
         self.api = NextcloudDavApi(client)
         self.stub = ''
 
+    def _namespace_favorites_properties(self, properties: List[str]) -> str:
+        data: str = ''
+        default_properties = ['oc:fileid', 'd:resourcetype']
+
+        # if user passes in properties, they must be built into an Element
+        # tree so they can be dumped to an XML document and then sent
+        # as the query body
+        root = ET.Element(
+            'oc:filter-files',
+            attrib={
+                'xmlns:d': 'DAV:',
+                'xmlns:oc': 'http://owncloud.org/ns',
+                'xmlns:nc': 'http://nextcloud.org/ns'})
+        filter_rules = ET.SubElement(root, 'oc:filter-rules')
+        ET.SubElement(filter_rules, 'oc:favorite').text = '1'
+        prop = ET.SubElement(root, 'd:prop')
+        for p in properties + default_properties:
+            ET.SubElement(prop, p)
+
+        tree = ET.ElementTree(root)
+        # Write XML file to memory, then read it into `data`
+        with io.BytesIO() as _mem:
+            tree.write(_mem, xml_declaration=True)
+            _mem.seek(0)
+            data = _mem.read().decode('utf-8')
+
+        return data
+
     def _namespace_properties(self, properties: List[str]) -> str:
         data: str = ''
 
-        default_properties = [
-            'd:getlastmodified',
-            'd:getetag',
-            'd:getcontenttype',
-            'd:resourcetype',
-            'd:getcontentlength',
-            'oc:fileid']
+        default_properties = ['oc:fileid', 'd:resourcetype']
 
         # if user passes in parameters, they must be built into an Element
         # tree so they can be dumped to an XML document and then sent
@@ -220,31 +94,37 @@ class Files(NextcloudModule):
 
         return data
 
-    async def list(self, path: str, properties: List[str] = []) -> List[File]:
+    async def list(
+            self,
+            path: str,
+            properties: List[str] = [],
+            directory_only: bool = False) -> UserPath:
         """Return a list of files at `path`.
-
-        If `properties` is passed, only those properties requested are
-        returned.
 
         Always return a list, even if path is a file.
 
         Args:
-            path (str): Filesystem path
+            path:
+                Filesystem path
 
-            properties (list, optional): List of properties to return. Defaults to [].
+            properties:
+                List of additional properties to return.
 
+            directory_only:
+                Return properties of a folder, not the contents
         Returns:
-            list: Files
+            list[File]
         """
         data = self._namespace_properties(properties)
         response: List[dict[str, Any]] | dict[str, Any] = await self._propfind(
             path=f'/files/{self.client.user}/{path}',
+            headers={'Depth': '0' if directory_only else ''},
             data=data)
 
         if isinstance(response, list):
-            return [File(data, self) for data in response]
+            return UserPath(path, [UserFile(data, self) for data in response])
         else:
-            return [File(response, self)]
+            return UserPath(path, [UserFile(response, self)])
 
     async def download(self, path: str) -> bytes:
         """Download the file at `path`.
@@ -289,9 +169,11 @@ class Files(NextcloudModule):
         """Delete file or folder.
 
         Args:
-            path (str): Filesystem path
+            path: Filesystem path
+            trash:
         """
-        await self._delete(path=f'/files/{self.client.user}/{path}')
+        _path: str = f'/files/{self.client.user}/{path}'
+        await self._delete(path=_path)
 
     async def move(self, source: str, dest: str, overwrite: bool = False) -> None:
         """Move a file or folder.
@@ -329,7 +211,7 @@ class Files(NextcloudModule):
                     f'{self.client.endpoint}/remote.php/dav/files/{self.client.user}/{quote(dest)}',
                 'Overwrite': 'T' if overwrite else 'F'})
 
-    async def __favorite(self, path: str, set: bool) -> dict[str, Any]:
+    async def _favorite(self, path: str, set: bool) -> dict[str, Any]:
         """Set file/folder as a favorite.
 
         Args:
@@ -353,7 +235,7 @@ class Files(NextcloudModule):
             path=f'/files/{self.client.user}/{path}',
             data=data)
 
-    async def set_favorite(self, path: str) -> File:
+    async def set_favorite(self, path: str) -> UserFile:
         """Set file/folder as a favorite.
 
         Args:
@@ -362,10 +244,10 @@ class Files(NextcloudModule):
         Returns:
             dict: File info
         """
-        response = await self.__favorite(path, True)
-        return File(response, self.api)
+        response = await self._favorite(path, True)
+        return UserFile(response, self.api)
 
-    async def unset_favorite(self, path: str) -> File:
+    async def unset_favorite(self, path: str) -> UserFile:
         """Remove file/folder as a favorite.
 
         Args:
@@ -374,35 +256,59 @@ class Files(NextcloudModule):
         Returns:
             dict: File info
         """
-        response = await self.__favorite(path, False)
-        return File(response, self.api)
+        response = await self._favorite(path, False)
+        return UserFile(response, self.api)
 
-    async def get_favorites(self, path: str = '') -> List[File]:
+    async def get_favorites(
+            self,
+            path: str = '',
+            properties: List[str] = []) -> List[UserFile]:
         """List favorites below given Path.
 
         Args:
-            path (str, optional): Filesystem path. Defaults to ''.
+            path: Filesystem path. Defaults to ''.
+            properties: List of extra properties to get.
 
         Returns:
             list: list of favorites
         """
-        data = '''<?xml version="1.0"?><oc:filter-files  xmlns:d="DAV:"
-        xmlns:oc="http://owncloud.org/ns" xmlns:nc="http://nextcloud.org/ns">
-        <oc:filter-rules><oc:favorite>1</oc:favorite></oc:filter-rules>
-        </oc:filter-files>'''
+        data = self._namespace_favorites_properties(properties)
         response =  await self._report(
             path=f'/files/{self.client.user}/{path}',
             data=data)
-        return [File(data, self.api) for data in response]
+        if isinstance(response, dict):
+            return [UserFile(response, self.api)]
+        elif isinstance(response, list):
+            return [UserFile(data, self.api) for data in response]
+        else:
+            raise NextcloudError(status_code=500, reason='Unparseable response')
 
-    async def list_trash(self) -> List[File]:
+    async def get_trashbin(self) -> Trashbin:
         """Get items in the trash.
 
         Returns:
-            list: Trashed items
+            files.Path
         """
-        response = await self._propfind(path=f'/trashbin/{self.client.user}/trash')
-        return [File(data, self) for data in response]
+        _properties = [
+            'nc:trashbin-filename',
+            'nc:trashbin-original-location',
+            'nc:trashbin-deletion-time']
+        data = self._namespace_properties(_properties)
+
+        response = await self._propfind(
+            path=f'/trashbin/{self.client.user}/trash',
+            data=data)
+        return Trashbin([TrashFile(d, self) for d in response], self)
+
+    async def delete_trash(self, path: str) -> None:
+        """Permanently delete a file from the trash.
+
+        Args:
+            path (str): Trash path (without `/remote.php/dav/`)
+        """
+        if '/trashbin/' not in path:
+            raise NextcloudBadRequestError(f'Path is not a trashfile: {path}')
+        await self._delete(path=path)
 
     async def restore_trash(self, path: str) -> None:
         """Restore a file from the trash.
@@ -420,7 +326,7 @@ class Files(NextcloudModule):
         """Empty the trash."""
         await self._delete(path=f'/trashbin/{self.client.user}/trash')
 
-    async def list_versions(self, file_id: int) -> List[File]:
+    async def get_versions(self, file_id: int) -> Versions:
         """List of file versions.
 
         Args:
@@ -431,7 +337,7 @@ class Files(NextcloudModule):
         """
         response = await self._propfind(
             path=f'/versions/{self.client.user}/versions/{file_id}')
-        return [File(data, self) for data in response]
+        return Versions([Version(data, self) for data in response], self)
 
     async def restore_version(self, path: str) -> None:
         """Restore an old file version.
