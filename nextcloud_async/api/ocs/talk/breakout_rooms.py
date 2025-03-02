@@ -85,7 +85,7 @@ class BreakoutRooms(NextcloudModule):
     * Only moderators can configure and remove breakout rooms
     * Only moderators can start and stop breakout rooms
     * Moderators in the parent conversation are added as moderators to all breakout rooms
-    and remove from all on demotion
+      and remove from all on demotion
 
     https://nextcloud-talk.readthedocs.io/en/latest/breakout-rooms/
 

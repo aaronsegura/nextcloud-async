@@ -136,7 +136,6 @@ class Users(NextcloudModule):
     #         https://github.com/nextcloud/server/blob/master/core/Controller/AutoCompleteController.php#L62
 
     #     Args
-    #     ----
     #         search (str): Search string
 
     #         item_type (str, optional): Item type, `users` or `groups`. Used for sorting.
@@ -152,7 +151,6 @@ class Users(NextcloudModule):
     #         limit (int, optional): Results per page. Defaults to 25.
 
     #     Returns
-    #     -------
     #         list: Potential matches
 
     #     """

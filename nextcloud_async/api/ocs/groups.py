@@ -1,5 +1,9 @@
 """Nextcloud Group Management API.
 
+This interface allows you to manage groups and group membership on a Nextcloud instance.
+If you want to promote a user to subadmin or remove subadmin privileges, see the Users
+API.
+
 https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/instruction_set_for_groups.html
 """
 

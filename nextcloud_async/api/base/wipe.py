@@ -20,10 +20,14 @@ class Wipe(NextcloudModule):
     to be removed, one to notify the server upon removal of local
     user data.
 
-        wipe_status = await get_wipe_status()
-        if wipe_status:
-            os.remove('.appdatata')  # for example
-            await notify_wipe_status()
+    ````
+    wipe_status = await get_wipe_status()
+    if wipe_status:
+        os.remove('.appdatata')  # for example
+        await notify_wipe_status()
+
+    ````
+
     """
     def __init__(
             self,

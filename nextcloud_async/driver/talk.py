@@ -57,8 +57,7 @@ class NextcloudTalkApi(NextcloudHttpApi):
             headers: Optional[Dict[str, Any]] = None) -> Tuple[Dict[str, Any], httpx.Headers]:
         """Submit OCS-type query to cloud endpoint.
 
-        Args
-        ----
+        Args:
             method (str): HTTP Method (eg, `GET`, `POST`, etc...)
 
             url (str, optional): Use a URL outside of the given endpoint. Defaults to None.
@@ -71,8 +70,7 @@ class NextcloudTalkApi(NextcloudHttpApi):
             headers (Dict, optional): Headers for submission. Defaults to {}.
 
 
-        Raises
-        ------
+        Raises:
             304 - NextcloudNotModified
 
             400 - NextcloudBadRequest
@@ -90,13 +88,11 @@ class NextcloudTalkApi(NextcloudHttpApi):
             429 - NextcloudTooManyRequests
 
 
-        Returns
-        -------
+        Returns:
             Tuple[Dict, Dict]: Response Data and headers
 
 
-        Raises
-        ------
+        Raises:
             NextcloudException - when invalid response from server
         """
         if headers:

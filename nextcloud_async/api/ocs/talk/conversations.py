@@ -303,14 +303,14 @@ class Conversation:
         message_id: int
         limit: int
 
-    async def message_context(
+    async def message_context(  # noqa: D417
             self,
             **kwargs: Unpack[_MessageContextArgs]) -> Tuple[List[Message], httpx.Headers]:
         """Get context around a message.
 
         Requires Capability: chat-get-context
-        Args:
 
+        Args:
             message_id:
                 Message ID
 

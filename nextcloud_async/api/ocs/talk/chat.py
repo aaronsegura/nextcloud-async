@@ -344,6 +344,7 @@ class Chat(NextcloudModule):
         """Get context around a message.
 
         Requires Capability: chat-get-context
+
         Args:
             room_token:
                 Conversation token

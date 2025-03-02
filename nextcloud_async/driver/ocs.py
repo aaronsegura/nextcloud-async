@@ -49,8 +49,7 @@ class NextcloudOcsApi(NextcloudHttpApi):
             return_full_response: bool = False) -> Dict[str, Any] | List[Dict[str, Any]]:
         """Submit OCS-type query to cloud endpoint.
 
-        Args
-        ----
+        Args:
             method (str): HTTP Method (eg, `GET`, `POST`, etc...)
 
             url (str, optional): Use a URL outside of the given endpoint. Defaults to None.
@@ -65,8 +64,7 @@ class NextcloudOcsApi(NextcloudHttpApi):
             return_full_response (bool): Return full OCS response with metadata.  Defaults to False
 
 
-        Raises
-        ------
+        Raises:
             304 - NextcloudNotModified
 
             400 - NextcloudBadRequest
@@ -84,8 +82,7 @@ class NextcloudOcsApi(NextcloudHttpApi):
             429 - NextcloudTooManyRequests
 
 
-        Returns
-        -------
+        Returns:
             Dict: Response Data
 
             The OCS Endpoint returns metadata about the response in addition to the data
@@ -101,8 +98,7 @@ class NextcloudOcsApi(NextcloudHttpApi):
 
             >>> response, headers = await self.ocs_query(..., include_headers=['Some-Header'])
 
-        Raises
-        ------
+        Raises:
             NextcloudException - when invalid response from server
         """
         if headers:
