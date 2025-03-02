@@ -43,7 +43,7 @@ class Trashbin:
     files_api: 'Files'
 
     def __iter__(self) -> 'Trashbin':
-        self._index = 0
+        self._index = 1
         self._len = len(self._files)
         return self
 
@@ -53,6 +53,9 @@ class Trashbin:
         else:
             self._index += 1
             return self._files[self._index - 1]
+
+    def __len__(self) -> int:
+        return len(self._files) - 1
 
     @property
     def files(self) -> List[TrashFile]:

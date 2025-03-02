@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 class Version(BaseFile):
 
     def __str__(self) -> str:
-        return f'<Nextcloud File Version #{self.fileid} "{unquote(self.href)}">'
+        return f'<Nextcloud File Version "{unquote(self.href)}">'
 
     def __repr__(self) -> str:
         return f'<Nextcloud File Version {self.data}>'
@@ -39,7 +39,7 @@ class Versions:
     files_api: 'Files'
 
     def __iter__(self) -> 'Versions':
-        self._index = 0
+        self._index = 1
         self._len = len(self._files)
         return self
 
@@ -50,14 +50,8 @@ class Versions:
             self._index += 1
             return self._files[self._index - 1]
 
-    @property
-    def files(self) -> List[Version]:
-        """Filter out the trashbin object itself and return just trash files.
+    def __len__(self) -> int:
+        return len(self._files) - 1
 
-        Returns:
-            List of Version
-        """
-        user = self.files_api.api.client.user
-        return [
-            file for file in self._files
-            if file.href != f'/remote.php/dav/trashbin/{user}/trash/']
+    def __getitem__(self, index: int) -> Version:
+        return self._files[index+1]

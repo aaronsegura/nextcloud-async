@@ -40,7 +40,7 @@ class Files(NextcloudModule):
 
     def _namespace_favorites_properties(self, properties: List[str]) -> str:
         data: str = ''
-        default_properties = ['oc:fileid', 'd:resourcetype']
+        default_properties = ['oc:fileid', 'd:resourcetype', 'oc:favorite']
 
         # if user passes in properties, they must be built into an Element
         # tree so they can be dumped to an XML document and then sent
@@ -298,7 +298,13 @@ class Files(NextcloudModule):
         response = await self._propfind(
             path=f'/trashbin/{self.client.user}/trash',
             data=data)
-        return Trashbin([TrashFile(d, self) for d in response], self)
+        if isinstance(response, list):
+            return Trashbin([TrashFile(d, self) for d in response], self)
+        if isinstance(response, dict):
+            return Trashbin([TrashFile(response, self)], self)
+        raise NextcloudError(
+            status_code=500,
+            reason='Unable to interpret server response.')
 
     async def delete_trash(self, path: str) -> None:
         """Permanently delete a file from the trash.
@@ -306,7 +312,7 @@ class Files(NextcloudModule):
         Args:
             path (str): Trash path (without `/remote.php/dav/`)
         """
-        if '/trashbin/' not in path:
+        if not path.startswith(f'/trashbin/{self.api.client.user}/trash'):
             raise NextcloudBadRequestError(f'Path is not a trashfile: {path}')
         await self._delete(path=path)
 

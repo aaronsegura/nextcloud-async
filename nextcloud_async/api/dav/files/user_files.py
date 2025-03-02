@@ -5,8 +5,6 @@ from typing import List, Optional, Any
 
 from urllib.parse import unquote
 
-from nextcloud_async.exceptions import NextcloudError
-
 from .base_file import BaseFile
 from .versions import Versions
 
@@ -78,20 +76,6 @@ class UserFile(BaseFile):
         """List older versions of this file."""
         return await self.files_api.get_versions(self.fileid)
 
-    # TODO: No errors, but also doesn't restore :/
-    async def restore_version(self) -> None:
-        """Restore version of a file.
-
-        Raises:
-            NextcloudException: File is not a version file.
-        """
-        if not self.is_version:
-            raise NextcloudError(
-                status_code=400,
-                reason='File is not a version file.')
-        print(f"restoring {self._version_path}")
-        await self.files_api.restore_version(self._version_path)
-
 
 @dataclass
 class UserPath:
@@ -161,13 +145,13 @@ class UserPath:
 
         if self.is_file:
             try:
-                return self.file.__getattribute__(k)
+                return self._file.__getattribute__(k)
             except AttributeError:
                 pass
 
         if self.is_dir:
             try:
-                return self.dir.__getattribute__(k)
+                return self._dir.__getattribute__(k)
             except AttributeError:
                 pass
 
@@ -189,6 +173,9 @@ class UserPath:
 
         raise KeyError
 
+    def __getitem__(self, index):
+        return self._files[index]
+
     @property
     def _self(self) -> UserFile:
         return [file for file in self._files
@@ -196,20 +183,22 @@ class UserPath:
 
     @property
     def is_dir(self) -> bool:
+        """Return True if this object represents a irectory."""
         if self._self.resourcetype:
             if 'd:collection' in self._self.resourcetype:
                 return True
         return False
 
     @property
-    def is_file(self):
+    def is_file(self) -> bool:
+        """Return True if this object represents a single file."""
         return not self.is_dir
 
     @property
-    def file(self) -> Optional[UserFile]:
+    def _file(self) -> Optional[UserFile]:
         return self._self
 
     @property
-    def dir(self) -> Optional[UserFile]:
+    def _dir(self) -> Optional[UserFile]:
         if self.is_dir:
             return self._self

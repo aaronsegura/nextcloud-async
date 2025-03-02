@@ -32,6 +32,6 @@ def vcr_cassette_dir(request):
 
 @pytest_asyncio.fixture(scope='class', loop_scope='class')
 async def nc():
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=30) as client:
         yield NextcloudClient(ENDPOINT, USER, PASSWORD, client)
 

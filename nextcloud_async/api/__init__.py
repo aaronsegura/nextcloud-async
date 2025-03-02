@@ -4,7 +4,7 @@ https://docs.nextcloud.com/server/latest/developer_manual/client_apis/
 """
 
 from .ocs.apps import Apps, App
-from .dav.files import Files, UserFile, UserPath, TrashFile, Trashbin
+from .dav.files import Files, UserFile, UserPath, TrashFile, Trashbin, Versions, Version
 from .ocs.groupfolders import GroupFolders
 from .ocs.groups import Groups
 from .base.loginflowv2 import LoginFlowV2
@@ -57,7 +57,7 @@ __all__ = [
     "ConversationAvatars",
     "Polls", "Poll",
     "Suggestion",
-    "Files", "UserFile", "UserPath", "Trashbin", "TrashFile",
+    "Files", "UserFile", "UserPath", "Trashbin", "TrashFile", "Versions", "Version",
     "GroupFolders",
     "Groups",
     "LoginFlowV2",
