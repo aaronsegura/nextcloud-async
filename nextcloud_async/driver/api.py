@@ -1,3 +1,5 @@
+import asyncio
+
 from abc import ABC, abstractmethod
 from typing import Dict, Any, Optional, Iterable
 
@@ -325,6 +327,7 @@ class NextcloudModule(ABC):
 class NextcloudCapabilities:
     _instance: Optional["NextcloudCapabilities"] = None
     _capabilities: Dict[str, Any] = {}
+    _version: Dict[str, Any] = {}
 
     client: NextcloudClient
 
@@ -344,12 +347,14 @@ class NextcloudCapabilities:
             url=f"{self.client.endpoint}/ocs/v1.php/cloud/capabilities?format=json",
             headers={"OCS-APIRequest": "true"},
         )
-        return response.json()["ocs"]["data"]["capabilities"]
+        return response.json()["ocs"]["data"]
 
     async def _pop_capabilities(self):
-        self._capabilities = await self._get_capabilities()
+        response = await self._get_capabilities()
+        self._capabilities = response['capabilities']
+        self._version = response['version']
 
-    async def list(self) -> Dict[str, Any]:
+    async def get_all(self) -> dict[str, Any]:
         if not self._capabilities:
             await self._pop_capabilities()
         return self._capabilities
@@ -376,6 +381,11 @@ class NextcloudCapabilities:
                     return False
 
         return True
+
+    async def server_version(self) -> dict[str, str]:
+        if not self._version:
+            await self._pop_capabilities()
+        return self._version
 
 
 class NextcloudIterator:
