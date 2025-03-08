@@ -2,6 +2,7 @@
 
 https://nextcloud-talk.readthedocs.io/en/latest/call/
 """
+
 from typing import List
 
 from nextcloud_async.driver import NextcloudTalkApi, NextcloudModule
@@ -9,20 +10,20 @@ from nextcloud_async.driver import NextcloudTalkApi, NextcloudModule
 from .constants import ParticipantInCallFlags
 from .types import ParticipantData
 
+
 class Calls(NextcloudModule):
     """Interact with Nextcloud Talk API."""
 
     api: NextcloudTalkApi
 
-    def __init__(
-            self,
-            api: NextcloudTalkApi,
-            api_version: str = '4') -> None:
+    def __init__(self, api: NextcloudTalkApi, api_version: str = "4") -> None:
 
-        self.stub = f'/apps/spreed/api/v{api_version}/call'
+        self.stub = f"/apps/spreed/api/v{api_version}/call"
         self.api = api
 
-    async def get_connected_participants(self, room_token: str) -> List[ParticipantData]:
+    async def get_connected_participants(
+        self, room_token: str
+    ) -> List[ParticipantData]:
         """Get list of connected participants.
 
         Args:
@@ -32,15 +33,16 @@ class Calls(NextcloudModule):
         Returns:
             List of ParticipantData
         """
-        response = await self._get(path=f'/{room_token}')
+        response = await self._get(path=f"/{room_token}")
         return response
 
     async def join_call(
-            self,
-            room_token: str,
-            flags: ParticipantInCallFlags,
-            silent: bool,
-            recording_consent: bool) -> None:
+        self,
+        room_token: str,
+        flags: ParticipantInCallFlags,
+        silent: bool,
+        recording_consent: bool,
+    ) -> None:
         """Join a call.
 
         Args:
@@ -60,16 +62,15 @@ class Calls(NextcloudModule):
                 is 1)
         """
         await self._post(
-            path=f'/{room_token}',
+            path=f"/{room_token}",
             data={
-                'flags': flags.value,
-                'silent': silent,
-                'recordingConsent': recording_consent})
+                "flags": flags.value,
+                "silent": silent,
+                "recordingConsent": recording_consent,
+            },
+        )
 
-    async def send_notification(
-            self,
-            room_token: str,
-            user_id: str) -> None:
+    async def send_notification(self, room_token: str, user_id: str) -> None:
         """Send call notification.
 
         Requires capability: send-call-notification
@@ -81,15 +82,12 @@ class Calls(NextcloudModule):
             user_id:
                 Participant to notify.
         """
-        await self.api.require_talk_feature('send-call-notification')
+        await self.api.require_talk_feature("send-call-notification")
         await self._post(
-            path=f'/{room_token}/ring/{user_id}',
-            data={'attendeeId': user_id})
+            path=f"/{room_token}/ring/{user_id}", data={"attendeeId": user_id}
+        )
 
-    async def send_sip_dialout_request(
-            self,
-            room_token: str,
-            user_id: str) -> None:
+    async def send_sip_dialout_request(self, room_token: str, user_id: str) -> None:
         """Send SIP dial-out request.
 
         Requires capability: sip-support-dialout
@@ -101,15 +99,14 @@ class Calls(NextcloudModule):
             user_id:
                 The participant to call
         """
-        await self.api.require_talk_feature('sip-support-dialout')
+        await self.api.require_talk_feature("sip-support-dialout")
         await self._post(
-            path=f'/{room_token}/dialout/{user_id}',
-            data={'attendeeId': user_id})
+            path=f"/{room_token}/dialout/{user_id}", data={"attendeeId": user_id}
+        )
 
     async def update_flags(
-            self,
-            room_token: str,
-            flags: ParticipantInCallFlags) -> None:
+        self, room_token: str, flags: ParticipantInCallFlags
+    ) -> None:
         """Update call flags.
 
         Args:
@@ -119,9 +116,7 @@ class Calls(NextcloudModule):
             flags:
                 ParticipantInCallFlags
         """
-        await self._put(
-            path=f'/{room_token}',
-            data={'flags': flags.value})
+        await self._put(path=f"/{room_token}", data={"flags": flags.value})
 
     async def leave(self, room_token: str, end_for_all: bool = False) -> None:
         """Leave a call (but staying in the conversation for future calls and chat).
@@ -134,6 +129,4 @@ class Calls(NextcloudModule):
                 If sent as a moderator, end the meeting and all participants leave the
                 call.
         """
-        await self._delete(
-            path=f'/{room_token}',
-            data={'all': end_for_all})
+        await self._delete(path=f"/{room_token}", data={"all": end_for_all})

@@ -17,13 +17,14 @@ def recursive_urlencode(d: Dict[str, Any]) -> str:
     >>> recursive_urlencode(data)
     'a=b%26c&d[e][fg]=hi&j=k'
     """
+
     def _recursion(d: Dict[str, str], base: List[str] = []) -> List[str]:
         pairs: List[str] = []
 
         for key, value in d.items():
             new_base: List[str] = base + [key]
-            if hasattr(value, 'values'):
-                pairs += _recursion(value, new_base)   # type: ignore
+            if hasattr(value, "values"):
+                pairs += _recursion(value, new_base)  # type: ignore
             else:
                 new_pair = None
                 if len(new_base) > 1:
@@ -31,11 +32,12 @@ def recursive_urlencode(d: Dict[str, Any]) -> str:
                     rest = [quote(x) for x in new_base]
                     new_pair = f'{first}[{"][".join(rest)}]={quote(value)}'
                 else:
-                    new_pair = f'{quote(key)}={quote(value)}'
+                    new_pair = f"{quote(key)}={quote(value)}"
                 pairs.append(new_pair)
         return pairs
 
-    return '&'.join(_recursion(d))
+    return "&".join(_recursion(d))
+
 
 def bool2int(b: bool) -> int:
     """Translate boolean values to integers.
@@ -48,6 +50,7 @@ def bool2int(b: bool) -> int:
         0 if False, 1 if True
     """
     return 1 if b else 0
+
 
 def phone_number_to_e164(phone_number: str) -> str:
     """Translate phone number to E164 format.
@@ -65,6 +68,7 @@ def phone_number_to_e164(phone_number: str) -> str:
 
     return f'{".".join(new_format)}.e164.arpa'
 
+
 def filter_headers(filter: List[str], headers: httpx.Headers) -> httpx.Headers:
     """Filter result headers down to just the ones we want.
 
@@ -79,19 +83,3 @@ def filter_headers(filter: List[str], headers: httpx.Headers) -> httpx.Headers:
         List of filtered headers
     """
     return httpx.Headers([x for x in headers.items() if x[0].lower() in filter])
-
-def remove_key_prefix(d: Dict[str, Any]) -> Dict[str, Any]:
-    """Remove the namespace prefix on dictionary keys.
-
-    DAV Endpoint shenanigans.
-
-    {'oc:fileid': 3} -> {'fileid' : 3}
-
-    Args:
-        d:
-            Dictionary
-
-    Returns:
-        Dictionary with trimmed keys
-    """
-    return {k[k.find(':')+1:]: v for k, v in d.items()}

@@ -4,23 +4,21 @@ Requires capability: avatar
 
 https://nextcloud-talk.readthedocs.io/en/latest/avatar/
 """
+
 from typing import Optional
 
 from nextcloud_async.driver import NextcloudTalkApi, NextcloudModule
 
 
 class ConversationAvatars(NextcloudModule):
-    def __init__(
-            self,
-            api: NextcloudTalkApi,
-            api_version: str = '1') -> None:
-        self.stub = f'/apps/spreed/api/v{api_version}'
+    def __init__(self, api: NextcloudTalkApi, api_version: str = "1") -> None:
+        self.stub = f"/apps/spreed/api/v{api_version}"
         self.api: NextcloudTalkApi = api
 
     async def _validate_capability(self) -> None:
-        await self.api.require_talk_feature('avatar')
+        await self.api.require_talk_feature("avatar")
 
-    async def set_image(self, room_token:str, image_data: bytes) -> None:
+    async def set_image(self, room_token: str, image_data: bytes) -> None:
         """Set conversations avatar.
 
         Args:
@@ -31,15 +29,11 @@ class ConversationAvatars(NextcloudModule):
                 Image data
         """
         await self._validate_capability()
-        await self._post(
-            path=f'/room/{room_token}/avatar',
-            data={'file': image_data})
+        await self._post(path=f"/room/{room_token}/avatar", data={"file": image_data})
 
     async def set_emoji(
-            self,
-            room_token: str ,
-            emoji: str,
-            color: Optional[str] = None) -> None:
+        self, room_token: str, emoji: str, color: Optional[str] = None
+    ) -> None:
         """Set emoji as avatar.
 
         Args:
@@ -55,10 +49,9 @@ class ConversationAvatars(NextcloudModule):
         """
         await self._validate_capability()
         await self._post(
-            path=f'/room/{room_token}/avatar/emoji',
-            data={
-                'emoji': emoji,
-                'color': color})
+            path=f"/room/{room_token}/avatar/emoji",
+            data={"emoji": emoji, "color": color},
+        )
 
     async def delete(self, room_token: str) -> None:
         """Delete conversation avatar.
@@ -71,7 +64,7 @@ class ConversationAvatars(NextcloudModule):
                 Token of conversation.
         """
         await self._validate_capability()
-        await self._delete(path=f'/room/{room_token}/avatar')
+        await self._delete(path=f"/room/{room_token}/avatar")
 
     async def get(self, room_token: str, dark_mode: bool = False) -> bytes:
         """Get conversations avatar (binary).
@@ -88,20 +81,15 @@ class ConversationAvatars(NextcloudModule):
         """
         await self._validate_capability()
         if dark_mode:
-            response = await self._get_raw(
-                path=f'/room/{room_token}/avatar/dark')
+            response = await self._get_raw(path=f"/room/{room_token}/avatar/dark")
         else:
-            response = await self._get_raw(
-                path=f'/room/{room_token}/avatar')
+            response = await self._get_raw(path=f"/room/{room_token}/avatar")
 
         return response.content
 
     async def get_federated(
-            self,
-            room_token: str,
-            cloud_id: str,
-            size: int,
-            dark_mode: bool  = False) -> bytes:
+        self, room_token: str, cloud_id: str, size: int, dark_mode: bool = False
+    ) -> bytes:
         """Get federated user avatar (binary).
 
         Args:
@@ -120,22 +108,20 @@ class ConversationAvatars(NextcloudModule):
         Returns:
             Image data
         """
-        await self.api.require_talk_feature('avatar')
-        await self.api.require_talk_feature('federated-v1')
+        await self.api.require_talk_feature("avatar")
+        await self.api.require_talk_feature("federated-v1")
 
         if dark_mode:
             response = await self.api.client.http_client.request(
-                method='GET',
-                url=f'{self.api.client.endpoint}/ocs/v2.php/apps/spreed/api/v1/proxy/{room_token}/user-avatar/{size}/dark',
-                data={
-                    'cloudId': cloud_id,
-                    'size': size})
+                method="GET",
+                url=f"{self.api.client.endpoint}/ocs/v2.php/apps/spreed/api/v1/proxy/{room_token}/user-avatar/{size}/dark",
+                data={"cloudId": cloud_id, "size": size},
+            )
         else:
             response = await self.api.client.http_client.request(
-                method='GET',
-                url=f'{self.api.client.endpoint}/ocs/v2.php/apps/spreed/api/v1/proxy/{room_token}/user-avatar/{size}',
-                data={
-                    'cloudId': cloud_id,
-                    'size': size})
+                method="GET",
+                url=f"{self.api.client.endpoint}/ocs/v2.php/apps/spreed/api/v1/proxy/{room_token}/user-avatar/{size}",
+                data={"cloudId": cloud_id, "size": size},
+            )
 
         return response.content

@@ -7,30 +7,21 @@ API.
 https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/instruction_set_for_groups.html
 """
 
-from dataclasses import dataclass
-
-from typing import List, Any
-
+from typing import List
 from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
 from nextcloud_async.client import NextcloudClient
+from nextcloud_async.api.dataobject import NextcloudDataObject
 
 
-@dataclass
-class Group:
-    data: str
-    groups_api: 'Groups'
-
-    def __post_init__(self) -> None:
-        self._data = {'name': self.data}
-
-    def __getattr__(self, k: str) -> Any:
-        return self._data[k]
+class Group(NextcloudDataObject):
+    self_api: "Groups"
 
     def __str__(self) -> str:
-        return f'<Nextcloud Group "{self.name}">'
+        return f'<Nextcloud Group "{self.id}">'
 
-    def __repr__(self) -> str:
-        return f'<Nextcloud Group {self.data}>'
+    def async_refresh(self) -> None:
+        """No reason to refresh this object."""
+        ...
 
     async def get_members(self) -> List[str]:
         """Get group members.
@@ -38,7 +29,7 @@ class Group:
         Returns:
             list: Users belonging to `group_id`
         """
-        return await self.groups_api.get_members(self.name)
+        return await self.self_api.get_members(self.id)
 
     async def get_subadmins(self) -> List[str]:
         """Get `group_id` subadmins.
@@ -49,29 +40,25 @@ class Group:
         Returns:
             list: Users who are subadmins of this group.
         """
-        return await self.groups_api.get_subadmins(self.name)
+        return await self.self_api.get_subadmins(self.id)
 
     async def delete(self) -> None:
         """Delete this group."""
-        await self.groups_api.delete(self.name)
-        self._data['name'] = '<deleted>'
+        await self.self_api.delete(self.id)
+        self.id = "<deleted>"
 
 
 class Groups(NextcloudModule):
     """Manage groups on a Nextcloud instance."""
 
-    def __init__(
-            self,
-            client: NextcloudClient) -> None:
+    def __init__(self, client: NextcloudClient) -> None:
 
         self.api = NextcloudOcsApi(client)
-        self.stub = '/cloud/groups'
+        self.stub = "/cloud/groups"
 
     async def search(
-            self,
-            search: str = '',
-            limit: int = 100,
-            offset: int = 0) -> List[Group]:
+        self, search: str = "", limit: int = 100, offset: int = 0
+    ) -> List[Group]:
         """Search groups.
 
         This is the way to 'get' a group.
@@ -90,13 +77,11 @@ class Groups(NextcloudModule):
             List of Groups
         """
         response = await self._get(
-            data={
-                'limit': limit,
-                'offset': offset,
-                'search': search})
-        return [Group(data, self) for data in response['groups']]
+            data={"limit": limit, "offset": offset, "search": search}
+        )
+        return [Group(data, self) for data in response["groups"]]
 
-    async def add(self, group_id: str) -> Group:
+    async def create(self, group_id: str) -> Group:
         """Create a new group.
 
         Args:
@@ -105,8 +90,8 @@ class Groups(NextcloudModule):
         Returns:
             New Group
         """
-        await self._post(data={'groupid': group_id})
-        return Group(group_id, self)
+        await self._post(data={"groupid": group_id})
+        return Group({"id": group_id}, self)
 
     async def get_members(self, group_id: str) -> List[str]:
         """Get group members.
@@ -117,9 +102,8 @@ class Groups(NextcloudModule):
         Returns:
             list: Users belonging to `group_id`
         """
-        response = await self._get(
-            path=f'/{group_id}')
-        return response['users']
+        response = await self._get(path=f"/{group_id}")
+        return response["users"]
 
     async def get_subadmins(self, group_id: str) -> List[str]:
         """Get `group_id` subadmins.
@@ -130,7 +114,7 @@ class Groups(NextcloudModule):
         Returns:
             list: Users who are subadmins of this group.
         """
-        return await self._get(path=f'/{group_id}/subadmins')
+        return await self._get(path=f"/{group_id}/subadmins")
 
     async def delete(self, group_id: str) -> None:
         """Remove `group_id`.
@@ -138,5 +122,4 @@ class Groups(NextcloudModule):
         Args:
             group_id (str): Group ID
         """
-        return await self._delete(
-            path=f'/{group_id}')
+        return await self._delete(path=f"/{group_id}")

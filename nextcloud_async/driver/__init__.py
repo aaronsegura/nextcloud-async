@@ -1,4 +1,11 @@
-from .api import NextcloudHttpApi, NextcloudModule, NextcloudCapabilities
+from .api import (
+    NextcloudHttpApi,
+    NextcloudModule,
+    NextcloudCapabilities,
+    NextcloudIterator,
+    NextcloudIteratorModule,
+)
+
 from .base import NextcloudBaseApi
 from .ocs import NextcloudOcsApi
 from .dav import NextcloudDavApi
@@ -8,6 +15,7 @@ __all__ = [
     "NextcloudHttpApi",
     "NextcloudModule",
     "NextcloudCapabilities",
+    "NextcloudIterator",
     "NextcloudBaseApi",
     "NextcloudOcsApi",
     "NextcloudDavApi",

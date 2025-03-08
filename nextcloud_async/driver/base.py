@@ -12,28 +12,29 @@ from nextcloud_async.client import NextcloudClient
 
 from nextcloud_async.exceptions import NextcloudRequestTimeoutError
 
+
 class NextcloudBaseApi(NextcloudHttpApi):
     """The Base API interface."""
-    def __init__(
-            self,
-            client: NextcloudClient,
-            api_stub: Optional[str] = None):
+
+    def __init__(self, client: NextcloudClient, api_stub: Optional[str] = None):
         super().__init__(client)
         if api_stub:
             self.stub = api_stub
         else:
-            self.stub = '/index.php'
+            self.stub = "/index.php"
+
+    def raise_response_exception(self, status_code: int, reason: str): ...
 
     async def request(
-            self,
-            method: str = 'GET',
-            path: Optional[str] = None,
-            data: Optional[Dict[str, Any]] = None,
-            headers: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        self,
+        method: str = "GET",
+        path: str = "",
+        data: Optional[Dict[str, Any]] = None,
+        headers: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
         """Send a request to the Nextcloud endpoint.
 
         Args:
-        ----
             method (str, optional): HTTP Method. Defaults to 'GET'.
 
             path (str, optional): The part after the host. Defaults to ''.
@@ -43,7 +44,6 @@ class NextcloudBaseApi(NextcloudHttpApi):
             headers (dict, optional): Headers for submission. Defaults to {}.
 
         Raises:
-        ------
             304 - NextcloudNotModified
 
             400 - NextcloudBadRequest
@@ -59,29 +59,31 @@ class NextcloudBaseApi(NextcloudHttpApi):
             429 - NextcloudTooManyRequests
 
         Returns:
-        -------
             httpx.Response: An httpx Response Object
         """
-        if method.lower() == 'get':
+        if method.lower() == "get":
             path = self._massage_get_data(data, path)
             data = None
 
         if headers:
-            headers['User-Agent'] = self.client.user_agent
+            headers["User-Agent"] = self.client.user_agent
         else:
-            headers = {'User-Agent': self.client.user_agent}
+            headers = {"User-Agent": self.client.user_agent}
 
         try:
-            print(f'BASE {method} {self.client.endpoint}{self.stub}{path}')
+            print(f"BASE {method} {self.client.endpoint}{self.stub}{path}")
             response = await self.client.http_client.request(
                 method=method,
                 auth=(self.client.user, self.client.password),
-                url=f'{self.client.endpoint}{self.stub}{path}',
+                url=f"{self.client.endpoint}{self.stub}{path}",
                 json=data,
-                headers=headers)
+                headers=headers,
+            )
         except httpx.ReadTimeout:
             raise NextcloudRequestTimeoutError()
 
-        await self.raise_response_exception(response)
+        await self._raise_response_exception(
+            response.status_code, str(response.content)
+        )
 
         return response.json()

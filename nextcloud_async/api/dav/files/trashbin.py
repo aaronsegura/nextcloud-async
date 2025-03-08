@@ -4,6 +4,7 @@ from urllib.parse import unquote
 
 from typing import List, TYPE_CHECKING
 
+from nextcloud_async.driver import NextcloudIterator
 from .base_file import BaseFile
 
 if TYPE_CHECKING:
@@ -16,7 +17,7 @@ class TrashFile(BaseFile):
         return f'<Nextcloud Trash File #{self.fileid} "{unquote(self.href)}">'
 
     def __repr__(self) -> str:
-        return f'<Nextcloud Trash File {self.data}>'
+        return f"<Nextcloud Trash File {self.data}>"
 
     @property
     def path(self) -> str:
@@ -25,7 +26,7 @@ class TrashFile(BaseFile):
         Returns:
             File path
         """
-        return '/{}'.format('/'.join(self.data['d:href'].split('/')[3:]))
+        return "/{}".format("/".join(self.data["d:href"].split("/")[3:]))
 
     async def delete(self) -> None:
         """Delete this file."""
@@ -37,25 +38,29 @@ class TrashFile(BaseFile):
 
 
 @dataclass
-class Trashbin:
+class Trashbin(NextcloudIterator):
     """Class for making sense of Nextcloud Trashbins."""
+
     _files: List[TrashFile]
-    files_api: 'Files'
+    files_api: "Files"
 
-    def __iter__(self) -> 'Trashbin':
-        self._index = 1
-        self._len = len(self._files)
-        return self
+    def __post_init__(self) -> None:
+        self.set_iterator(self._files, 1)
 
-    def __next__(self) -> TrashFile:
-        if self._index >= self._len:
-            raise StopIteration
-        else:
-            self._index += 1
-            return self._files[self._index - 1]
+    # def __iter__(self) -> 'Trashbin':
+    #     self._index = 1
+    #     self._len = len(self._files)
+    #     return self
 
-    def __len__(self) -> int:
-        return len(self._files) - 1
+    # def __next__(self) -> TrashFile:
+    #     if self._index >= self._len:
+    #         raise StopIteration
+    #     else:
+    #         self._index += 1
+    #         return self._files[self._index - 1]
+
+    # def __len__(self) -> int:
+    #     return len(self._files) - 1
 
     @property
     def files(self) -> List[TrashFile]:
@@ -66,8 +71,10 @@ class Trashbin:
         """
         user = self.files_api.api.client.user
         return [
-            file for file in self._files
-            if file.href != f'/remote.php/dav/trashbin/{user}/trash/']
+            file
+            for file in self._files
+            if file.href != f"/remote.php/dav/trashbin/{user}/trash/"
+        ]
 
     async def empty(self) -> None:
         """Empty the trashbin."""

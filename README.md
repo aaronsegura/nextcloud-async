@@ -41,10 +41,10 @@ This module provides an asyncio-friendly interface to Nextcloud.
 * Deck
 * Federated Shares
 * Passwords
+* Phonetrack
 * Notes
 * Tasks CalDAV
 * User Preferences
-
 
 If you know of any APIs missing from this list, please open an issue at
 https://github.com/aaronsegura/nextcloud-async/issues with a link to

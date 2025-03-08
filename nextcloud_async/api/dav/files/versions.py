@@ -4,6 +4,8 @@ from urllib.parse import unquote
 
 from typing import List, TYPE_CHECKING
 
+from nextcloud_async.driver import NextcloudIterator
+
 from .base_file import BaseFile
 
 if TYPE_CHECKING:
@@ -16,7 +18,7 @@ class Version(BaseFile):
         return f'<Nextcloud File Version "{unquote(self.href)}">'
 
     def __repr__(self) -> str:
-        return f'<Nextcloud File Version {self.data}>'
+        return f"<Nextcloud File Version {self.data}>"
 
     @property
     def path(self) -> str:
@@ -25,7 +27,7 @@ class Version(BaseFile):
         Returns:
             File path
         """
-        return '/{}'.format('/'.join(self.data['d:href'].split('/')[3:]))
+        return "/{}".format("/".join(self.data["d:href"].split("/")[3:]))
 
     async def restore(self) -> None:
         """Restore a trashbin file to former glory."""
@@ -33,25 +35,29 @@ class Version(BaseFile):
 
 
 @dataclass
-class Versions:
+class Versions(NextcloudIterator):
     """Class for making sense of Nextcloud Trashbins."""
+
     _files: List[Version]
-    files_api: 'Files'
+    files_api: "Files"
 
-    def __iter__(self) -> 'Versions':
-        self._index = 1
-        self._len = len(self._files)
-        return self
+    def __post_init__(self):
+        self.set_iterator(self._files, starting_index=1)
 
-    def __next__(self) -> Version:
-        if self._index >= self._len:
-            raise StopIteration
-        else:
-            self._index += 1
-            return self._files[self._index - 1]
+    # def __iter__(self) -> 'Versions':
+    #     self._index = 1
+    #     self._len = len(self._files)
+    #     return self
 
-    def __len__(self) -> int:
-        return len(self._files) - 1
+    # def __next__(self) -> Version:
+    #     if self._index >= self._len:
+    #         raise StopIteration
+    #     else:
+    #         self._index += 1
+    #         return self._files[self._index - 1]
+
+    # def __len__(self) -> int:
+    #     return len(self._files) - 1
 
     def __getitem__(self, index: int) -> Version:
-        return self._files[index+1]
+        return self._files[index + 1]

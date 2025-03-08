@@ -1,103 +1,73 @@
-"""Test Nextcloud Maps API."""
+import pytest
+import pytest_asyncio
 
-from .base import BaseTestCase
-from .helpers import AsyncMock
-from .constants import USER, ENDPOINT, PASSWORD
+from typing import AsyncGenerator
 
-import asyncio
-import httpx
+from nextcloud_async.api import Maps, MapFavorite
+from nextcloud_async.exceptions import NextcloudNotFoundError
 
-from unittest.mock import patch
-
-ID = 4
-LAT = 48.785526
-LNG = -95.035892
-NAME = "Blueberry Hill Campground"
-COMMENT = "ALL THE BLUEBERRIES"
+DATA = {
+    "name": "Blueberry Hill Campground",
+    "lat": 48.785526,
+    "lng": -95.035892,
+    "category": "Camping",
+    "comment": "ALL THE BLUEBERRIES",
+}
 
 
-class MapsAPI(BaseTestCase):  # noqa: D101
+@pytest_asyncio.fixture(scope="function", loop_scope="session")
+async def map_favorite(
+    maps_api: Maps, network_blocked: bool
+) -> AsyncGenerator[MapFavorite]:
 
-    def test_get_favorites(self):  # noqa: D102
-        with patch(
-                'httpx.AsyncClient.request',
-                new_callable=AsyncMock,
-                return_value=httpx.Response(
-                    status_code=200,
-                    content=bytes('[]', 'utf-8'))) as mock:
-            asyncio.run(self.ncc.get_map_favorites())
-            mock.assert_called_with(
-                method='GET',
-                auth=(USER, PASSWORD),
-                url=f'{ENDPOINT}/index.php/apps/maps/api/1.0/favorites?',
-                data=None,
-                headers={})
+    favorite = await maps_api.add(**DATA)
+    yield favorite
+    if not network_blocked:
+        try:
+            await favorite.delete()
+        except NextcloudNotFoundError:
+            pass
 
-    def test_create_favorite(self):  # noqa: D102
-        json_response = bytes(
-            '{"id":4,"name":"Blueberry Hill Campground","date_modifie'
-            'd":1661549544,"date_created":1661549544,"lat":48.785526,"lng":-95.035'
-            '892,"category":"Campgrounds","comment":"Blueberries!","extensions":null}',
-            'utf-8')
 
-        with patch(
-                'httpx.AsyncClient.request',
-                new_callable=AsyncMock,
-                return_value=httpx.Response(
-                    status_code=200,
-                    content=json_response)) as mock:
-            data = {
-                'name': NAME,
-                'lat': LAT,
-                'lng': LNG,
-                'comment': COMMENT}
-            asyncio.run(self.ncc.create_map_favorite(data))
-            mock.assert_called_with(
-                method='POST',
-                auth=(USER, PASSWORD),
-                url=f'{ENDPOINT}/index.php/apps/maps/api/1.0/favorites',
-                data=data,
-                headers={})
+@pytest.mark.vcr
+@pytest.mark.asyncio(loop_scope="session")
+class TestMaps:
 
-    def test_update_favorite(self):  # noqa: D102
-        json_response = bytes(
-            '{"id":4,"name":"Blueberry Hill Campground","date_modifie'
-            'd":1661549544,"date_created":1661549544,"lat":48.785526,"lng":-95.035'
-            '892,"category":"Campgrounds","comment":"Blueberries!","extensions":null}',
-            'utf-8')
+    async def test_create_favorite(self, map_favorite: MapFavorite):
+        assert isinstance(map_favorite, MapFavorite)
+        assert map_favorite.lat == DATA["lat"]
+        assert map_favorite.lng == DATA["lng"]
+        assert map_favorite.name == DATA["name"]
+        assert map_favorite.category == DATA["category"]
+        assert map_favorite.comment == DATA["comment"]
 
-        with patch(
-                'httpx.AsyncClient.request',
-                new_callable=AsyncMock,
-                return_value=httpx.Response(
-                    status_code=200,
-                    content=json_response)) as mock:
-            data = {
-                'name': NAME,
-                'lat': LAT,
-                'lng': LNG,
-                'comment': COMMENT}
-            asyncio.run(self.ncc.update_map_favorite(ID, data))
-            mock.assert_called_with(
-                method='PUT',
-                auth=(USER, PASSWORD),
-                url=f'{ENDPOINT}/index.php/apps/maps/api/1.0/favorites/{ID}',
-                data=data,
-                headers={})
+    async def test_list_favorites(self, maps_api: Maps, map_favorite: MapFavorite):
+        favorites = await maps_api.list_favorites()
+        for fav in favorites:
+            assert isinstance(fav, MapFavorite)
 
-    def test_remove_favorite(self):  # noqa: D102
-        json_response = bytes('"DELETED"', 'utf-8')
+    async def test_update_favorite(self, maps_api: Maps):
+        new_data = {
+            "name": "Palisades Reservoir",
+            "lat": 43.250235495324,
+            "lng": -111.10126018524,
+            "comment": "Good t-mobile, no verizon.  Lake access.  Beautiful",
+            "category": "Boondocking",
+        }
+        favorites = await maps_api.list_favorites()
+        favorite = next(filter(
+            lambda x: (x.lat, x.lng) == (DATA['lat'], DATA['lng']), favorites))
 
-        with patch(
-                'httpx.AsyncClient.request',
-                new_callable=AsyncMock,
-                return_value=httpx.Response(
-                    status_code=200,
-                    content=json_response)) as mock:
-            asyncio.run(self.ncc.remove_map_favorite(ID))
-            mock.assert_called_with(
-                method='DELETE',
-                auth=(USER, PASSWORD),
-                url=f'{ENDPOINT}/index.php/apps/maps/api/1.0/favorites/{ID}',
-                data={},
-                headers={})
+        await (favorite).update(**new_data)
+        assert isinstance(favorite, MapFavorite)
+        assert favorite.lat == new_data["lat"]
+        assert favorite.lng == new_data["lng"]
+        assert favorite.name == new_data["name"]
+        assert favorite.category == new_data["category"]
+        assert favorite.comment == new_data["comment"]
+
+    async def test_delete_favorite(self, maps_api: Maps):
+        favorites = await maps_api.list_favorites()
+        for favorite in favorites:
+            if (favorite.lat, favorite.lng) == (DATA['lat'], DATA['lng']):
+                await favorite.delete()

@@ -1,12 +1,14 @@
-
 from dataclasses import dataclass
 
 from typing import List, Optional, Any
 
 from urllib.parse import unquote
 
+from nextcloud_async.driver import NextcloudIterator
+
 from .base_file import BaseFile
 from .versions import Versions
+
 
 class UserFile(BaseFile):
 
@@ -14,7 +16,7 @@ class UserFile(BaseFile):
         return f'<Nextcloud File #{self.fileid} "{unquote(self.path)}">'
 
     def __repr__(self) -> str:
-        return f'<Nextcloud File {self.data}>'
+        return f"<Nextcloud File {self.data}>"
 
     @property
     def path(self) -> str:
@@ -23,7 +25,7 @@ class UserFile(BaseFile):
         Returns:
             File path
         """
-        return '/{}'.format('/'.join(self.data['d:href'].split('/')[5:]))
+        return "/{}".format("/".join(self.data["d:href"].split("/")[5:]))
 
     async def download(self) -> bytes:
         """Download this file."""
@@ -44,11 +46,10 @@ class UserFile(BaseFile):
                 Overwrite destination if it exists
         """
         return await self.files_api.move(
-            source=self.path,
-            dest=dest,
-            overwrite=overwrite)
+            source=self.path, dest=dest, overwrite=overwrite
+        )
 
-    async def copy(self, dest: str, overwrite: bool= False) -> None:
+    async def copy(self, dest: str, overwrite: bool = False) -> None:
         """Copy file.
 
         Args:
@@ -58,10 +59,7 @@ class UserFile(BaseFile):
             overwrite:
                 Overwrite destination if it exists
         """
-        await self.files_api.copy(
-            source=self.path,
-            dest=dest,
-            overwrite=overwrite)
+        await self.files_api.copy(source=self.path, dest=dest, overwrite=overwrite)
 
     async def set_favorite(self) -> None:
         """Mark this file as a favorite."""
@@ -78,7 +76,7 @@ class UserFile(BaseFile):
 
 
 @dataclass
-class UserPath:
+class UserPath(NextcloudIterator):
     """Class for making sense of Nextcloud directories.
 
     The Files.list() API returns this object.  If the original request
@@ -92,20 +90,12 @@ class UserPath:
     This object can be interrogated as to whether it represents a file or a
     directory using the Path.is_file and Path.is_dir properties.
     """
+
     _path: str
     _files: List[UserFile]
 
-    def __iter__(self) -> 'UserPath':
-        self._index = 0
-        self._len = len(self._files)
-        return self
-
-    def __next__(self) -> UserFile:
-        if self._index >= self._len:
-            raise StopIteration
-        else:
-            self._index += 1
-            return self._files[self._index - 1]
+    def __post_init__(self):
+        self.set_iterator(self._files, starting_index=1)
 
     def __len__(self) -> int:
         if self.is_dir:
@@ -141,7 +131,7 @@ class UserPath:
         Returns:
             Property value
         """
-        translated_key = k.replace('_', '-')
+        translated_key = k.replace("_", "-")
 
         if self.is_file:
             try:
@@ -157,19 +147,19 @@ class UserPath:
 
         keys = self._self.data.keys()
         for key in keys:
-            if key.endswith(f':{translated_key}') or key == k:
+            if key.endswith(f":{translated_key}") or key == k:
                 try:
                     return int(self._self.data[key])
                 except (ValueError, TypeError):
                     return self._self.data[key]
 
-        keys = self._self.data['_properties'].keys()
+        keys = self._self.data["_properties"].keys()
         for key in keys:
-            if key.endswith(f':{translated_key}') or key == k:
+            if key.endswith(f":{translated_key}") or key == k:
                 try:
-                    return int(self._self.data['_properties'][key])
+                    return int(self._self.data["_properties"][key])
                 except (ValueError, TypeError):
-                    return self._self.data['_properties'][key]
+                    return self._self.data["_properties"][key]
 
         raise KeyError
 
@@ -178,14 +168,17 @@ class UserPath:
 
     @property
     def _self(self) -> UserFile:
-        return [file for file in self._files
-            if self._path.rstrip('/') == file.path.rstrip('/')].pop()
+        return [
+            file
+            for file in self._files
+            if self._path.rstrip("/") == file.path.rstrip("/")
+        ].pop()
 
     @property
     def is_dir(self) -> bool:
         """Return True if this object represents a irectory."""
         if self._self.resourcetype:
-            if 'd:collection' in self._self.resourcetype:
+            if "d:collection" in self._self.resourcetype:
                 return True
         return False
 

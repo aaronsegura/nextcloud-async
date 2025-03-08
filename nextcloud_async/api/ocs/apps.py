@@ -8,44 +8,39 @@ from dataclasses import dataclass
 
 from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
 from nextcloud_async.client import NextcloudClient
+from nextcloud_async.api.dataobject import NextcloudDataObject
 
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, List
 
 
 @dataclass
-class App:
-    data: Dict[str, Any]
-    api: 'Apps'
+class App(NextcloudDataObject):
+    self_api: "Apps"
+
+    def __str__(self) -> str:
+        return f"<Nextcloud App {self.id} v{self.version}>"
 
     async def disable(self) -> None:
         """Disable this app."""
-        await self.api.disable(app_id=self.id)
+        await self.self_api.disable(app_id=self.id)
         self.data = {}
 
     async def enable(self) -> None:
         """Enable this app."""
-        await self.api.enable(app_id=self.id)
+        await self.self_api.enable(app_id=self.id)
 
-    def __getattr__(self, k: str) -> Any:
-        return self.data[k]
-
-    def __str__(self) -> str:
-        return f'<Nextcloud App {self.id} v{self.version}>'
-
-    def __repr__(self) -> str:
-        return str(self.data)
+    async def async_refresh(self) -> None:
+        """No need to refresh this object."""
+        ...
 
 
 class Apps(NextcloudModule):
     """Manage applications on a Nextcloud instance."""
 
-    def __init__(
-            self,
-            client: NextcloudClient,
-            ocs_version: str = '1') -> None:
-        self.client= client
+    def __init__(self, client: NextcloudClient, ocs_version: str = "1") -> None:
+        self.client = client
         self.api = NextcloudOcsApi(client, ocs_version=ocs_version)
-        self.stub = '/cloud/apps'
+        self.stub = "/cloud/apps"
 
     async def get(self, app_id: str) -> App:
         """Get application information.
@@ -56,24 +51,38 @@ class Apps(NextcloudModule):
         Returns:
             App object
         """
-        response = await self._get(path=f'/{app_id}')
+        response = await self._get(path=f"/{app_id}")
         return App(response, self)
 
     async def list(self, filter: Optional[str] = None) -> List[str]:
         """Get list of applications.
 
         Args:
-            filter: "enaled" or "disabled". Defaults to None.
+            filter: "enabled" or "disabled". Defaults to None.
 
         Returns:
             list: List of application ids
         """
         data: Dict[str, str] = {}
         if filter:
-            data = {'filter': filter}
+            data = {"filter": filter}
 
         response = await self._get(data=data)
-        return response['apps']
+        return response["apps"]
+
+    async def list_enabled(self) -> List[str]:
+        """Get list of enabled applications."""
+        return await self.list("enabled")
+
+    async def list_disabled(self) -> List[str]:
+        """Get list of disabled applications."""
+        # Prior to Nextcloud 31, using filter=disabled on this call returns a dictionary
+        # instead of a list.  This is fixed in commit 77114fb3...
+        response = await self.list("disabled")
+        if isinstance(response, dict):
+            return list(response.values())
+        else:
+            return response
 
     async def enable(self, app_id: str) -> None:
         """Enable Application.
@@ -83,7 +92,7 @@ class Apps(NextcloudModule):
         Args:
             app_id (str): Application ID
         """
-        return await self._post(path=f'/{app_id}')
+        return await self._post(path=f"/{app_id}")
 
     async def disable(self, app_id: str) -> None:
         """Disable Application.
@@ -93,4 +102,4 @@ class Apps(NextcloudModule):
         Args:
             app_id (str): Application ID
         """
-        await self._delete(path=f'/{app_id}')
+        await self._delete(path=f"/{app_id}")

@@ -18,11 +18,11 @@ https://docs.nextcloud.com/server/latest/developer_manual/client_apis/RemoteWipe
 https://github.com/nextcloud/maps/blob/master/openapi.yml
 https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-sharee-api.html
 https://nextcloud-talk.readthedocs.io/en/latest/poll/
+https://nextcloud-talk.readthedocs.io/en/latest/reaction/
 
 # To do:
 https://github.com/nextcloud/circles/wiki/Javascript-API-v1
 https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-share-api.html#federated-cloud-shares
-https://nextcloud-talk.readthedocs.io/en/latest/reaction/
 https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-user-preferences-api.html
 https://nextcloud.github.io/cookbook/dev/api/index
 https://git.mdns.eu/nextcloud/passwords/-/wikis/Developers/Index
@@ -33,10 +33,9 @@ https://sabre.io/dav/building-a-carddav-client/
 """
 
 from nextcloud_async.client import NextcloudClient
-from nextcloud_async import api, driver
+from nextcloud_async import api
 
 __all__ = [
     "NextcloudClient",
     "api",
-    "driver",
 ]

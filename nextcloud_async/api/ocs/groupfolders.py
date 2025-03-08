@@ -9,29 +9,34 @@ from dataclasses import dataclass
 
 from typing import List, Dict, Any, Optional
 
+from nextcloud_async.api.ocs.groups import Group
+from nextcloud_async.api.ocs.users import User
+
 from nextcloud_async.driver import NextcloudOcsApi, NextcloudModule
 from nextcloud_async.client import NextcloudClient
 
-class Permissions(IntFlag):
+
+class GroupFoldersPermissions(IntFlag):
     """Groupfolders Permissions."""
 
+    none = 0
     read = 1
-    update = 2
-    create = 4
+    write = 2
+    # create = 4  # Seemingly noop.  # noqa: ERA001
     delete = 8
     share = 16
     all = 31
 
 
 class AclManagerType(Enum):
-    user = 'user'
-    group = 'group'
+    user = "user"
+    group = "group"
 
 
 @dataclass
 class GroupFolder:
     data: Dict[str, Any]
-    groupfolder_api: 'GroupFolders'
+    groupfolder_api: "GroupFolders"
 
     def __getattr__(self, k: str) -> Any:
         return self.data[k]
@@ -42,81 +47,93 @@ class GroupFolder:
     def __repr__(self) -> str:
         return str(self.data)
 
+    async def _refresh(self) -> None:
+        """Refresh this GroupFolder after changes.
+
+        Would be nice if the API returned mofidied objects after POSTs.
+        """
+        _updates = await self.groupfolder_api.get(self.id)
+        self.data = _updates.data
+
     async def delete(self) -> None:
         """Delete this group folder."""
         await self.groupfolder_api.delete(self.id)
-        self.data = {'mount_point': '**deleted**'}
+        self.data = {"id": self.id, "mount_point": "**deleted**"}
 
-    async def permit_group(self, group_id: str) -> None:
+    async def permit_group(self, group: Group) -> None:
         """Give `group_id` access to this folder.
 
         Args:
-            group_id: Group ID
+            group: Group object
         """
-        await self.groupfolder_api.permit_group(
-            folder_id=self.id,
-            group_id=group_id)
+        await self.groupfolder_api.permit_group(folder_id=self.id, group_id=group.id)
+        await self._refresh()
 
-    async def deny_group(self, group_id: str) -> None:
-        """Remove `group_id` access from this group.
+    async def deny_group(self, group: Group) -> None:
+        """Remove `group_id` access fom this group.
 
         Args:
-            group_id: Group ID
+            group: Group object
         """
-        await self.groupfolder_api.deny_group(folder_id=self.id, group_id=group_id)
+        await self.groupfolder_api.deny_group(folder_id=self.id, group_id=group.id)
+        await self._refresh()
 
     async def enable_advanced_permissions(self) -> None:
         """Enable advanced permissions."""
-        return await self.groupfolder_api.enable_advanced_permissions(folder_id=self.id)
+        await self.groupfolder_api.enable_advanced_permissions(folder_id=self.id)
+        await self._refresh()
 
     async def disable_advanced_permissions(self) -> None:
         """Disable advanced permissios."""
-        return await self.groupfolder_api.disable_advanced_permissions(folder_id=self.id)
+        await self.groupfolder_api.disable_advanced_permissions(folder_id=self.id)
+        await self._refresh()
 
-    async def add_advanced_permission(
-            self,
-            object_id: str,
-            object_type: AclManagerType) -> None:
+    async def add_advanced_permission(self, object: Group | User) -> None:
         """Enable `object_id` as manager of advanced permissions.
 
         Args:
-            object_id: Object ID
-
-            object_type: AclManagerType
+            object: User or Group object
         """
-        return await self.groupfolder_api.add_advanced_permissions(
-            folder_id=self.id,
-            object_id=object_id,
-            object_type=object_type)
+        if isinstance(object, User):
+            object_type = AclManagerType.user
+        elif isinstance(object, Group):
+            object_type = AclManagerType.group
 
-    async def remove_advanced_permission(
-            self,
-            object_id: str,
-            object_type: AclManagerType) -> None:
+        await self.groupfolder_api.add_advanced_permissions(
+            folder_id=self.id, object_id=object.id, object_type=object_type
+        )
+        await self._refresh()
+
+    async def remove_advanced_permission(self, object: User | Group) -> None:
         """Disable `object_id` as manager of advanced permissions.
 
         Args:
-            object_id: Object ID
-
-            object_type: AclManagerType
+            object: Object to remove from advanced permissions.
         """
-        return await self.groupfolder_api.remove_advanced_permissions(
-            folder_id=self.id,
-            object_id=object_id,
-            object_type=object_type)
+        if isinstance(object, User):
+            object_type = AclManagerType.user
+        elif isinstance(object, Group):
+            object_type = AclManagerType.group
 
-    async def set_permissions(self, group_id: str, permissions: Permissions) -> None:
+        await self.groupfolder_api.remove_advanced_permissions(
+            folder_id=self.id, object_id=object.id, object_type=object_type
+        )
+        await self._refresh()
+
+    async def set_advanced_permissions(
+        self, group: Group, permissions: GroupFoldersPermissions
+    ) -> None:
         """Set permissions a group has in this folder.
 
         Args:
-            group_id: Group ID
+            group: Group object
 
             permissions: New permissions.
         """
-        await self.groupfolder_api.set_permissions(
-            folder_id=self.id,
-            group_id=group_id,
-            permissions=permissions)
+        await self.groupfolder_api.set_advanced_permissions(
+            folder_id=self.id, group_id=group.id, permissions=permissions
+        )
+        await self._refresh()
 
     async def set_quota(self, quota: Optional[int]) -> None:
         """Set quota for group folder.
@@ -125,6 +142,7 @@ class GroupFolder:
             quota: Quota in bytes.  None for unlimited.
         """
         await self.groupfolder_api.set_quota(self.id, quota)
+        await self._refresh()
 
     async def rename(self, mount_point: str) -> None:
         """Rename a group folder.
@@ -146,16 +164,13 @@ class GroupFolders(NextcloudModule):
 
     api: NextcloudOcsApi
 
-    def __init__(
-            self,
-            client: NextcloudClient) -> None:
-        self.stub = '/apps/groupfolders/folders'
-        self.api = NextcloudOcsApi(client, ocs_stub='/index.php')
+    def __init__(self, client: NextcloudClient) -> None:
+        self.stub = "/apps/groupfolders/folders"
+        self.api = NextcloudOcsApi(client, ocs_stub="/index.php")
 
     async def _validate_capability(self) -> None:
-        await self.api.require_capability('groupfolders')
+        await self.api.require_capability("groupfolders")
 
-    # TODO: Fix when no groupfolders
     async def list(self) -> List[GroupFolder]:
         """Get list of all group folders.
 
@@ -164,9 +179,11 @@ class GroupFolders(NextcloudModule):
         """
         await self._validate_capability()
         response = await self._get()
+        if not response:
+            return []
         return [GroupFolder(value, self) for _, value in response.items()]
 
-    async def add(self, path: str) -> GroupFolder:
+    async def create(self, path: str) -> GroupFolder:
         """Create new group folder.
 
         Args:
@@ -176,7 +193,7 @@ class GroupFolders(NextcloudModule):
             New GroupFolder object
         """
         await self._validate_capability()
-        response = await self._post(data={'mountpoint': path})
+        response = await self._post(data={"mountpoint": path})
         return GroupFolder(response, self)
 
     async def get(self, folder_id: int) -> GroupFolder:
@@ -189,7 +206,7 @@ class GroupFolders(NextcloudModule):
             Groupfolder
         """
         await self._validate_capability()
-        response = await self._get(path=f'/{folder_id}')
+        response = await self._get(path=f"/{folder_id}")
         return GroupFolder(response, self)
 
     async def delete(self, folder_id: int) -> None:
@@ -202,7 +219,7 @@ class GroupFolders(NextcloudModule):
             bool: success(True) or failure(False)
         """
         await self._validate_capability()
-        await self._delete(path=f'/{folder_id}')
+        await self._delete(path=f"/{folder_id}")
 
     async def permit_group(self, group_id: str, folder_id: int) -> None:
         """Give `group_id` access to `folder_id`.
@@ -213,7 +230,7 @@ class GroupFolders(NextcloudModule):
             folder_id: Folder ID
         """
         await self._validate_capability()
-        await self._post(path=f'/{folder_id}/groups', data={'group': group_id})
+        await self._post(path=f"/{folder_id}/groups", data={"group": group_id})
 
     async def deny_group(self, group_id: str, folder_id: int) -> None:
         """Remove `group_id` access from `folder_id`.
@@ -224,8 +241,7 @@ class GroupFolders(NextcloudModule):
             folder_id: Folder ID
         """
         await self._validate_capability()
-        await self._delete(
-            path=f'/apps/groupfolders/folders/{folder_id}/groups/{group_id}')
+        await self._delete(path=f"/{folder_id}/groups/{group_id}")
 
     async def enable_advanced_permissions(self, folder_id: int) -> None:
         """Enable advanced permissions on `folder_id`.
@@ -237,7 +253,7 @@ class GroupFolders(NextcloudModule):
             bool: success(True) or failure(False)
         """
         await self._validate_capability()
-        await self.__advanced_permissions(folder_id, True)
+        await self._advanced_permissions(folder_id, True)
 
     async def disable_advanced_permissions(self, folder_id: int) -> None:
         """Disable advanced permissions on `folder_id`.
@@ -246,18 +262,14 @@ class GroupFolders(NextcloudModule):
             folder_id: Folder ID
         """
         await self._validate_capability()
-        await self.__advanced_permissions(folder_id, False)
+        await self._advanced_permissions(folder_id, False)
 
-    async def __advanced_permissions(self, folder_id: int, enable: bool) -> None:
-        await self._post(
-            path=f'/{folder_id}/acl',
-            data={'acl': 1 if enable else 0})
+    async def _advanced_permissions(self, folder_id: int, enable: bool) -> None:
+        await self._post(path=f"/{folder_id}/acl", data={"acl": 1 if enable else 0})
 
     async def add_advanced_permissions(
-            self,
-            folder_id: int,
-            object_id: str,
-            object_type: AclManagerType) -> None:
+        self, folder_id: int, object_id: str, object_type: AclManagerType
+    ) -> None:
         """Enable `object_id` as manager of advanced permissions.
 
         Args:
@@ -268,17 +280,16 @@ class GroupFolders(NextcloudModule):
             object_type: either `user` or `group`
         """
         await self._validate_capability()
-        await self.__advanced_permissions_admin(
+        await self._advanced_permissions_admin(
             folder_id,
             object_id=object_id,
             object_type=object_type.value,
-            manage_acl=True)
+            manage_acl=True,
+        )
 
     async def remove_advanced_permissions(
-            self,
-            folder_id: int,
-            object_id: str,
-            object_type: AclManagerType) -> None:
+        self, folder_id: int, object_id: str, object_type: AclManagerType
+    ) -> None:
         """Disable `object_id` as manager of advanced permissions.
 
         Args:
@@ -289,32 +300,30 @@ class GroupFolders(NextcloudModule):
             object_type: AclManagerType
         """
         await self._validate_capability()
-        await self.__advanced_permissions_admin(
+        await self._advanced_permissions_admin(
             folder_id,
             object_id=object_id,
             object_type=object_type.value,
-            manage_acl=False)
+            manage_acl=False,
+        )
 
-    async def __advanced_permissions_admin(
-            self,
-            folder_id: int,
-            object_id: str,
-            object_type: str,
-            manage_acl: bool) -> bool:
+    async def _advanced_permissions_admin(
+        self, folder_id: int, object_id: str, object_type: str, manage_acl: bool
+    ) -> bool:
         response = await self._post(
-            path=f'/{folder_id}/manageACL',
+            path=f"/{folder_id}/manageACL",
             data={
-                'mappingId': object_id,
-                'mappingType': object_type,
-                'manageAcl': manage_acl})
+                "mappingId": object_id,
+                "mappingType": object_type,
+                "manageAcl": manage_acl,
+            },
+        )
 
-        return response['success']
+        return response["success"]
 
-    async def set_permissions(
-            self,
-            folder_id: int,
-            group_id: str,
-            permissions: Permissions) -> bool:
+    async def set_advanced_permissions(
+        self, folder_id: int, group_id: str, permissions: GroupFoldersPermissions
+    ) -> bool:
         """Set permissions a group has in a folder.
 
         Args:
@@ -326,9 +335,11 @@ class GroupFolders(NextcloudModule):
         """
         await self._validate_capability()
         response = await self._post(
-            path=f'/{folder_id}/groups/{group_id}',
-            data={'permissions': permissions.value})
-        return response['success']
+            path=f"/{folder_id}/groups/{group_id}",
+            data={"permissions": permissions.value},
+        )
+        print(f"{response['success']=}")
+        return response["success"]
 
     async def set_quota(self, folder_id: int, quota: Optional[int]) -> None:
         """Set quota for group folder.
@@ -340,8 +351,8 @@ class GroupFolders(NextcloudModule):
         """
         await self._validate_capability()
         await self._post(
-            path=f'/{folder_id}/quota',
-            data={'quota': quota if quota else "none"})
+            path=f"/{folder_id}/quota", data={"quota": quota if quota else -3}
+        )
 
     async def rename(self, folder_id: int, mount_point: str) -> None:
         """Rename a group folder.
@@ -352,7 +363,6 @@ class GroupFolders(NextcloudModule):
             mount_point: New mount point.
         """
         await self._validate_capability()
-        response = await self._post(
-            path=f'/{folder_id}/mountpoint',
-            data={'mountpoint': mount_point})
-        return response['success']
+        await self._post(
+            path=f"/{folder_id}/mountpoint", data={"mountpoint": mount_point}
+        )

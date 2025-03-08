@@ -75,8 +75,8 @@ class ParticipantPermissions(IntFlag):
 
 
 class PermissionAction(Enum):
-    add = 'add'
-    remove = 'remove'
+    add = "add"
+    remove = "remove"
 
 
 class ParticipantType(Enum):
@@ -106,33 +106,34 @@ class SessionState(Enum):
 
 
 class ObjectSources(Enum):
-    user = 'users'
-    group = 'groups'
-    email = 'emails'
-    circle = 'circles'
+    user = "users"
+    group = "groups"
+    email = "emails"
+    circle = "circles"
 
 
 class RichObjectCallType(Enum):
-    one_to_one = 'one2one'
-    group = 'group'
-    public = 'public'
+    one_to_one = "one2one"
+    group = "group"
+    public = "public"
+
 
 class FileShareMessageType(Enum):
-    voice_message = 'voice-message'
-    comment = 'comment'
+    voice_message = "voice-message"
+    comment = "comment"
 
 
 class SharedItemType(Enum):
-    audio = 'audio'
-    deckcard = 'deckcard'
-    file = 'file'
-    location = 'location'
-    media = 'media'
-    other = 'other'
-    voice = 'voice'
-    recording = 'recording'
-    comment = 'comment'
-    voice_message = 'voice-message'
+    audio = "audio"
+    deckcard = "deckcard"
+    file = "file"
+    location = "location"
+    media = "media"
+    other = "other"
+    voice = "voice"
+    recording = "recording"
+    comment = "comment"
+    voice_message = "voice-message"
 
 
 class PollMode(Enum):
@@ -159,11 +160,11 @@ class BreakoutRoomStatus(Enum):
 
 
 class RoomObjectType(Enum):
-    file = 'file'
-    share_password = 'share:password'
-    room = 'room'
-    phone = 'phone'
-    sample = 'sample'
+    file = "file"
+    share_password = "share:password"
+    room = "room"
+    phone = "phone"
+    sample = "sample"
 
 
 class WebinarLobbyState(Enum):
@@ -178,10 +179,11 @@ class SipState(Enum):
 
 
 class SignalingMode(Enum):
-    internal = 'internal'
-    external = 'external'
-    conversation_cluster = 'conversation_cluster'
+    internal = "internal"
+    external = "external"
+    conversation_cluster = "conversation_cluster"
+
 
 class ConversationPermissionMode(Enum):
-    default = 'default'
-    call = 'call'
+    default = "default"
+    call = "call"

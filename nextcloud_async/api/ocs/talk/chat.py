@@ -2,6 +2,7 @@
 
 https://nextcloud-talk.readthedocs.io/en/latest/conversation/
 """
+
 import httpx
 import json
 import datetime as dt
@@ -42,7 +43,7 @@ class Message:
         return self.data[k]
 
     def __str__(self) -> str:
-        return f'<Talk Message from {self.actorDisplayName} at {self.timestamp}>'
+        return f"<Talk Message from {self.actorDisplayName} at {self.timestamp}>"
 
     def __repr__(self) -> str:
         return str(self.data)
@@ -69,9 +70,8 @@ class Message:
                 Reaction emoji to add
         """
         response = await self.reaction_api.add(
-            room_token=self.token,
-            message_id=self.id,
-            reaction=reaction)
+            room_token=self.token, message_id=self.id, reaction=reaction
+        )
         self._reactions = response
 
     async def remove_reaction(self, reaction: str) -> None:
@@ -82,12 +82,11 @@ class Message:
                 Reaction emoji to remove
         """
         response = await self.reaction_api.delete(
-            room_token=self.token,
-            message_id=self.id,
-            reaction=reaction)
+            room_token=self.token, message_id=self.id, reaction=reaction
+        )
         self._reactions = response
 
-    async def set_reminder(self, timestamp: dt.datetime) -> 'MessageReminder':
+    async def set_reminder(self, timestamp: dt.datetime) -> "MessageReminder":
         """Set reminder for this message.
 
         Requires capability: remind-me-later
@@ -100,13 +99,12 @@ class Message:
             MessageReminder
         """
         reminder = await self.chat_api.set_reminder(
-            self.token,
-            self.message_id,
-            timestamp)
+            self.token, self.message_id, timestamp
+        )
         self._reminder = reminder
         return reminder
 
-    async def get_reminder(self) -> 'MessageReminder':
+    async def get_reminder(self) -> "MessageReminder":
         """Get existing reminder for this message.
 
         Requires capability: remind-me-later
@@ -132,8 +130,8 @@ class Message:
             Header: 'X-Chat-Last-Common-Read'
         """
         message, headers = await self.chat_api.delete(
-            room_token=self.token,
-            message_id=self.id)
+            room_token=self.token, message_id=self.id
+        )
         self.data = message.data
         return headers
 
@@ -166,11 +164,10 @@ class MessageReminder:
         return self.data[k]
 
     def __str__(self) -> str:
-        return f'<MessageReminder {self.userId}>'
+        return f"<MessageReminder {self.userId}>"
 
     def __repr__(self) -> str:
         return str(self.data)
-
 
     @property
     def user_id(self) -> str:
@@ -199,11 +196,10 @@ class Suggestion:
         return self.data[k]
 
     def __str__(self) -> str:
-        return f'<Mention Suggestion {self.userId}>'
+        return f"<Mention Suggestion {self.userId}>"
 
     def __repr__(self) -> str:
         return str(self.data)
-
 
     @property
     def mention_id(self) -> str:
@@ -236,26 +232,23 @@ class Suggestion:
 class Chat(NextcloudModule):
     """Interact with Nextcloud Talk Chat API."""
 
-    def __init__(
-            self,
-            api: NextcloudTalkApi,
-            api_version: str = '1') -> None:
-        self.stub = f'/apps/spreed/api/v{api_version}'
+    def __init__(self, api: NextcloudTalkApi, api_version: str = "1") -> None:
+        self.stub = f"/apps/spreed/api/v{api_version}"
         self.api: NextcloudTalkApi = api
 
     async def get_messages(
-            self,
-            room_token: str,
-            look_into_future: bool = False,
-            limit: int = 100,
-            timeout: int = 30,
-            last_known_message_id: Optional[int] = None,
-            last_common_read_id: Optional[int] = None,
-            set_read_marker: bool = True,
-            include_last_known: bool = False,
-            no_status_update: bool = False,
-            mark_notifications_as_read: bool = True,
-        ) -> Tuple[List[Message], httpx.Headers]:
+        self,
+        room_token: str,
+        look_into_future: bool = False,
+        limit: int = 100,
+        timeout: int = 30,
+        last_known_message_id: Optional[int] = None,
+        last_common_read_id: Optional[int] = None,
+        set_read_marker: bool = True,
+        include_last_known: bool = False,
+        no_status_update: bool = False,
+        mark_notifications_as_read: bool = True,
+    ) -> Tuple[List[Message], httpx.Headers]:
         """Receive messages from a conversation.
 
         https://nextcloud-talk.readthedocs.io/en/latest/chat/#receive-chat-messages-of-a-conversation
@@ -313,34 +306,31 @@ class Chat(NextcloudModule):
                 private the value the header is not set (only available with
                 chat-read-status capability and when last_common_read_id was sent)
         """
-        return_headers: List[str] = ['x-chat-last-given', 'x-chat-last-common-read']
+        return_headers: List[str] = ["x-chat-last-given", "x-chat-last-common-read"]
         data = {
-            'lookIntoFuture': bool2int(look_into_future),
-            'limit': limit,
-            'timeout': timeout,
-            'setReadMaker': bool2int(set_read_marker),
-            'includeLastKnown': bool2int(include_last_known),
-            'noStatusUpdate': bool2int(no_status_update)}
+            "lookIntoFuture": bool2int(look_into_future),
+            "limit": limit,
+            "timeout": timeout,
+            "setReadMaker": bool2int(set_read_marker),
+            "includeLastKnown": bool2int(include_last_known),
+            "noStatusUpdate": bool2int(no_status_update),
+        }
         if last_known_message_id:
-            data['lastKnownMessageId'] = last_known_message_id
+            data["lastKnownMessageId"] = last_known_message_id
         if last_common_read_id:
-            data['lastCommonReadId'] = last_common_read_id
+            data["lastCommonReadId"] = last_common_read_id
 
         if mark_notifications_as_read is False:
-            await self.api.require_talk_feature('chat-keep-notifications')
+            await self.api.require_talk_feature("chat-keep-notifications")
 
-        response, headers = await self._get(
-            path=f'/chat/{room_token}',
-            data=data)
-        return \
-            [Message(data, self.api) for data in response], \
-            filter_headers(return_headers, headers)
+        response, headers = await self._get(path=f"/chat/{room_token}", data=data)
+        return [Message(data, self.api) for data in response], filter_headers(
+            return_headers, headers
+        )
 
     async def get_context(
-            self,
-            room_token: str,
-            message_id: int,
-            limit: int = 50) -> Tuple[List[Message], httpx.Headers]:
+        self, room_token: str, message_id: int, limit: int = 50
+    ) -> Tuple[List[Message], httpx.Headers]:
         """Get context around a message.
 
         Requires Capability: chat-get-context
@@ -359,23 +349,24 @@ class Chat(NextcloudModule):
         Returns:
             Messages
         """
-        await self.api.require_talk_feature('chat-get-context')
+        await self.api.require_talk_feature("chat-get-context")
         response, headers = await self._get(
-            path=f'/chat/{room_token}/{message_id}/context',
-            data={'limit': limit})
-        return_headers: List[str] = ['x-chat-last-given', 'x-chat-last-common-read']
-        return \
-            [Message(data, self.api) for data in response], \
-            filter_headers(return_headers, headers)
+            path=f"/chat/{room_token}/{message_id}/context", data={"limit": limit}
+        )
+        return_headers: List[str] = ["x-chat-last-given", "x-chat-last-common-read"]
+        return [Message(data, self.api) for data in response], filter_headers(
+            return_headers, headers
+        )
 
     async def send(
-            self,
-            room_token: str,
-            message: str,
-            reply_to: int = 0,
-            display_name: Optional[str] = None,
-            reference_id: Optional[str] = None,
-            silent: bool = False) -> Tuple[Message, httpx.Headers]:
+        self,
+        room_token: str,
+        message: str,
+        reply_to: int = 0,
+        display_name: Optional[str] = None,
+        reference_id: Optional[str] = None,
+        silent: bool = False,
+    ) -> Tuple[Message, httpx.Headers]:
         """Send message to a conversation.
 
         Args:
@@ -415,36 +406,36 @@ class Chat(NextcloudModule):
                 private the value the header is not set (only available with
                 chat-read-status capability and when last_common_read_id was sent)
         """
-        return_headers: List[str] = ['x-chat-last-common-read']
+        return_headers: List[str] = ["x-chat-last-common-read"]
 
         data: Dict[str, Any] = {
             "message": message,
             "actorDisplayName": display_name,
-            "replyTo": reply_to}
+            "replyTo": reply_to,
+        }
 
         if silent:
-            await self.api.require_talk_feature('silent-send')
+            await self.api.require_talk_feature("silent-send")
             data.update({"silent": silent})
 
         if reference_id:
-            await self.api.require_talk_feature('chat-reference-id')
+            await self.api.require_talk_feature("chat-reference-id")
             if len(reference_id) != _HASH_LENGTH:
                 raise NextcloudBadRequestError()
             else:
-                data['referenceId'] = reference_id
+                data["referenceId"] = reference_id
 
-        response, headers = await self._post(
-            path=f'/chat/{room_token}',
-            data=data)
+        response, headers = await self._post(path=f"/chat/{room_token}", data=data)
 
         return Message(response, self.api), filter_headers(return_headers, headers)
 
     async def send_rich_object(
-            self,
-            room_token: str,
-            rich_object: NextcloudTalkRichObject,
-            reference_id: Optional[str] = None,
-            actor_display_name: Optional[str] = None) -> Tuple[Message, httpx.Headers]:
+        self,
+        room_token: str,
+        rich_object: NextcloudTalkRichObject,
+        reference_id: Optional[str] = None,
+        actor_display_name: Optional[str] = None,
+    ) -> Tuple[Message, httpx.Headers]:
         """Share a rich object to the conversation.
 
         https://github.com/nextcloud/server/blob/master/lib/public/RichObjectStrings/Definitions.php
@@ -476,33 +467,34 @@ class Chat(NextcloudModule):
                 private the value the header is not set (only available with
                 chat-read-status capability and when last_common_read_id was sent)
         """
-        await self.api.require_talk_feature('rich-object-sharing')
-        return_headers = ['x-chat-last-common-read']
+        await self.api.require_talk_feature("rich-object-sharing")
+        return_headers = ["x-chat-last-common-read"]
         data = {
-            'objectType': rich_object.object_type,
-            'objectId': rich_object.id,
-            'metaData': json.dumps(rich_object.metadata),
-            'actorDisplayName': actor_display_name}
+            "objectType": rich_object.object_type,
+            "objectId": rich_object.id,
+            "metaData": json.dumps(rich_object.metadata),
+            "actorDisplayName": actor_display_name,
+        }
 
         if reference_id:
-            await self.api.require_talk_feature('chat-reference-id')
+            await self.api.require_talk_feature("chat-reference-id")
             if len(reference_id) != _HASH_LENGTH:
                 raise NextcloudBadRequestError()
             else:
-                data['referenceId'] = reference_id
+                data["referenceId"] = reference_id
 
         response, headers = await self._post(
-            path=f'/chat/{room_token}/share',
-            data=data)
+            path=f"/chat/{room_token}/share", data=data
+        )
         return Message(response, self.api), filter_headers(return_headers, headers)
 
-
     async def share_file(
-            self,
-            room_token: str,
-            path: str,
-            metadata: ChatFileShareMetadata,
-            reference_id: Optional[str] = None) -> int:
+        self,
+        room_token: str,
+        path: str,
+        metadata: ChatFileShareMetadata,
+        reference_id: Optional[str] = None,
+    ) -> int:
         """Share a file to the conversation.
 
         https://nextcloud-talk.readthedocs.io/en/latest/chat/#share-a-file-to-the-chat
@@ -531,34 +523,33 @@ class Chat(NextcloudModule):
             Integer ID of new share.
         """
         if metadata.silent:
-            await self.api.require_talk_feature('silent-send')
+            await self.api.require_talk_feature("silent-send")
         data: Dict[str, Any] = {
-            'shareType': 10,
-            'shareWith': room_token,
-            'path': path,
-            'talkMetaData': {
-                'messageType': metadata.message_type,
-                'caption': metadata.caption,
-                'replyTo': metadata.reply_to,
-                'silent': metadata.silent}}
+            "shareType": 10,
+            "shareWith": room_token,
+            "path": path,
+            "talkMetaData": {
+                "messageType": metadata.message_type,
+                "caption": metadata.caption,
+                "replyTo": metadata.reply_to,
+                "silent": metadata.silent,
+            },
+        }
 
         if reference_id:
-            await self.api.require_talk_feature('chat-reference-id')
+            await self.api.require_talk_feature("chat-reference-id")
             if len(reference_id) != _HASH_LENGTH:
                 raise NextcloudBadRequestError()
             else:
-                data['referenceId'] = reference_id
+                data["referenceId"] = reference_id
 
         response = await self._post(
-            path=r'../../../files_sharing/api/v1/shares',
-            data=data)
+            path=r"../../../files_sharing/api/v1/shares", data=data
+        )
 
         return response
 
-    async def list_shared_items(
-            self,
-            room_token: str,
-            limit: int = 7) -> List[Message]:
+    async def list_shared_items(self, room_token: str, limit: int = 7) -> List[Message]:
         """List overview of items shared into a chat.
 
         Args:
@@ -571,19 +562,20 @@ class Chat(NextcloudModule):
         Returns:
             List of Messages with shares.
         """
-        await self.api.require_talk_feature('rich-object-list-media')
+        await self.api.require_talk_feature("rich-object-list-media")
         response, _ = await self._get(
-            path=f'/chat/{room_token}/share/overview',
-            data = {'limit': limit})
+            path=f"/chat/{room_token}/share/overview", data={"limit": limit}
+        )
 
         return [Message(data, self.api) for data in response]
 
     async def list_shared_items_by_type(
-            self,
-            room_token: str,
-            object_type: SharedItemType,
-            last_known_message_id: int,
-            limit: int = 7) -> Tuple[List[Message], httpx.Headers]:
+        self,
+        room_token: str,
+        object_type: SharedItemType,
+        last_known_message_id: int,
+        limit: int = 7,
+    ) -> Tuple[List[Message], httpx.Headers]:
         """List items of type shared in a chat.
 
         Args:
@@ -606,23 +598,20 @@ class Chat(NextcloudModule):
             Headers:
                 X-Chat-Last-Given [int] Offset for the next page.
         """
-        return_headers = ['x-chat-last-given']
+        return_headers = ["x-chat-last-given"]
 
-        await self.api.require_talk_feature('rich-object-list-media')
+        await self.api.require_talk_feature("rich-object-list-media")
         data: Dict[str, Any] = {
-            'objectType': object_type.value,
-            'lastKnownMessageId': last_known_message_id,
-            'limit': limit}
+            "objectType": object_type.value,
+            "lastKnownMessageId": last_known_message_id,
+            "limit": limit,
+        }
 
-        response, headers = await self._get(
-            path=f'/chat/{room_token}/share',
-            data=data)
+        response, headers = await self._get(path=f"/chat/{room_token}/share", data=data)
         messages = [Message(data, self.api) for data in response]
         return messages, filter_headers(return_headers, headers)
 
-    async def clear_history(
-            self,
-            room_token: str) -> Message:
+    async def clear_history(self, room_token: str) -> Message:
         """Clear the message history in a conversation.
 
         Args:
@@ -632,14 +621,13 @@ class Chat(NextcloudModule):
         Returns:
             Message to display in empty channel.
         """
-        await self.api.require_talk_feature('clear-history')
-        response = await self._delete(path=f'/chat/{room_token}')
+        await self.api.require_talk_feature("clear-history")
+        response = await self._delete(path=f"/chat/{room_token}")
         return Message(response, self.api)
 
     async def delete(
-            self,
-            room_token: str,
-            message_id: int) -> Tuple[Message, httpx.Headers]:
+        self, room_token: str, message_id: int
+    ) -> Tuple[Message, httpx.Headers]:
         """Delete a message in a conversation.
 
         https://nextcloud-talk.readthedocs.io/en/latest/chat/#deleting-a-chat-message
@@ -661,17 +649,15 @@ class Chat(NextcloudModule):
                 private the value the header is not set (only available with
                 chat-read-status capability)
         """
-        return_headers = ['x-chat-last-common-read']
+        return_headers = ["x-chat-last-common-read"]
 
-        await self.api.require_talk_feature('delete-messages')
-        response, headers = await self._delete(path=f'/chat/{room_token}/{message_id}')
+        await self.api.require_talk_feature("delete-messages")
+        response, headers = await self._delete(path=f"/chat/{room_token}/{message_id}")
         return Message(response, self.api), filter_headers(return_headers, headers)
 
     async def edit(
-            self,
-            room_token: str,
-            message_id: int,
-            message: str) -> Tuple[Message, httpx.Headers]:
+        self, room_token: str, message_id: int, message: str
+    ) -> Tuple[Message, httpx.Headers]:
         """Edit an existing message in a conversation.
 
         Args:
@@ -693,20 +679,18 @@ class Chat(NextcloudModule):
                 private the value the header is not set (only available with
                 chat-read-status capability)
         """
-        return_headers = ['x-chat-last-common-read']
+        return_headers = ["x-chat-last-common-read"]
 
-        await self.api.require_talk_feature('edit-messages')
+        await self.api.require_talk_feature("edit-messages")
         response, headers = await self._put(
-            path=f'/chat/{room_token}/{message_id}',
-            data={'message': message})
+            path=f"/chat/{room_token}/{message_id}", data={"message": message}
+        )
 
         return Message(response, self.api), filter_headers(return_headers, headers)
 
     async def set_reminder(
-            self,
-            room_token: str,
-            message_id: int,
-            timestamp: dt.datetime) -> MessageReminder:
+        self, room_token: str, message_id: int, timestamp: dt.datetime
+    ) -> MessageReminder:
         """Set reminder for chat message.
 
         Requires capability: remind-me-later
@@ -724,17 +708,15 @@ class Chat(NextcloudModule):
         Returns:
             MessageReminder
         """
-        await self.api.require_talk_feature('remind-me-later')
+        await self.api.require_talk_feature("remind-me-later")
         response, _ = await self._post(
-            path=f'/chat/{room_token}/{message_id}/reminder',
-            data={'timestamp': int(timestamp.timestamp())})
+            path=f"/chat/{room_token}/{message_id}/reminder",
+            data={"timestamp": int(timestamp.timestamp())},
+        )
 
         return MessageReminder(response)
 
-    async def get_reminder(
-            self,
-            room_token: str,
-            message_id: int) -> MessageReminder:
+    async def get_reminder(self, room_token: str, message_id: int) -> MessageReminder:
         """Get existing reminder for chat message.
 
         Requires capability: remind-me-later
@@ -749,16 +731,12 @@ class Chat(NextcloudModule):
         Returns:
             MessageReminder
         """
-        await self.api.require_talk_feature('remind-me-later')
-        response, _ = await self._get(
-            path=f'/chat/{room_token}/{message_id}/reminder')
+        await self.api.require_talk_feature("remind-me-later")
+        response, _ = await self._get(path=f"/chat/{room_token}/{message_id}/reminder")
 
         return MessageReminder(response)
 
-    async def delete_reminder(
-            self,
-            room_token: str,
-            message_id: int) -> None:
+    async def delete_reminder(self, room_token: str, message_id: int) -> None:
         """Delete reminder for chat message.
 
         Requires capability: remind-me-later
@@ -770,13 +748,12 @@ class Chat(NextcloudModule):
             message_id:
                 ID of message
         """
-        await self.api.require_talk_feature('remind-me-later')
-        await self._delete(path=f'/chat/{room_token}/{message_id}/reminder')
+        await self.api.require_talk_feature("remind-me-later")
+        await self._delete(path=f"/chat/{room_token}/{message_id}/reminder")
 
     async def mark_as_read(
-            self,
-            room_token: str,
-            last_read_message_id: Optional[int] = None) -> httpx.Headers:
+        self, room_token: str, last_read_message_id: Optional[int] = None
+    ) -> httpx.Headers:
         """Mark conversation as read.
 
         Args:
@@ -794,19 +771,17 @@ class Chat(NextcloudModule):
                 private the value the header is not set (only available with
                 chat-read-status capability)
         """
-        return_headers = ['x-chat-last-common-read']
-        await self.api.require_talk_feature('chat-read-marker')
+        return_headers = ["x-chat-last-common-read"]
+        await self.api.require_talk_feature("chat-read-marker")
         data: Dict[str, Any] = {}
         if last_read_message_id:
-            await self.api.require_talk_feature('chat-read-last')
-            data = {'lastReadMessage': last_read_message_id}
+            await self.api.require_talk_feature("chat-read-last")
+            data = {"lastReadMessage": last_read_message_id}
 
-        _, headers = await self._post(path=f'/chat/{room_token}/read', data=data)
+        _, headers = await self._post(path=f"/chat/{room_token}/read", data=data)
         return filter_headers(return_headers, headers)
 
-    async def mark_as_unread(
-            self,
-            room_token: str) -> httpx.Headers:
+    async def mark_as_unread(self, room_token: str) -> httpx.Headers:
         """Mark conversation as unread.
 
         Requires capability: chat-unread
@@ -822,17 +797,18 @@ class Chat(NextcloudModule):
                 private the value the header is not set (only available with
                 chat-read-status capability)
         """
-        return_headers = ['x-chat-last-common-read']
-        await self.api.require_talk_feature('chat-unread')
-        _, headers = await self._delete(path=f'/chat/{room_token}/read')
+        return_headers = ["x-chat-last-common-read"]
+        await self.api.require_talk_feature("chat-unread")
+        _, headers = await self._delete(path=f"/chat/{room_token}/read")
         return filter_headers(return_headers, headers)
 
     async def suggest_autocompletes(
-            self,
-            room_token: str,
-            search: str,
-            include_status: bool = False,
-            limit: int = 20) -> List[Suggestion]:
+        self,
+        room_token: str,
+        search: str,
+        include_status: bool = False,
+        limit: int = 20,
+    ) -> List[Suggestion]:
         """Get mention autocomplete suggestions.
 
         Args:
@@ -852,11 +828,10 @@ class Chat(NextcloudModule):
             List of Suggestions
         """
         data: Dict[str, Any] = {
-            'search': search,
-            'includeStatus': include_status,
-            'limit': limit}
-        response, _ = await self._get(
-            path=f'/chat/{room_token}/mentions',
-            data=data)
+            "search": search,
+            "includeStatus": include_status,
+            "limit": limit,
+        }
+        response, _ = await self._get(path=f"/chat/{room_token}/mentions", data=data)
 
         return [Suggestion(data) for data in response]

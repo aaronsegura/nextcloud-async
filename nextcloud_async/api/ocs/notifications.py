@@ -3,26 +3,22 @@
 https://github.com/nextcloud/notifications/blob/master/docs/ocs-endpoint-v2.md
 """
 
-from dataclasses import dataclass
-from typing import List, Dict, Any
+from typing import List
 
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
+from nextcloud_async.api.dataobject import NextcloudDataObject
 
 
-@dataclass
-class Notification:
-    data: Dict[str, Any]
-    notifications_api: 'Notifications'
-
-    def __getattr__(self, k: str) -> Any:
-        return self.data[k]
+class Notification(NextcloudDataObject):
+    self_api: "Notifications"
 
     def __str__(self) -> str:
         return f'<Notification #{self.id} from "{self.app}">'
 
-    def __repr__(self) -> str:
-        return str(self.data)
+    def async_refresh(self) -> None:
+        """No need to refresh this object."""
+        ...
 
     @property
     def id(self) -> int:
@@ -31,18 +27,15 @@ class Notification:
 
     async def delete(self) -> None:
         """Delete this notification."""
-        await self.notifications_api.delete(self.id)
+        await self.self_api.delete(self.id)
 
 
 class Notifications(NextcloudModule):
     """Manage user notifications on Nextcloud instance."""
 
-    def __init__(
-            self,
-            client: NextcloudClient,
-            api_version: str = '2') -> None:
-        self.stub = f'/apps/notifications/api/v{api_version}/notifications'
-        self.api = NextcloudOcsApi(client, ocs_version = '2')
+    def __init__(self, client: NextcloudClient, api_version: str = "2") -> None:
+        self.stub = f"/apps/notifications/api/v{api_version}/notifications"
+        self.api = NextcloudOcsApi(client, ocs_version="2")
 
     async def list(self) -> List[Notification]:
         """Get user's notifications.
@@ -62,7 +55,7 @@ class Notifications(NextcloudModule):
         Returns:
             Notification
         """
-        response = await self._get(path=f'/{id}')
+        response = await self._get(path=f"/{id}")
         return Notification(response, self)
 
     async def clear(self) -> None:
@@ -75,4 +68,4 @@ class Notifications(NextcloudModule):
         Args:
             id (int): Notification ID
         """
-        return await self._delete(path=f'/{id}')
+        return await self._delete(path=f"/{id}")

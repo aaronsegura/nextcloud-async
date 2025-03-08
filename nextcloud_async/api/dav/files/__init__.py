@@ -4,11 +4,11 @@ from .trashbin import Trashbin, TrashFile
 from .versions import Versions, Version
 
 __all__ = [
-    'Files',
-    'UserFile',
-    'UserPath',
-    'Trashbin',
-    'TrashFile',
-    'Versions',
-    'Version',
+    "Files",
+    "UserFile",
+    "UserPath",
+    "Trashbin",
+    "TrashFile",
+    "Versions",
+    "Version",
 ]

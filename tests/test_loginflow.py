@@ -1,72 +1,87 @@
-from .base import BaseTestCase
-from .helpers import AsyncMock
-from .constants import USER, ENDPOINT, PASSWORD, EMPTY_200
+import pytest
+import json
 
-import asyncio
-import httpx
+from pytest_httpx import HTTPXMock
 
-from unittest.mock import patch
-from importlib.metadata import version
+from nextcloud_async.api import LoginFlowV2
+from nextcloud_async.exceptions import NextcloudLoginFlowTimeoutError
 
-VERSION = version('nextcloud_async')
-TOKEN = 'qWPKzgQoCeV4Cvgc8Sl9ENJ8kXrGmijwWgA0eCNgOnP2bt'\
-        'sWturgzFkdLGySmzMiheh746voMs5lpOB57MRm66KDV40G4n7V03cUnwznKX95k1'\
-        'taNobxuGCNthK3I5me'
+from .constants import USER
+
+TOKEN = (
+    "qWPKzgQoCeV4Cvgc8Sl9ENJ8kXrGmijwWgA0eCNgOnP2bt"
+    "sWturgzFkdLGySmzMiheh746voMs5lpOB57MRm66KDV40G4n7V03cUnwznKX95k1"
+    "taNobxuGCNthK3I5me"
+)
 
 
-class LoginFlowV2(BaseTestCase):
+@pytest.mark.asyncio(loop_scope="session")
+class TestLoginFlowV2:
+    """Must monkeypatch and mock this one since it requires user intervention."""
 
-    def test_login_flow_initiate(self):
+    async def test_login_flow_initiate(
+        self, httpx_mock: HTTPXMock, loginflowv2_api: LoginFlowV2
+    ):
         json_response = bytes(
             f'{{"poll":{{"token":"{TOKEN}","endpoint":"http:\\/\\/localhost:81'
             '81\\/login\\/v2\\/poll"},"login":"http:\\/\\/localhost:8181\\/l'
-            'ogin\\/v2\\/flow\\/TtnMLxXHbxzkvubprdlowN0QoS7k9UVtOLf977xxVXsf'
-            '9oUUsXGXjU9vSRi3axFUEZCyF2nC6WD8NERUwaeewCZC99NgN6IjGlCMWEHrS08'
-            'I8GL1dChWpYqn78S1Zmk7"}', 'utf-8')
-        with patch(
-                'httpx.AsyncClient.request',
-                new_callable=AsyncMock,
-                return_value=httpx.Response(
-                    status_code=200,
-                    content=json_response)) as mock:
-            asyncio.run(self.ncc.login_flow_initiate())
-            mock.assert_called_with(
-                method='POST',
-                auth=(USER, PASSWORD),
-                url=f'{ENDPOINT}/index.php/login/v2',
-                data={},
-                headers={'user-agent': f'nextcloud_async/{VERSION}'})
+            "ogin\\/v2\\/flow\\/TtnMLxXHbxzkvubprdlowN0QoS7k9UVtOLf977xxVXsf"
+            "9oUUsXGXjU9vSRi3axFUEZCyF2nC6WD8NERUwaeewCZC99NgN6IjGlCMWEHrS08"
+            'I8GL1dChWpYqn78S1Zmk7"}',
+            "utf-8",
+        )
+        httpx_mock.add_response(status_code=200, content=json_response)
+        await loginflowv2_api.initiate()
+        request = httpx_mock.get_request()
+        assert request.method == "POST"
+        assert (
+            request.url == f"{loginflowv2_api.api.client.endpoint}/index.php/login/v2"
+        )
 
-    def test_login_flow_confirm(self):
+    async def test_login_flow_confirm_success(
+        self, httpx_mock: HTTPXMock, loginflowv2_api: LoginFlowV2
+    ):
         json_response = bytes(
             f'{{"server":"http:\\/\\/localhost:8181","loginName":"{USER}",'
             '"appPassword":"aoXMDFSBmFQhsqvuKuFXhW4s4Uj1GUJ3OZttYid7jbAxL'
-            'XLZQDYOIywkW7kBLiroLyAik1Pf"}', 'utf-8')
-        with patch(
-                'httpx.AsyncClient.request',
-                new_callable=AsyncMock,
-                return_value=httpx.Response(
-                    status_code=200,
-                    content=json_response)) as mock:
-            asyncio.run(self.ncc.login_flow_wait_confirm(TOKEN, timeout=1))
-            mock.assert_called_with(
-                method='POST',
-                auth=(USER, PASSWORD),
-                url=f'{ENDPOINT}/index.php/login/v2/poll',
-                data={'token': TOKEN},
-                headers={})
+            'XLZQDYOIywkW7kBLiroLyAik1Pf"}',
+            "utf-8",
+        )
+        httpx_mock.add_response(status_code=200, content=json_response)
+        await loginflowv2_api.wait_confirm(TOKEN, timeout=3)
+        request = httpx_mock.get_request()
+        assert request.method == "POST"
+        assert (
+            request.url == f"{loginflowv2_api.api.client.endpoint}"
+            "/index.php/login/v2/poll"
+        )
+        request_token = json.loads(request.content)
+        assert request_token == {"token": TOKEN}
 
-    def test_destroy_app_token(self):
-        with patch(
-                'httpx.AsyncClient.request',
-                new_callable=AsyncMock,
-                return_value=httpx.Response(
-                    status_code=200,
-                    content=EMPTY_200)) as mock:
-            asyncio.run(self.ncc.destroy_login_token())
-            mock.assert_called_with(
-                method='DELETE',
-                auth=(USER, PASSWORD),
-                url=f'{ENDPOINT}/ocs/v2.php/core/apppassword',
-                data={'format': 'json'},
-                headers={'OCS-APIRequest': 'true'})
+    async def test_login_flow_timeout(
+        self, httpx_mock: HTTPXMock, loginflowv2_api: LoginFlowV2
+    ):
+
+        httpx_mock.add_response(status_code=404, is_reusable=True)
+        try:
+            await loginflowv2_api.wait_confirm(TOKEN, timeout=1)
+        except NextcloudLoginFlowTimeoutError:
+            assert True
+        else:
+            assert False
+
+    async def test_destroy_app_token(
+        self, httpx_mock: HTTPXMock, loginflowv2_api: LoginFlowV2
+    ):
+        _empty_200 = bytes(
+            '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK",'
+            '"totalitems":"","itemsperpage":""},"data":[]}}',
+            "utf-8",
+        )
+        httpx_mock.add_response(status_code=200, content=_empty_200)
+        await loginflowv2_api.destroy_token()
+        request = httpx_mock.get_request()
+        assert (
+            request.url == f"{loginflowv2_api.api.client.endpoint}"
+            "/ocs/v2.php/core/apppassword"
+        )

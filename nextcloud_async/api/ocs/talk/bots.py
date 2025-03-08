@@ -21,7 +21,7 @@ class Bot:
         return self.data[k]
 
     def __str__(self) -> str:
-        return f'<Talk Bot #{self.id}, {self.name}>'
+        return f"<Talk Bot #{self.id}, {self.name}>"
 
     def __repr__(self) -> str:
         return str(self.data)
@@ -41,15 +41,12 @@ class Bots(NextcloudModule):
     Requires capability: bots-v1
     """
 
-    def __init__(
-            self,
-            api: NextcloudTalkApi,
-            api_version: str = '1') -> None:
-        self.stub = f'/apps/spreed/api/v{api_version}/bot'
+    def __init__(self, api: NextcloudTalkApi, api_version: str = "1") -> None:
+        self.stub = f"/apps/spreed/api/v{api_version}/bot"
         self.api: NextcloudTalkApi = api
 
     async def _validate_capability(self) -> None:
-            await self.api.require_talk_feature('bots-v1')
+        await self.api.require_talk_feature("bots-v1")
 
     async def list_installed(self) -> List[Bot]:
         """Get list of bots installed on the server.
@@ -60,12 +57,10 @@ class Bots(NextcloudModule):
             List of Bot objects
         """
         await self._validate_capability()
-        response, _ = await self._get(path='/admin')
+        response, _ = await self._get(path="/admin")
         return [Bot(data, self.api) for data in response]
 
-    async def list_conversation_bots(
-            self,
-            room_token: str) -> List[Bot]:
+    async def list_conversation_bots(self, room_token: str) -> List[Bot]:
         """Get list of bots for a conversation.
 
         This is a moderator-level method.
@@ -78,13 +73,10 @@ class Bots(NextcloudModule):
             List of Bot objects
         """
         await self._validate_capability()
-        response, _ = await self._get(path=f'/{room_token}')
+        response, _ = await self._get(path=f"/{room_token}")
         return [Bot(data, self.api) for data in response]
 
-    async def enable_bot(
-            self,
-            room_token: str,
-            bot_id: int) -> None:
+    async def enable_bot(self, room_token: str, bot_id: int) -> None:
         """Enable a bot for a conversation as a moderator.
 
         Args:
@@ -95,12 +87,9 @@ class Bots(NextcloudModule):
                 Bot ID
         """
         await self._validate_capability()
-        await self._post(path=f'/{room_token}/{bot_id}')
+        await self._post(path=f"/{room_token}/{bot_id}")
 
-    async def disable_bot(
-            self,
-            room_token: str,
-            bot_id: int) -> None:
+    async def disable_bot(self, room_token: str, bot_id: int) -> None:
         """Disable a bot for a conversation as a moderator.
 
         Args:
@@ -111,4 +100,4 @@ class Bots(NextcloudModule):
                 _description_
         """
         await self._validate_capability()
-        await self._delete(path=f'/{room_token}/{bot_id}')
+        await self._delete(path=f"/{room_token}/{bot_id}")

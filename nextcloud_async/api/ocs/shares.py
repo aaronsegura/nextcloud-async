@@ -6,18 +6,20 @@ https://github.com/nextcloud/server/blob/892c473b064af222570a0c7155d9603a229d731
 Not Implemented:
     Federated share management
 """
+
 import json
 import asyncio
 
 import datetime as dt
 from dateutil.tz import tzlocal
-from dataclasses import dataclass
 
 from enum import Enum, IntFlag
 from typing import Any, Optional, List, Dict, Tuple, TypedDict, Unpack, NotRequired
+from collections.abc import Awaitable
 
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
+from nextcloud_async.api.dataobject import NextcloudDataObject
 from nextcloud_async.exceptions import NextcloudError
 
 
@@ -52,14 +54,19 @@ class SharePermission(IntFlag):
     all = 31
 
 
-@dataclass
-class Share:
-    data: Dict[str, Any]
-    shares_api: 'Shares'
+class Share(NextcloudDataObject):
+    self_api: "Shares"
+
+    def __str__(self) -> str:
+        return f'<Nextcloud Share "{self.path}" by {self.displayname_owner}>'
+
+    def async_refresh(self) -> Awaitable:
+        """Define how this object is refreshed."""
+        return self.self_api.get(self.id)
 
     async def delete(self) -> None:
         """Delete this share."""
-        await self.shares_api.delete(self.id)
+        await self.self_api.delete(self.id)
         self.data = {}
 
     class _ShareUpdateArgs(TypedDict):
@@ -101,35 +108,26 @@ class Share:
                 send an email to the recipient. This will not send an email on its
                 own. You will have to use the send-email endpoint to send the email.
         """
-        await self.shares_api.update(share_id=self.id, **kwargs)
-
-    def __getattr__(self, k: str) -> Any:
-        return self.data[k]
-
-    def __str__(self) -> str:
-        return f'<Nextcloud Share "{self.path}" by {self.displayname_owner}>'
-
-    def __repr__(self) -> str:
-        return str(self.data)
+        await self.self_api.update(share_id=self.id, **kwargs)
 
 
 class Shares(NextcloudModule):
     """Manage local shares on Nextcloud instances."""
+
     def __init__(
-            self,
-            client: NextcloudClient,
-            ocs_version: str = '2',
-            api_version: str = '1') -> None:
-        self.stub = f'/apps/files_sharing/api/v{api_version}/shares'
-        self.api = NextcloudOcsApi(client, ocs_version = ocs_version)
+        self, client: NextcloudClient, ocs_version: str = "2", api_version: str = "1"
+    ) -> None:
+        self.stub = f"/apps/files_sharing/api/v{api_version}/shares"
+        self.api = NextcloudOcsApi(client, ocs_version=ocs_version)
 
     async def get_file_shares(
-            self,
-            path: str = '',
-            reshares: bool = False,
-            subfiles: bool = False,
-            shared_with_me: bool = False,
-            include_tags: bool = False) -> List[Share]:
+        self,
+        path: str = "",
+        reshares: bool = False,
+        subfiles: bool = False,
+        shared_with_me: bool = False,
+        include_tags: bool = False,
+    ) -> List[Share]:
         """Return list of shares for given file/folder.
 
         Args:
@@ -153,11 +151,13 @@ class Shares(NextcloudModule):
         """
         response = await self._get(
             data={
-                'path': path,
-                'reshares': reshares,
-                'subfiles': subfiles,
-                'shared_with_me': shared_with_me,
-                'include_tags' : include_tags})
+                "path": path,
+                "reshares": reshares,
+                "subfiles": subfiles,
+                "shared_with_me": shared_with_me,
+                "include_tags": include_tags,
+            }
+        )
         return [Share(x, self) for x in response]
 
     async def get(self, share_id: int) -> Share:
@@ -169,24 +169,23 @@ class Shares(NextcloudModule):
         Returns:
             Share object
         """
-        response = await self._get(
-            path=f'/{share_id}',
-            data={'share_id': share_id})
+        response = await self._get(path=f"/{share_id}", data={"share_id": share_id})
         return Share(response[0], self)
 
     async def create(  # noqa: D417
-            self,
-            path: str,
-            permissions: SharePermission,
-            share_type: ShareType,
-            share_with: Optional[Dict[str, Any]] = None,
-            allow_public_upload: bool = False,
-            password: Optional[str] = None,
-            send_password_by_talk: bool = False,
-            expire_date: Optional[dt.date] = None,
-            note: Optional[str] = None,
-            label: Optional[str] = None,
-            send_mail: bool = False) -> Share:
+        self,
+        path: str,
+        permissions: SharePermission,
+        share_type: ShareType,
+        share_with: Optional[Dict[str, Any]] = None,
+        allow_public_upload: bool = False,
+        password: Optional[str] = None,
+        send_password_by_talk: bool = False,
+        expire_date: Optional[dt.date] = None,
+        note: Optional[str] = None,
+        label: Optional[str] = None,
+        send_mail: bool = False,
+    ) -> Share:
         """Create a new share.
 
         Args:
@@ -234,22 +233,27 @@ class Shares(NextcloudModule):
             if expire_date <= dt.datetime.now(tz=tzlocal()).date():
                 raise NextcloudError(
                     status_code=406,
-                    reason='Invalid expiration date.  Should be in the future.')
+                    reason="Invalid expiration date.  Should be in the future.",
+                )
 
         response = await self._post(
             data={
-                'path': path,
-                'shareType': share_type.value,
-                'shareWith': share_with,
-                'permissions': permissions.value,
-                'publicUpload': str(allow_public_upload).lower(),
-                'password': password,
-                'expireDate': expire_date.strftime(r'%Y-%m-%d') if expire_date else None,
-                'note': note,
-                'label': label,
-                'sendPasswordByTalk': send_password_by_talk,
-                'sendMail': send_mail})
-        return(Share(response, self))
+                "path": path,
+                "shareType": share_type.value,
+                "shareWith": share_with,
+                "permissions": permissions.value,
+                "publicUpload": str(allow_public_upload).lower(),
+                "password": password,
+                "expireDate": (
+                    expire_date.strftime(r"%Y-%m-%d") if expire_date else None
+                ),
+                "note": note,
+                "label": label,
+                "sendPasswordByTalk": send_password_by_talk,
+                "sendMail": send_mail,
+            }
+        )
+        return Share(response, self)
 
     async def delete(self, share_id: int) -> None:
         """Delete an existing share.
@@ -260,9 +264,7 @@ class Shares(NextcloudModule):
         Returns:
             Query results.
         """
-        return await self._delete(
-            path=f'/{share_id}',
-            data={'share_id': share_id})
+        return await self._delete(path=f"/{share_id}", data={"share_id": share_id})
 
     #    This function makes asynchronous calls to the __update_share function
     #     since the underlying API can only accept one modification per query.
@@ -270,15 +272,16 @@ class Shares(NextcloudModule):
     #     list containing the results of all queries.
 
     async def update(
-            self,
-            share_id: int,
-            permissions: Optional[SharePermission] = None, # noqa: ARG002
-            password: Optional[str] = None, # noqa: ARG002
-            allow_public_upload: Optional[bool] = None, # noqa: ARG002
-            expire_date: Optional[dt.date] = None, # noqa: ARG002
-            attributes: Optional[str] = None, # noqa: ARG002
-            send_mail: Optional[bool] = None, # noqa: ARG002
-            note: Optional[str] = None) -> None: # noqa: ARG002
+        self,
+        share_id: int,
+        permissions: Optional[SharePermission] = None,  # noqa: ARG002
+        password: Optional[str] = None,  # noqa: ARG002
+        allow_public_upload: Optional[bool] = None,  # noqa: ARG002
+        expire_date: Optional[dt.date] = None,  # noqa: ARG002
+        attributes: Optional[str] = None,  # noqa: ARG002
+        send_mail: Optional[bool] = None,  # noqa: ARG002
+        note: Optional[str] = None,  # noqa: ARG002
+    ) -> None:
         """Update properties of an existing share.
 
         This function makes asynchronous calls to the __update_share function
@@ -314,22 +317,24 @@ class Shares(NextcloudModule):
         if attributes:
             attributes = json.dumps(attributes)
         allowed_updates = [
-            'permissions',
-            'password',
-            'allow_public_upload',
-            'expire_date',
-            'note',
-            'attributes',
-            'send_mail']
-        updates: List[Tuple[str, Any]] = [(k,locals()[k]) for k in allowed_updates if k]
+            "permissions",
+            "password",
+            "allow_public_upload",
+            "expire_date",
+            "note",
+            "attributes",
+            "send_mail",
+        ]
+        updates: List[Tuple[str, Any]] = [
+            (k, locals()[k]) for k in allowed_updates if k
+        ]
         reqs = [self.__update_share(share_id, k, v) for k, v in updates]
         await asyncio.gather(*reqs)
 
-    async def __update_share(self, share_id: int, key: str, value: Any) -> Dict[str, Any]:
-        return await self._put(
-            path=f'/{share_id}',
-            data={key: value})
-
+    async def __update_share(
+        self, share_id: int, key: str, value: Any
+    ) -> Dict[str, Any]:
+        return await self._put(path=f"/{share_id}", data={key: value})
 
     async def send_email(self, share_id: int, password: str) -> None:
         """Send an email to the recipients of a share.
@@ -342,5 +347,6 @@ class Shares(NextcloudModule):
                 The share password if enabled.
         """
         await self._post(
-            path=f'/{share_id}/send-email',
-            data={'password': password} if password else None)
+            path=f"/{share_id}/send-email",
+            data={"password": password} if password else None,
+        )

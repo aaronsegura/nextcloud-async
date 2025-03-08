@@ -5,10 +5,41 @@ https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/user_au
 """
 
 from typing import Dict, Any
+from collections.abc import Coroutine
 
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
+from nextcloud_async.api.dataobject import NextcloudDataObject
 from nextcloud_async.helpers import recursive_urlencode
+
+
+class LdapConfiguration(NextcloudDataObject):
+    self_api: "Ldap"
+
+    def __str__(self) -> str:
+        return f"<Nextcloud Ldap Config {self.id}>"
+
+    @property
+    def id(self) -> str:
+        """Alias for self.data['configID]."""
+        return self.configID
+
+    async def async_refresh(self) -> Coroutine[None, None, "LdapConfiguration"]:
+        """Set up object refresh."""
+        return self.self_api.get(self.id)
+
+    async def delete(self) -> None:
+        """Delete this configuration."""
+        await self.self_api.delete(self.id)
+
+    async def update(self, config_data: Dict[str, Any]) -> None:
+        """Update/set the properties of this LDAP configuration.
+
+        Args:
+            config_data (Dict): New values for configuration.
+        """
+        await self.self_api.update(self.id, config_data)
+        await self._refresh()
 
 
 class Ldap(NextcloudModule):
@@ -16,30 +47,29 @@ class Ldap(NextcloudModule):
 
     Server must have LDAP user and group back-end enabled.
     """
-    def __init__(
-            self,
-            client: NextcloudClient,
-            api_version: str = '1') -> None:
-        self.stub = f'/apps/user_ldap/api/v{api_version}'
-        self.api = NextcloudOcsApi(client, ocs_version = '2')
 
-    async def add_config(self) -> Dict[str, Any]:
+    def __init__(self, client: NextcloudClient, api_version: str = "1") -> None:
+        self.stub = f"/apps/user_ldap/api/v{api_version}"
+        self.api = NextcloudOcsApi(client, ocs_version="2")
+
+    async def create(self) -> LdapConfiguration:
         """Create a new LDAP configuration.
 
         Returns:
             dict: New configuration ID, { "configID": ID }
         """
-        return await self._post(path='/config')
+        response = await self._post(path="/config")
+        return LdapConfiguration(response, self)
 
-    async def delete_config(self, id: str) -> None:
+    async def delete(self, id: str) -> None:
         """Remove the given LDAP configuration.
 
         Args:
             id (str): LDAP Configuration ID
         """
-        await self._delete(path=f'/config/{id}')
+        await self._delete(path=f"/config/{id}")
 
-    async def get_config(self, id: str) -> Dict[str, Any]:
+    async def get(self, id: str) -> LdapConfiguration:
         """Get an LDAP configuration.
 
         Args:
@@ -48,9 +78,10 @@ class Ldap(NextcloudModule):
         Returns:
             dict: LDAP configuration description
         """
-        return await self._get(path=f'/config/{id}')
+        response = await self._get(path=f"/config/{id}")
+        return LdapConfiguration(response, self)
 
-    async def update_config(self, id: str, config_data: Dict[str, Any]) -> None:
+    async def update(self, id: str, config_data: Dict[str, Any]) -> None:
         """Update/set the properties of a given LDAP configuration.
 
         Args:
@@ -58,9 +89,9 @@ class Ldap(NextcloudModule):
 
             config_data (Dict): New values for configuration.
         """
-        if 'configData' not in config_data:
+        if "configData" not in config_data:
             # Attempt to fix improperly formatted dictionary
-            config_data = {'configData': config_data}
+            config_data = {"configData": config_data}
 
         url_data = recursive_urlencode(config_data)
-        await self._put(path=f'/config/{id}?{url_data}')
+        await self._put(path=f"/config/{id}?{url_data}")

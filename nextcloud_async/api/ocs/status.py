@@ -12,16 +12,17 @@ from typing import Optional, Dict, Any, List
 
 from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
 from nextcloud_async.client import NextcloudClient
+from nextcloud_async.api.dataobject import NextcloudDataObject
 
 
 class StatusType(Enum):
     """Status Types."""
 
-    online = 'online'
-    away = 'away'
-    dnd = 'dnd'
-    invisible = 'invisible'
-    offline = 'offline'
+    online = "online"
+    away = "away"
+    dnd = "dnd"
+    invisible = "invisible"
+    offline = "offline"
 
 
 @dataclass
@@ -38,20 +39,15 @@ class PredefinedStatus:
         return str(self.data)
 
 
-
-@dataclass
-class MyStatus:
-    data: Dict[str, Any]
-    status_api: 'Status'
-
-    def __getattr__(self, k: str) -> Any:
-        return self.data[k]
+class MyStatus(NextcloudDataObject):
+    self_api: "Status"
 
     def __str__(self) -> str:
         return f'<My Status {self.status} "{self.message}">'
 
-    def __repr__(self) -> str:
-        return str(self.data)
+    def async_refresh(self) -> None:
+        """No need to refresh this object."""
+        ...
 
     async def set(self, status_type: StatusType) -> None:
         """Set user status.
@@ -59,13 +55,12 @@ class MyStatus:
         Args:
             status_type: See StatusType Enum
         """
-        response = await self.status_api.set(status_type=status_type)
+        response = await self.self_api.set(status_type=status_type)
         self.data = response
 
     async def set_predefined_status(
-            self,
-            status: PredefinedStatus,
-            clear_at: dt.datetime) -> None:
+        self, status: PredefinedStatus, clear_at: dt.datetime
+    ) -> None:
         """Choose from predefined status messages.
 
         Args:
@@ -75,16 +70,14 @@ class MyStatus:
             clear_at:
                 datetime at which to clear this status.
         """
-        response = await self.status_api.choose_predefined_status(
-            status=status,
-            clear_at=clear_at)
+        response = await self.self_api.choose_predefined_status(
+            status=status, clear_at=clear_at
+        )
         self.data = response
 
     async def set_message(
-            self,
-            message: str,
-            status_icon: str,
-            clear_at: dt.datetime) -> None:
+        self, message: str, status_icon: str, clear_at: dt.datetime
+    ) -> None:
         """Set a custom status message.
 
         Args:
@@ -97,16 +90,15 @@ class MyStatus:
             clear_at:
                 datetime at which to clear this message.
         """
-        response = await self.status_api.set_message(
-            message=message,
-            status_icon=status_icon,
-            clear_at=clear_at)
+        response = await self.self_api.set_message(
+            message=message, status_icon=status_icon, clear_at=clear_at
+        )
         self.data = response
 
     async def clear_message(self) -> None:
         """Clear my status message."""
-        await self.status_api.clear_message()
-        self.message = ''
+        await self.self_api.clear_message()
+        self.message = ""
 
 
 @dataclass
@@ -127,12 +119,10 @@ class Status(NextcloudModule):
     """Manage a user's status on Nextcloud instances."""
 
     def __init__(
-            self,
-            client: NextcloudClient,
-            ocs_version: str = '2',
-            api_version: str = '1') -> None:
-        self.stub = f'/apps/user_status/api/v{api_version}'
-        self.api = NextcloudOcsApi(client, ocs_version = ocs_version)
+        self, client: NextcloudClient, ocs_version: str = "2", api_version: str = "1"
+    ) -> None:
+        self.stub = f"/apps/user_status/api/v{api_version}"
+        self.api = NextcloudOcsApi(client, ocs_version=ocs_version)
 
     async def get(self) -> MyStatus:
         """Get current status.
@@ -140,9 +130,8 @@ class Status(NextcloudModule):
         Returns:
             dict: Status description
         """
-        response = await self._get('/user_status')
+        response = await self._get("/user_status")
         return MyStatus(response, self)
-
 
     async def set(self, status_type: StatusType) -> Dict[str, Any]:
         """Set user status.
@@ -155,8 +144,8 @@ class Status(NextcloudModule):
             New status data
         """
         return await self._put(
-            path='/user_status/status',
-            data={'statusType': status_type.value})
+            path="/user_status/status", data={"statusType": status_type.value}
+        )
 
     async def get_predefined_statuses(self) -> List[PredefinedStatus]:
         """Get list of predefined statuses.
@@ -164,13 +153,12 @@ class Status(NextcloudModule):
         Returns:
             PredefinedStatus list
         """
-        response = await self._get(path='/predefined_statuses')
+        response = await self._get(path="/predefined_statuses")
         return [PredefinedStatus(data) for data in response]
 
     async def choose_predefined_status(
-            self,
-            status: PredefinedStatus,
-            clear_at: Optional[dt.datetime] = None) -> Dict[str, Any]:
+        self, status: PredefinedStatus, clear_at: Optional[dt.datetime] = None
+    ) -> Dict[str, Any]:
         """Choose from predefined status messages.
 
         Args:
@@ -183,19 +171,18 @@ class Status(NextcloudModule):
         Returns:
             dict: New status description
         """
-        data: Dict[str, int|str] = {'messageId': status.id}
+        data: Dict[str, int | str] = {"messageId": status.id}
         if clear_at:
-            data.update({'clearAt': clear_at.strftime('%s')})
-        response = await self._put(
-            path='/user_status/message/predefined',
-            data=data)
+            data.update({"clearAt": clear_at.strftime("%s")})
+        response = await self._put(path="/user_status/message/predefined", data=data)
         return response
 
     async def set_message(
-            self,
-            message: str,
-            status_icon: Optional[str] = None,
-            clear_at: Optional[dt.datetime] = None) -> Dict[str, Any]:
+        self,
+        message: str,
+        status_icon: Optional[str] = None,
+        clear_at: Optional[dt.datetime] = None,
+    ) -> Dict[str, Any]:
         """Set a custom status message.
 
         Args:
@@ -208,23 +195,20 @@ class Status(NextcloudModule):
         Returns:
             dict: New status description
         """
-        data: Dict[str, str] = {'message': message}
+        data: Dict[str, str] = {"message": message}
         if status_icon:
-            data.update({'statusIcon': status_icon})
+            data.update({"statusIcon": status_icon})
         if clear_at:
-            data.update({'clearAt': clear_at.strftime('%s')})
-        return await self._put(
-            path='/user_status/message/custom',
-            data=data)
+            data.update({"clearAt": clear_at.strftime("%s")})
+        return await self._put(path="/user_status/message/custom", data=data)
 
     async def clear_message(self) -> None:
         """Clear status message."""
-        await self._delete(path=r'/user_status/message')
+        await self._delete(path=r"/user_status/message")
 
     async def get_all_user_statuses(
-            self,
-            limit: int = 100,
-            offset: int = 0) -> list[UserStatus]:
+        self, limit: int = 100, offset: int = 0
+    ) -> list[UserStatus]:
         """Get all user statuses.
 
         Args:
@@ -236,8 +220,8 @@ class Status(NextcloudModule):
             list: User statuses
         """
         response = await self._get(
-            path='/statuses',
-            data={'limit': limit, 'offset': offset})
+            path="/statuses", data={"limit": limit, "offset": offset}
+        )
         return [UserStatus(data) for data in response]
 
     async def get_user_status(self, user: str) -> UserStatus:
@@ -249,5 +233,5 @@ class Status(NextcloudModule):
         Returns:
             dict: User status description
         """
-        response = await self._get(path=f'/statuses/{user}')
+        response = await self._get(path=f"/statuses/{user}")
         return UserStatus(response)

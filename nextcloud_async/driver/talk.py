@@ -4,13 +4,18 @@ https://nextcloud-talk.readthedocs.io/en/latest/global/
 """
 
 import httpx
+import json
 
 from typing import Dict, Any, Optional, Tuple
 
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver import NextcloudHttpApi, NextcloudCapabilities
 
-from nextcloud_async.exceptions import NextcloudRequestTimeoutError, NextcloudNotCapableError
+from nextcloud_async.exceptions import (
+    NextcloudRequestTimeoutError,
+    NextcloudNotCapableError,
+    NextcloudError,
+)
 
 
 class NextcloudTalkApi(NextcloudHttpApi):
@@ -21,15 +26,16 @@ class NextcloudTalkApi(NextcloudHttpApi):
     """
 
     def __init__(
-            self,
-            client: NextcloudClient,
-            ocs_version: Optional[str] = '2',
-            stub: Optional[str] = None):
+        self,
+        client: NextcloudClient,
+        ocs_version: Optional[str] = "2",
+        stub: Optional[str] = None,
+    ):
 
         if stub:
             self.stub = stub
         else:
-            self.stub = f'/ocs/v{ocs_version}.php'
+            self.stub = f"/ocs/v{ocs_version}.php"
 
         self.ocs_version = ocs_version
         self.capabilities_api = NextcloudCapabilities(client)
@@ -37,8 +43,12 @@ class NextcloudTalkApi(NextcloudHttpApi):
         super().__init__(client)
 
     async def has_talk_feature(self, capability: str) -> bool:
-        features = await self.capabilities_api.supported('.'.join(['spreed.features', capability]))
-        local_features = await self.capabilities_api.supported('.'.join(['spreed.features-local', capability]))
+        features = await self.capabilities_api.supported(
+            ".".join(["spreed.features", capability])
+        )
+        local_features = await self.capabilities_api.supported(
+            ".".join(["spreed.features-local", capability])
+        )
         return features or local_features
 
     has_talk_capability = has_talk_feature
@@ -50,11 +60,12 @@ class NextcloudTalkApi(NextcloudHttpApi):
     require_talk_capability = require_talk_feature
 
     async def request(
-            self,
-            method: str = 'GET',
-            path: str = '',
-            data: Optional[Dict[str, Any]] = None,
-            headers: Optional[Dict[str, Any]] = None) -> Tuple[Dict[str, Any], httpx.Headers]:
+        self,
+        method: str = "GET",
+        path: str = "",
+        data: Optional[Dict[str, Any]] = None,
+        headers: Optional[Dict[str, Any]] = None,
+    ) -> Tuple[Dict[str, Any], httpx.Headers]:
         """Submit OCS-type query to cloud endpoint.
 
         Args:
@@ -96,19 +107,17 @@ class NextcloudTalkApi(NextcloudHttpApi):
             NextcloudException - when invalid response from server
         """
         if headers:
-            headers.update({'OCS-APIRequest': 'true'})
-            headers['User-Agent'] = self.client.user_agent
+            headers.update({"OCS-APIRequest": "true"})
+            headers["User-Agent"] = self.client.user_agent
         else:
-            headers = {
-                'OCS-APIRequest': 'true',
-                'User-Agent': self.client.user_agent}
+            headers = {"OCS-APIRequest": "true", "User-Agent": self.client.user_agent}
 
         if data:
-            data.update({'format': 'json'})
+            data.update({"format": "json"})
         else:
-            data = {'format': 'json'}
+            data = {"format": "json"}
 
-        if method.lower() == 'get':
+        if method.lower() == "get":
             path = self._massage_get_data(data, path)
             data = None
 
@@ -117,12 +126,30 @@ class NextcloudTalkApi(NextcloudHttpApi):
             response = await self.client.http_client.request(
                 method,
                 auth=(self.client.user, self.client.password),
-                url=f'{self.client.endpoint}{self.stub}{path}',
+                url=f"{self.client.endpoint}{self.stub}{path}",
                 json=data,
-                headers=headers)
+                headers=headers,
+            )
         except httpx.ReadTimeout:
             raise NextcloudRequestTimeoutError()
 
         await self.raise_response_exception(response)
-        return response.json()['ocs']['data'], response.headers
+        return response.json()["ocs"]["data"], response.headers
 
+    async def raise_response_exception(self, response: httpx.Response):
+        try:
+            response_content = json.loads(response.content.decode("utf-8"))
+        except json.JSONDecodeError:
+            raise NextcloudError(
+                status_code=500, reason="Error decoding JSON response."
+            )
+        ocs_meta = response_content["ocs"]["meta"]
+        if ocs_meta["status"] != "ok":
+            await self._raise_response_exception(
+                status_code=ocs_meta["statuscode"], reason=ocs_meta["message"]
+            )
+
+        if response.status_code >= 300:
+            raise NextcloudError(
+                status_code=response.status_code, reason=str(response.content)
+            )

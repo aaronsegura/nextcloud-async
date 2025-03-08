@@ -5,24 +5,35 @@ https://docs.nextcloud.com/server/latest/developer_manual/client_apis/
 
 from .ocs.apps import Apps, App
 from .dav.files import Files, UserFile, UserPath, TrashFile, Trashbin, Versions, Version
-from .ocs.groupfolders import GroupFolders
-from .ocs.groups import Groups
+from .ocs.groupfolders import GroupFolders, GroupFolder, GroupFoldersPermissions
+from .ocs.groups import Groups, Group
+from .ocs.ldap import Ldap, LdapConfiguration
 from .base.loginflowv2 import LoginFlowV2
-from .base.maps import Maps
+from .base.maps import Maps, MapFavorite
 from .ocs.notifications import Notifications
 from .ocs.shares import Shares, Share, ShareType, SharePermission
 from .ocs.sharees import Sharees
 from .ocs.status import Status, StatusType
-from .ocs.users import Users
+from .ocs.users import Users, User
 from .ocs.talk import (
     ConversationAvatars,
-    Bot, Bots,
+    Bot,
+    Bots,
     Calls,
-    Chat, Message, MessageReminder, Suggestion,
-    Conversations, Conversation, Webinars, BreakoutRoom, BreakoutRooms,
+    Chat,
+    Message,
+    MessageReminder,
+    Suggestion,
+    Conversations,
+    Conversation,
+    Webinars,
+    BreakoutRoom,
+    BreakoutRooms,
     Integrations,
-    Participants, Participant,
-    Polls, Poll,
+    Participants,
+    Participant,
+    Polls,
+    Poll,
     Reactions,
     InternalSignaling,
     BreakoutRoomAssignmentMode,
@@ -47,37 +58,69 @@ from .ocs.talk import (
     SharedItemType,
     SipState,
     WebinarLobbyState,
-  )
+)
 from .base.wipe import Wipe
 
 __all__ = [
-    "Apps", "App",
+    "Apps",
+    "App",
     "Chat",
-    "Conversations", "Conversation",
+    "Conversations",
+    "Conversation",
     "ConversationAvatars",
-    "Polls", "Poll",
+    "Polls",
+    "Poll",
     "Suggestion",
-    "Files", "UserFile", "UserPath", "Trashbin", "TrashFile", "Versions", "Version",
+    "Files",
+    "UserFile",
+    "UserPath",
+    "Trashbin",
+    "TrashFile",
+    "Versions",
+    "Version",
     "GroupFolders",
+    "GroupFolder",
+    "GroupFoldersPermissions",
     "Groups",
+    "Group",
+    "Ldap",
+    "LdapConfiguration",
     "LoginFlowV2",
     "Maps",
-    "Message", "MessageReminder",
+    "MapFavorite",
+    "Message",
+    "MessageReminder",
     "Notifications",
-    "Participants", "Participant",
-    "Shares", "Share", "ShareType", "SharePermission",
+    "Participants",
+    "Participant",
+    "Shares",
+    "Share",
+    "ShareType",
+    "SharePermission",
     "Sharees",
-    "Status", "StatusType",
+    "Status",
+    "StatusType",
     "Users",
+    "User",
     "Wipe",
     "ConversationAvatars",
-    "Bot", "Bots",
+    "Bot",
+    "Bots",
     "Calls",
-    "Chat", "Message", "MessageReminder", "Suggestion",
-    "Conversations", "Conversation", "Webinars", "BreakoutRoom", "BreakoutRooms",
+    "Chat",
+    "Message",
+    "MessageReminder",
+    "Suggestion",
+    "Conversations",
+    "Conversation",
+    "Webinars",
+    "BreakoutRoom",
+    "BreakoutRooms",
     "Integrations",
-    "Participants", "Participant",
-    "Polls", "Poll",
+    "Participants",
+    "Participant",
+    "Polls",
+    "Poll",
     "Reactions",
     "InternalSignaling",
     "BreakoutRoomAssignmentMode",

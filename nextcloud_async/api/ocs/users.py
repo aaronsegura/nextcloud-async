@@ -6,32 +6,126 @@ https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/instruc
 
 import asyncio
 
+
 from typing import Optional, List, Dict, Any
+from collections.abc import Awaitable
 
 from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
 from nextcloud_async.client import NextcloudClient
+from nextcloud_async.api.dataobject import NextcloudDataObject
+from nextcloud_async.api.ocs.groups import Group, Groups
+
+
+class User(NextcloudDataObject):
+    self_api: "Users"
+
+    def __getattr__(self, k: str) -> Any:
+        return self.data[k]
+
+    def __str__(self) -> str:
+        return f'<Nextcloud User "{self.id}">'
+
+    def __repr__(self) -> str:
+        return str(self.data)
+
+    def async_refresh(self) -> Awaitable:
+        """Define how to refresh this object."""
+        return self.self_api.get(self.id)
+
+    async def update(self, new_data: Dict[str, Any]) -> None:
+        """Update this user.
+
+        Args:
+            new_data:
+                Dictionary describing new attributes.
+        """
+        await self.self_api.update(self.id, new_data)
+        await self._refresh()
+
+    async def disable(self) -> None:
+        """Disable this user."""
+        await self.self_api.disable(self.id)
+        self.enabled = False
+
+    async def enable(self) -> None:
+        """Enable this user."""
+        await self.self_api.enable(self.id)
+        self.enabled = True
+
+    async def delete(self) -> None:
+        """Delete this user."""
+        await self.self_api.delete(self.id)
+        self.data = {"id": "**deleted**"}
+
+    async def groups(self) -> List[Group]:
+        """Get list of groups this memeber is in."""
+        return await self.self_api.get_group_membership(self.id)
+
+    async def add_to_group(self, group: Group) -> None:
+        """Add this user to the given group.
+
+        Args:
+            group:
+                Group object
+        """
+        await self.self_api.add_to_group(self.id, group.id)
+        await self._refresh()
+
+    async def remove_from_group(self, group: Group) -> None:
+        """Remove this user from the given Group.
+
+        Args:
+            group:
+                Group object
+        """
+        await self.self_api.remove_from_group(self.id, group.id)
+        await self._refresh()
+
+    async def promote_to_group_subadmin(self, group: Group) -> None:
+        """Promote this user to subadmin of the given Group.
+
+        Args:
+            group:
+                Group object
+        """
+        await self.self_api.promote_to_group_subadmin(self.id, group.id)
+
+    async def demote_from_group_subadmin(self, group: Group) -> None:
+        """Remove subadmin privileges from this user for the given group.
+
+        Args:
+            group:
+                Group object
+        """
+        await self.self_api.demote_from_group_subadmin(self.id, group.id)
+
+    async def get_subadmin_groups(self) -> List[Group]:
+        """Return list of groups of which this user is a subadmin.
+
+        Returns:
+            List[Group]
+        """
+        return await self.self_api.get_subadmin_groups(self.id)
 
 
 class Users(NextcloudModule):
     """Manage users on a Nextcloud instance."""
 
-    def __init__(
-            self,
-            client: NextcloudClient,
-            ocs_version: str = '1') -> None:
-        self.stub = r'/cloud/users'
-        self.api = NextcloudOcsApi(client, ocs_version = ocs_version)
+    def __init__(self, client: NextcloudClient, ocs_version: str = "1") -> None:
+        self.stub = r"/cloud/users"
+        self.api = NextcloudOcsApi(client, ocs_version=ocs_version)
 
-    async def create_user(
-            self,
-            user_id: str,
-            display_name: str,
-            email: str,
-            quota: str,
-            language: str,
-            groups: List[str] = [],
-            subadmin: List[str] = [],
-            password: Optional[str] = None) -> Dict[str, str]:
+    async def create(
+        self,
+        user_id: str,
+        display_name: str,
+        email: str,
+        language: str,
+        quota: Optional[int] = None,
+        groups: List[str] = [],
+        subadmin: List[str] = [],
+        password: Optional[str] = None,
+    ) -> User:
         """Create a new Nextcloud user.
 
         Args:
@@ -41,7 +135,7 @@ class Users(NextcloudModule):
 
             email (str): E-mail Address
 
-            quota (str): User quota, in bytes.  "none" for unlimited.
+            quota (str): User quota, in bytes.  "None" for unlimited.
 
             language (str): User language
 
@@ -57,22 +151,22 @@ class Users(NextcloudModule):
             Example: \
                 { 'id': 'YourNewUser' }
         """
-        return await self._post(
+        await self._post(
             data={
-                'userid': user_id,
-                'displayName': display_name,
-                'email': email,
-                'groups': groups,
-                'subadmin': subadmin,
-                'language': language,
-                'quota': quota,
-                'password': password})
+                "userid": user_id,
+                "displayName": display_name,
+                "email": email,
+                "groups": groups,
+                "subadmin": subadmin,
+                "language": language,
+                "quota": quota if quota else "none",
+                "password": password,
+            }
+        )
 
-    async def search(
-            self,
-            search: str,
-            limit: int = 100,
-            offset: int = 0) -> List[str]:
+        return await self.get(user_id)
+
+    async def search(self, search: str, limit: int = 100, offset: int = 0) -> List[str]:
         """Search for users.
 
         Args:
@@ -89,13 +183,11 @@ class Users(NextcloudModule):
             list: User ID matches
         """
         response = await self._get(
-            data={
-                'search': search,
-                'limit': limit,
-                'offset': offset})
-        return response['users']
+            data={"search": search, "limit": limit, "offset": offset}
+        )
+        return response["users"]
 
-    async def get(self, user_id: str) -> Dict[str, str]:
+    async def get(self, user_id: str) -> User:
         """Get a valid user.
 
         Args:
@@ -105,7 +197,8 @@ class Users(NextcloudModule):
         Returns:
             dict: User description.
         """
-        return await self._get(path=f'/{user_id}')
+        response = await self._get(path=f"/{user_id}")
+        return User(response, self)
 
     async def list(self) -> List[str]:
         """Return all user IDs.
@@ -116,8 +209,7 @@ class Users(NextcloudModule):
             List: User IDs
         """
         response = await self._get()
-        return response['users']
-
+        return response["users"]
 
     # TODO: Put into OCS-specific module, along with other TODOs
     # async def user_autocomplete(
@@ -165,10 +257,7 @@ class Users(NextcloudModule):
     #             'shareTypes[]': share_types_values,
     #             'limit': limit})
 
-    async def update_user(
-            self,
-            user_id: str,
-            new_data: Dict[str, Any]) -> List[List[str]]:
+    async def update(self, user_id: str, new_data: Dict[str, Any]) -> None:
         """Update a user's information.
 
         Use async/await to update everything at once.
@@ -187,12 +276,10 @@ class Users(NextcloudModule):
         for k, v in new_data.items():
             reqs.append(self.__update_user(user_id, k, v))
 
-        return await asyncio.gather(*reqs)
+        await asyncio.gather(*reqs)
 
     async def __update_user(self, user_id: str, k: str, v: str | int) -> List[str]:
-        return await self._put(
-            path=f'/{user_id}',
-            data={'key': k, 'value': v})
+        return await self._put(path=f"/{user_id}", data={"key": k, "value": v})
 
     async def get_editable_fields(self) -> List[str]:
         """Get user-editable fields.
@@ -200,7 +287,7 @@ class Users(NextcloudModule):
         Returns:
             list: User-editable fields
         """
-        return await self._get(path=r'/fields')
+        return await self._get(path=r"/fields")
 
     async def disable(self, user_id: str) -> None:
         """Disable `user_id`.
@@ -210,7 +297,7 @@ class Users(NextcloudModule):
         Args:
             user_id: User ID
         """
-        await self._put(path=f'/{user_id}/disable')
+        await self._put(path=f"/{user_id}/disable")
 
     async def enable(self, user_id: str) -> None:
         """Enable `user_id`.  Must be admin.
@@ -218,7 +305,7 @@ class Users(NextcloudModule):
         Args:
             user_id: User ID
         """
-        await self._put(path=f'/{user_id}/enable')
+        await self._put(path=f"/{user_id}/enable")
 
     async def delete(self, user_id: str) -> None:
         """Remove existing `user_id`.
@@ -226,9 +313,9 @@ class Users(NextcloudModule):
         Args:
             user_id: User ID
         """
-        return await self._delete(path=f'/{user_id}')
+        return await self._delete(path=f"/{user_id}")
 
-    async def get_group_membership(self, user_id: Optional[str] = None) -> List[str]:
+    async def get_group_membership(self, user_id: Optional[str] = None) -> List[Group]:
         """Get list of groups `user_id` belongs to.
 
         Args:
@@ -238,8 +325,11 @@ class Users(NextcloudModule):
             list: group ids
         """
         response = await self._get(
-            path=f'/{user_id if user_id else self.api.client.user}/groups')
-        return response['groups']
+            path=f"/{user_id if user_id else self.api.client.user}/groups"
+        )
+        return [
+            Group(group_id, Groups(self.api.client)) for group_id in response["groups"]
+        ]
 
     async def add_to_group(self, user_id: str, group_id: str) -> None:
         """Add `user_id` to `group_id`.
@@ -251,9 +341,7 @@ class Users(NextcloudModule):
             group_id:
                 Group ID
         """
-        await self._post(
-            path=f'/{user_id}/groups',
-            data={'groupid': group_id})
+        await self._post(path=f"/{user_id}/groups", data={"groupid": group_id})
 
     async def remove_from_group(self, user_id: str, group_id: str) -> None:
         """Remove `user_id` from `group_id`.
@@ -265,9 +353,7 @@ class Users(NextcloudModule):
             group_id:
                 Group Id
         """
-        await self._delete(
-            path=f'/{user_id}/groups',
-            data={'groupid': group_id})
+        await self._delete(path=f"/{user_id}/groups", data={"groupid": group_id})
 
     async def promote_to_group_subadmin(self, user_id: str, group_id: str) -> None:
         """Make user_id a subadmin of group_id.
@@ -279,9 +365,7 @@ class Users(NextcloudModule):
             group_id:
                 Group ID
         """
-        await self._post(
-            path=f'/{user_id}/subadmins',
-            data={'groupid': group_id})
+        await self._post(path=f"/{user_id}/subadmins", data={"groupid": group_id})
 
     async def demote_from_group_subadmin(self, user_id: str, group_id: str) -> None:
         """Demote `user_id` from subadmin of `group_id`.
@@ -294,10 +378,10 @@ class Users(NextcloudModule):
                 Group ID
         """
         return await self._delete(
-            path=f'/{user_id}/subadmins',
-            data={'groupid': group_id})
+            path=f"/{user_id}/subadmins", data={"groupid": group_id}
+        )
 
-    async def get_subadmin_groups(self, user_id: str) -> List[str]:
+    async def get_subadmin_groups(self, user_id: str) -> List[Group]:
         """Return list of groups of which `user_id` is subadmin.
 
         Args:
@@ -306,7 +390,8 @@ class Users(NextcloudModule):
         Returns:
             list: group ids
         """
-        return await self._get(path=f'/{user_id}/subadmins')
+        response = await self._get(path=f"/{user_id}/subadmins")
+        return [Group(group_id, Groups(self.api.client)) for group_id in response]
 
     async def resend_welcome_email(self, user_id: str) -> None:
         """Re-send initial welcome e-mail to user_id.
@@ -314,4 +399,4 @@ class Users(NextcloudModule):
         Args:
             user_id: User ID
         """
-        return await self._post(path=f'/{user_id}/welcome')
+        return await self._post(path=f"/{user_id}/welcome")

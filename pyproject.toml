@@ -33,17 +33,6 @@ dependencies = [
   'python-dateutil>=2.9.0,<3',
 ]
 
-[project.optional-dependencies]
-dev = [
-  'pytest>=8.3,<9',
-  'pytest-recording>=0.13,<1',
-  'pytest-asyncio>=0.25,<1',
-  'pytest-cov>=6.0,<7',
-  'pytest-order>=1.3.0,<2',
-  'sphinx>=8.1.3,<9',
-  'sphinx-rtd-theme>=3.0.2,<4'
-]
-
 [project.urls]
 'Homepage' = 'https://github.com/aaronsegura/nextcloud-async'
 'Bug Tracker' = 'https://github.com/aaronsegura/nextcloud-async/issues'
@@ -96,7 +85,9 @@ ignore = [
   'TD002',    # Missing author in TODO
   'PLR0913',   # tOo MaNy ArGuMeNtS
   'TD003',     # Missing issue link for Todo
-  'TC004',    # Move import out of type-checking block
+  'TC004',    # Move import out of type-checking block,
+  'COM812',   # Add trailing comma
+  'SLF001',   # Private member accessed
   ]
 
 [tool.ruff.lint.per-file-ignores]
@@ -122,3 +113,15 @@ reportUnnecessaryTypeIgnoreComment = 'warning'
 
 [tool.pytest.ini_options]
 asyncio_default_fixture_loop_scope = 'function'
+
+[dependency-groups]
+dev = [
+  'pytest>=8.3,<9',
+  'pytest-recording>=0.13,<1',
+  'pytest-asyncio>=0.25,<1',
+  'pytest-cov>=6.0,<7',
+  'sphinx>=8.1.3,<9',
+  'sphinx-rtd-theme>=3.0.2,<4',
+  "black>=25.1.0",
+  "pytest-httpx>=0.35.0",
+]

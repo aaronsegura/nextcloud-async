@@ -21,32 +21,34 @@ class NextcloudOcsApi(NextcloudHttpApi):
     All OCS queries must have an {'OCS-APIRequest': 'true'} header. Additionally, we
     request all data to be returned to us in json format.
     """
+
     __capabilities: Dict[str, Any] = {}
 
     def __init__(
-            self,
-            client: NextcloudClient,
-            ocs_version: Optional[str] = '1',
-            ocs_stub: Optional[str] = None):
+        self,
+        client: NextcloudClient,
+        ocs_version: Optional[str] = "1",
+        ocs_stub: Optional[str] = None,
+    ):
 
         if ocs_stub:
             self.stub = ocs_stub
         else:
-            self.stub = f'/ocs/v{ocs_version}.php'
+            self.stub = f"/ocs/v{ocs_version}.php"
 
         self.ocs_version = ocs_version
         self.capabilities_api = NextcloudCapabilities(client)
 
         super().__init__(client)
 
-
     async def request(
-            self,
-            method: str = 'GET',
-            path: str = '',
-            data: Optional[Dict[str, Any]] = None,
-            headers: Optional[Dict[str, Any]] = None,
-            return_full_response: bool = False) -> Dict[str, Any] | List[Dict[str, Any]]:
+        self,
+        method: str = "GET",
+        path: str = "",
+        data: Optional[Dict[str, Any]] = None,
+        headers: Optional[Dict[str, Any]] = None,
+        return_full_response: bool = False,
+    ) -> Dict[str, Any] | List[Dict[str, Any]]:
         """Submit OCS-type query to cloud endpoint.
 
         Args:
@@ -102,52 +104,63 @@ class NextcloudOcsApi(NextcloudHttpApi):
             NextcloudException - when invalid response from server
         """
         if headers:
-            headers.update({'OCS-APIRequest': 'true'})
-            headers['User-Agent'] = self.client.user_agent
+            headers.update({"OCS-APIRequest": "true"})
+            headers["User-Agent"] = self.client.user_agent
         else:
-            headers = {
-                'OCS-APIRequest': 'true',
-                'User-Agent': self.client.user_agent}
+            headers = {"OCS-APIRequest": "true", "User-Agent": self.client.user_agent}
 
         if data:
-            data.update({'format': 'json'})
+            data.update({"format": "json"})
         else:
-            data = {'format': 'json'}
+            data = {"format": "json"}
 
-        if method.lower() == 'get':
+        if method.lower() == "get":
             path = self._massage_get_data(data, path)
             data = None
 
         try:
-            # print(f"OCS {method} {self.client.endpoint}{self.stub}{path}")
+            print(f"OCS {method} {self.client.endpoint}{self.stub}{path}")
+            print(f"OCS DATA {data=}")
+            print(f"AUTH", self.client.user, self.client.password)
+            print(f"HEADERS", headers)
             response = await self.client.http_client.request(
                 method,
                 auth=(self.client.user, self.client.password),
-                url=f'{self.client.endpoint}{self.stub}{path}',
+                url=f"{self.client.endpoint}{self.stub}{path}",
                 json=data,
-                headers=headers)
+                headers=headers,
+            )
         except httpx.ReadTimeout:
             raise NextcloudRequestTimeoutError()
 
         await self.raise_response_exception(response)
+        return response.json()["ocs"]["data"]
 
-        if response.content:
-            try:
-                response_content = json.loads(response.content.decode('utf-8'))
-            except json.JSONDecodeError:
-                raise NextcloudError(status_code=500, reason='Error decoding JSON response.')
-            ocs_meta = response_content['ocs']['meta']
-            if ocs_meta['status'] != 'ok':
-                raise NextcloudError(
-                    status_code=ocs_meta['statuscode'],
-                    reason=ocs_meta['message'])
-            else:
-                if return_full_response:
-                    return response_content
-                else:
-                    return response_content['ocs']['data']
+    async def raise_response_exception(self, response: httpx.Response):
+        try:
+            response_content = json.loads(response.content.decode("utf-8"))
+        except json.JSONDecodeError:
+            raise NextcloudError(
+                status_code=500, reason="Error decoding JSON response."
+            )
+
+        try:
+            ocs_meta = response_content["ocs"]["meta"]
+        except KeyError:
+            if response.status_code >= 400:
+                await self._raise_response_exception(
+                    status_code=response.status_code, reason=response_content["message"]
+                )
         else:
-            raise NextcloudError(status_code=500, reason='Invalid response from server.')
+            if ocs_meta["status"] != "ok":
+                await self._raise_response_exception(
+                    status_code=ocs_meta["statuscode"], reason=ocs_meta["message"]
+                )
+
+        if response.status_code >= 400:
+            raise NextcloudError(
+                status_code=response.status_code, reason=str(response.content)
+            )
 
     # TODO: Move this to another module
 
@@ -159,15 +172,12 @@ class NextcloudOcsApi(NextcloudHttpApi):
     #     https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-api-overview.html#direct-download
 
     #     Args
-    #     ----
     #         file_id (int): File ID to generate link for
 
     #     Returns
-    #     -------
     #         str: Link to file
 
     #     Raises
-    #     ------
     #         NextcloudNotFound - file not found
 
     #     """
@@ -178,7 +188,6 @@ class NextcloudOcsApi(NextcloudHttpApi):
     #         data={'fileId': file_id})
 
     #     return result['url']
-
 
     # # TODO: Move this to another module
     # async def get_activity(
@@ -191,7 +200,6 @@ class NextcloudOcsApi(NextcloudHttpApi):
     #     """Get Recent activity for the current user.
 
     #     Args
-    #     ----
     #         since (int optional): Only return ativity since activity with given ID. Defaults
     #         to 0.
 
@@ -204,15 +212,12 @@ class NextcloudOcsApi(NextcloudHttpApi):
     #         limit (int optional): How many results per request. Defaults to 50.
 
     #     Raises
-    #     ------
     #         NextcloudException: When given invalid argument combination
 
     #     Returns
-    #     -------
     #         Tuple(dict, dict): activity results and headers
 
     #     Raises
-    #     ------
     #         NextcloudException - when Activities isn't installed.
 
     #     """

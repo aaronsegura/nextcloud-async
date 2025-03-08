@@ -13,6 +13,7 @@ from nextcloud_async.driver import NextcloudModule, NextcloudBaseApi
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.exceptions import NextcloudBadRequestError, NextcloudNotFoundError
 
+
 class Wipe(NextcloudModule):
     """Interact with Nextcloud Remote Wipe API.
 
@@ -29,11 +30,10 @@ class Wipe(NextcloudModule):
     ````
 
     """
-    def __init__(
-            self,
-            client: NextcloudClient) -> None:
+
+    def __init__(self, client: NextcloudClient) -> None:
         self.api = NextcloudBaseApi(client)
-        self.stub = '/index.php/core/wipe'
+        self.stub = "/index.php/core/wipe"
 
     async def check(self) -> bool:
         """Check for remote wipe flag.
@@ -41,21 +41,22 @@ class Wipe(NextcloudModule):
         Returns:
             bool: Whether user has flagged this device for remote wiping.
         """
-        #Here we use the direct httpx.post method without authentication.
+        # Here we use the direct httpx.post method without authentication.
         try:
             response = await self.api.client.http_client.post(
-                url=f'{self.api.client.endpoint}{self.stub}/check',
-                data={'token': self.api.client.password})
+                url=f"{self.api.client.endpoint}{self.stub}/check",
+                data={"token": self.api.client.password},
+            )
         except NextcloudNotFoundError:
             return False
 
         try:
             result = response.json()
         except json.decoder.JSONDecodeError:
-            raise NextcloudBadRequestError
+            return False
 
-        if 'wipe' in result:
-            return result['wipe']
+        if "wipe" in result:
+            return result["wipe"]
         return False
 
     async def notify_wiped(self) -> httpx.Response:
@@ -67,5 +68,6 @@ class Wipe(NextcloudModule):
             Empty 200 Response
         """
         return await self.api.client.http_client.post(
-            url=f'{self.api.client.endpoint}{self.stub}/success',
-            data={'token': self.api.client.password})
+            url=f"{self.api.client.endpoint}{self.stub}/success",
+            data={"token": self.api.client.password},
+        )

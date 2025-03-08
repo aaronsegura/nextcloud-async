@@ -1,118 +1,105 @@
-# noqa: D100
+import pytest
+import pytest_asyncio
 
-from urllib.parse import urlencode
-from .base import BaseTestCase
-from .helpers import AsyncMock
-from .constants import (
-    USER, ENDPOINT, PASSWORD, EMPTY_100, SIMPLE_100)
+from typing import AsyncGenerator
 
-import asyncio
-import httpx
-
-from unittest.mock import patch
+from nextcloud_async import NextcloudClient
+from nextcloud_async.api import Groups, Group, Users, User
+from nextcloud_async.exceptions import NextcloudForbiddenError
 
 
-class OCSGroupsAPI(BaseTestCase):  # noqa: D101
+_TEST_GROUP_NAME = "pytest_group"
+_TEST_USER = {
+    "user_id": "pytest_user",
+    "display_name": "Pytest User Guy",
+    "email": "pytest@example.com",
+    "quota": None,
+    "password": "MyCoolPassword",
+    "language": "en",
+}
 
-    def test_search_groups(self):  # noqa: D102
-        SEARCH = 'OK Go'
-        RESPONSE = 'OK_GROUP'
-        json_response = bytes(
-            '{"ocs":{"meta":{"status":"ok","statuscode":100,"message":"OK","t'
-            'otalitems":"","itemsperpage":""},"data":{"groups":['
-            f'"{RESPONSE}"'
-            ']}}}', 'utf-8')
-        search_encoded = urlencode({'search': SEARCH})
-        with patch(
-                'httpx.AsyncClient.request',
-                new_callable=AsyncMock,
-                return_value=httpx.Response(
-                    status_code=100,
-                    content=json_response)) as mock:
-            response = asyncio.run(self.ncc.search_groups(SEARCH))
-            mock.assert_called_with(
-                method='GET',
-                auth=(USER, PASSWORD),
-                url=f'{ENDPOINT}/ocs/v1.php/cloud/groups?'
-                    f'limit=100&offset=0&{search_encoded}&format=json',
-                data=None,
-                headers={'OCS-APIRequest': 'true'})
-            assert RESPONSE in response
 
-    def test_create_group(self):  # noqa: D102
-        GROUP = 'BobMouldFanClub'
-        with patch(
-            'httpx.AsyncClient.request',
-            new_callable=AsyncMock,
-            return_value=httpx.Response(
-                status_code=100,
-                content=EMPTY_100)) as mock:
-            response = asyncio.run(self.ncc.create_group(GROUP))
-            mock.assert_called_with(
-                method='POST',
-                auth=(USER, PASSWORD),
-                url=f'{ENDPOINT}/ocs/v1.php/cloud/groups',
-                data={'groupid': GROUP, 'format': 'json'},
-                headers={'OCS-APIRequest': 'true'})
-            assert response == []
+@pytest.fixture(scope="module")
+def groups_api(nc: NextcloudClient) -> Groups:
+    return Groups(nc)
 
-    def test_get_group_members(self):  # noqa: D102
-        GROUP = 'FeelinAlright'
-        GROUPUSER = 'JoeCocker'
-        json_response = bytes(SIMPLE_100.format(
-            r'{"users":["'
-            f'{GROUPUSER}'
-            r'"]}'), 'utf-8')
-        with patch(
-                'httpx.AsyncClient.request',
-                new_callable=AsyncMock,
-                return_value=httpx.Response(
-                    status_code=100,
-                    content=json_response)) as mock:
-            response = asyncio.run(self.ncc.get_group_members(GROUP))
-            mock.assert_called_with(
-                method='GET',
-                auth=(USER, PASSWORD),
-                url=f'{ENDPOINT}/ocs/v1.php/cloud/groups/{GROUP}?format=json',
-                data=None,
-                headers={'OCS-APIRequest': 'true'})
-            assert GROUPUSER in response
 
-    def test_get_group_subadmins(self):  # noqa: D102
-        GROUP = 'UMO'
-        GROUPUSER = 'Ruban Nielson'
-        json_response = bytes(SIMPLE_100.format(
-            r'{"users":["'
-            f'{GROUPUSER}'
-            r'"]}'), 'utf-8')
-        with patch(
-                'httpx.AsyncClient.request',
-                new_callable=AsyncMock,
-                return_value=httpx.Response(
-                    status_code=100,
-                    content=json_response)) as mock:
-            response = asyncio.run(self.ncc.get_group_subadmins(GROUP))
-            mock.assert_called_with(
-                method='GET',
-                auth=(USER, PASSWORD),
-                url=f'{ENDPOINT}/ocs/v1.php/cloud/groups/{GROUP}/subadmins?format=json',
-                data=None,
-                headers={'OCS-APIRequest': 'true'})
-            assert GROUPUSER in response['users']
+@pytest.fixture(scope="module")
+def users_api(nc: NextcloudClient) -> Users:
+    return Users(nc)
 
-    def test_remove_group(self):  # noqa: D102
-        GROUP = 'BobMouldFanClub'
-        with patch(
-            'httpx.AsyncClient.request',
-            new_callable=AsyncMock,
-            return_value=httpx.Response(
-                status_code=100,
-                content=EMPTY_100)) as mock:
-            response = asyncio.run(self.ncc.remove_group(GROUP))
-            mock.assert_called_with(
-                method='DELETE',
-                auth=(USER, PASSWORD),
-                url=f'{ENDPOINT}/ocs/v1.php/cloud/groups/{GROUP}',
-                data={'format': 'json'},
-                headers={'OCS-APIRequest': 'true'})
-            assert response == []
+
+@pytest_asyncio.fixture(scope="module", loop_scope="session")
+async def test_groups(
+    network_blocked: bool, groups_api: Groups
+) -> AsyncGenerator[list[Group]]:
+
+    ret: list[Group] = []
+
+    for i in range(0, 2):
+        group_name = f"{_TEST_GROUP_NAME}_{i}"
+        if network_blocked:
+            test_group = Group({"id": group_name}, groups_api)
+        else:
+            test_group = await groups_api.create(group_name)
+        ret.append(test_group)
+
+    yield ret
+
+    for i in range(0, 2):
+        if not network_blocked:
+            try:
+                test_group = await groups_api.delete(f"{_TEST_GROUP_NAME}_{i}")
+            except NextcloudForbiddenError:
+                pass
+
+
+@pytest_asyncio.fixture(scope="function", loop_scope="session")
+async def test_user(network_blocked: bool, users_api: Users) -> AsyncGenerator[User]:
+    if network_blocked:
+        _TEST_USER.update({"id": _TEST_USER["user_id"]})
+        test_user = User(_TEST_USER, self_api=users_api)
+    else:
+        test_user = await users_api.create(**_TEST_USER)
+
+    yield test_user
+    if not network_blocked:
+        await test_user.delete()
+
+
+@pytest.mark.vcr
+@pytest.mark.asyncio(loop_scope="session")
+class TestGroups:
+
+    async def test_search_groups(self, groups_api: Groups, test_groups: list[Group]):
+        group = test_groups[0]
+        groups = await groups_api.search(group.id)
+        assert len(groups) == 1
+
+    async def test_create_group(self, test_groups: list[Group]):
+        group = test_groups[0]
+        assert isinstance(group, Group)
+        assert group.id == f"{_TEST_GROUP_NAME}_0"
+
+    async def test_set_get_group_members(
+        self, test_groups: list[Group], test_user: User
+    ):
+        group = test_groups[0]
+        await test_user.add_to_group(group)
+        members = await group.get_members()
+        assert test_user.id in members
+
+    async def test_set_get_group_subadmins(
+        self, test_groups: list[Group], test_user: User
+    ):
+        group = test_groups[0]
+        await test_user.promote_to_group_subadmin(group)
+        subadmins = await group.get_subadmins()
+        assert test_user.id in subadmins
+
+    async def test_remove_group(self, groups_api: Groups, test_groups: list[Group]):
+        group = test_groups[1]
+        id = group.id
+        await group.delete()
+        response = await groups_api.search(id)
+        assert response == []

@@ -7,10 +7,11 @@ from typing import Any, TYPE_CHECKING
 if TYPE_CHECKING:
     from .files import Files
 
+
 @dataclass
 class BaseFile(ABC):
     data: dict[str, Any]
-    files_api: 'Files'
+    files_api: "Files"
 
     def __post_init__(self) -> None:
         """Do some translation.
@@ -19,14 +20,14 @@ class BaseFile(ABC):
         could not be found.  In this case, we disregard any 404 properties and only
         populate our local data['_properties'] with successfully retrieved properties.
         """
-        if isinstance(self.data['d:propstat'], list):
-            for propdict in self.data['d:propstat']:
-                if '200 OK' in propdict['d:status']:
-                    self.data['_properties'] = propdict['d:prop']
+        if isinstance(self.data["d:propstat"], list):
+            for propdict in self.data["d:propstat"]:
+                if "200 OK" in propdict["d:status"]:
+                    self.data["_properties"] = propdict["d:prop"]
 
-        if isinstance(self.data['d:propstat'], dict):
-            if '200 OK' in self.data['d:propstat']['d:status']:
-                self.data['_properties'] = self.data['d:propstat']['d:prop']
+        if isinstance(self.data["d:propstat"], dict):
+            if "200 OK" in self.data["d:propstat"]["d:status"]:
+                self.data["_properties"] = self.data["d:propstat"]["d:prop"]
 
     def __getattr__(self, k: str) -> Any:
         """Return a property of a given file.
@@ -55,30 +56,28 @@ class BaseFile(ABC):
         Returns:
             Property value
         """
-        translated_key = k.replace('_', '-')
+        translated_key = k.replace("_", "-")
 
         keys = self.data.keys()
         for key in keys:
-            if key.endswith(f':{translated_key}') or key == k:
+            if key.endswith(f":{translated_key}") or key == k:
                 try:
                     return int(self.data[key])
                 except (ValueError, TypeError):
                     return self.data[key]
 
-        keys = self.data['_properties'].keys()
+        keys = self.data["_properties"].keys()
         for key in keys:
-            if key.endswith(f':{translated_key}') or key == k:
+            if key.endswith(f":{translated_key}") or key == k:
                 try:
-                    return int(self.data['_properties'][key])
+                    return int(self.data["_properties"][key])
                 except (ValueError, TypeError):
-                    return self.data['_properties'][key]
+                    return self.data["_properties"][key]
 
         raise KeyError
 
     @abstractmethod
-    def __str__(self) -> str:
-        ...
+    def __str__(self) -> str: ...
 
     @abstractmethod
-    def __repr__(self) -> str:
-        ...
+    def __repr__(self) -> str: ...

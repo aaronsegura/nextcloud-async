@@ -2,12 +2,14 @@
 
 https://nextcloud-talk.readthedocs.io/en/latest/poll/
 """
+
 from typing import List, Dict, Any
 from dataclasses import dataclass
 
 from nextcloud_async.driver import NextcloudModule, NextcloudTalkApi
 
 from .constants import PollMode, PollStatus
+
 
 @dataclass
 class Poll:
@@ -33,11 +35,11 @@ class Poll:
         Returns:
             PollStatus
         """
-        return PollStatus(self.data['status'])
+        return PollStatus(self.data["status"])
 
     @status.setter
     def status(self, status: PollStatus) -> None:
-        self.data['status'] = status.value
+        self.data["status"] = status.value
 
     @property
     def result_mode(self) -> PollMode:
@@ -69,21 +71,19 @@ class Poll:
 
 
 class Polls(NextcloudModule):
-    def __init__(
-            self,
-            api: NextcloudTalkApi,
-            api_version: str = '1') -> None:
-        self.stub = f'/apps/spreed/api/v{api_version}/poll'
+    def __init__(self, api: NextcloudTalkApi, api_version: str = "1") -> None:
+        self.stub = f"/apps/spreed/api/v{api_version}/poll"
         self.api: NextcloudTalkApi = api
 
     async def create(
-            self,
-            room_token: str,
-            question: str,
-            options: List[str],
-            result_mode: PollMode,
-            max_votes: int,
-            draft: bool = False) -> Poll:
+        self,
+        room_token: str,
+        question: str,
+        options: List[str],
+        result_mode: PollMode,
+        max_votes: int,
+        draft: bool = False,
+    ) -> Poll:
         """Create a poll in a conversation.
 
         Args:
@@ -109,23 +109,26 @@ class Polls(NextcloudModule):
             Poll object
         """
         response, _ = await self._post(
-            path=f'/{room_token}',
+            path=f"/{room_token}",
             data={
-                'draft': draft,
-                'question': question,
-                'options': options,
-                'resultMode': result_mode.value,
-                'maxVotes': max_votes})
-        response.update({'token': room_token})
+                "draft": draft,
+                "question": question,
+                "options": options,
+                "resultMode": result_mode.value,
+                "maxVotes": max_votes,
+            },
+        )
+        response.update({"token": room_token})
         return Poll(response, self.api)
 
     async def edit_draft(
-            self,
-            room_token: str,
-            question: str,
-            options: List[str],
-            result_mode: PollMode,
-            max_votes: int) -> Poll:
+        self,
+        room_token: str,
+        question: str,
+        options: List[str],
+        result_mode: PollMode,
+        max_votes: int,
+    ) -> Poll:
         """Edit a draft poll in a conversation.
 
         Args:
@@ -147,21 +150,20 @@ class Polls(NextcloudModule):
         Returns:
             Poll object
         """
-        await self.api.require_talk_feature('edit-draft-poll')
+        await self.api.require_talk_feature("edit-draft-poll")
         response, _ = await self._post(
-            path=f'/{room_token}',
+            path=f"/{room_token}",
             data={
-                'question': question,
-                'options': options,
-                'resultMode': result_mode.value,
-                'maxVotes': max_votes})
-        response.update({'token': room_token})
+                "question": question,
+                "options": options,
+                "resultMode": result_mode.value,
+                "maxVotes": max_votes,
+            },
+        )
+        response.update({"token": room_token})
         return Poll(response, self.api)
 
-    async def get(
-            self,
-            room_token: str,
-            poll_id: int) -> Poll:
+    async def get(self, room_token: str, poll_id: int) -> Poll:
         """Get state or result of a poll.
 
         Args:
@@ -174,14 +176,11 @@ class Polls(NextcloudModule):
         Returns:
             Poll object
         """
-        response, _ = await self._get(
-            path=f'/{room_token}/{poll_id}')
-        response.update({'token': room_token})
+        response, _ = await self._get(path=f"/{room_token}/{poll_id}")
+        response.update({"token": room_token})
         return Poll(response, self.api)
 
-    async def list_drafts(
-            self,
-            room_token: str) -> List[Poll]:
+    async def list_drafts(self, room_token: str) -> List[Poll]:
         """Get a list of all poll drafts in a conversation.
 
         Args:
@@ -191,21 +190,16 @@ class Polls(NextcloudModule):
         Returns:
             List of Poll objets
         """
-        await self.api.require_talk_feature('talk-polls-drafts')
-        response, _ = await self._get(
-            path=f'/{room_token}/drafts')
+        await self.api.require_talk_feature("talk-polls-drafts")
+        response, _ = await self._get(path=f"/{room_token}/drafts")
 
         ret = []
         for data in response:
-            data.update({'token': room_token})
+            data.update({"token": room_token})
             ret.append(Poll(data, self.api))
         return ret
 
-    async def vote(
-            self,
-            room_token: str,
-            poll_id: int,
-            votes: List[int]) -> None:
+    async def vote(self, room_token: str, poll_id: int, votes: List[int]) -> None:
         """Vote on a poll.
 
         Args:
@@ -218,14 +212,9 @@ class Polls(NextcloudModule):
             votes:
                 The option IDs the participant wants to vote for
         """
-        await self._post(
-            path=f'/{room_token}/{poll_id}',
-            data={'optionIds': votes})
+        await self._post(path=f"/{room_token}/{poll_id}", data={"optionIds": votes})
 
-    async def close(
-            self,
-            room_token: str,
-            poll_id: int) -> None:
+    async def close(self, room_token: str, poll_id: int) -> None:
         """Close a poll.
 
         Args:
@@ -235,5 +224,4 @@ class Polls(NextcloudModule):
             poll_id:
                 Poll ID
         """
-        await self._delete(
-            path=f'/{room_token}/{poll_id}')
+        await self._delete(path=f"/{room_token}/{poll_id}")

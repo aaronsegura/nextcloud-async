@@ -12,6 +12,7 @@ raised. See .driver.talk.NextcloudTalkApi.request() for more information.
 API calls that require a specific capability that is missing on the server will raise a
 NextcloudNotCapable exception.
 """
+
 import httpx
 
 import datetime as dt
@@ -21,6 +22,7 @@ from dataclasses import dataclass, field
 from typing import Dict, Optional, Any, List, Tuple, TypedDict, TYPE_CHECKING
 
 import sys
+
 if sys.version_info < (3, 11):
     from typing_extensions import TypedDict, NotRequired, Unpack
 else:
@@ -60,7 +62,8 @@ from .constants import (
     SharedItemType,
     ParticipantInCallFlags,
     PollMode,
-    BreakoutRoomAssignmentMode)
+    BreakoutRoomAssignmentMode,
+)
 
 
 @dataclass
@@ -89,8 +92,10 @@ class Conversation:
         return self.data[k]
 
     def __str__(self) -> str:
-        return f'<Conversation: "{self.data['displayName']}" '\
-               f'token: "{self.data['token']}">'
+        return (
+            f'<Conversation: "{self.data['displayName']}" '
+            f'token: "{self.data['token']}">'
+        )
 
     def __repr__(self) -> str:
         return str(self.data)
@@ -102,7 +107,7 @@ class Conversation:
         Returns:
             The display name of the conversation.
         """
-        return self.data['displayName']
+        return self.data["displayName"]
 
     @display_name.setter
     def display_name(self, v: str) -> None:
@@ -112,7 +117,7 @@ class Conversation:
             v:
                 New display name for this conversation.
         """
-        self.data['displayName'] = v
+        self.data["displayName"] = v
 
     @property
     def is_breakout_room(self) -> bool:
@@ -172,9 +177,8 @@ class Conversation:
                 Participant.display_name or a string representing the user's name.
         """
         await self.participants_api.add_to_conversation(
-            room_token=self.token,
-            invitee=name,
-            source=ObjectSources.user)
+            room_token=self.token, invitee=name, source=ObjectSources.user
+        )
 
     async def add_group(self, group_name: str) -> None:
         """Add a group to this conversation.
@@ -184,9 +188,8 @@ class Conversation:
                 Group.name or str representing name of group.
         """
         await self.participants_api.add_to_conversation(
-            room_token=self.token,
-            invitee=group_name,
-            source=ObjectSources.group)
+            room_token=self.token, invitee=group_name, source=ObjectSources.group
+        )
 
     async def add_email(self, email: str) -> None:
         """Add user to conversation by e-mail.
@@ -196,9 +199,8 @@ class Conversation:
                 E-mail address of participant.
         """
         await self.participants_api.add_to_conversation(
-            room_token=self.token,
-            invitee=email,
-            source=ObjectSources.email)
+            room_token=self.token, invitee=email, source=ObjectSources.email
+        )
 
     async def add_circle(self, circle_id: str) -> None:
         """Add Nextcloud circle to this conversation.
@@ -207,11 +209,10 @@ class Conversation:
             circle_id:
                 The ID of the circle to add.
         """
-        await self.talk_api.require_talk_feature('circles-support')
+        await self.talk_api.require_talk_feature("circles-support")
         await self.participants_api.add_to_conversation(
-            room_token=self.token,
-            invitee=circle_id,
-            source=ObjectSources.circle)
+            room_token=self.token, invitee=circle_id, source=ObjectSources.circle
+        )
 
     async def remove_participant(self, participant: Participant) -> None:
         """Remove a Participant from this conversation.
@@ -221,8 +222,8 @@ class Conversation:
                 Participant object.
         """
         await self.participants_api.remove_from_conversation(
-            room_token=self.token,
-            attendee_id=participant.id)
+            room_token=self.token, attendee_id=participant.id
+        )
         self._participants.remove(participant)
 
     async def resend_invitiation_emails(self) -> None:
@@ -241,8 +242,8 @@ class Conversation:
         mark_notifications_as_read: bool
 
     async def get_messages(  # noqa: D417
-            self,
-            **kwargs: Unpack[_GetMessagesArgs]) -> Tuple[List[Message], httpx.Headers]:
+        self, **kwargs: Unpack[_GetMessagesArgs]
+    ) -> Tuple[List[Message], httpx.Headers]:
         """Receive messages from a conversation.
 
         https://nextcloud-talk.readthedocs.io/en/latest/chat/#receive-chat-messages-of-a-conversation
@@ -304,8 +305,8 @@ class Conversation:
         limit: int
 
     async def message_context(  # noqa: D417
-            self,
-            **kwargs: Unpack[_MessageContextArgs]) -> Tuple[List[Message], httpx.Headers]:
+        self, **kwargs: Unpack[_MessageContextArgs]
+    ) -> Tuple[List[Message], httpx.Headers]:
         """Get context around a message.
 
         Requires Capability: chat-get-context
@@ -330,7 +331,9 @@ class Conversation:
         reference_id: NotRequired[str]
         silent: bool
 
-    async def send(self, **kwargs: Unpack[_SendArgs]) -> Tuple[Message, httpx.Headers]:  # noqa: D417
+    async def send(
+        self, **kwargs: Unpack[_SendArgs]
+    ) -> Tuple[Message, httpx.Headers]:  # noqa: D417
         """Send message to the conversation.
 
         Args:
@@ -375,8 +378,8 @@ class Conversation:
         actor_display_name: NotRequired[str]
 
     async def send_rich_object(  # noqa: D417
-            self,
-            **kwargs: Unpack[_SendRichObjectArgs]) -> Tuple[Message, httpx.Headers]:
+        self, **kwargs: Unpack[_SendRichObjectArgs]
+    ) -> Tuple[Message, httpx.Headers]:
         """Share a rich object to the conversation.
 
         https://github.com/nextcloud/server/blob/master/lib/public/RichObjectStrings/Definitions.php
@@ -457,9 +460,8 @@ class Conversation:
         limit: int
 
     async def list_shared_items_by_type(  # noqa: D417
-            self,
-            **kwargs: Unpack[_SharedItemsByTypeArgs]) -> \
-            Tuple[List[Message], httpx.Headers]:
+        self, **kwargs: Unpack[_SharedItemsByTypeArgs]
+    ) -> Tuple[List[Message], httpx.Headers]:
         """List items of type shared in the chat.
 
         Args:
@@ -480,8 +482,8 @@ class Conversation:
                 X-Chat-Last-Given [int] Offset for the next page.
         """
         return await self.chat_api.list_shared_items_by_type(
-            room_token=self.token,
-            **kwargs)
+            room_token=self.token, **kwargs
+        )
 
     async def clear_history(self) -> Message:
         """Clear the message history in this conversation.
@@ -517,8 +519,8 @@ class Conversation:
         message: str
 
     async def edit_message(  # noqa: D417
-         self,
-         **kwargs: Unpack[_EditMessageArgs]) -> Tuple[Message, httpx.Headers]:
+        self, **kwargs: Unpack[_EditMessageArgs]
+    ) -> Tuple[Message, httpx.Headers]:
         """Edit an existing message in a conversation.
 
         Args:
@@ -540,9 +542,8 @@ class Conversation:
         return await self.chat_api.edit(room_token=self.token, **kwargs)
 
     async def set_message_reminder(
-            self,
-            message_id: int,
-            timestamp: dt.datetime) -> MessageReminder:
+        self, message_id: int, timestamp: dt.datetime
+    ) -> MessageReminder:
         """Set reminder for chat message.
 
         Requires capability: remind-me-later
@@ -558,9 +559,8 @@ class Conversation:
             MessageReminder
         """
         return await self.chat_api.set_reminder(
-            room_token=self.token,
-            message_id=message_id,
-            timestamp=timestamp)
+            room_token=self.token, message_id=message_id, timestamp=timestamp
+        )
 
     async def get_message_reminder(self, message_id: int) -> MessageReminder:
         """Get existing reminder for chat message.
@@ -575,8 +575,8 @@ class Conversation:
             MessageReminder
         """
         return await self.chat_api.get_reminder(
-            room_token=self.token,
-            message_id=message_id)
+            room_token=self.token, message_id=message_id
+        )
 
     async def delete_message_reminder(self, message_id: int) -> None:
         """Delete reminder for chat message.
@@ -588,8 +588,8 @@ class Conversation:
                 ID of message
         """
         return await self.chat_api.delete_reminder(
-            room_token=self.token,
-            message_id=message_id)
+            room_token=self.token, message_id=message_id
+        )
 
     async def mark_as_read(self, last_read_message_id: int) -> None:
         """Mark conversation as read.
@@ -607,8 +607,8 @@ class Conversation:
                 chat-read-status capability)
         """
         await self.chat_api.mark_as_read(
-            room_token=self.token,
-            last_read_message_id=last_read_message_id)
+            room_token=self.token, last_read_message_id=last_read_message_id
+        )
 
     async def mark_as_unread(self) -> None:
         """Mark conversation as unread.
@@ -630,8 +630,8 @@ class Conversation:
         limit: int
 
     async def suggest_autocompletes(  # noqa: D417
-            self,
-            **kwargs: Unpack[_SuggestAutocompletesArgs]) -> List[Suggestion]:
+        self, **kwargs: Unpack[_SuggestAutocompletesArgs]
+    ) -> List[Suggestion]:
         """Get mention autocomplete suggestions.
 
         Args:
@@ -647,7 +647,9 @@ class Conversation:
         Returns:
             List of Suggestions
         """
-        return await self.chat_api.suggest_autocompletes(room_token=self.token, **kwargs)
+        return await self.chat_api.suggest_autocompletes(
+            room_token=self.token, **kwargs
+        )
 
     async def set_name_as_guest(self, name: str) -> None:
         """Set display name as a guest.
@@ -657,14 +659,14 @@ class Conversation:
                 Your new name
         """
         await self.participants_api.set_guest_display_name(
-            room_token=self.token,
-            name=name)
+            room_token=self.token, name=name
+        )
 
     async def set_default_permissions(
-            self,
-            permissions: ParticipantPermissions,
-            mode: ConversationPermissionMode = \
-                  ConversationPermissionMode.default) -> None:
+        self,
+        permissions: ParticipantPermissions,
+        mode: ConversationPermissionMode = ConversationPermissionMode.default,
+    ) -> None:
         """Set default permissions for participants of a conversation.
 
         Args:
@@ -679,9 +681,8 @@ class Conversation:
                to 0 (default) after the end of a call. (🏁 .call is no-op since Talk 20)
         """
         await self.api.set_default_permissions(
-            room_token=self.token,
-            permissions=permissions,
-            mode=mode)
+            room_token=self.token, permissions=permissions, mode=mode
+        )
 
     async def participants_connected_to_call(self) -> List[Participant]:
         """Get list of connected participants.
@@ -736,8 +737,8 @@ class Conversation:
                 The participant to call
         """
         await self.calls_api.send_sip_dialout_request(
-            room_token=self.token,
-            user_id=user_id)
+            room_token=self.token, user_id=user_id
+        )
 
     async def update_call_flags(self, flags: ParticipantInCallFlags) -> None:
         """Update call flags.
@@ -809,8 +810,8 @@ class Conversation:
         dark_mode: bool
 
     async def get_federated_avatar(  # noqa: D417
-            self,
-            **kwargs: Unpack[_GetFederatedAvatarArgs]) -> bytes:
+        self, **kwargs: Unpack[_GetFederatedAvatarArgs]
+    ) -> bytes:
         """Get federated user avatar (binary).
 
         Args:
@@ -835,7 +836,9 @@ class Conversation:
         max_votes: int
         draft: bool
 
-    async def create_poll(self, **kwargs: Unpack[_CreatePollArgs]) -> Poll:  # noqa: D417
+    async def create_poll(
+        self, **kwargs: Unpack[_CreatePollArgs]
+    ) -> Poll:  # noqa: D417
         """Create a poll in the conversation.
 
         Args:
@@ -865,7 +868,9 @@ class Conversation:
         result_mode: PollMode
         max_votes: int
 
-    async def edit_draft_poll(self, **kwargs: Unpack[_EditDraftPollArgs]) -> Poll:  # noqa: D417
+    async def edit_draft_poll(
+        self, **kwargs: Unpack[_EditDraftPollArgs]
+    ) -> Poll:  # noqa: D417
         """Edit a draft poll in a conversation.
 
         Args:
@@ -947,7 +952,7 @@ class Conversation:
         """
         return await self.bots_api.list_conversation_bots(self.token)
 
-    async def list_breakout_rooms(self) -> List['BreakoutRoom']:
+    async def list_breakout_rooms(self) -> List["BreakoutRoom"]:
         """Get breakout rooms.
 
         Get all (for moderators and in case of "free selection") or the assigned breakout
@@ -964,9 +969,8 @@ class Conversation:
         attendee_map: Dict[str, int]
 
     async def configure_breakout_rooms(  # noqa: D417
-            self,
-            **kwargs: Unpack[_ConfigureBreakoutRoomsArgs]) -> \
-                Tuple['Conversation', List['BreakoutRoom']]:
+        self, **kwargs: Unpack[_ConfigureBreakoutRoomsArgs]
+    ) -> Tuple["Conversation", List["BreakoutRoom"]]:
         """Configure breakout rooms for Conversation.
 
         Args:
@@ -984,17 +988,17 @@ class Conversation:
             Parent room and all breakout rooms.
         """
         response = await self.breakout_rooms_api.configure(
-            room_token=self.token,
-            **kwargs)
+            room_token=self.token, **kwargs
+        )
         return self._sort_room_types(response)
 
     class _CreateBreakoutRoomArgs(TypedDict):
-            room_type: ConversationType
-            object_type: RoomObjectType
+        room_type: ConversationType
+        object_type: RoomObjectType
 
     async def create_additional_breakout_room(  # noqa: D417
-            self,
-            **kwargs: Unpack[_CreateBreakoutRoomArgs]) -> 'BreakoutRoom':
+        self, **kwargs: Unpack[_CreateBreakoutRoomArgs]
+    ) -> "BreakoutRoom":
         """Create a new breakout room in this conversation.
 
         Args:
@@ -1015,7 +1019,7 @@ class Conversation:
         response = await self.api.create(object_id=self.token, **kwargs)
         return BreakoutRoom(response.data, self.talk_api)
 
-    async def remove_breakout_rooms(self) -> 'Conversation':
+    async def remove_breakout_rooms(self) -> "Conversation":
         """Remove breakout rooms from conversation.
 
         Returns:
@@ -1023,7 +1027,7 @@ class Conversation:
         """
         return await self.breakout_rooms_api.remove(self.token)
 
-    async def start_breakout_rooms(self) -> Tuple['Conversation', List['BreakoutRoom']]:
+    async def start_breakout_rooms(self) -> Tuple["Conversation", List["BreakoutRoom"]]:
         """Start breakout rooms.
 
         Returns:
@@ -1031,7 +1035,7 @@ class Conversation:
         """
         return await self.breakout_rooms_api.start(self.token)
 
-    async def stop_breakout_rooms(self) -> Tuple['Conversation', List['BreakoutRoom']]:
+    async def stop_breakout_rooms(self) -> Tuple["Conversation", List["BreakoutRoom"]]:
         """Stop breakout rooms for a conversation.
 
         Returns:
@@ -1049,12 +1053,12 @@ class Conversation:
                 Message to broadcast
         """
         return await self.breakout_rooms_api.broadcast_message(
-            self.token,
-            message=message)
+            self.token, message=message
+        )
 
     async def reorganize_breakout_room_attendees(
-            self,
-            attendee_map: Dict[str, int]) -> Tuple['Conversation', List['BreakoutRoom']]:
+        self, attendee_map: Dict[str, int]
+    ) -> Tuple["Conversation", List["BreakoutRoom"]]:
         """Reorganize attendees in breakout rooms.
 
         Args:
@@ -1065,10 +1069,10 @@ class Conversation:
             Parent conversation and all breakout rooms.
         """
         return await self.breakout_rooms_api.reorganize_attendees(
-            room_token=self.token,
-            attendee_map=attendee_map)
+            room_token=self.token, attendee_map=attendee_map
+        )
 
-    async def switch_breakout_room(self, new_room: int) -> 'BreakoutRoom':
+    async def switch_breakout_room(self, new_room: int) -> "BreakoutRoom":
         """Switch breakout rooms.
 
         This endpoint allows participants to switch between breakout rooms when they are
@@ -1092,16 +1096,15 @@ class Conversation:
                 Time at which to remove lobby requirement.
         """
         response = await self.webinars_api.set_lobby_state(
-            self.token,
-            WebinarLobbyState.lobby,
-            reset_time)
+            self.token, WebinarLobbyState.lobby, reset_time
+        )
         self.data = response
 
     async def disable_lobby(self) -> None:
         """Disable lobby requirement for Conversation."""
         response = await self.webinars_api.set_lobby_state(
-            self.token,
-            WebinarLobbyState.no_lobby)
+            self.token, WebinarLobbyState.no_lobby
+        )
         self.data = response
 
     async def enable_sip_dialin(self) -> None:
@@ -1119,9 +1122,8 @@ class Conversation:
         return await self.signaling_api.get_settings(self.token)
 
     async def join(
-            self,
-            password: Optional[str] = None,
-            force: bool = True) -> 'Conversation':
+        self, password: Optional[str] = None, force: bool = True
+    ) -> "Conversation":
         """Join a conversation.
 
         Args:
@@ -1137,10 +1139,10 @@ class Conversation:
             Conversation object
         """
         response = await self.participants_api.join(
-            self.token,
-            password=password,
-            force=force)
+            self.token, password=password, force=force
+        )
         return Conversation(response, self.talk_api)
+
 
 class Conversations(NextcloudModule):
     """Nextcloud Talk Conversations API.
@@ -1149,15 +1151,13 @@ class Conversations(NextcloudModule):
 
     This is your entry-point into the Talk/Spreed back-end.
     """
+
     api: NextcloudTalkApi
 
-    def __init__(
-            self,
-            client: NextcloudClient,
-            api_version: str = '4') -> None:
+    def __init__(self, client: NextcloudClient, api_version: str = "4") -> None:
 
         self.client: NextcloudClient = client
-        self.stub = f'/apps/spreed/api/v{api_version}'
+        self.stub = f"/apps/spreed/api/v{api_version}"
         self.api = NextcloudTalkApi(client)
         self.avatar_api = ConversationAvatars(self.api)
         self.participants_api = Participants(self.api)
@@ -1165,9 +1165,8 @@ class Conversations(NextcloudModule):
         self.integrations_api = Integrations(self.api)
 
     async def list(
-            self,
-            status_update: bool = False,
-            include_status: bool = False) -> List[Conversation]:
+        self, status_update: bool = False, include_status: bool = False
+    ) -> List[Conversation]:
         """Return list of user's conversations.
 
         Args:
@@ -1186,22 +1185,22 @@ class Conversations(NextcloudModule):
             Appropriate exception on HTTP status_code >= 400
         """
         data: Dict[str, Any] = {
-            'noStatusUpdate': 1 if status_update else 0,
-            'includeStatus': include_status}
-        response, _ = await self._get(
-            path='/room',
-            data=data)
+            "noStatusUpdate": 1 if status_update else 0,
+            "includeStatus": include_status,
+        }
+        response, _ = await self._get(path="/room", data=data)
 
         return [Conversation(data, self.api) for data in response]
 
     async def create(
-            self,
-            room_type: ConversationType,
-            invite: str = '',
-            room_name: str = '',
-            object_type: Optional[RoomObjectType] = None,
-            object_id: Optional[str] = None,
-            source: str = '') -> Conversation:
+        self,
+        room_type: ConversationType,
+        invite: str = "",
+        room_name: str = "",
+        object_type: Optional[RoomObjectType] = None,
+        object_id: Optional[str] = None,
+        source: str = "",
+    ) -> Conversation:
         """Create a new conversation.
 
         Args:
@@ -1230,17 +1229,18 @@ class Conversations(NextcloudModule):
             New Conversation object
         """
         data: Dict[str, Any] = {
-            'roomType': room_type.value,
-            'invite': invite,
-            'source': source,
-            'roomName': room_name}
+            "roomType": room_type.value,
+            "invite": invite,
+            "source": source,
+            "roomName": room_name,
+        }
 
         if object_type:
-            data.update({'objectType': object_type})
+            data.update({"objectType": object_type})
         if object_id:
-            data.update({'objectId': object_id})
+            data.update({"objectId": object_id})
 
-        response, _ = await self._post(path='/room', data=data)
+        response, _ = await self._post(path="/room", data=data)
         return Conversation(response, self.api)
 
     async def get(self, room_token: str) -> Conversation:
@@ -1253,7 +1253,7 @@ class Conversations(NextcloudModule):
         Returns:
             Conversation object.
         """
-        data, _ = await self._get(path=f'/room/{room_token}')
+        data, _ = await self._get(path=f"/room/{room_token}")
         return Conversation(data, self.api)
 
     async def get_note_to_self(self) -> Conversation:
@@ -1262,7 +1262,7 @@ class Conversations(NextcloudModule):
         Returns:
             Conversation object.
         """
-        data, _ = await self._get(path='/room/note-to-self')
+        data, _ = await self._get(path="/room/note-to-self")
         return Conversation(data, self.api)
 
     async def list_open(self) -> List[Conversation]:
@@ -1271,10 +1271,10 @@ class Conversations(NextcloudModule):
         Returns:
             List of open Conversation objects.
         """
-        response, _ = await self._get(path='/listed-room')
+        response, _ = await self._get(path="/listed-room")
         return [Conversation(data, self.api) for data in response]
 
-    async def list_breakout_rooms(self, room_token: str) -> List['BreakoutRoom']:
+    async def list_breakout_rooms(self, room_token: str) -> List["BreakoutRoom"]:
         """List breakout rooms associated with a conversation.
 
         Requires 'breakout-rooms-v1' capability.
@@ -1282,8 +1282,8 @@ class Conversations(NextcloudModule):
         Returns:
             List of BreakoutRoom objects.
         """
-        await self.api.require_talk_feature('breakout-rooms-v1')
-        response, _ = await self._get(path=f'/{room_token}/breakout-rooms')
+        await self.api.require_talk_feature("breakout-rooms-v1")
+        response, _ = await self._get(path=f"/{room_token}/breakout-rooms")
         return [BreakoutRoom(data, self.api) for data in response]
 
     async def rename(self, room_token: str, new_name: str) -> None:
@@ -1296,9 +1296,7 @@ class Conversations(NextcloudModule):
             new_name:
                 New displayName
         """
-        await self._put(
-            path=f'/room/{room_token}',
-            data={'roomName': new_name})
+        await self._put(path=f"/room/{room_token}", data={"roomName": new_name})
 
     async def delete(self, room_token: str) -> None:
         """Delete a conversation.
@@ -1307,7 +1305,7 @@ class Conversations(NextcloudModule):
             room_token:
                 Token of conversation to delete.
         """
-        await self._delete(path=f'/room/{room_token}')
+        await self._delete(path=f"/room/{room_token}")
 
     async def set_description(self, room_token: str, description: str) -> None:
         """Set description on a conversation.
@@ -1321,12 +1319,14 @@ class Conversations(NextcloudModule):
             description:
                 New description.
         """
-        await self.api.require_talk_feature('room-description')
+        await self.api.require_talk_feature("room-description")
         await self._put(
-            path=f'/room/{room_token}/description',
-            data={'description': description})
+            path=f"/room/{room_token}/description", data={"description": description}
+        )
 
-    async def allow_guests(self, room_token: str, password: Optional[str]= None) -> None:
+    async def allow_guests(
+        self, room_token: str, password: Optional[str] = None
+    ) -> None:
         """Allow guests into a conversation.
 
         Args:
@@ -1339,10 +1339,10 @@ class Conversations(NextcloudModule):
         """
         data: Dict[str, str] = {}
         if password:
-            await self.api.require_talk_feature('conversation-creation-password')
-            data = {'password': password}
+            await self.api.require_talk_feature("conversation-creation-password")
+            data = {"password": password}
 
-        await self._post(path=f'/room/{room_token}/public', data=data)
+        await self._post(path=f"/room/{room_token}/public", data=data)
 
     async def disallow_guests(self, room_token: str) -> None:
         """Disallow guests in a conversation.
@@ -1351,9 +1351,11 @@ class Conversations(NextcloudModule):
             room_token:
                 Token of conversation
         """
-        await self._delete(path=f'/room/{room_token}/public')
+        await self._delete(path=f"/room/{room_token}/public")
 
-    async def read_only(self, room_token: str, state: ConversationReadOnlyState) -> None:
+    async def read_only(
+        self, room_token: str, state: ConversationReadOnlyState
+    ) -> None:
         """Set read-only status of a conversation.
 
         Requires 'read-only-rooms' capability.
@@ -1365,8 +1367,10 @@ class Conversations(NextcloudModule):
             state:
                 ConversationReadOnlyState
         """
-        await self.api.require_talk_feature('read-only-rooms')
-        await self._put(path=f'/room/{room_token}/read-only', data={'state': state.value})
+        await self.api.require_talk_feature("read-only-rooms")
+        await self._put(
+            path=f"/room/{room_token}/read-only", data={"state": state.value}
+        )
 
     async def set_conversation_password(self, token: str, password: str) -> None:
         """Set a password on a conversation.
@@ -1378,16 +1382,14 @@ class Conversations(NextcloudModule):
             password:
                 The new password.
         """
-        await self._put(
-            path=f'/room/{token}/password',
-            data={'password': password})
+        await self._put(path=f"/room/{token}/password", data={"password": password})
 
     async def set_default_permissions(
-            self,
-            room_token: str,
-            permissions: ParticipantPermissions,
-            mode: ConversationPermissionMode = \
-                  ConversationPermissionMode.default) -> None:
+        self,
+        room_token: str,
+        permissions: ParticipantPermissions,
+        mode: ConversationPermissionMode = ConversationPermissionMode.default,
+    ) -> None:
         """Set default permissions for participants of a conversation.
 
         Args:
@@ -1404,11 +1406,8 @@ class Conversations(NextcloudModule):
                ConversationPermissionMode, in case of .call the permissions will be reset
                to 0 (default) after the end of a call. (🏁 .call is no-op since Talk 20)
         """
-        data: Dict[str, Any] = {
-            'mode': mode,
-            'permissions': permissions.value}
-        await self._put(
-            path=f'/room/{room_token}/permissions/{mode}', data=data)
+        data: Dict[str, Any] = {"mode": mode, "permissions": permissions.value}
+        await self._put(path=f"/room/{room_token}/permissions/{mode}", data=data)
 
     async def add_to_favorites(self, room_token: str) -> None:
         """Add a conversation to user favorites.
@@ -1419,8 +1418,8 @@ class Conversations(NextcloudModule):
             room_token:
                 Token of conversation.
         """
-        await self.api.require_talk_feature('favorites')
-        await self._post(path=f'/room/{room_token}/favorite')
+        await self.api.require_talk_feature("favorites")
+        await self._post(path=f"/room/{room_token}/favorite")
 
     async def remove_from_favorites(self, room_token: str) -> None:
         """Remove conversation from user favorites.
@@ -1431,13 +1430,12 @@ class Conversations(NextcloudModule):
             room_token:
                 Token of conversation.
         """
-        await self.api.require_talk_feature('favorites')
-        await self._delete(path=f'/room/{room_token}/favorites')
+        await self.api.require_talk_feature("favorites")
+        await self._delete(path=f"/room/{room_token}/favorites")
 
     async def set_notification_level(
-            self,
-            token: str,
-            notification_level: ConversationNotificationLevel) -> None:
+        self, token: str, notification_level: ConversationNotificationLevel
+    ) -> None:
         """Set notification level for a conversation.
 
         Requires capability: notification-levels
@@ -1450,13 +1448,12 @@ class Conversations(NextcloudModule):
                 NotificationLevel
         """
         await self._post(
-            path=f'/room/{token}/notify',
-            data={'level': notification_level.value})
+            path=f"/room/{token}/notify", data={"level": notification_level.value}
+        )
 
     async def set_call_notification_level(
-            self,
-            room_token: str,
-            notification_level: CallNotificationLevel) -> None:
+        self, room_token: str, notification_level: CallNotificationLevel
+    ) -> None:
         """Set notification level for calls in a conversation.
 
         Requires capability: notification-calls
@@ -1468,15 +1465,13 @@ class Conversations(NextcloudModule):
             notification_level:
                 CallNotificationLevel
         """
-        await self.api.require_talk_feature('notification-calls')
+        await self.api.require_talk_feature("notification-calls")
         await self._post(
-            path=f'/room/{room_token}/notify-calls',
-            data={'level': notification_level.value})
+            path=f"/room/{room_token}/notify-calls",
+            data={"level": notification_level.value},
+        )
 
-    async def set_message_expiration(
-            self,
-            room_token: str,
-            seconds: int) -> None:
+    async def set_message_expiration(self, room_token: str, seconds: int) -> None:
         """Set automatic message expiration for conversation.
 
         Requires capability: message-expiration
@@ -1489,15 +1484,14 @@ class Conversations(NextcloudModule):
                 Number of seconds before deleting messages.  If is 0, messages will not
                 be deleted automatically.
         """
-        await self.api.require_talk_feature('message-expiration')
+        await self.api.require_talk_feature("message-expiration")
         await self._post(
-            path=f'/room/{room_token}/message-expiration',
-            data={'seconds': seconds})
+            path=f"/room/{room_token}/message-expiration", data={"seconds": seconds}
+        )
 
     async def set_recording_consent(
-            self,
-            room_token: str,
-            consent_required: bool = True) -> None:
+        self, room_token: str, consent_required: bool = True
+    ) -> None:
         """Set recording-consent requirement on a conversation.
 
         Requires capability: recording-consent
@@ -1509,15 +1503,13 @@ class Conversations(NextcloudModule):
             consent_required:
                 New consent setting for the conversation
         """
-        await self.api.require_talk_feature('recording-consent')
+        await self.api.require_talk_feature("recording-consent")
         await self._put(
-            path=f'/room/{room_token}/recording-consent',
-            data={'recordingConsent': bool2int(consent_required)})
+            path=f"/room/{room_token}/recording-consent",
+            data={"recordingConsent": bool2int(consent_required)},
+        )
 
-    async def set_scope(
-            self,
-            room_token: str,
-            scope: ListableScope) -> None:
+    async def set_scope(self, room_token: str, scope: ListableScope) -> None:
         """Set scope of a conversation.
 
         Use this to modify visibility of this room to all users.
@@ -1531,15 +1523,14 @@ class Conversations(NextcloudModule):
             scope:
                 ListableScope
         """
-        await self.api.require_talk_feature('listable-rooms')
+        await self.api.require_talk_feature("listable-rooms")
         await self._put(
-            path=f'/room/{room_token}/listable',
-            data={'scope': scope.value})
+            path=f"/room/{room_token}/listable", data={"scope": scope.value}
+        )
 
     async def set_mention_permissions(
-            self,
-            room_token: str,
-            permissions: MentionPermissions) -> None:
+        self, room_token: str, permissions: MentionPermissions
+    ) -> None:
         """Set mention permissions for this conversation.
 
         Requires capability: mention-permissions
@@ -1551,10 +1542,11 @@ class Conversations(NextcloudModule):
             permissions:
                 MentionPermissions
         """
-        await self.api.require_talk_feature('mention-permissions')
+        await self.api.require_talk_feature("mention-permissions")
         await self._put(
-            path=f'/room/{room_token}/mention-permissions',
-            data={'mentionPermissions': permissions.value})
+            path=f"/room/{room_token}/mention-permissions",
+            data={"mentionPermissions": permissions.value},
+        )
 
     async def get_conversation_for_internal_file(self, file_id: int) -> Conversation:
         """Return conversation token for discussion of internal file.
@@ -1594,7 +1586,8 @@ class Conversations(NextcloudModule):
                 displayName: The visual name of the conversation
         """
         return await self.integrations_api.create_password_request_conversation(
-            share_token)
+            share_token
+        )
 
     class _JoinArgs(TypedDict):
         room_token: str
