@@ -11,7 +11,7 @@ import httpx
 
 from nextcloud_async.driver import NextcloudModule, NextcloudBaseApi
 from nextcloud_async.client import NextcloudClient
-from nextcloud_async.exceptions import NextcloudBadRequestError, NextcloudNotFoundError
+from nextcloud_async.exceptions import NextcloudNotFoundError
 
 
 class Wipe(NextcloudModule):
