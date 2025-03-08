@@ -41,6 +41,9 @@ class TestMaps:
         assert map_favorite.category == DATA["category"]
         assert map_favorite.comment == DATA["comment"]
 
+    # Fixture map_favorite isn't directly accessed in this test, but it it required
+    # to guarantee a favorite is in the system before running maps_api.list_favorites()
+    #
     async def test_list_favorites(self, maps_api: Maps, map_favorite: MapFavorite):
         favorites = await maps_api.list_favorites()
         for fav in favorites:
@@ -55,10 +58,11 @@ class TestMaps:
             "category": "Boondocking",
         }
         favorites = await maps_api.list_favorites()
-        favorite = next(filter(
-            lambda x: (x.lat, x.lng) == (DATA['lat'], DATA['lng']), favorites))
+        favorite = next(
+            filter(lambda x: (x.lat, x.lng) == (DATA["lat"], DATA["lng"]), favorites)
+        )
 
-        await (favorite).update(**new_data)
+        await favorite.update(**new_data)
         assert isinstance(favorite, MapFavorite)
         assert favorite.lat == new_data["lat"]
         assert favorite.lng == new_data["lng"]
@@ -69,5 +73,5 @@ class TestMaps:
     async def test_delete_favorite(self, maps_api: Maps):
         favorites = await maps_api.list_favorites()
         for favorite in favorites:
-            if (favorite.lat, favorite.lng) == (DATA['lat'], DATA['lng']):
+            if (favorite.lat, favorite.lng) == (DATA["lat"], DATA["lng"]):
                 await favorite.delete()
