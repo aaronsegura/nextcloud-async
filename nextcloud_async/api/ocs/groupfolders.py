@@ -338,7 +338,6 @@ class GroupFolders(NextcloudModule):
             path=f"/{folder_id}/groups/{group_id}",
             data={"permissions": permissions.value},
         )
-        print(f"{response['success']=}")
         return response["success"]
 
     async def set_quota(self, folder_id: int, quota: Optional[int]) -> None:
