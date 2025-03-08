@@ -10,7 +10,7 @@ from .ocs.groups import Groups, Group
 from .ocs.ldap import Ldap, LdapConfiguration
 from .base.loginflowv2 import LoginFlowV2
 from .base.maps import Maps, MapFavorite
-from .ocs.notifications import Notifications
+from .ocs.notifications import Notifications, Notification
 from .ocs.shares import Shares, Share, ShareType, SharePermission
 from .ocs.sharees import Sharees
 from .ocs.status import Status, StatusType
@@ -90,7 +90,7 @@ __all__ = [
     "MapFavorite",
     "Message",
     "MessageReminder",
-    "Notifications",
+    "Notifications", "Notification",
     "Participants",
     "Participant",
     "Shares",

@@ -7,7 +7,15 @@ import pytest_asyncio
 
 from nextcloud_async import NextcloudClient
 from nextcloud_async.api import (
-    Files, Ldap, Apps, Groups, GroupFolders, LoginFlowV2, Maps)
+    Files,
+    Ldap,
+    Apps,
+    Groups,
+    GroupFolders,
+    LoginFlowV2,
+    Maps,
+    Notifications,
+)
 from nextcloud_async.exceptions import NextcloudMethodNotAllowedError
 
 from .constants import (
@@ -36,9 +44,10 @@ def vcr_config():
 
 @pytest.fixture
 def vcr_cassette_dir(request):
-    # Put all cassettes in vhs/{module}/{test}.yaml
+    # Put all cassettes in cassettes/nextcloud-{version}/{module}/{test}.yaml
     return os.path.join(
-        f"tests/cassettes/nextcloud-{NEXTCLOUD_VERSION}", request.module.__name__
+        f"tests/cassettes/nextcloud-{NEXTCLOUD_VERSION}",
+        ".".join(request.module.__name__.split(".")[1:]),
     )
 
 
@@ -127,3 +136,8 @@ def loginflowv2_api(nc: NextcloudClient) -> LoginFlowV2:
 @pytest.fixture(scope="session")
 def maps_api(nc: NextcloudClient) -> Maps:
     return Maps(nc)
+
+
+@pytest.fixture(scope="session")
+def notifications_api(nc: NextcloudClient) -> Notifications:
+    return Notifications(nc)

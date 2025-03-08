@@ -3,8 +3,6 @@
 https://github.com/nextcloud/notifications/blob/master/docs/ocs-endpoint-v2.md
 """
 
-from typing import List
-
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
 from nextcloud_async.api.dataobject import NextcloudDataObject
@@ -37,7 +35,7 @@ class Notifications(NextcloudModule):
         self.stub = f"/apps/notifications/api/v{api_version}/notifications"
         self.api = NextcloudOcsApi(client, ocs_version="2")
 
-    async def list(self) -> List[Notification]:
+    async def get_all(self) -> list[Notification]:
         """Get user's notifications.
 
         Returns:
