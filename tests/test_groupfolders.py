@@ -3,7 +3,6 @@ import pytest_asyncio
 
 from typing import AsyncGenerator
 
-from nextcloud_async import NextcloudClient
 from nextcloud_async.api import (
     GroupFolders,
     Files,
@@ -20,8 +19,6 @@ from nextcloud_async.exceptions import (
 
 from .constants import REMOTE_TEST_DIR
 from .helpers import create_clean_test_directory
-
-# pytest.skip('test', allow_module_level=True)
 
 
 @pytest_asyncio.fixture(scope="module", loop_scope="session")

@@ -4,7 +4,6 @@ import os
 import aiofile
 from pathlib import Path
 
-from nextcloud_async import NextcloudClient
 from nextcloud_async.api import (
     Files,
     UserFile,

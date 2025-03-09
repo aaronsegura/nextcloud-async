@@ -3,7 +3,6 @@ import pytest_asyncio
 
 from typing import AsyncGenerator
 
-from nextcloud_async import NextcloudClient
 from nextcloud_async.api import Groups, Group, Users, User
 from nextcloud_async.exceptions import NextcloudForbiddenError
 
@@ -17,16 +16,6 @@ _TEST_USER = {
     "password": "MyCoolPassword",
     "language": "en",
 }
-
-
-@pytest.fixture(scope="module")
-def groups_api(nc: NextcloudClient) -> Groups:
-    return Groups(nc)
-
-
-@pytest.fixture(scope="module")
-def users_api(nc: NextcloudClient) -> Users:
-    return Users(nc)
 
 
 @pytest_asyncio.fixture(scope="module", loop_scope="session")

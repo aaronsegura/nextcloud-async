@@ -21,6 +21,7 @@ from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
 from nextcloud_async.api.dataobject import NextcloudDataObject
 from nextcloud_async.exceptions import NextcloudError
+from nextcloud_async.helpers import bool2str
 
 
 class ShareType(Enum):
@@ -242,15 +243,15 @@ class Shares(NextcloudModule):
                 "shareType": share_type.value,
                 "shareWith": share_with,
                 "permissions": permissions.value,
-                "publicUpload": str(allow_public_upload).lower(),
+                "publicUpload": bool2str(allow_public_upload),
                 "password": password,
                 "expireDate": (
                     expire_date.strftime(r"%Y-%m-%d") if expire_date else None
                 ),
                 "note": note,
                 "label": label,
-                "sendPasswordByTalk": send_password_by_talk,
-                "sendMail": send_mail,
+                "sendPasswordByTalk": bool2str(send_password_by_talk),
+                "sendMail": bool2str(send_mail),
             }
         )
         return Share(response, self)

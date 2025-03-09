@@ -159,7 +159,7 @@ class Users(NextcloudModule):
                 "groups": groups,
                 "subadmin": subadmin,
                 "language": language,
-                "quota": quota if quota else "none",
+                "quota": str(quota) if quota else "none",
                 "password": password,
             }
         )

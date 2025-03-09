@@ -52,6 +52,10 @@ def bool2int(b: bool) -> int:
     return 1 if b else 0
 
 
+def bool2str(b: bool) -> str:
+    return "true" if b else "false"
+
+
 def phone_number_to_e164(phone_number: str) -> str:
     """Translate phone number to E164 format.
 

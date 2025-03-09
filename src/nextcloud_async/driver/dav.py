@@ -10,18 +10,6 @@ from nextcloud_async.client import NextcloudClient
 from nextcloud_async.exceptions import (
     NextcloudError,
     NextcloudRequestTimeoutError,
-    NextcloudBadRequestError,
-    NextcloudConflictError,
-    NextcloudDeviceWipeRequestedError,
-    NextcloudNotCapableError,
-    NextcloudForbiddenError,
-    NextcloudNotFoundError,
-    NextcloudPreconditionError,
-    NextcloudTooManyRequestsError,
-    NextcloudUnauthorizedError,
-    NextcloudNotModifiedError,
-    NextcloudMethodNotAllowedError,
-    NextcloudUnsupportedMediaTypeError,
 )
 
 
@@ -71,14 +59,15 @@ class NextcloudDavApi(NextcloudHttpApi):
 
         # TODO: DeprecationWarning: Use 'content=<...>' to upload raw bytes/text content.
         try:
-            # print(f'DAV {method} {self.client.endpoint}{self.stub}{path}')
+            print(f"DAV {method} {self.client.endpoint}{self.stub}{path}")
             response = await self.client.http_client.request(
                 method,
-                auth=(self.client.user, self.client.password),
+                auth=httpx.BasicAuth(self.client.user, self.client.password),
                 url=f"{self.client.endpoint}{self.stub}{path}",
                 data=data,
-                headers=cast(Dict[str, Any], headers),
+                headers=headers,
             )
+
         except httpx.ReadTimeout:
             raise NextcloudRequestTimeoutError()
 

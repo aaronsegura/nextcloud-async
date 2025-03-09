@@ -35,11 +35,12 @@ class TestMaps:
 
     async def test_create_favorite(self, map_favorite: MapFavorite):
         assert isinstance(map_favorite, MapFavorite)
-        assert map_favorite.lat == DATA["lat"]
-        assert map_favorite.lng == DATA["lng"]
+        assert map_favorite.latitude == DATA["lat"]
+        assert map_favorite.longitude == DATA["lng"]
         assert map_favorite.name == DATA["name"]
         assert map_favorite.category == DATA["category"]
         assert map_favorite.comment == DATA["comment"]
+        assert DATA["name"] in str(map_favorite)
 
     # Fixture map_favorite isn't directly accessed in this test, but it it required
     # to guarantee a favorite is in the system before running maps_api.list_favorites()

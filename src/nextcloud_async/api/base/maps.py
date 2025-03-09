@@ -22,6 +22,7 @@ class MapFavorite(NextcloudDataObject):
         """No need to refresh this object."""
         ...
 
+    @property
     def latitude(self) -> float:
         """Alias for self.lat."""
         return self.lat

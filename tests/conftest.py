@@ -1,7 +1,6 @@
 import httpx
 import os
 import asyncio
-
 import pytest
 import pytest_asyncio
 
@@ -15,6 +14,8 @@ from nextcloud_async.api import (
     LoginFlowV2,
     Maps,
     Notifications,
+    Shares,
+    Users,
 )
 from nextcloud_async.exceptions import NextcloudMethodNotAllowedError
 
@@ -141,3 +142,13 @@ def maps_api(nc: NextcloudClient) -> Maps:
 @pytest.fixture(scope="session")
 def notifications_api(nc: NextcloudClient) -> Notifications:
     return Notifications(nc)
+
+
+@pytest.fixture(scope="session")
+def shares_api(nc: NextcloudClient) -> Shares:
+    return Shares(nc)
+
+
+@pytest.fixture(scope="session")
+def users_api(nc: NextcloudClient) -> Users:
+    return Users(nc)

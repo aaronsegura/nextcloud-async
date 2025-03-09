@@ -1,17 +1,130 @@
-# # noqa: D100
+import pytest
+import pytest_asyncio
+import aiofile
+import os
 
-# from nextcloud_async.helpers import recursive_urlencode
-# from .base import BaseTestCase
-# from .helpers import AsyncMock
-# from .constants import USER, ENDPOINT, PASSWORD
+import datetime as dt
+from dateutil.tz import tzlocal
 
-# import asyncio
-# import httpx
+from pathlib import Path
+from typing import AsyncGenerator
 
-# from unittest.mock import patch
+from nextcloud_async.api import (
+    Users,
+    Shares,
+    Share,
+    User,
+    Files,
+    SharePermission,
+    ShareType,
+)
+
+from .helpers import create_clean_test_directory, create_remote_test_files
+from .constants import REMOTE_TEST_DIR
 
 
-# class OCSShareAPI(BaseTestCase):  # noqa: D101
+_FILE_CONTENTS = b"[File Contents]"
+_EXPIRATION = (dt.datetime.now(tz=tzlocal()) + dt.timedelta(days=1)).date()
+
+
+@pytest_asyncio.fixture(scope="module", loop_scope="session")
+async def test_directory(files_api: Files, network_blocked: bool) -> str:
+    dir = f"{REMOTE_TEST_DIR}/shares"
+    if not network_blocked:
+        await create_clean_test_directory(files_api, dir)
+    return dir
+
+
+@pytest_asyncio.fixture(scope="function", loop_scope="session")
+async def target_user(network_blocked: bool, users_api: Users) -> AsyncGenerator[User]:
+    _test_user = {
+        "user_id": "pytest_user",
+        "display_name": "Pytest User Guy",
+        "email": "pytest@example.com",
+        "quota": None,
+        "password": "MyCoolPassword",
+        "language": "en",
+    }
+
+    if network_blocked:
+        _test_user.update({"id": _test_user["user_id"]})
+        test_user = User(_test_user, self_api=users_api)
+    else:
+        test_user = await users_api.create(**_test_user)
+
+    yield test_user
+    if not network_blocked:
+        await test_user.delete()
+
+
+@pytest.fixture(scope="module")
+def class_tmp_path(tmp_path_factory: pytest.TempdirFactory) -> Path:
+    """Create a class-scoped tmp_path fixture.
+
+    https://stackoverflow.com/a/77584997"""
+    return tmp_path_factory.mktemp(
+        "nextcloud-async-pytest", numbered=True
+    )  # type: ignore
+
+
+@pytest_asyncio.fixture(scope="module", loop_scope="session")
+async def local_test_file(
+    class_tmp_path: Path, content=_FILE_CONTENTS
+) -> AsyncGenerator[str]:
+    file = f"{class_tmp_path}/file"
+    async with aiofile.async_open(file, "wb") as fp:
+        await fp.write(content)
+        yield file
+    os.unlink(file)
+
+
+@pytest_asyncio.fixture(scope="module", loop_scope="session")
+async def remote_test_files(
+    files_api: Files, test_directory: str, local_test_file: str, network_blocked: bool
+) -> list[str]:
+    files = await create_remote_test_files(
+        files_api,
+        test_directory,
+        local_test_file,
+        num_files=2,
+        network_blocked=network_blocked,
+    )
+    return files
+
+
+@pytest_asyncio.fixture(scope="function", loop_scope="session")
+async def shared_file(
+    shares_api: Shares,
+    target_user: User,
+    remote_test_files: list[str],
+):
+    _path = remote_test_files[0]
+    _shared_file_data = {
+        "path": _path,
+        "permissions": SharePermission.read,
+        "share_type": ShareType.user,
+        "share_with": target_user.id,
+        "expire_date": _EXPIRATION,
+    }
+    shared_file = await shares_api.create(**_shared_file_data)
+    return shared_file
+
+
+@pytest.mark.asyncio(loop_scope="session")
+class TestShares:
+
+    async def test_get_all_shares(
+        self,
+        shares_api: Shares,
+        shared_file: list[Share],
+        remote_test_files: list[str],
+    ):
+        shares = await shares_api.get_file_shares()
+        share = next(filter(lambda x: x.path == remote_test_files[0], shares))
+        assert isinstance(share, Share)
+        assert share.expiration == _EXPIRATION.strftime(r"%Y-%m-%d %H:%M:%S")
+        assert shared_file in shares
+
 
 #     def test_get_all_shares(self):  # noqa: D102
 #         json_response = bytes(

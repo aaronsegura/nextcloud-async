@@ -1,7 +1,8 @@
-import asyncio
+from httpx import BasicAuth
 
 from abc import ABC, abstractmethod
-from typing import Dict, Any, Optional, Iterable
+
+from typing import Dict, Any, Optional
 
 from nextcloud_async.client import NextcloudClient
 
@@ -343,7 +344,7 @@ class NextcloudCapabilities:
         """Populate local capabilities cache for this server."""
         response = await self.client.http_client.request(
             method="GET",
-            auth=(self.client.user, self.client.password),
+            auth=BasicAuth(self.client.user, self.client.password),
             url=f"{self.client.endpoint}/ocs/v1.php/cloud/capabilities?format=json",
             headers={"OCS-APIRequest": "true"},
         )
@@ -351,8 +352,8 @@ class NextcloudCapabilities:
 
     async def _pop_capabilities(self):
         response = await self._get_capabilities()
-        self._capabilities = response['capabilities']
-        self._version = response['version']
+        self._capabilities = response["capabilities"]
+        self._version = response["version"]
 
     async def get_all(self) -> dict[str, Any]:
         if not self._capabilities:

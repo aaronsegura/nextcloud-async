@@ -80,7 +80,6 @@ ignore = [
   'D105',     # Missing docstring in magic method
   'D107',     # Missing docstring in __init__
   'D203',     # 1 blank line required before class docstring
-  # 'D213',  # Multi-line docstring summary should start at the second line
   'ANN401',   # Dynamically typed expressions (typing.Any) are disallowed
   'TD002',    # Missing author in TODO
   'PLR0913',   # tOo MaNy ArGuMeNtS
@@ -94,7 +93,9 @@ ignore = [
 "tests/*" = [
   'D',
   'ANN201',
-  'ANN001']
+  'ANN001',
+  'PLR2004',  # No Magic Numbers
+]
 
 [tool.ruff.pydocstyle]
 convention = 'google'  # https://google.github.io/styleguide/pyguide.html

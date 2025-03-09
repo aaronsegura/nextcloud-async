@@ -72,9 +72,11 @@ class TestNotifications:
             notifications_api: Notifications,
             httpx_mock: HTTPXMock):
         httpx_mock.add_response(200, content=self._single_response)
+
         notification = await notifications_api.get(7)
         assert isinstance(notification, Notification)
-        assert notification.id == 7  # noqa: PLR2004
+        assert notification.id == 7
+        assert 'updatenotification' in str(notification)
 
         request = httpx_mock.get_request()
         assert_url = "".join(
@@ -87,6 +89,7 @@ class TestNotifications:
         )
         assert str(request.url) == assert_url
         assert request.method == 'GET'
+
 
     async def test_clear_notifications(
             self,

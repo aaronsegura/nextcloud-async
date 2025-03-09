@@ -74,7 +74,7 @@ class NextcloudBaseApi(NextcloudHttpApi):
             print(f"BASE {method} {self.client.endpoint}{self.stub}{path}")
             response = await self.client.http_client.request(
                 method=method,
-                auth=(self.client.user, self.client.password),
+                auth=httpx.BasicAuth(self.client.user, self.client.password),
                 url=f"{self.client.endpoint}{self.stub}{path}",
                 json=data,
                 headers=headers,

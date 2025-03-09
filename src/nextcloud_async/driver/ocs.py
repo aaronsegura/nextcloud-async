@@ -52,18 +52,25 @@ class NextcloudOcsApi(NextcloudHttpApi):
         """Submit OCS-type query to cloud endpoint.
 
         Args:
-            method (str): HTTP Method (eg, `GET`, `POST`, etc...)
+            method:
+                HTTP Method (eg, `GET`, `POST`, etc...)
 
-            url (str, optional): Use a URL outside of the given endpoint. Defaults to None.
+            url:
+                Use a URL outside of the given endpoint. Defaults to None.
 
-            path (str, optional): The portion of the URL after the host. Defaults to ''.
+            path:
+                The portion of the URL after the host. Defaults to ''.
 
-            data (Dict, optional): Data for submission.  Data for GET requests is translated by
-            urlencode and tacked on to the end of the URL as arguments. Defaults to {}.
+            data:
+                Data for submission.  Data for GET requests is
+                translated by urlencode and tacked on to the end of the URL as arguments.
+                Defaults to {}.
 
-            headers (Dict, optional): Headers for submission. Defaults to {}.
+            headers:
+                Headers for submission. Defaults to {}.
 
-            return_full_response (bool): Return full OCS response with metadata.  Defaults to False
+            return_full_response:
+                Return full OCS response with metadata.  Defaults to False
 
 
         Raises:
@@ -104,7 +111,7 @@ class NextcloudOcsApi(NextcloudHttpApi):
             NextcloudException - when invalid response from server
         """
         if headers:
-            headers.update({"OCS-APIRequest": "true"})
+            headers["OCS-APIRequest"] = "true"
             headers["User-Agent"] = self.client.user_agent
         else:
             headers = {"OCS-APIRequest": "true", "User-Agent": self.client.user_agent}
@@ -120,16 +127,14 @@ class NextcloudOcsApi(NextcloudHttpApi):
 
         try:
             print(f"OCS {method} {self.client.endpoint}{self.stub}{path}")
-            print(f"OCS DATA {data=}")
-            print(f"AUTH", self.client.user, self.client.password)
-            print(f"HEADERS", headers)
             response = await self.client.http_client.request(
                 method,
-                auth=(self.client.user, self.client.password),
+                auth=httpx.BasicAuth(self.client.user, self.client.password),
                 url=f"{self.client.endpoint}{self.stub}{path}",
                 json=data,
                 headers=headers,
             )
+
         except httpx.ReadTimeout:
             raise NextcloudRequestTimeoutError()
 
