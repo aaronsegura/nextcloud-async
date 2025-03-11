@@ -79,7 +79,6 @@ class NextcloudHttpApi(ABC):
             raise NextcloudNotCapableError()
 
     async def _raise_response_exception(self, status_code: int, reason: str):
-
         match status_code:
             case 304:
                 raise NextcloudNotModifiedError()
@@ -129,9 +128,7 @@ class NextcloudHttpApi(ABC):
         data: Optional[Any] = None,
         headers: Optional[Dict[str, Any]] = None,
     ) -> Any:
-        return await self.raw_request(
-            method="GET", path=path, data=data, headers=headers
-        )
+        return await self.raw_request(method="GET", path=path, data=data, headers=headers)
 
     async def post(
         self,
@@ -155,9 +152,7 @@ class NextcloudHttpApi(ABC):
         data: Optional[Any] = None,
         headers: Optional[Dict[str, Any]] = None,
     ) -> Any:
-        return await self.request(
-            method="DELETE", path=path, data=data, headers=headers
-        )
+        return await self.request(method="DELETE", path=path, data=data, headers=headers)
 
     async def propfind(
         self,
@@ -209,9 +204,7 @@ class NextcloudHttpApi(ABC):
         data: Optional[Any] = None,
         headers: Optional[Dict[str, Any]] = None,
     ) -> Any:
-        return await self.request(
-            method="REPORT", path=path, data=data, headers=headers
-        )
+        return await self.request(method="REPORT", path=path, data=data, headers=headers)
 
 
 class NextcloudModule(ABC):
@@ -242,9 +235,7 @@ class NextcloudModule(ABC):
         path: str = "",
         headers: Optional[Dict[str, Any]] = None,
     ) -> Any:
-        return await self.api.post(
-            path=f"{self.stub}{path}", data=data, headers=headers
-        )
+        return await self.api.post(path=f"{self.stub}{path}", data=data, headers=headers)
 
     async def _put(
         self,
@@ -280,9 +271,7 @@ class NextcloudModule(ABC):
         data: Optional[Any] = None,
         headers: Optional[Dict[str, Any]] = None,
     ) -> Any:
-        return await self.api.mkcol(
-            path=f"{self.stub}{path}", data=data, headers=headers
-        )
+        return await self.api.mkcol(path=f"{self.stub}{path}", data=data, headers=headers)
 
     async def _move(
         self,
@@ -290,9 +279,7 @@ class NextcloudModule(ABC):
         data: Optional[Any] = None,
         headers: Optional[Dict[str, Any]] = None,
     ) -> Any:
-        return await self.api.move(
-            path=f"{self.stub}{path}", data=data, headers=headers
-        )
+        return await self.api.move(path=f"{self.stub}{path}", data=data, headers=headers)
 
     async def _copy(
         self,
@@ -300,9 +287,7 @@ class NextcloudModule(ABC):
         data: Optional[Any] = None,
         headers: Optional[Dict[str, Any]] = None,
     ) -> Any:
-        return await self.api.copy(
-            path=f"{self.stub}{path}", data=data, headers=headers
-        )
+        return await self.api.copy(path=f"{self.stub}{path}", data=data, headers=headers)
 
     async def _proppatch(
         self,
@@ -390,7 +375,6 @@ class NextcloudCapabilities:
 
 
 class NextcloudIterator:
-
     def set_iterator(self, target: list, starting_index: int = 0):
         self._iterator = target
         self._starting_index = starting_index

@@ -47,6 +47,7 @@ exclude = [
 
 line-length = 90
 
+[tool.ruff.lint]
 select = [
   'D',      # pydocstyle
   'E',      # pycodestyle
@@ -57,7 +58,7 @@ select = [
   'ASYNC',  # flake8-async
   'COM',    # flake8-comma
   'C4',     # flake8-comprehensions
-  'DOC',    # pydoclint
+  # 'DOC',  # pydoclint  # warning: Selection `DOC` has no effect because preview is not enabled.
   'DTZ',    # flake8-datetimez
   'ERA',    # flake8-eradicate
   'FIX',    # flake8-fix
@@ -70,11 +71,6 @@ select = [
   'TD',     # flake9-todos
 ]
 
-[tool.ruff.format]
-docstring-code-line-length = 90
-exclude = ["docs/**"]
-
-[tool.ruff.lint]
 ignore = [
   'D100',     # Missing docstring in public module
   'D101',     # Missing docstring in public class
@@ -89,6 +85,7 @@ ignore = [
   'TC004',    # Move import out of type-checking block,
   'COM812',   # Add trailing comma
   'SLF001',   # Private member accessed
+  'FIX002',   # Line contains TODO
   ]
 
 [tool.ruff.lint.per-file-ignores]
@@ -99,10 +96,14 @@ ignore = [
   'PLR2004',  # No Magic Numbers
 ]
 
-[tool.ruff.pydocstyle]
+[tool.ruff.format]
+docstring-code-line-length = 90
+exclude = ["docs/**"]
+
+[tool.ruff.lint.pydocstyle]
 convention = 'google'  # https://google.github.io/styleguide/pyguide.html
 
-[tool.ruff.mccabe]
+[tool.ruff.lint.mccabe]
 max-complexity = 10
 
 [tool.pyright]

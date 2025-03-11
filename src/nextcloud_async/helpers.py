@@ -30,7 +30,7 @@ def recursive_urlencode(d: Dict[str, Any]) -> str:
                 if len(new_base) > 1:
                     first = quote(new_base.pop(0))
                     rest = [quote(x) for x in new_base]
-                    new_pair = f'{first}[{"][".join(rest)}]={quote(value)}'
+                    new_pair = f"{first}[{']['.join(rest)}]={quote(value)}"
                 else:
                     new_pair = f"{quote(key)}={quote(value)}"
                 pairs.append(new_pair)
@@ -53,6 +53,7 @@ def bool2int(b: bool) -> int:
 
 
 def bool2str(b: bool) -> str:
+    """Translate a boolean value to string."""
     return "true" if b else "false"
 
 
@@ -70,7 +71,7 @@ def phone_number_to_e164(phone_number: str) -> str:
     for digit in reversed(phone_number):
         new_format.append(digit)
 
-    return f'{".".join(new_format)}.e164.arpa'
+    return f"{'.'.join(new_format)}.e164.arpa"
 
 
 def filter_headers(filter: List[str], headers: httpx.Headers) -> httpx.Headers:
