@@ -1,4 +1,4 @@
-"""Implement Nextcloud Shares/Sharee APIs.
+"""Implement Nextcloud Sharees API.
 
 https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-sharee-api.html
 
@@ -13,7 +13,7 @@ from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
 
 
 class Sharees(NextcloudModule):
-    """Manage local shares on Nextcloud instances."""
+    """Sharees interface."""
 
     def __init__(
         self, client: NextcloudClient, ocs_version: str = "1", api_version: str = "1"
