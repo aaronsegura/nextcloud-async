@@ -14,7 +14,7 @@ import datetime as dt
 from dateutil.tz import tzlocal
 
 from enum import Enum, IntFlag
-from typing import Any, Optional, List, Dict, Tuple, TypedDict, Unpack, NotRequired
+from typing import Any, Optional, List, Dict, TypedDict, Unpack, NotRequired
 from collections.abc import Awaitable
 
 from nextcloud_async.client import NextcloudClient
@@ -112,7 +112,7 @@ class Share(NextcloudDataObject):
         await self.self_api.update(share_id=self.id, **kwargs)
         await self._refresh()
 
-    async def send_email(self, password: Optional[str] = None):
+    async def send_email(self, password: Optional[str] = None) -> None:
         """Re-send share e-mail to recipients.
 
         Args:
