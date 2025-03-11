@@ -110,6 +110,16 @@ class Share(NextcloudDataObject):
                 own. You will have to use the send-email endpoint to send the email.
         """
         await self.self_api.update(share_id=self.id, **kwargs)
+        await self._refresh()
+
+    async def send_email(self, password: Optional[str] = None):
+        """Re-send share e-mail to recipients.
+
+        Args:
+            password:
+                Share password, if enabled
+        """
+        await self.self_api.send_email(self.id, password)
 
 
 class Shares(NextcloudModule):
@@ -123,7 +133,7 @@ class Shares(NextcloudModule):
 
     async def get_file_shares(
         self,
-        path: str = "",
+        path: Optional[str] = "",
         reshares: bool = False,
         subfiles: bool = False,
         shared_with_me: bool = False,
@@ -153,10 +163,10 @@ class Shares(NextcloudModule):
         response = await self._get(
             data={
                 "path": path,
-                "reshares": reshares,
-                "subfiles": subfiles,
-                "shared_with_me": shared_with_me,
-                "include_tags": include_tags,
+                "reshares": bool2str(reshares),
+                "subfiles": bool2str(subfiles),
+                "shared_with_me": bool2str(shared_with_me),
+                "include_tags": bool2str(include_tags),
             }
         )
         return [Share(x, self) for x in response]
@@ -317,18 +327,26 @@ class Shares(NextcloudModule):
         """
         if attributes:
             attributes = json.dumps(attributes)
-        allowed_updates = [
-            "permissions",
-            "password",
-            "allow_public_upload",
-            "expire_date",
-            "note",
-            "attributes",
-            "send_mail",
+
+        # Translate from python arg names to nextcloud arg names
+        if permissions:
+            _permissions = permissions.value
+        if allow_public_upload:
+            _public_upload = bool2str(allow_public_upload)
+        if send_mail:
+            _send_mail = bool2str(send_mail)
+        name_translations = [
+            ("_permissions", "permissions"),
+            ("password", "password"),
+            ("_public_upload", "publicUpload"),
+            ("expire_date", "expireDate"),
+            ("note", "note"),
+            ("attributes", "attributes"),
+            ("_send_mail", "sendMail"),
         ]
-        updates: List[Tuple[str, Any]] = [
-            (k, locals()[k]) for k in allowed_updates if k
-        ]
+
+        # Send requests as a batch
+        updates = [(k[1], locals()[k[0]]) for k in name_translations if locals()[k[0]]]
         reqs = [self.__update_share(share_id, k, v) for k, v in updates]
         await asyncio.gather(*reqs)
 
@@ -337,7 +355,7 @@ class Shares(NextcloudModule):
     ) -> Dict[str, Any]:
         return await self._put(path=f"/{share_id}", data={key: value})
 
-    async def send_email(self, share_id: int, password: str) -> None:
+    async def send_email(self, share_id: int, password: Optional[str] = None) -> None:
         """Send an email to the recipients of a share.
 
         Args:
@@ -347,7 +365,9 @@ class Shares(NextcloudModule):
             password:
                 The share password if enabled.
         """
-        await self._post(
-            path=f"/{share_id}/send-email",
-            data={"password": password} if password else None,
-        )
+        if password:
+            data = {"password": password}
+        else:
+            data = None
+
+        await self._post(path=f"/{share_id}/send-email", data=data)
