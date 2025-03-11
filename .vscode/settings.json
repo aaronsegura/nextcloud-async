@@ -11,6 +11,6 @@
     "editor.rulers": [
         90
     ],
-    "editor.defaultFormatter": "ms-python.black-formatter",
+    "editor.defaultFormatter": "charliermarsh.ruff",
     "editor.formatOnSave": true,
 }
