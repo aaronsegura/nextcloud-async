@@ -32,16 +32,20 @@ class Sharees(NextcloudModule):
         """Get all sharees matching a search term.
 
         Args:
-            item_type: Item type (`file`, `folder`, `calendar`, etc...)
+            item_type:
+                Item type (`file`, `folder`, `calendar`, etc...)
 
-            lookup: Whether to use global Nextcloud lookup service.
-            Defaults to False.
+            lookup:
+                Whether to use global Nextcloud lookup service. Defaults to False.
 
-            limit: How many results to return per request. Defaults to 200.
+            limit:
+                How many results to return per request. Defaults to 200.
 
-            page: Return this page of results. Defaults to 1.
+            page:
+                Return this page of results. Defaults to 1.
 
-            search: Search term. Defaults to None.
+            search:
+                Search term. Defaults to None.
 
         Returns:
             Dictionary of exact and potential matches.
@@ -65,6 +69,4 @@ class Sharees(NextcloudModule):
         Returns:
             Recommended sharees.
         """
-        return await self._get(
-            path="/sharees_recommended", data={"itemType": item_type}
-        )
+        return await self._get(path="/sharees_recommended", data={"itemType": item_type})

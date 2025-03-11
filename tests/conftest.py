@@ -15,6 +15,7 @@ from nextcloud_async.api import (
     Maps,
     Notifications,
     Shares,
+    Sharees,
     Users,
 )
 from nextcloud_async.exceptions import NextcloudMethodNotAllowedError
@@ -147,6 +148,11 @@ def notifications_api(nc: NextcloudClient) -> Notifications:
 @pytest.fixture(scope="session")
 def shares_api(nc: NextcloudClient) -> Shares:
     return Shares(nc)
+
+
+@pytest.fixture(scope="session")
+def sharees_api(nc: NextcloudClient) -> Sharees:
+    return Sharees(nc)
 
 
 @pytest.fixture(scope="session")

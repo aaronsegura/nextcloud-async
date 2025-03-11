@@ -13,6 +13,7 @@ from nextcloud_async.api import (
     Users,
     Shares,
     Share,
+    Sharees,
     User,
     Files,
     SharePermission,
@@ -65,9 +66,7 @@ def class_tmp_path(tmp_path_factory: pytest.TempdirFactory) -> Path:
     """Create a class-scoped tmp_path fixture.
 
     https://stackoverflow.com/a/77584997"""
-    return tmp_path_factory.mktemp(
-        "nextcloud-async-pytest", numbered=True
-    )  # type: ignore
+    return tmp_path_factory.mktemp("nextcloud-async-pytest", numbered=True)  # type: ignore
 
 
 @pytest_asyncio.fixture(scope="module", loop_scope="session")
@@ -116,7 +115,6 @@ async def shared_file(
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestShares:
-
     async def test_get_all_shares(
         self,
         shares_api: Shares,
@@ -149,3 +147,19 @@ class TestShares:
 
     async def test_send_email(self, shared_file: Share):
         await shared_file.send_email()
+
+
+@pytest.mark.vcr
+@pytest.mark.asyncio(loop_scope="session")
+class TestSharees:
+    async def test_get_sharees(self, sharees_api: Sharees, target_user: User):
+        response = await sharees_api.search_sharees(target_user.id)
+        match = [
+            x
+            for x in response["exact"]["users"]  # type: ignore
+            if x["value"]["shareWith"] == target_user.id  # type: ignore
+        ].pop()
+        assert match
+
+    async def test_get_recommended_sharees(self, sharees_api: Sharees):
+        await sharees_api.sharee_recommendations()
