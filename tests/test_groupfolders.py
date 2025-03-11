@@ -14,7 +14,6 @@ from nextcloud_async.api import (
 from nextcloud_async.exceptions import (
     NextcloudError,
     NextcloudNotFoundError,
-    NextcloudGenericServerError,
 )
 
 from .constants import REMOTE_TEST_DIR
@@ -50,9 +49,7 @@ async def group_folders(
 
 
 @pytest_asyncio.fixture(scope="function", loop_scope="session")
-async def test_group(
-    groups_api: Groups, network_blocked: bool
-) -> AsyncGenerator[Group]:
+async def test_group(groups_api: Groups, network_blocked: bool) -> AsyncGenerator[Group]:
     group_id = "groupfolders_test"
     if network_blocked:
         group = Group({"id": group_id}, groups_api)
@@ -68,14 +65,11 @@ async def test_group(
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestGroupFolders:
-
     async def test_create(self, group_folders: list[GroupFolder]):
         for folder in group_folders:
             assert folder.mount_point.startswith(f"{REMOTE_TEST_DIR}/groupfolders")
 
-    async def test_get_all(
-        self, gf_api: GroupFolders, group_folders: list[GroupFolder]
-    ):
+    async def test_get_all(self, gf_api: GroupFolders, group_folders: list[GroupFolder]):
         folder = group_folders[0]
         folder_list = await gf_api.list()
         assert folder in folder_list
@@ -93,17 +87,8 @@ class TestGroupFolders:
         folder = group_folders[0]
         folder_id = folder.id
         await folder.delete()
-        try:
+        with pytest.raises((NextcloudNotFoundError, NextcloudError)):
             await gf_api.get(folder_id)
-        except NextcloudNotFoundError:
-            assert True
-        except NextcloudError as e:
-            # Prior to groupfolders commit 54022df a call to get a
-            # non-existant folder would return a server 500 error.
-            if e.status_code == NextcloudGenericServerError.status_code:
-                assert True
-        else:
-            assert False
 
     async def test_toggle_group_member(
         self, group_folders: list[GroupFolder], test_group: Group

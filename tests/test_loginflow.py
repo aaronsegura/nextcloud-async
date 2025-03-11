@@ -34,9 +34,7 @@ class TestLoginFlowV2:
         await loginflowv2_api.initiate()
         request = httpx_mock.get_request()
         assert request.method == "POST"
-        assert (
-            request.url == f"{loginflowv2_api.api.client.endpoint}/index.php/login/v2"
-        )
+        assert request.url == f"{loginflowv2_api.api.client.endpoint}/index.php/login/v2"
 
     async def test_login_flow_confirm_success(
         self, httpx_mock: HTTPXMock, loginflowv2_api: LoginFlowV2
@@ -61,14 +59,9 @@ class TestLoginFlowV2:
     async def test_login_flow_timeout(
         self, httpx_mock: HTTPXMock, loginflowv2_api: LoginFlowV2
     ):
-
         httpx_mock.add_response(status_code=404, is_reusable=True)
-        try:
+        with pytest.raises(NextcloudLoginFlowTimeoutError):
             await loginflowv2_api.wait_confirm(TOKEN, timeout=1)
-        except NextcloudLoginFlowTimeoutError:
-            assert True
-        else:
-            assert False
 
     async def test_destroy_app_token(
         self, httpx_mock: HTTPXMock, loginflowv2_api: LoginFlowV2

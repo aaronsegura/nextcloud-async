@@ -38,9 +38,7 @@ def class_tmp_path(tmp_path_factory: pytest.TempdirFactory) -> Path:
     """Create a class-scoped tmp_path fixture.
 
     https://stackoverflow.com/a/77584997"""
-    return tmp_path_factory.mktemp(
-        "nextcloud-async-pytest", numbered=True
-    )  # type: ignore
+    return tmp_path_factory.mktemp("nextcloud-async-pytest", numbered=True)  # type: ignore
 
 
 @pytest_asyncio.fixture(scope="module", loop_scope="session")
@@ -55,7 +53,6 @@ async def local_test_file(class_tmp_path: Path, content=FILE_CONTENTS_ORIG):
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestUploadDownload:
-
     @pytest_asyncio.fixture(scope="class", loop_scope="session")
     async def test_directory(self, files_api: Files, network_blocked: bool) -> str:
         dir = f"{REMOTE_TEST_DIR}/upload"
@@ -87,18 +84,13 @@ class TestUploadDownload:
         assert contents == FILE_CONTENTS_ORIG
 
     async def test_download_file_noexist(self, files_api: Files, test_directory: str):
-        try:
+        with pytest.raises(NextcloudNotFoundError):
             await files_api.download(f"{test_directory}/.noexist")
-        except NextcloudNotFoundError:
-            assert True
-        else:
-            assert False
 
 
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestList:
-
     @pytest_asyncio.fixture(scope="class", loop_scope="session")
     async def test_directory(self, files_api: Files, network_blocked: bool) -> str:
         dir = f"{REMOTE_TEST_DIR}/list"
@@ -143,33 +135,23 @@ class TestList:
         assert "Nextcloud File" in file.__repr__()
         assert file.path == remote_file
 
-        try:
+        with pytest.raises(KeyError):
             hasattr(file, "noexist")
+
+        with pytest.raises(KeyError):
             hasattr(file, "nc:noexist")
-        except KeyError:
-            assert True
-        else:
-            assert False
 
         try:
             file.has_preview
         except KeyError:
-            assert False
+            pytest.fail("Expected attribute not present.")
 
-        try:
+        with pytest.raises(KeyError):
             assert not file.key_noexist
-        except KeyError:
-            pass
-        else:
-            assert False
 
     async def test_list_no_exist(self, files_api: Files):
-        try:
+        with pytest.raises(NextcloudNotFoundError):
             await files_api.list(f"{REMOTE_TEST_DIR}/.noexist")
-        except NextcloudNotFoundError:
-            assert True
-        else:
-            assert False
 
     async def test_list_directory_only(self, files_api: Files):
         root_dir_only = await files_api.list(REMOTE_TEST_DIR, directory_only=True)
@@ -192,7 +174,6 @@ class TestList:
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestCopy:
-
     @pytest_asyncio.fixture(scope="class", loop_scope="session")
     async def test_directory(self, files_api: Files, network_blocked: bool) -> str:
         dir = f"{REMOTE_TEST_DIR}/copy"
@@ -217,23 +198,15 @@ class TestCopy:
         )
 
     async def test_copy_src_noexist(self, files_api: Files, test_directory: str):
-        try:
+        with pytest.raises(NextcloudPreconditionError):
             await files_api.copy(f"{test_directory}/.noexist", test_directory)
-        except NextcloudPreconditionError:
-            assert True
-        else:
-            assert False
 
     async def test_copy_dest_dir_noexist(
         self, files_api: Files, test_directory: str, remote_test_files: str
     ):
         src_file = remote_test_files[0]
-        try:
+        with pytest.raises(NextcloudConflictError):
             await files_api.copy(src_file, f"{test_directory}/.noexist/exception_raise")
-        except NextcloudConflictError:
-            assert True
-        else:
-            assert False
 
     async def test_copy_success(
         self, files_api: Files, test_directory: str, remote_test_files: list[str]
@@ -247,12 +220,8 @@ class TestCopy:
     ):
         src_file = await files_api.list(remote_test_files[0])
         dest_file = remote_test_files[1]
-        try:
+        with pytest.raises(NextcloudPreconditionError):
             await src_file.copy(dest_file)
-        except NextcloudPreconditionError:
-            assert True
-        else:
-            assert False
 
     async def test_copy_exists_with_overwrite(
         self, files_api: Files, remote_test_files: str
@@ -265,7 +234,6 @@ class TestCopy:
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestMove:
-
     @pytest_asyncio.fixture(scope="class", loop_scope="session")
     async def test_directory(self, files_api: Files, network_blocked: bool) -> str:
         dir = f"{REMOTE_TEST_DIR}/move"
@@ -290,23 +258,15 @@ class TestMove:
         )
 
     async def test_move_src_noexist(self, files_api: Files, test_directory: str):
-        try:
+        with pytest.raises(NextcloudPreconditionError):
             await files_api.move(f"{test_directory}/.noexist", test_directory)
-        except NextcloudPreconditionError:
-            assert True
-        else:
-            assert False
 
     async def test_move_dest_dir_noexist(
         self, files_api: Files, test_directory: str, remote_test_files: list[str]
     ):
         src_file = await files_api.list(remote_test_files[0])
-        try:
+        with pytest.raises(NextcloudConflictError):
             await src_file.move(f"{test_directory}/.noexist/exception_raise")
-        except NextcloudConflictError:
-            assert True
-        else:
-            assert False
 
     async def test_move_success(
         self, files_api: Files, test_directory: str, remote_test_files: list[str]
@@ -319,12 +279,8 @@ class TestMove:
     ):
         src_file = await files_api.list(remote_test_files[1])
         dest_file = remote_test_files[2]
-        try:
+        with pytest.raises(NextcloudPreconditionError):
             await src_file.move(dest_file)
-        except NextcloudPreconditionError:
-            assert True
-        else:
-            assert False
 
     async def test_move_exists_with_overwrite(
         self, files_api: Files, remote_test_files: list[str]
@@ -337,7 +293,6 @@ class TestMove:
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestDelete:
-
     @pytest_asyncio.fixture(scope="class", loop_scope="session")
     async def test_directory(self, files_api: Files, network_blocked: bool) -> str:
         dir = f"{REMOTE_TEST_DIR}/delete"
@@ -364,26 +319,17 @@ class TestDelete:
     async def test_delete(self, files_api: Files, remote_test_files: str):
         file = await files_api.list(remote_test_files[0])
         await file.delete()
-        try:
+        with pytest.raises(NextcloudNotFoundError):
             await files_api.list(remote_test_files[0])
-        except NextcloudNotFoundError:
-            assert True
-        else:
-            assert False
 
     async def test_delete_noexist(self, files_api: Files, test_directory: str):
-        try:
+        with pytest.raises(NextcloudNotFoundError):
             await files_api.delete(f"{test_directory}/.noexist")
-        except NextcloudNotFoundError:
-            assert True
-        else:
-            assert False
 
 
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestFavorites:
-
     @pytest_asyncio.fixture(scope="class", loop_scope="session")
     async def test_directory(self, files_api: Files, network_blocked: bool) -> str:
         dir = f"{REMOTE_TEST_DIR}/favorites"
@@ -439,12 +385,8 @@ class TestFavorites:
         assert not [f for f in favorites if f.path == remote_favorited_files[0]]
 
     async def test_get_file(self, files_api: Files, remote_favorited_files: list[str]):
-        try:
+        with pytest.raises(NextcloudUnsupportedMediaTypeError):
             await files_api.get_favorites(remote_favorited_files[1])
-        except NextcloudUnsupportedMediaTypeError:
-            assert True
-        else:
-            assert False
 
     async def test_get_multiple_favorites(
         self, files_api: Files, test_directory: str, remote_favorited_files: list[str]
@@ -456,7 +398,6 @@ class TestFavorites:
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestTrashbin:
-
     @pytest_asyncio.fixture(scope="class", loop_scope="session")
     async def test_directory(self, files_api: Files, network_blocked: bool) -> str:
         dir = f"{REMOTE_TEST_DIR}/trashbin"
@@ -500,22 +441,14 @@ class TestTrashbin:
         for f in trash:
             if f.trashbin_original_location == deleted_file:
                 await f.restore()
-                try:
+                with pytest.raises(NextcloudNotFoundError):
                     await files_api.list(deleted_file)
-                except NextcloudNotFoundError:
-                    assert False
-                else:
-                    assert True
 
     async def test_delete_trash_regular_file(
         self, files_api: Files, remote_test_files: list[str]
     ):
-        try:
+        with pytest.raises(NextcloudBadRequestError):
             await files_api.delete_trash(remote_test_files[1])
-        except NextcloudBadRequestError:
-            assert True
-        else:
-            assert False
 
     async def test_delete_trash_file(
         self, files_api: Files, remote_test_files: list[str]
@@ -537,7 +470,6 @@ class TestTrashbin:
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestVersions:
-
     @pytest_asyncio.fixture(scope="class", loop_scope="session")
     async def test_directory(self, files_api: Files, network_blocked: bool) -> str:
         dir = f"{REMOTE_TEST_DIR}/versions"
@@ -600,24 +532,15 @@ class TestVersions:
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestCreateFolder:
-
     async def test_create_folder(self, files_api: Files):
         test_folder = f"{REMOTE_TEST_DIR}/created_folder"
         await files_api.mkdir(test_folder)
 
     async def test_create_folder_no_parent(self, files_api: Files):
         test_folder = f"{REMOTE_TEST_DIR}/.noexist/created_folder"
-        try:
+        with pytest.raises(NextcloudConflictError):
             await files_api.mkdir(test_folder)
-        except NextcloudConflictError:
-            assert True
-        else:
-            assert False
 
     async def test_create_folder_exists(self, files_api: Files):
-        try:
+        with pytest.raises(NextcloudMethodNotAllowedError):
             await files_api.mkdir(f"{REMOTE_TEST_DIR}")
-        except NextcloudMethodNotAllowedError:
-            assert True
-        else:
-            assert False

@@ -3,8 +3,6 @@ import pytest_asyncio
 import aiofile
 import os
 
-from pytest_httpx import HTTPXMock
-
 import datetime as dt
 from dateutil.tz import tzlocal
 
@@ -22,7 +20,7 @@ from nextcloud_async.api import (
 )
 
 from .helpers import create_clean_test_directory, create_remote_test_files
-from .constants import REMOTE_TEST_DIR, EMPTY_200
+from .constants import REMOTE_TEST_DIR
 
 
 _FILE_CONTENTS = b"[File Contents]"
