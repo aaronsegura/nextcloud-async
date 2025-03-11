@@ -50,7 +50,7 @@ class TestMaps:
         for fav in favorites:
             assert isinstance(fav, MapFavorite)
 
-    async def test_update_favorite(self, maps_api: Maps):
+    async def test_update_favorite(self, maps_api: Maps, map_favorite: MapFavorite):
         new_data = {
             "name": "Palisades Reservoir",
             "lat": 43.250235495324,
@@ -60,7 +60,10 @@ class TestMaps:
         }
         favorites = await maps_api.list_favorites()
         favorite = next(
-            filter(lambda x: (x.lat, x.lng) == (DATA["lat"], DATA["lng"]), favorites)
+            filter(
+                lambda x: (x.lat, x.lng) == (map_favorite.lat, map_favorite.lng),
+                favorites,
+            )
         )
 
         await favorite.update(**new_data)
