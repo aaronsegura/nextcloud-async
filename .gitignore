@@ -59,6 +59,7 @@ coverage.xml
 .pytest_cache/
 cover/
 lcov.info
+.ruff_cache
 
 # Translations
 *.mo
