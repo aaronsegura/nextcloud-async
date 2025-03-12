@@ -21,13 +21,12 @@ class NextcloudDataObject(ABC):
     def __repr__(self) -> str:
         return str(self.data)
 
-    @abstractmethod
     async def async_refresh(self) -> Coroutine[None, None, "NextcloudDataObject"]:
         """Define how this object is refreshed when calling self._refresh().
 
         For example: `return self.self_api.get(self.id)`
         """
-        ...
+        raise NotImplementedError
 
     async def _refresh(self) -> None:
         new_object = await self.async_refresh()

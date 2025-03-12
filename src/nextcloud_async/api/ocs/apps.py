@@ -4,8 +4,6 @@ Reference:
     https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/instruction_set_for_apps.html
 """
 
-from dataclasses import dataclass
-
 from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.api.dataobject import NextcloudDataObject
@@ -13,7 +11,6 @@ from nextcloud_async.api.dataobject import NextcloudDataObject
 from typing import Optional, Dict, List
 
 
-@dataclass
 class App(NextcloudDataObject):
     self_api: "Apps"
 
@@ -28,10 +25,6 @@ class App(NextcloudDataObject):
     async def enable(self) -> None:
         """Enable this app."""
         await self.self_api.enable(app_id=self.id)
-
-    async def async_refresh(self) -> None:
-        """No need to refresh this object."""
-        ...
 
 
 class Apps(NextcloudModule):

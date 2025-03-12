@@ -14,10 +14,6 @@ class Notification(NextcloudDataObject):
     def __str__(self) -> str:
         return f'<Notification #{self.id} from "{self.app}">'
 
-    def async_refresh(self) -> None:
-        """No need to refresh this object."""
-        ...
-
     @property
     def id(self) -> int:
         """Alias for self.notification_id."""

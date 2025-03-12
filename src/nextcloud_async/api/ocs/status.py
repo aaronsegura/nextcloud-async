@@ -6,7 +6,6 @@ https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-st
 import datetime as dt
 
 from dataclasses import dataclass
-
 from enum import Enum
 from typing import Optional, Dict, Any, List
 
@@ -43,11 +42,7 @@ class MyStatus(NextcloudDataObject):
     self_api: "Status"
 
     def __str__(self) -> str:
-        return f'<My Status {self.status} "{self.message}">'
-
-    def async_refresh(self) -> None:
-        """No need to refresh this object."""
-        ...
+        return f'<My Status {self.icon}{self.status} "{self.message}">'
 
     async def set(self, status_type: StatusType) -> None:
         """Set user status.

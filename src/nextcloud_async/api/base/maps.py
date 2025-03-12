@@ -4,7 +4,7 @@ https://github.com/nextcloud/maps/blob/master/openapi.yml
 
 """
 
-from typing import Optional, Awaitable, TypedDict, NotRequired, Unpack
+from typing import Optional, TypedDict, NotRequired, Unpack
 
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver import NextcloudModule, NextcloudBaseApi
@@ -12,15 +12,10 @@ from nextcloud_async.api.dataobject import NextcloudDataObject
 
 
 class MapFavorite(NextcloudDataObject):
-
     self_api: "Maps"
 
     def __str__(self) -> str:
         return f'<MapFavorite "{self.name}">'
-
-    def async_refresh(self) -> Awaitable:
-        """No need to refresh this object."""
-        ...
 
     @property
     def latitude(self) -> float:
