@@ -7,6 +7,7 @@ Reference:
 from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.api.dataobject import NextcloudDataObject
+from nextcloud_async.helpers import password_confirmation_required
 
 from typing import Optional, Dict, List
 
@@ -77,6 +78,7 @@ class Apps(NextcloudModule):
         else:
             return response
 
+    @password_confirmation_required
     async def enable(self, app_id: str) -> None:
         """Enable Application.
 
@@ -87,6 +89,7 @@ class Apps(NextcloudModule):
         """
         return await self._post(path=f"/{app_id}")
 
+    @password_confirmation_required
     async def disable(self, app_id: str) -> None:
         """Disable Application.
 

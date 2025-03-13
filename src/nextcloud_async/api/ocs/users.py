@@ -14,6 +14,7 @@ from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.api.dataobject import NextcloudDataObject
 from nextcloud_async.api.ocs.groups import Group, Groups
+from nextcloud_async.helpers import password_confirmation_required
 
 
 class User(NextcloudDataObject):
@@ -115,6 +116,7 @@ class Users(NextcloudModule):
         self.stub = r"/cloud/users"
         self.api = NextcloudOcsApi(client, ocs_version=ocs_version)
 
+    @password_confirmation_required
     async def create(
         self,
         user_id: str,
@@ -257,6 +259,7 @@ class Users(NextcloudModule):
     #             'shareTypes[]': share_types_values,
     #             'limit': limit})
 
+    @password_confirmation_required
     async def update(self, user_id: str, new_data: Dict[str, Any]) -> None:
         """Update a user's information.
 
@@ -289,6 +292,7 @@ class Users(NextcloudModule):
         """
         return await self._get(path=r"/fields")
 
+    @password_confirmation_required
     async def disable(self, user_id: str) -> None:
         """Disable `user_id`.
 
@@ -299,6 +303,7 @@ class Users(NextcloudModule):
         """
         await self._put(path=f"/{user_id}/disable")
 
+    @password_confirmation_required
     async def enable(self, user_id: str) -> None:
         """Enable `user_id`.  Must be admin.
 
@@ -307,6 +312,7 @@ class Users(NextcloudModule):
         """
         await self._put(path=f"/{user_id}/enable")
 
+    @password_confirmation_required
     async def delete(self, user_id: str) -> None:
         """Remove existing `user_id`.
 
@@ -331,6 +337,7 @@ class Users(NextcloudModule):
             Group(group_id, Groups(self.api.client)) for group_id in response["groups"]
         ]
 
+    @password_confirmation_required
     async def add_to_group(self, user_id: str, group_id: str) -> None:
         """Add `user_id` to `group_id`.
 
@@ -343,6 +350,7 @@ class Users(NextcloudModule):
         """
         await self._post(path=f"/{user_id}/groups", data={"groupid": group_id})
 
+    @password_confirmation_required
     async def remove_from_group(self, user_id: str, group_id: str) -> None:
         """Remove `user_id` from `group_id`.
 
@@ -355,6 +363,7 @@ class Users(NextcloudModule):
         """
         await self._delete(path=f"/{user_id}/groups", data={"groupid": group_id})
 
+    @password_confirmation_required
     async def promote_to_group_subadmin(self, user_id: str, group_id: str) -> None:
         """Make user_id a subadmin of group_id.
 
@@ -367,6 +376,7 @@ class Users(NextcloudModule):
         """
         await self._post(path=f"/{user_id}/subadmins", data={"groupid": group_id})
 
+    @password_confirmation_required
     async def demote_from_group_subadmin(self, user_id: str, group_id: str) -> None:
         """Demote `user_id` from subadmin of `group_id`.
 
@@ -393,6 +403,7 @@ class Users(NextcloudModule):
         response = await self._get(path=f"/{user_id}/subadmins")
         return [Group(group_id, Groups(self.api.client)) for group_id in response]
 
+    @password_confirmation_required
     async def resend_welcome_email(self, user_id: str) -> None:
         """Re-send initial welcome e-mail to user_id.
 

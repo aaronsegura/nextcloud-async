@@ -11,6 +11,7 @@ from typing import List
 from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.api.dataobject import NextcloudDataObject
+from nextcloud_async.helpers import password_confirmation_required
 
 
 class Group(NextcloudDataObject):
@@ -52,7 +53,6 @@ class Groups(NextcloudModule):
     """Manage groups on a Nextcloud instance."""
 
     def __init__(self, client: NextcloudClient) -> None:
-
         self.api = NextcloudOcsApi(client)
         self.stub = "/cloud/groups"
 
@@ -81,6 +81,7 @@ class Groups(NextcloudModule):
         )
         return [Group(data, self) for data in response["groups"]]
 
+    @password_confirmation_required
     async def create(self, group_id: str) -> Group:
         """Create a new group.
 
@@ -105,6 +106,7 @@ class Groups(NextcloudModule):
         response = await self._get(path=f"/{group_id}")
         return response["users"]
 
+    @password_confirmation_required
     async def get_subadmins(self, group_id: str) -> List[str]:
         """Get `group_id` subadmins.
 
@@ -116,6 +118,7 @@ class Groups(NextcloudModule):
         """
         return await self._get(path=f"/{group_id}/subadmins")
 
+    @password_confirmation_required
     async def delete(self, group_id: str) -> None:
         """Remove `group_id`.
 
