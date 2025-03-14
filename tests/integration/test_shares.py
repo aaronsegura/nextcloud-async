@@ -2,6 +2,9 @@ import pytest
 import pytest_asyncio
 import aiofile
 import os
+import json
+
+from vcr.cassette import Cassette
 
 import datetime as dt
 from dateutil.tz import tzlocal
@@ -51,9 +54,6 @@ async def target_user(network_blocked: bool, users_api: Users) -> AsyncGenerator
         _test_user.update({"id": _test_user["user_id"]})
         test_user = User(_test_user, self_api=users_api)
     else:
-        # https://github.com/nextcloud/server/issues/51391
-        # Workaround: Clear cookies and force re-auth
-        users_api.api.client.http_client.cookies.clear()
         test_user = await users_api.create(**_test_user)
 
     yield test_user
@@ -99,6 +99,8 @@ async def shared_file(
     shares_api: Shares,
     target_user: User,
     remote_test_files: list[str],
+    network_blocked: bool,
+    vcr: Cassette,
 ):
     _path = remote_test_files[0]
     _shared_file_data = {
@@ -108,8 +110,22 @@ async def shared_file(
         "share_with": target_user.id,
         "expire_date": _EXPIRATION,
     }
-    shared_file = await shares_api.create(**_shared_file_data)
-    return shared_file
+    if network_blocked:
+        # Since we are sending/checking expiration date, which changes on every run
+        # we pull the original request/response from the cassette and create a
+        # Share object with the response data.
+        _url = f"{shares_api.api.client.endpoint}{shares_api.api.stub}{shares_api.stub}"
+        request = [x for x in vcr.requests if x.uri == _url and x.method == "POST"].pop()
+        response = vcr.responses_of(request).pop()
+        response_data = json.loads(response["body"]["string"])
+        _share = Share(response_data["ocs"]["data"], shares_api)
+        globals()["_EXPIRATION"] = dt.datetime.strptime(  # noqa: DTZ007
+            _share.expiration, r"%Y-%m-%d %H:%M:%S"
+        )
+    else:
+        _share = await shares_api.create(**_shared_file_data)
+
+    return _share
 
 
 @pytest.mark.vcr
