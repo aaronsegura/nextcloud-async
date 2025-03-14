@@ -5,14 +5,17 @@ https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-ap
 
 import json
 import httpx
+import logging
 
-from typing import Dict, Any, Optional, List
+from typing import Any, Optional
 
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver import NextcloudHttpApi, NextcloudCapabilities
 from nextcloud_async.exceptions import NextcloudError
 
 from nextcloud_async.exceptions import NextcloudRequestTimeoutError
+
+log = logging.getLogger("nextcloud_async.driver")
 
 
 class NextcloudOcsApi(NextcloudHttpApi):
@@ -22,15 +25,12 @@ class NextcloudOcsApi(NextcloudHttpApi):
     request all data to be returned to us in json format.
     """
 
-    __capabilities: Dict[str, Any] = {}
-
     def __init__(
         self,
         client: NextcloudClient,
         ocs_version: Optional[str] = "1",
         ocs_stub: Optional[str] = None,
-    ):
-
+    ) -> None:
         if ocs_stub:
             self.stub = ocs_stub
         else:
@@ -45,10 +45,9 @@ class NextcloudOcsApi(NextcloudHttpApi):
         self,
         method: str = "GET",
         path: str = "",
-        data: Optional[Dict[str, Any]] = None,
-        headers: Optional[Dict[str, Any]] = None,
-        return_full_response: bool = False,
-    ) -> Dict[str, Any] | List[Dict[str, Any]]:
+        data: Optional[dict[str, Any]] = None,
+        headers: Optional[dict[str, Any]] = None,
+    ) -> dict[str, Any] | list[dict[str, Any]]:
         """Submit OCS-type query to cloud endpoint.
 
         Args:
@@ -69,103 +68,88 @@ class NextcloudOcsApi(NextcloudHttpApi):
             headers:
                 Headers for submission. Defaults to {}.
 
-            return_full_response:
-                Return full OCS response with metadata.  Defaults to False
-
-
-        Raises:
-            304 - NextcloudNotModified
-
-            400 - NextcloudBadRequest
-
-            401 - NextcloudUnauthorized
-
-            403 - NextcloudForbidden
-
-            403 - NextcloudDeviceWipeRequested
-
-            404 - NextcloudNotFound
-
-            408 - NextcloudRequestTimeout
-
-            429 - NextcloudTooManyRequests
-
-
         Returns:
-            Dict: Response Data
+            Dict|List: Response Data
 
             The OCS Endpoint returns metadata about the response in addition to the data
             what was requested.  The metadata is stripped after checking for request
             success, and only the data portion of the response is returned.
 
-            >>> response = await self.ocs_query(path='/ocs/v1.php/cloud/capabilities')
-
-            Dict, Dict: Response Data and Included Headers
-
-            If ocs_query() is called with an `include_headers` argument, both response data
-            and the requested headers are returned.
-
-            >>> response, headers = await self.ocs_query(..., include_headers=['Some-Header'])
-
         Raises:
             NextcloudException - when invalid response from server
         """
+        auth = self._get_auth()
+        headers = self._munge_headers(headers)
+        data = self._munge_data(data)
+
+        if method.lower() == "get":
+            path = self._munge_path_data(data, path)
+            data = None
+
+        try:
+            log.debug(f"{method} {self.client.endpoint}{self.stub}{path} {data}")
+            response = await self.client.http_client.request(
+                method,
+                auth=auth,
+                url=f"{self.client.endpoint}{self.stub}{path}",
+                json=data,
+                headers=headers,
+            )
+            log.debug(f"Response: [{response.status_code}] {response.json()}")
+        except httpx.ReadTimeout:
+            log.warning("Request timed out.")
+            raise NextcloudRequestTimeoutError()
+
+        await self.raise_response_exception(response)
+        return response.json()["ocs"]["data"]
+
+    def _get_auth(self) -> httpx.BasicAuth | None:
+        if self.client.app_token:
+            auth = None
+        elif self.client.password:
+            auth = httpx.BasicAuth(self.client.user, self.client.password)
+        return auth
+
+    def _munge_headers(self, headers: dict[str, Any] | None) -> dict[str, Any]:
         if headers:
             headers["OCS-APIRequest"] = "true"
             headers["User-Agent"] = self.client.user_agent
         else:
             headers = {"OCS-APIRequest": "true", "User-Agent": self.client.user_agent}
 
+        if self.client.app_token:
+            headers["Authorization"] = f"Bearer {self.client.app_token}"
+
+        return headers
+
+    def _munge_data(self, data: dict[str, Any] | None) -> dict[str, Any]:
         if data:
             data.update({"format": "json"})
         else:
             data = {"format": "json"}
-
-        if method.lower() == "get":
-            path = self._massage_get_data(data, path)
-            data = None
-
-        try:
-            print(f"OCS {method} {self.client.endpoint}{self.stub}{path}")
-            response = await self.client.http_client.request(
-                method,
-                auth=httpx.BasicAuth(self.client.user, self.client.password),
-                url=f"{self.client.endpoint}{self.stub}{path}",
-                json=data,
-                headers=headers,
-            )
-
-        except httpx.ReadTimeout:
-            raise NextcloudRequestTimeoutError()
-
-        await self.raise_response_exception(response)
-        return response.json()["ocs"]["data"]
+        return data
 
     async def raise_response_exception(self, response: httpx.Response):
         try:
             response_content = json.loads(response.content.decode("utf-8"))
         except json.JSONDecodeError:
-            raise NextcloudError(
-                status_code=500, reason="Error decoding JSON response."
-            )
+            raise NextcloudError(status_code=500, reason="Error decoding JSON response.")
 
-        try:
-            ocs_meta = response_content["ocs"]["meta"]
-        except KeyError:
-            if response.status_code >= 400:
-                await self._raise_response_exception(
-                    status_code=response.status_code, reason=response_content["message"]
-                )
+        if response.status_code >= 500:
+            raise NextcloudError(
+                status_code=response.status_code, reason=response_content
+            )
         else:
-            if ocs_meta["status"] != "ok":
-                await self._raise_response_exception(
-                    status_code=ocs_meta["statuscode"], reason=ocs_meta["message"]
-                )
-
-        if response.status_code >= 400:
-            raise NextcloudError(
-                status_code=response.status_code, reason=str(response.content)
+            ocs_meta = response_content["ocs"]["meta"]
+        if response.status_code >= 300:
+            await self._raise_response_exception(
+                status_code=response.status_code, reason=ocs_meta["message"]
             )
+        elif ocs_meta["status"] != "ok":
+            await self._raise_response_exception(
+                status_code=ocs_meta["statuscode"], reason=ocs_meta["message"]
+            )
+            raise NextcloudError(ocs_meta["statuscode"], reason=ocs_meta["message"])
 
     # TODO: Move this to another module
 
@@ -201,7 +185,7 @@ class NextcloudOcsApi(NextcloudHttpApi):
     #         object_id: Optional[str] = None,
     #         object_type: Optional[str] = None,
     #         sort: Optional[str] = 'desc',
-    #         limit: Optional[int] = 50) -> Dict[str, Any]:
+    #         limit: Optional[int] = 50) -> dict[str, Any]:
     #     """Get Recent activity for the current user.
 
     #     Args
@@ -228,7 +212,7 @@ class NextcloudOcsApi(NextcloudHttpApi):
     #     """
     #     await self.get_capabilities('activity.apiv2')
 
-    #     data: Dict[str, Any] = {}
+    #     data: dict[str, Any] = {}
     #     filter = ''
     #     if object_id and object_type:
     #         filter = '/filter'

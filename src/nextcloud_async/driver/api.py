@@ -1,3 +1,5 @@
+import logging
+
 from httpx import BasicAuth
 
 from abc import ABC, abstractmethod
@@ -21,6 +23,8 @@ from nextcloud_async.exceptions import (
     NextcloudUnsupportedMediaTypeError,
     NextcloudMethodNotAllowedError,
 )
+
+log = logging.getLogger(__name__)
 
 
 class NextcloudHttpApi(ABC):
@@ -51,7 +55,7 @@ class NextcloudHttpApi(ABC):
         headers: Optional[Dict[str, Any]] = None,
     ) -> Any: ...
 
-    def _massage_get_data(self, data: Optional[dict[str, Any]] = None, path: str = ""):
+    def _munge_path_data(self, data: Optional[dict[str, Any]] = None, path: str = ""):
         if not data:
             return path
 
@@ -60,7 +64,7 @@ class NextcloudHttpApi(ABC):
             if isinstance(v, bool):
                 parts.append(f"{k}={str(v).lower()}")
             elif v is None:
-                parts.append(f"{k}=")  # TODO: VERIFY THIS SHIZ
+                parts.append(f"{k}=")
             else:
                 parts.append(f"{k}={v}")
         return f"{path}?{'&'.join(parts)}"
@@ -327,11 +331,18 @@ class NextcloudCapabilities:
 
     async def _get_capabilities(self) -> Dict[str, Any]:
         """Populate local capabilities cache for this server."""
+        headers = {"OCS-APIRequest": "true"}
+        if self.client.app_token:
+            auth = None
+            headers["Authorization"] = f"Bearer {self.client.app_token}"
+        elif self.client.password:
+            auth = BasicAuth(self.client.user, self.client.password)
+
         response = await self.client.http_client.request(
             method="GET",
-            auth=BasicAuth(self.client.user, self.client.password),
+            auth=auth,
             url=f"{self.client.endpoint}/ocs/v1.php/cloud/capabilities?format=json",
-            headers={"OCS-APIRequest": "true"},
+            headers=headers,
         )
         return response.json()["ocs"]["data"]
 

@@ -1,7 +1,11 @@
-"""https://docs.nextcloud.com/server/latest/developer_manual/client_apis/WebDAV/index.html"""
+"""Nextcloud DAV Driver.
+
+https://docs.nextcloud.com/server/latest/developer_manual/client_apis/WebDAV/index.html
+"""
 
 import httpx
 import xmltodict
+import logging
 
 from typing import Dict, Any, Optional, cast, ByteString
 
@@ -11,6 +15,8 @@ from nextcloud_async.exceptions import (
     NextcloudError,
     NextcloudRequestTimeoutError,
 )
+
+log = logging.getLogger("nextcloud_async.driver")
 
 
 class NextcloudDavApi(NextcloudHttpApi):
@@ -48,27 +54,27 @@ class NextcloudDavApi(NextcloudHttpApi):
         Returns:
             Dict: Response content
         """
-        if headers:
-            headers["User-Agent"] = self.client.user_agent
-        else:
-            headers = {"User-Agent": self.client.user_agent}
+        headers = self._munge_headers(headers)
+        auth = self._get_auth()
 
         if method.lower() == "get":
-            path = self._massage_get_data(data, path)
+            path = self._munge_path_data(data, path)
             data = None
 
         # TODO: DeprecationWarning: Use 'content=<...>' to upload raw bytes/text content.
         try:
-            print(f"DAV {method} {self.client.endpoint}{self.stub}{path}")
+            log.debug(f"{method} {self.client.endpoint}{self.stub}{path} :: {data}")
             response = await self.client.http_client.request(
                 method,
-                auth=httpx.BasicAuth(self.client.user, self.client.password),
+                auth=auth,
                 url=f"{self.client.endpoint}{self.stub}{path}",
                 data=data,
                 headers=headers,
             )
+            log.debug(f"Response: [{response.status_code}] {response.content}")
 
         except httpx.ReadTimeout:
+            log.warning("Request timed out.")
             raise NextcloudRequestTimeoutError()
 
         await self.raise_response_exception(response)
@@ -82,6 +88,24 @@ class NextcloudDavApi(NextcloudHttpApi):
             return response_data["d:multistatus"]["d:response"]
         else:
             return {}
+
+    def _get_auth(self) -> httpx.BasicAuth | None:
+        if self.client.app_token:
+            auth = None
+        elif self.client.password:
+            auth = httpx.BasicAuth(self.client.user, self.client.password)
+        return auth
+
+    def _munge_headers(self, headers: dict[str, Any] | None) -> dict[str, Any]:
+        if headers:
+            headers["User-Agent"] = self.client.user_agent
+        else:
+            headers = {"User-Agent": self.client.user_agent}
+
+        if self.client.app_token:
+            headers["Authorization"] = f"Bearer {self.client.app_token}"
+
+        return headers
 
     async def raw_request(
         self,
@@ -99,17 +123,12 @@ class NextcloudDavApi(NextcloudHttpApi):
         return response
 
     async def raise_response_exception(self, response: httpx.Response) -> None:
-
         if response.status_code >= 300:
             response_content = response.content
             exception_data = xmltodict.parse(response_content)
-            exception_message = exception_data["d:error"]["s:message"].replace(
-                "\t", " "
-            )
+            exception_message = exception_data["d:error"]["s:message"].replace("\t", " ")
 
-            await self._raise_response_exception(
-                response.status_code, exception_message
-            )
+            await self._raise_response_exception(response.status_code, exception_message)
 
             raise NextcloudError(
                 status_code=response.status_code, reason=exception_message
