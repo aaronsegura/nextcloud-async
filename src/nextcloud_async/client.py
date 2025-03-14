@@ -22,8 +22,12 @@ class NextcloudClient:
             raise RuntimeError("Must supply one of password or app_token")
 
         if app_token:
+            self.auth = None
+            self.request_headers = {"Authorization": f"Bearer {app_token}"}
             log.debug("Using App token authentication.")
         elif user and password:
+            self.auth = httpx.BasicAuth(user, password)
+            self.request_headers = {}
             log.debug("Using basic http auth")
 
         self.user = user

@@ -78,7 +78,6 @@ class NextcloudOcsApi(NextcloudHttpApi):
         Raises:
             NextcloudException - when invalid response from server
         """
-        auth = self._get_auth()
         headers = self._munge_headers(headers)
         data = self._munge_data(data)
 
@@ -90,7 +89,7 @@ class NextcloudOcsApi(NextcloudHttpApi):
             log.debug(f"{method} {self.client.endpoint}{self.stub}{path} {data}")
             response = await self.client.http_client.request(
                 method,
-                auth=auth,
+                auth=self.client.auth,
                 url=f"{self.client.endpoint}{self.stub}{path}",
                 json=data,
                 headers=headers,
@@ -103,13 +102,6 @@ class NextcloudOcsApi(NextcloudHttpApi):
         await self.raise_response_exception(response)
         return response.json()["ocs"]["data"]
 
-    def _get_auth(self) -> httpx.BasicAuth | None:
-        if self.client.app_token:
-            auth = None
-        elif self.client.password:
-            auth = httpx.BasicAuth(self.client.user, self.client.password)
-        return auth
-
     def _munge_headers(self, headers: dict[str, Any] | None) -> dict[str, Any]:
         if headers:
             headers["OCS-APIRequest"] = "true"
@@ -117,8 +109,8 @@ class NextcloudOcsApi(NextcloudHttpApi):
         else:
             headers = {"OCS-APIRequest": "true", "User-Agent": self.client.user_agent}
 
-        if self.client.app_token:
-            headers["Authorization"] = f"Bearer {self.client.app_token}"
+        if self.client.request_headers:
+            headers.update(self.client.request_headers)
 
         return headers
 

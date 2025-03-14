@@ -19,14 +19,23 @@ log = logging.getLogger("nextcloud_async.driver")
 class NextcloudBaseApi(NextcloudHttpApi):
     """The Base API interface."""
 
-    def __init__(self, client: NextcloudClient, api_stub: Optional[str] = None):
+    def __init__(self, client: NextcloudClient, api_stub: Optional[str] = None) -> None:
         super().__init__(client)
         if api_stub:
             self.stub = api_stub
         else:
             self.stub = "/index.php"
 
-    def raise_response_exception(self, status_code: int, reason: str): ...
+    def raise_response_exception(self, status_code: int, reason: str) -> None:
+        """No need to implement for this driver.
+
+        Args:
+            status_code:
+                N/a
+
+            reason:
+                N/a
+        """
 
     async def request(
         self,
@@ -46,36 +55,20 @@ class NextcloudBaseApi(NextcloudHttpApi):
 
             headers (dict, optional): Headers for submission. Defaults to {}.
 
-        Raises:
-            304 - NextcloudNotModified
-
-            400 - NextcloudBadRequest
-
-            401 - NextcloudUnauthorized
-
-            403 - NextcloudForbidden
-
-            403 - NextcloudDeviceWipeRequested
-
-            404 - NextcloudNotFound
-
-            429 - NextcloudTooManyRequests
-
         Returns:
-            httpx.Response: An httpx Response Object
+            dict[str, Any]: Dictionary of reponse data
         """
         if method.lower() == "get":
             path = self._munge_path_data(data, path)
             data = None
 
         headers = self._munge_headers(headers)
-        auth = self._get_auth()
 
         try:
             log.debug(f"{method} {self.client.endpoint}{self.stub}{path} {data}")
             response = await self.client.http_client.request(
                 method=method,
-                auth=auth,
+                auth=self.client.auth,
                 url=f"{self.client.endpoint}{self.stub}{path}",
                 json=data,
                 headers=headers,
@@ -104,6 +97,6 @@ class NextcloudBaseApi(NextcloudHttpApi):
             headers = {"User-Agent": self.client.user_agent}
 
         if self.client.app_token:
-            headers["Authorization"] = f"Bearer {self.client.app_token}"
+            headers.update(self.client.request_headers)
 
         return headers

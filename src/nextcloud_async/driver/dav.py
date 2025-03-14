@@ -55,7 +55,6 @@ class NextcloudDavApi(NextcloudHttpApi):
             Dict: Response content
         """
         headers = self._munge_headers(headers)
-        auth = self._get_auth()
 
         if method.lower() == "get":
             path = self._munge_path_data(data, path)
@@ -66,7 +65,7 @@ class NextcloudDavApi(NextcloudHttpApi):
             log.debug(f"{method} {self.client.endpoint}{self.stub}{path} :: {data}")
             response = await self.client.http_client.request(
                 method,
-                auth=auth,
+                auth=self.client.auth,
                 url=f"{self.client.endpoint}{self.stub}{path}",
                 data=data,
                 headers=headers,
@@ -89,21 +88,14 @@ class NextcloudDavApi(NextcloudHttpApi):
         else:
             return {}
 
-    def _get_auth(self) -> httpx.BasicAuth | None:
-        if self.client.app_token:
-            auth = None
-        elif self.client.password:
-            auth = httpx.BasicAuth(self.client.user, self.client.password)
-        return auth
-
     def _munge_headers(self, headers: dict[str, Any] | None) -> dict[str, Any]:
         if headers:
             headers["User-Agent"] = self.client.user_agent
         else:
             headers = {"User-Agent": self.client.user_agent}
 
-        if self.client.app_token:
-            headers["Authorization"] = f"Bearer {self.client.app_token}"
+        if self.client.request_headers:
+            headers.update(self.client.request_headers)
 
         return headers
 
