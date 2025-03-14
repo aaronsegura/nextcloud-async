@@ -18,11 +18,10 @@ _TEST_USER = {
 }
 
 
-@pytest_asyncio.fixture(scope="module", loop_scope="session")
+@pytest_asyncio.fixture(scope="function", loop_scope="session")
 async def test_groups(
     network_blocked: bool, groups_api: Groups
 ) -> AsyncGenerator[list[Group]]:
-
     ret: list[Group] = []
 
     for i in range(0, 2):
@@ -59,7 +58,6 @@ async def test_user(network_blocked: bool, users_api: Users) -> AsyncGenerator[U
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestGroups:
-
     async def test_search_groups(self, groups_api: Groups, test_groups: list[Group]):
         group = test_groups[0]
         groups = await groups_api.search(group.id)
@@ -70,9 +68,7 @@ class TestGroups:
         assert isinstance(group, Group)
         assert group.id == f"{_TEST_GROUP_NAME}_0"
 
-    async def test_set_get_group_members(
-        self, test_groups: list[Group], test_user: User
-    ):
+    async def test_set_get_group_members(self, test_groups: list[Group], test_user: User):
         group = test_groups[0]
         await test_user.add_to_group(group)
         members = await group.get_members()
