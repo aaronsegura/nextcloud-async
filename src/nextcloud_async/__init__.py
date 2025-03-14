@@ -32,10 +32,22 @@ https://sabre.io/dav/building-a-caldav-client/
 https://sabre.io/dav/building-a-carddav-client/
 """
 
+import os
+import logging
+from logging import config as logging_config
+
+from nextcloud_async.loggers import LOGGING_CONFIG
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async import api
+
 
 __all__ = [
     "NextcloudClient",
     "api",
 ]
+
+logging_config.dictConfig(LOGGING_CONFIG)
+
+log_level = os.getenv("NEXTCLOUD_ASYNC_LOGLEVEL", "WARNING")
+my_logger = logging.getLogger("nextcloud_async")
+my_logger.setLevel(log_level)
