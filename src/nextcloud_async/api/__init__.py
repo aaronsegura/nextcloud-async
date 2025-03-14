@@ -13,7 +13,7 @@ from .base.maps import Maps, MapFavorite
 from .ocs.notifications import Notifications, Notification
 from .ocs.shares import Shares, Share, ShareType, SharePermission
 from .ocs.sharees import Sharees
-from .ocs.status import Status, StatusType
+from .ocs.status import Status, StatusType, PredefinedStatus, MyStatus, UserStatus
 from .ocs.users import Users, User
 from .ocs.talk import (
     ConversationAvatars,
@@ -90,7 +90,8 @@ __all__ = [
     "MapFavorite",
     "Message",
     "MessageReminder",
-    "Notifications", "Notification",
+    "Notifications",
+    "Notification",
     "Participants",
     "Participant",
     "Shares",
