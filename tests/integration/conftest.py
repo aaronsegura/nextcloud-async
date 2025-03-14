@@ -16,6 +16,7 @@ from nextcloud_async.api import (
     Notifications,
     Shares,
     Sharees,
+    Status,
     Users,
 )
 from nextcloud_async.exceptions import NextcloudMethodNotAllowedError
@@ -48,7 +49,7 @@ def vcr_config():
 def vcr_cassette_dir(request):
     # Put all cassettes in cassettes/nextcloud-{version}/{module}/{test}.yaml
     return os.path.join(
-        f"tests/cassettes/nextcloud-{NEXTCLOUD_VERSION}",
+        f"tests/integration/cassettes/nextcloud-{NEXTCLOUD_VERSION}",
         ".".join(request.module.__name__.split(".")[1:]),
     )
 
@@ -77,7 +78,11 @@ async def async_sessionstart():
         return
 
     nc = NextcloudClient(
-        ENDPOINT, USER, PASSWORD, httpx.AsyncClient(timeout=30), user_agent=USER_AGENT
+        ENDPOINT,
+        USER,
+        PASSWORD,
+        http_client=httpx.AsyncClient(timeout=30),
+        user_agent=USER_AGENT,
     )
     files_api = Files(nc)
 
@@ -94,7 +99,7 @@ def pytest_sessionfinish(exitstatus: int):
 
 async def async_sessionfinish(exitstatus: int):
     if exitstatus == 0 and not _NETWORK_BLOCKED:
-        nc = NextcloudClient(ENDPOINT, USER, PASSWORD, httpx.AsyncClient())
+        nc = NextcloudClient(ENDPOINT, USER, PASSWORD, http_client=httpx.AsyncClient())
         files_api = Files(nc)
         await files_api.delete(REMOTE_TEST_DIR)
 
@@ -102,7 +107,9 @@ async def async_sessionfinish(exitstatus: int):
 @pytest_asyncio.fixture(scope="session", loop_scope="session")
 async def nc():
     async with httpx.AsyncClient() as client:
-        yield NextcloudClient(ENDPOINT, USER, PASSWORD, client, user_agent=USER_AGENT)
+        yield NextcloudClient(
+            ENDPOINT, USER, PASSWORD, http_client=client, user_agent=USER_AGENT
+        )
 
 
 @pytest.fixture(scope="session")
@@ -158,3 +165,8 @@ def sharees_api(nc: NextcloudClient) -> Sharees:
 @pytest.fixture(scope="session")
 def users_api(nc: NextcloudClient) -> Users:
     return Users(nc)
+
+
+@pytest.fixture(scope="session")
+def status_api(nc: NextcloudClient) -> Status:
+    return Status(nc)
