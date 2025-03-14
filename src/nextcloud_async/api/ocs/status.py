@@ -54,7 +54,9 @@ class MyStatus(NextcloudDataObject):
         self.data = response
 
     async def set_predefined_status(
-        self, status: PredefinedStatus, clear_at: dt.datetime
+        self,
+        status: PredefinedStatus,
+        clear_at: Optional[dt.datetime] = None,
     ) -> None:
         """Choose from predefined status messages.
 
@@ -71,7 +73,10 @@ class MyStatus(NextcloudDataObject):
         self.data = response
 
     async def set_message(
-        self, message: str, status_icon: str, clear_at: dt.datetime
+        self,
+        message: str,
+        status_icon: Optional[str] = None,
+        clear_at: Optional[dt.datetime] = None,
     ) -> None:
         """Set a custom status message.
 
@@ -166,7 +171,7 @@ class Status(NextcloudModule):
         Returns:
             dict: New status description
         """
-        data: Dict[str, int | str] = {"messageId": status.id}
+        data = {"messageId": status.id}
         if clear_at:
             data.update({"clearAt": clear_at.strftime("%s")})
         response = await self._put(path="/user_status/message/predefined", data=data)
@@ -190,7 +195,7 @@ class Status(NextcloudModule):
         Returns:
             dict: New status description
         """
-        data: Dict[str, str] = {"message": message}
+        data = {"message": message}
         if status_icon:
             data.update({"statusIcon": status_icon})
         if clear_at:
