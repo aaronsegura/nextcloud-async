@@ -33,17 +33,15 @@ This module provides an asyncio-friendly interface to Nextcloud.
 
 ### To Do
 * Activity
-* Calendar CalDAV
 * Circles
 * Comments
-* Contacts CardDAV
 * Cookbook
 * Deck
 * Federated Shares
 * Passwords
 * Phonetrack
 * Notes
-* Tasks CalDAV
+* Tasks
 * User Preferences
 
 If you know of any APIs missing from this list, please open an issue at
