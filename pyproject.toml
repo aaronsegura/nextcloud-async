@@ -33,19 +33,6 @@ dependencies = [
   'python-dateutil>=2.9.0,<3',
 ]
 
-[project.optional-dependencies]
-tests = [
-  "pytest",
-  "pytest-httpx",
-  "pytest-recording",
-  "pytest-asyncio",
-  "pytest-cov"]
-
-docs = [
-  "sphinx>=8.1.3,<9",
-  "sphinx-rtd-theme>=3.0.2,<4",
-]
-
 [project.urls]
 'Homepage' = 'https://github.com/aaronsegura/nextcloud-async'
 'Bug Tracker' = 'https://github.com/aaronsegura/nextcloud-async/issues'

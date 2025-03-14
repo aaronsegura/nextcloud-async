@@ -454,15 +454,6 @@ dependencies = [
     { name = "xmltodict" },
 ]
 
-[package.optional-dependencies]
-tests = [
-    { name = "pytest" },
-    { name = "pytest-asyncio" },
-    { name = "pytest-cov" },
-    { name = "pytest-httpx" },
-    { name = "pytest-recording" },
-]
-
 [package.dev-dependencies]
 dev = [
     { name = "pytest" },
@@ -480,16 +471,10 @@ requires-dist = [
     { name = "aiofile", specifier = ">=3.9.0,<4" },
     { name = "httpx", specifier = ">=0.28,<1" },
     { name = "platformdirs", specifier = ">=4.3,<5" },
-    { name = "pytest", marker = "extra == 'tests'" },
-    { name = "pytest-asyncio", marker = "extra == 'tests'" },
-    { name = "pytest-cov", marker = "extra == 'tests'" },
-    { name = "pytest-httpx", marker = "extra == 'tests'" },
-    { name = "pytest-recording", marker = "extra == 'tests'" },
     { name = "python-dateutil", specifier = ">=2.9.0,<3" },
     { name = "typing-extensions", specifier = ">=4.12,<5" },
     { name = "xmltodict", specifier = ">=0.14,<1" },
 ]
-provides-extras = ["tests"]
 
 [package.metadata.requires-dev]
 dev = [
