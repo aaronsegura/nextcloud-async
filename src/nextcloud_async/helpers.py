@@ -14,8 +14,6 @@ def recursive_urlencode(d: Dict[str, Any]) -> str:
 
     https://stackoverflow.com/questions/4013838/urlencode-a-multidimensional-dictionary-in-python/4014164#4014164
 
-    Updated for python3.
-
     >>> data = {'a': 'b&c', 'd': {'e': {'fg': 'hi'}}, 'j': 'k'}
     >>> recursive_urlencode(data)
     'a=b%26c&d[e][fg]=hi&j=k'
@@ -124,7 +122,7 @@ def password_confirmation_required(
             return await func(self, *args, **kwargs)
         except NextcloudForbiddenError as e:
             if "confirmation" in str(e):
-                self.api.client.http_client.cookies.clear()
+                self.api.client.http_client.cookies.delete("oc_sessionPassphrase")
                 return await func(self, *args, **kwargs)
             else:
                 raise
