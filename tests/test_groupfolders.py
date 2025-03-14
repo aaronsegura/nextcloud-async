@@ -87,8 +87,13 @@ class TestGroupFolders:
         folder = group_folders[0]
         folder_id = folder.id
         await folder.delete()
-        with pytest.raises((NextcloudNotFoundError, NextcloudError)):
+        # Prior to groupfolders 19 this returns a 500 error, we catch generic
+        # NextcloudError.
+        with pytest.raises((NextcloudNotFoundError, NextcloudError)) as e:
             await gf_api.get(folder_id)
+
+        if e.type is NextcloudError:
+            assert e.value.status_code == 500
 
     async def test_toggle_group_member(
         self, group_folders: list[GroupFolder], test_group: Group
