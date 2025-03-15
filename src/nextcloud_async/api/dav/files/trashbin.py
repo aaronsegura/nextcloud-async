@@ -12,7 +12,6 @@ if TYPE_CHECKING:
 
 
 class TrashFile(BaseFile):
-
     def __str__(self) -> str:
         return f'<Nextcloud Trash File #{self.fileid} "{unquote(self.href)}">'
 

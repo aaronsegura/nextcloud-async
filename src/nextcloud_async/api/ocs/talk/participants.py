@@ -78,7 +78,6 @@ class Participants(NextcloudModule):
     """Interact with Nextcloud Talk API."""
 
     def __init__(self, api: NextcloudTalkApi, api_version: str = "4") -> None:
-
         self.stub = f"/apps/spreed/api/v{api_version}"
         self.api: NextcloudTalkApi = api
 

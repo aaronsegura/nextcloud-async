@@ -350,9 +350,7 @@ class Shares(NextcloudModule):
         reqs = [self.__update_share(share_id, k, v) for k, v in updates]
         await asyncio.gather(*reqs)
 
-    async def __update_share(
-        self, share_id: int, key: str, value: Any
-    ) -> Dict[str, Any]:
+    async def __update_share(self, share_id: int, key: str, value: Any) -> Dict[str, Any]:
         return await self._put(path=f"/{share_id}", data={key: value})
 
     async def send_email(self, share_id: int, password: Optional[str] = None) -> None:

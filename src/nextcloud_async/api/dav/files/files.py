@@ -237,9 +237,7 @@ class Files(NextcloudModule):
                 </d:prop></d:set></d:propertyupdate>
         """
 
-        return await self._proppatch(
-            path=f"/files/{self.client.user}/{path}", data=data
-        )
+        return await self._proppatch(path=f"/files/{self.client.user}/{path}", data=data)
 
     async def set_favorite(self, path: str) -> UserFile:
         """Set file/folder as a favorite.
@@ -278,9 +276,7 @@ class Files(NextcloudModule):
             list: list of favorites
         """
         data = self._namespace_favorites_properties(properties)
-        response = await self._report(
-            path=f"/files/{self.client.user}/{path}", data=data
-        )
+        response = await self._report(path=f"/files/{self.client.user}/{path}", data=data)
         if isinstance(response, dict):
             return [UserFile(response, self.api)]
         elif isinstance(response, list):
@@ -387,23 +383,19 @@ class Files(NextcloudModule):
                 if "already exists" not in str(e):
                     raise
 
-    async def __upload_file_chunk(
-        self, local_path: str, uuid_dir: str
-    ) -> httpx.Response:
+    async def __upload_file_chunk(self, local_path: str, uuid_dir: str) -> httpx.Response:
         async with async_open(local_path, "rb") as fp:
             return await self._put(
                 path=f"/uploads/{self.client.user}/{uuid_dir}/{os.path.basename(local_path)}",
                 data=await fp.read(),
             )
 
-    async def __assemble_chunks(
-        self, uuid_dir: str, remote_path: str
-    ) -> httpx.Response:
+    async def __assemble_chunks(self, uuid_dir: str, remote_path: str) -> httpx.Response:
         return await self._move(
             path=f"/uploads/{self.client.user}/{uuid_dir}/.file",
             headers={
                 "Destination": f"{self.client.endpoint}/remote.php/dav/files/"
-                f'{self.client.user}/{quote(remote_path.strip("/"))}',
+                f"{self.client.user}/{quote(remote_path.strip('/'))}",
                 "Overwrite": "T",
             },
         )
@@ -433,7 +425,7 @@ class Files(NextcloudModule):
         uuid_dir = str(uuid.uuid4())
 
         local_cache_dir = (
-            f'{pdir.user_cache_dir("nextcloud-async")}'
+            f"{pdir.user_cache_dir('nextcloud-async')}"
             f"/chunked_uploads/{local_path_escaped}-{remote_path_escaped}"
         )
 
@@ -441,16 +433,12 @@ class Files(NextcloudModule):
             os.makedirs(local_cache_dir)
         except OSError:
             # Cache maybe exists, read metadata and attempt to resume upload
-            async with async_open(
-                f"{local_cache_dir}/metadata.json", "r"
-            ) as metadata_fp:
+            async with async_open(f"{local_cache_dir}/metadata.json", "r") as metadata_fp:
                 metadata = json.loads(await metadata_fp.read())
                 uuid_dir = metadata["uuid"]
         else:
             # Write metadata to file in case of error uploading
-            async with async_open(
-                f"{local_cache_dir}/metadata.json", "w"
-            ) as metadata_fp:
+            async with async_open(f"{local_cache_dir}/metadata.json", "w") as metadata_fp:
                 metadata = {"uuid": uuid_dir}
                 await metadata_fp.write(json.dumps(metadata))
 
@@ -465,9 +453,7 @@ class Files(NextcloudModule):
                 file_position = int(span[1])
 
         if resume_chunk:
-            await self.__upload_file_chunk(
-                f"{local_cache_dir}/{resume_chunk}", uuid_dir
-            )
+            await self.__upload_file_chunk(f"{local_cache_dir}/{resume_chunk}", uuid_dir)
             os.remove(f"{local_cache_dir}/{resume_chunk}")
         else:
             # Make remote upload directory
@@ -476,7 +462,9 @@ class Files(NextcloudModule):
         async with async_open(local_path, "rb") as source_fp:
             source_fp.seek(file_position)
             while data := await source_fp.read(chunk_size):
-                chunk_name = f"{file_position:0{padding}}-{(file_position + len(data)):0{padding}}"
+                chunk_name = (
+                    f"{file_position:0{padding}}-{(file_position + len(data)):0{padding}}"
+                )
                 async with async_open(
                     f"{local_cache_dir}/{chunk_name}", "wb"
                 ) as chunk_fp:
@@ -531,9 +519,7 @@ class Files(NextcloudModule):
             _mem.seek(0)
             data = _mem.read().decode("utf-8")
 
-        result = await self._propfind(
-            path=f"/files/{self.client.user}/{path}", data=data
-        )
+        result = await self._propfind(path=f"/files/{self.client.user}/{path}", data=data)
 
         ret: List[dict[str, Any]] = []
         if result["d:propstat"]["d:prop"][ruleprop]:
@@ -581,6 +567,4 @@ class Files(NextcloudModule):
             _mem.seek(0)
             data = _mem.read().decode("utf-8")
 
-        return await self._proppatch(
-            path=f"/files/{self.client.user}/{path}", data=data
-        )
+        return await self._proppatch(path=f"/files/{self.client.user}/{path}", data=data)

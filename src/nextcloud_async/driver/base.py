@@ -3,14 +3,13 @@
 https://docs.nextcloud.com/server/latest/developer_manual/client_apis/
 """
 
-import httpx
 import logging
+from typing import Any, Dict, Optional
 
-from typing import Optional, Any, Dict
+import httpx
 
-from nextcloud_async.driver import NextcloudHttpApi
 from nextcloud_async.client import NextcloudClient
-
+from nextcloud_async.driver import NextcloudHttpApi
 from nextcloud_async.exceptions import NextcloudRequestTimeoutError
 
 log = logging.getLogger("nextcloud_async.driver")

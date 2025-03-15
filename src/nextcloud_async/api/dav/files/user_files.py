@@ -11,7 +11,6 @@ from .versions import Versions
 
 
 class UserFile(BaseFile):
-
     def __str__(self) -> str:
         return f'<Nextcloud File #{self.fileid} "{unquote(self.path)}">'
 
@@ -45,9 +44,7 @@ class UserFile(BaseFile):
             overwrite:
                 Overwrite destination if it exists
         """
-        return await self.files_api.move(
-            source=self.path, dest=dest, overwrite=overwrite
-        )
+        return await self.files_api.move(source=self.path, dest=dest, overwrite=overwrite)
 
     async def copy(self, dest: str, overwrite: bool = False) -> None:
         """Copy file.

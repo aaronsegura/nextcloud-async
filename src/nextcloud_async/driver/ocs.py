@@ -4,16 +4,17 @@ https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-ap
 """
 
 import json
-import httpx
 import logging
-
 from typing import Any, Optional
 
-from nextcloud_async.client import NextcloudClient
-from nextcloud_async.driver import NextcloudHttpApi, NextcloudCapabilities
-from nextcloud_async.exceptions import NextcloudError
+import httpx
 
-from nextcloud_async.exceptions import NextcloudRequestTimeoutError
+from nextcloud_async.client import NextcloudClient
+from nextcloud_async.driver import NextcloudCapabilities, NextcloudHttpApi
+from nextcloud_async.exceptions import NextcloudAsyncError, NextcloudRequestTimeoutError
+
+_HTTP_USER_ERROR = 400
+_HTTP_SERVER_ERROR = 500
 
 log = logging.getLogger("nextcloud_async.driver")
 

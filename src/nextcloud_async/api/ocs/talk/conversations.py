@@ -93,8 +93,7 @@ class Conversation:
 
     def __str__(self) -> str:
         return (
-            f'<Conversation: "{self.data['displayName']}" '
-            f'token: "{self.data['token']}">'
+            f'<Conversation: "{self.data["displayName"]}" token: "{self.data["token"]}">'
         )
 
     def __repr__(self) -> str:
@@ -331,9 +330,7 @@ class Conversation:
         reference_id: NotRequired[str]
         silent: bool
 
-    async def send(
-        self, **kwargs: Unpack[_SendArgs]
-    ) -> Tuple[Message, httpx.Headers]:  # noqa: D417
+    async def send(self, **kwargs: Unpack[_SendArgs]) -> Tuple[Message, httpx.Headers]:  # noqa: D417
         """Send message to the conversation.
 
         Args:
@@ -647,9 +644,7 @@ class Conversation:
         Returns:
             List of Suggestions
         """
-        return await self.chat_api.suggest_autocompletes(
-            room_token=self.token, **kwargs
-        )
+        return await self.chat_api.suggest_autocompletes(room_token=self.token, **kwargs)
 
     async def set_name_as_guest(self, name: str) -> None:
         """Set display name as a guest.
@@ -836,9 +831,7 @@ class Conversation:
         max_votes: int
         draft: bool
 
-    async def create_poll(
-        self, **kwargs: Unpack[_CreatePollArgs]
-    ) -> Poll:  # noqa: D417
+    async def create_poll(self, **kwargs: Unpack[_CreatePollArgs]) -> Poll:  # noqa: D417
         """Create a poll in the conversation.
 
         Args:
@@ -868,9 +861,7 @@ class Conversation:
         result_mode: PollMode
         max_votes: int
 
-    async def edit_draft_poll(
-        self, **kwargs: Unpack[_EditDraftPollArgs]
-    ) -> Poll:  # noqa: D417
+    async def edit_draft_poll(self, **kwargs: Unpack[_EditDraftPollArgs]) -> Poll:  # noqa: D417
         """Edit a draft poll in a conversation.
 
         Args:
@@ -1155,7 +1146,6 @@ class Conversations(NextcloudModule):
     api: NextcloudTalkApi
 
     def __init__(self, client: NextcloudClient, api_version: str = "4") -> None:
-
         self.client: NextcloudClient = client
         self.stub = f"/apps/spreed/api/v{api_version}"
         self.api = NextcloudTalkApi(client)
@@ -1324,9 +1314,7 @@ class Conversations(NextcloudModule):
             path=f"/room/{room_token}/description", data={"description": description}
         )
 
-    async def allow_guests(
-        self, room_token: str, password: Optional[str] = None
-    ) -> None:
+    async def allow_guests(self, room_token: str, password: Optional[str] = None) -> None:
         """Allow guests into a conversation.
 
         Args:
@@ -1353,9 +1341,7 @@ class Conversations(NextcloudModule):
         """
         await self._delete(path=f"/room/{room_token}/public")
 
-    async def read_only(
-        self, room_token: str, state: ConversationReadOnlyState
-    ) -> None:
+    async def read_only(self, room_token: str, state: ConversationReadOnlyState) -> None:
         """Set read-only status of a conversation.
 
         Requires 'read-only-rooms' capability.
@@ -1368,9 +1354,7 @@ class Conversations(NextcloudModule):
                 ConversationReadOnlyState
         """
         await self.api.require_talk_feature("read-only-rooms")
-        await self._put(
-            path=f"/room/{room_token}/read-only", data={"state": state.value}
-        )
+        await self._put(path=f"/room/{room_token}/read-only", data={"state": state.value})
 
     async def set_conversation_password(self, token: str, password: str) -> None:
         """Set a password on a conversation.
@@ -1524,9 +1508,7 @@ class Conversations(NextcloudModule):
                 ListableScope
         """
         await self.api.require_talk_feature("listable-rooms")
-        await self._put(
-            path=f"/room/{room_token}/listable", data={"scope": scope.value}
-        )
+        await self._put(path=f"/room/{room_token}/listable", data={"scope": scope.value})
 
     async def set_mention_permissions(
         self, room_token: str, permissions: MentionPermissions

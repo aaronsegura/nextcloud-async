@@ -1,30 +1,52 @@
 import logging
+from abc import ABC, abstractmethod
+from typing import Any, Dict, Optional, Tuple
 
 from httpx import BasicAuth
 
-from abc import ABC, abstractmethod
-
-from typing import Dict, Any, Optional
-
 from nextcloud_async.client import NextcloudClient
-
 from nextcloud_async.exceptions import (
     NextcloudBadRequestError,
-    NextcloudForbiddenError,
-    NextcloudNotModifiedError,
-    NextcloudUnauthorizedError,
-    NextcloudDeviceWipeRequestedError,
-    NextcloudNotFoundError,
-    NextcloudTooManyRequestsError,
     NextcloudConflictError,
-    NextcloudPreconditionError,
-    NextcloudNotCapableError,
+    NextcloudDeviceWipeRequestedError,
     NextcloudError,
-    NextcloudUnsupportedMediaTypeError,
+    NextcloudFederationRemoteError,
+    NextcloudForbiddenError,
+    NextcloudGenericServerError,
     NextcloudMethodNotAllowedError,
+    NextcloudNotCapableError,
+    NextcloudNotFoundError,
+    NextcloudNotSupportedError,
+    NextcloudPreconditionError,
+    NextcloudRequestTimeoutError,
+    NextcloudServiceNotAvailableError,
+    NextcloudTooManyRequestsError,
+    NextcloudUnauthorizedError,
+    NextcloudUnsupportedMediaTypeError,
+    NextcloudUpgradeRequiredError,
 )
 
-log = logging.getLogger(__name__)
+_EXCEPTIONS = [
+    NextcloudBadRequestError,
+    NextcloudConflictError,
+    NextcloudError,
+    NextcloudForbiddenError,
+    NextcloudMethodNotAllowedError,
+    NextcloudNotCapableError,
+    NextcloudNotFoundError,
+    NextcloudPreconditionError,
+    NextcloudTooManyRequestsError,
+    NextcloudUnauthorizedError,
+    NextcloudUnsupportedMediaTypeError,
+    NextcloudFederationRemoteError,
+    NextcloudUpgradeRequiredError,
+    NextcloudServiceNotAvailableError,
+    NextcloudNotSupportedError,
+    NextcloudGenericServerError,
+    NextcloudRequestTimeoutError,
+]
+
+log = logging.getLogger("nextcloud_async.driver")
 
 
 class NextcloudHttpApi(ABC):

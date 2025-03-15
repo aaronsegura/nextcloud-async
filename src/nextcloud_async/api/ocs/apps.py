@@ -21,7 +21,6 @@ class App(NextcloudDataObject):
     async def disable(self) -> None:
         """Disable this app."""
         await self.self_api.disable(app_id=self.id)
-        self.data = {}
 
     async def enable(self) -> None:
         """Enable this app."""
@@ -59,7 +58,7 @@ class Apps(NextcloudModule):
         """
         data: Dict[str, str] = {}
         if filter:
-            data = {"filter": filter}
+            data = {"filter": filter.lower()}
 
         response = await self._get(data=data)
         return response["apps"]

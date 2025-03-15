@@ -483,9 +483,7 @@ class Chat(NextcloudModule):
             else:
                 data["referenceId"] = reference_id
 
-        response, headers = await self._post(
-            path=f"/chat/{room_token}/share", data=data
-        )
+        response, headers = await self._post(path=f"/chat/{room_token}/share", data=data)
         return Message(response, self.api), filter_headers(return_headers, headers)
 
     async def share_file(

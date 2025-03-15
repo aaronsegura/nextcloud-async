@@ -3,14 +3,14 @@
 https://docs.nextcloud.com/server/latest/developer_manual/client_apis/WebDAV/index.html
 """
 
+import logging
+from typing import Any, ByteString, Dict, Optional, cast
+
 import httpx
 import xmltodict
-import logging
 
-from typing import Dict, Any, Optional, cast, ByteString
-
-from nextcloud_async.driver import NextcloudHttpApi
 from nextcloud_async.client import NextcloudClient
+from nextcloud_async.driver import NextcloudHttpApi
 from nextcloud_async.exceptions import (
     NextcloudError,
     NextcloudRequestTimeoutError,
@@ -18,11 +18,13 @@ from nextcloud_async.exceptions import (
 
 log = logging.getLogger("nextcloud_async.driver")
 
+_HTTP_USER_ERROR = 400
+
 
 class NextcloudDavApi(NextcloudHttpApi):
     """Interace with Nextcloud DAV interface for file operations."""
 
-    def __init__(self, client: NextcloudClient, api_stub: Optional[str] = None):
+    def __init__(self, client: NextcloudClient, api_stub: Optional[str] = None) -> None:
         super().__init__(client)
         if api_stub:
             self.stub = api_stub

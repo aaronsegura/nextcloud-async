@@ -13,7 +13,6 @@ if TYPE_CHECKING:
 
 
 class Version(BaseFile):
-
     def __str__(self) -> str:
         return f'<Nextcloud File Version "{unquote(self.href)}">'
 

@@ -3,19 +3,18 @@
 https://nextcloud-talk.readthedocs.io/en/latest/global/
 """
 
-import httpx
 import json
 import logging
+from typing import Any, Dict, Optional, Tuple
 
-from typing import Dict, Any, Optional, Tuple
+import httpx
 
 from nextcloud_async.client import NextcloudClient
-from nextcloud_async.driver import NextcloudOcsApi, NextcloudCapabilities
-
+from nextcloud_async.driver import NextcloudCapabilities, NextcloudOcsApi
 from nextcloud_async.exceptions import (
-    NextcloudRequestTimeoutError,
-    NextcloudNotCapableError,
     NextcloudError,
+    NextcloudNotCapableError,
+    NextcloudRequestTimeoutError,
 )
 
 log = logging.getLogger("nextcloud_async.driver")

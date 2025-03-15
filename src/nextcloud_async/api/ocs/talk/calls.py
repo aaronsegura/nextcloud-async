@@ -17,13 +17,10 @@ class Calls(NextcloudModule):
     api: NextcloudTalkApi
 
     def __init__(self, api: NextcloudTalkApi, api_version: str = "4") -> None:
-
         self.stub = f"/apps/spreed/api/v{api_version}/call"
         self.api = api
 
-    async def get_connected_participants(
-        self, room_token: str
-    ) -> List[ParticipantData]:
+    async def get_connected_participants(self, room_token: str) -> List[ParticipantData]:
         """Get list of connected participants.
 
         Args:
@@ -104,9 +101,7 @@ class Calls(NextcloudModule):
             path=f"/{room_token}/dialout/{user_id}", data={"attendeeId": user_id}
         )
 
-    async def update_flags(
-        self, room_token: str, flags: ParticipantInCallFlags
-    ) -> None:
+    async def update_flags(self, room_token: str, flags: ParticipantInCallFlags) -> None:
         """Update call flags.
 
         Args:

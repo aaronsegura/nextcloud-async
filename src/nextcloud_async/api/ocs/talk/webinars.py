@@ -49,9 +49,7 @@ class Webinars(NextcloudModule):
         )
         return response
 
-    async def set_sip_dialin(
-        self, room_token: str, state: SipState
-    ) -> ConversationData:
+    async def set_sip_dialin(self, room_token: str, state: SipState) -> ConversationData:
         """Enable or Disable SIP dialin for webinar.
 
         Args:

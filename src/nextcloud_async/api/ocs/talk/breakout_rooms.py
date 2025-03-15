@@ -288,7 +288,5 @@ class BreakoutRooms(NextcloudModule):
             New breakout room.
         """
         await self._validate_capability()
-        response = await self._post(
-            path=f"/{room_token}/switch", data={"target": target}
-        )
+        response = await self._post(path=f"/{room_token}/switch", data={"target": target})
         return BreakoutRoom(response, self.api)

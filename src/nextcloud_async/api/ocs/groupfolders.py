@@ -4,16 +4,14 @@ https://github.com/nextcloud/groupfolders#api
 https://github.com/nextcloud/groupfolders/blob/master/openapi.json
 """
 
-from enum import IntFlag, Enum
 from dataclasses import dataclass
-
-from typing import List, Dict, Any, Optional
+from enum import Enum, IntFlag
+from typing import Any, Dict, List, Optional
 
 from nextcloud_async.api.ocs.groups import Group
 from nextcloud_async.api.ocs.users import User
-
-from nextcloud_async.driver import NextcloudOcsApi, NextcloudModule
 from nextcloud_async.client import NextcloudClient
+from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
 
 
 class GroupFoldersPermissions(IntFlag):

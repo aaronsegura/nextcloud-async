@@ -3,65 +3,71 @@
 https://docs.nextcloud.com/server/latest/developer_manual/client_apis/
 """
 
-from .ocs.apps import Apps, App
-from .dav.files import Files, UserFile, UserPath, TrashFile, Trashbin, Versions, Version
-from .ocs.groupfolders import GroupFolders, GroupFolder, GroupFoldersPermissions
-from .ocs.groups import Groups, Group
-from .ocs.ldap import Ldap, LdapConfiguration
 from .base.loginflowv2 import LoginFlowV2
-from .base.maps import Maps, MapFavorite
-from .ocs.notifications import Notifications, Notification
-from .ocs.shares import Shares, Share, ShareType, SharePermission
+from .base.maps import MapFavorite, Maps
+from .base.wipe import Wipe
+from .dav.files import Files, Trashbin, TrashFile, UserFile, UserPath, Version, Versions
+from .ocs.apps import App, Apps
+from .ocs.groupfolders import (
+    AclManagerType,
+    GroupFolder,
+    GroupFolders,
+    GroupFoldersPermissions,
+)
+from .ocs.groups import Group, Groups
+from .ocs.ldap import Ldap, LdapConfiguration
+from .ocs.notifications import Notification, Notifications
 from .ocs.sharees import Sharees
-from .ocs.status import Status, StatusType, PredefinedStatus, MyStatus, UserStatus
-from .ocs.users import Users, User
+from .ocs.shares import Share, SharePermission, Shares, ShareType
+from .ocs.status import MyStatus, PredefinedStatus, Status, StatusType, UserStatus
 from .ocs.talk import (
-    ConversationAvatars,
     Bot,
     Bots,
-    Calls,
-    Chat,
-    Message,
-    MessageReminder,
-    Suggestion,
-    Conversations,
-    Conversation,
-    Webinars,
     BreakoutRoom,
-    BreakoutRooms,
-    Integrations,
-    Participants,
-    Participant,
-    Polls,
-    Poll,
-    Reactions,
-    InternalSignaling,
     BreakoutRoomAssignmentMode,
+    BreakoutRooms,
     BreakoutRoomStatus,
     CallNotificationLevel,
+    Calls,
+    Chat,
+    Conversation,
+    ConversationAvatars,
+    ConversationNotificationLevel,
+    Conversations,
     ConversationType,
     FileShareMessageType,
+    Integrations,
+    InternalSignaling,
     ListableScope,
     MentionPermissions,
-    ConversationNotificationLevel,
+    Message,
+    MessageReminder,
     ObjectSources,
+    Participant,
     ParticipantInCallFlags,
     ParticipantPermissions,
+    Participants,
     ParticipantType,
     PermissionAction,
+    Poll,
     PollMode,
+    Polls,
     PollStatus,
+    Reactions,
     ReadStatusPrivacy,
     RoomObjectType,
-    SignalingMode,
     SessionState,
     SharedItemType,
+    SignalingMode,
     SipState,
+    Suggestion,
     WebinarLobbyState,
+    Webinars,
 )
-from .base.wipe import Wipe
+from .ocs.users import User, Users
 
 __all__ = [
+    "AclManagerType",
     "Apps",
     "App",
     "Chat",
@@ -90,6 +96,9 @@ __all__ = [
     "MapFavorite",
     "Message",
     "MessageReminder",
+    "PredefinedStatus",
+    "MyStatus",
+    "UserStatus",
     "Notifications",
     "Notification",
     "Participants",
