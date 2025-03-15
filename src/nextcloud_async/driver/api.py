@@ -75,9 +75,10 @@ class NextcloudHttpApi(ABC):
         path: str = "",
         data: Optional[Any] = None,
         headers: Optional[Dict[str, Any]] = None,
-    ) -> Any: ...
+    ) -> Any:
+        raise NotImplementedError
 
-    def _munge_path_data(self, data: Optional[dict[str, Any]] = None, path: str = ""):
+    def _path_args(self, data: Optional[dict[str, Any]] = None, path: str = "") -> str:
         if not data:
             return path
 
@@ -90,6 +91,22 @@ class NextcloudHttpApi(ABC):
             else:
                 parts.append(f"{k}={v}")
         return f"{path}?{'&'.join(parts)}"
+
+    def _munge_headers(
+        self, headers: dict[str, Any] | None, extra: dict[str, Any] | None = {}
+    ) -> dict[str, Any]:
+        if headers:
+            headers["User-Agent"] = self.client.user_agent
+        else:
+            headers = {"User-Agent": self.client.user_agent}
+
+        if extra:
+            headers.update(extra)
+
+        if self.client.request_headers:
+            headers.update(self.client.request_headers)
+
+        return headers
 
     async def _wipe_requested(self) -> bool:
         from nextcloud_async.api import Wipe
@@ -106,10 +123,6 @@ class NextcloudHttpApi(ABC):
 
     async def _raise_response_exception(self, status_code: int, reason: str):
         match status_code:
-            case 304:
-                raise NextcloudNotModifiedError()
-            case 400:
-                raise NextcloudBadRequestError(reason)
             case 401:
                 if await self._wipe_requested():
                     raise NextcloudDeviceWipeRequestedError()
@@ -120,25 +133,17 @@ class NextcloudHttpApi(ABC):
                     raise NextcloudDeviceWipeRequestedError()
                 else:
                     raise NextcloudForbiddenError(reason)
-            case 404:
-                raise NextcloudNotFoundError(reason)
-            case 405:
-                raise NextcloudMethodNotAllowedError(reason)
-            case 415:
-                raise NextcloudUnsupportedMediaTypeError(reason)
-            case 429:
-                raise NextcloudTooManyRequestsError()
-            case 409:
-                raise NextcloudConflictError(reason)
-            case 412:
-                raise NextcloudPreconditionError(reason)
-            case 499:
-                raise NextcloudNotCapableError(reason)
             case _:
-                pass
-
-        if status_code >= 400:
-            raise NextcloudError(status_code=status_code, reason=str(reason))
+                try:
+                    exception = [
+                        e for e in _EXCEPTIONS if e.status_code == status_code
+                    ].pop()
+                except IndexError:
+                    log.debug(f"Raising generic error. [{status_code}] {reason}")
+                    if status_code >= 400:  # noqa: PLR2004
+                        raise NextcloudError(status_code=status_code, reason=str(reason))
+                else:
+                    raise exception(reason)
 
     async def get(
         self,

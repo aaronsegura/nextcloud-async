@@ -57,10 +57,8 @@ class NextcloudDavApi(NextcloudHttpApi):
             Dict: Response content
         """
         headers = self._munge_headers(headers)
-
         if method.lower() == "get":
-            path = self._munge_path_data(data, path)
-            data = None
+            data, path = self._path_args(data, path)
 
         # TODO: DeprecationWarning: Use 'content=<...>' to upload raw bytes/text content.
         try:
@@ -81,25 +79,13 @@ class NextcloudDavApi(NextcloudHttpApi):
         await self.raise_response_exception(response)
 
         if raw_response:
-            ret: ByteString = response.content
-            return ret
+            return response.content
 
         if response.content:
             response_data = xmltodict.parse(response.content)
             return response_data["d:multistatus"]["d:response"]
         else:
             return {}
-
-    def _munge_headers(self, headers: dict[str, Any] | None) -> dict[str, Any]:
-        if headers:
-            headers["User-Agent"] = self.client.user_agent
-        else:
-            headers = {"User-Agent": self.client.user_agent}
-
-        if self.client.request_headers:
-            headers.update(self.client.request_headers)
-
-        return headers
 
     async def raw_request(
         self,
@@ -117,9 +103,8 @@ class NextcloudDavApi(NextcloudHttpApi):
         return response
 
     async def raise_response_exception(self, response: httpx.Response) -> None:
-        if response.status_code >= 300:
-            response_content = response.content
-            exception_data = xmltodict.parse(response_content)
+        if response.status_code >= _HTTP_USER_ERROR:
+            exception_data = xmltodict.parse(response.content)
             exception_message = exception_data["d:error"]["s:message"].replace("\t", " ")
 
             await self._raise_response_exception(response.status_code, exception_message)

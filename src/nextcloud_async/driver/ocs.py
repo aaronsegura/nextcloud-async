@@ -77,13 +77,12 @@ class NextcloudOcsApi(NextcloudHttpApi):
             success, and only the data portion of the response is returned.
 
         Raises:
-            NextcloudException - when invalid response from server
+            NextcloudRequestTimeoutError - When request times out.
         """
-        headers = self._munge_headers(headers)
-        data = self._munge_data(data)
-
+        headers = self._munge_headers(headers, extra={"OCS-APIRequest": "true"})
+        data = self._format_json(data)
         if method.lower() == "get":
-            path = self._munge_path_data(data, path)
+            path = self._path_args(data, path)
             data = None
 
         try:
@@ -95,137 +94,40 @@ class NextcloudOcsApi(NextcloudHttpApi):
                 json=data,
                 headers=headers,
             )
-            log.debug(f"Response: [{response.status_code}] {response.json()}")
+            log.debug(f"Response: [{response.status_code}] {response.text}")
         except httpx.ReadTimeout:
             log.warning("Request timed out.")
-            raise NextcloudRequestTimeoutError()
+            raise NextcloudRequestTimeoutError("Request timed out.")
 
         await self.raise_response_exception(response)
         return response.json()["ocs"]["data"]
 
-    def _munge_headers(self, headers: dict[str, Any] | None) -> dict[str, Any]:
-        if headers:
-            headers["OCS-APIRequest"] = "true"
-            headers["User-Agent"] = self.client.user_agent
-        else:
-            headers = {"OCS-APIRequest": "true", "User-Agent": self.client.user_agent}
-
-        if self.client.request_headers:
-            headers.update(self.client.request_headers)
-
-        return headers
-
-    def _munge_data(self, data: dict[str, Any] | None) -> dict[str, Any]:
+    def _format_json(self, data: dict[str, Any] | None) -> dict[str, Any]:
         if data:
             data.update({"format": "json"})
         else:
             data = {"format": "json"}
         return data
 
-    async def raise_response_exception(self, response: httpx.Response):
+    async def raise_response_exception(self, response: httpx.Response) -> None:
+        """Raise an exception, if necessary.
+
+        Args:
+            response:
+                Response object from server.
+
+        Raises:
+            NextcloudAsyncError: When content is unintepretable.
+        """
         try:
-            response_content = json.loads(response.content.decode("utf-8"))
-        except json.JSONDecodeError:
-            raise NextcloudError(status_code=500, reason="Error decoding JSON response.")
+            response_data = response.json()
+        except json.JSONDecodeError as e:
+            raise NextcloudAsyncError(reason=str(e))
 
-        if response.status_code >= 500:
-            raise NextcloudError(
-                status_code=response.status_code, reason=response_content
-            )
-        else:
-            ocs_meta = response_content["ocs"]["meta"]
-        if response.status_code >= 300:
+        if response.status_code >= _HTTP_SERVER_ERROR:
+            await self._raise_response_exception(response.status_code, response.text)
+        ocs_meta = response_data["ocs"]["meta"]
+        if ocs_meta["status"] != "ok" or ocs_meta["statuscode"] >= _HTTP_USER_ERROR:
             await self._raise_response_exception(
-                status_code=response.status_code, reason=ocs_meta["message"]
+                ocs_meta["statuscode"], ocs_meta["message"]
             )
-        elif ocs_meta["status"] != "ok":
-            await self._raise_response_exception(
-                status_code=ocs_meta["statuscode"], reason=ocs_meta["message"]
-            )
-            raise NextcloudError(ocs_meta["statuscode"], reason=ocs_meta["message"])
-
-    # TODO: Move this to another module
-
-    # async def get_file_guest_link(self, file_id: int) -> str:
-    #     """Generate a generic sharable link for a file.
-
-    #     Link expires in 8 hours.
-
-    #     https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-api-overview.html#direct-download
-
-    #     Args
-    #         file_id (int): File ID to generate link for
-
-    #     Returns
-    #         str: Link to file
-
-    #     Raises
-    #         NextcloudNotFound - file not found
-
-    #     """
-
-    #     result = await self.request(
-    #         method='POST',
-    #         path=r'/ocs/v2.php/apps/dav/api/v1/direct',
-    #         data={'fileId': file_id})
-
-    #     return result['url']
-
-    # # TODO: Move this to another module
-    # async def get_activity(
-    #         self,
-    #         since: Optional[int] = 0,
-    #         object_id: Optional[str] = None,
-    #         object_type: Optional[str] = None,
-    #         sort: Optional[str] = 'desc',
-    #         limit: Optional[int] = 50) -> dict[str, Any]:
-    #     """Get Recent activity for the current user.
-
-    #     Args
-    #         since (int optional): Only return ativity since activity with given ID. Defaults
-    #         to 0.
-
-    #         object_id (str optional): object_id filter. Defaults to None.
-
-    #         object_type (str optional): object_type filter. Defaults to None.
-
-    #         sort (str optional): Sort order; either `asc` or `desc`. Defaults to 'desc'.
-
-    #         limit (int optional): How many results per request. Defaults to 50.
-
-    #     Raises
-    #         NextcloudException: When given invalid argument combination
-
-    #     Returns
-    #         Tuple(dict, dict): activity results and headers
-
-    #     Raises
-    #         NextcloudException - when Activities isn't installed.
-
-    #     """
-    #     await self.get_capabilities('activity.apiv2')
-
-    #     data: dict[str, Any] = {}
-    #     filter = ''
-    #     if object_id and object_type:
-    #         filter = '/filter'
-    #         data.update({
-    #             'object_type': object_type,
-    #             'object_id': object_id})
-    #     elif object_id or object_type:
-    #         raise NextcloudException(
-    #             403,
-    #             'filter_object_type and filter_object are both required.')
-
-    #     data.update({
-    #         'limit': limit,
-    #         'sort': sort,
-    #         'since': since})
-
-    #     response = await self.request(
-    #         method='GET',
-    #         path=f'/ocs/v2.php/apps/activity/api/v2/activity{filter}',
-    #         data=data,
-    #         return_full_response=True)
-
-    #     return response

@@ -5,7 +5,7 @@ LOGGING_CONFIG = {
     "disable_existing_loggers": False,
     "formatters": {
         "simple": {
-            "format": r"%(asctime)s [%(levelname)s] [%(name)s.%(module)s] %(message)s",
+            "format": r"%(asctime)s [%(levelname)s] [%(name)s.%(funcName)s:%(lineno)s] %(message)s",
             "datefmt": r"%Y-%m-%dT%H:%M:%S%z",
         },
         # "json": {
@@ -45,7 +45,12 @@ LOGGING_CONFIG = {
                 # "file"
             ],
         },
-        "nextcloud_async": {},
+        "nextcloud_async": {
+            "handlers": {},
+        },
+        "nextcloud_async.driver": {
+            "handlers": {},
+        },
     },
 }
 

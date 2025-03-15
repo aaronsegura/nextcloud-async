@@ -88,18 +88,17 @@ class NextcloudTalkApi(NextcloudOcsApi):
             NextcloudException - when invalid response from server
         """
         headers = self._munge_headers(headers)
-        data = self._munge_data(data)
-        auth = self._get_auth()
+        data = self._format_json(data)
 
         if method.lower() == "get":
-            path = self._munge_path_data(data, path)
+            path = self._path_args(data, path)
             data = None
 
         try:
             log.debug(f"{method} {self.client.endpoint}{self.stub}{path} {data}")
             response = await self.client.http_client.request(
                 method,
-                auth=auth,
+                auth=self.client.auth,
                 url=f"{self.client.endpoint}{self.stub}{path}",
                 json=data,
                 headers=headers,

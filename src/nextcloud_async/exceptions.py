@@ -3,7 +3,16 @@
 from typing import Optional
 
 
-class NextcloudAsyncError(Exception): ...
+class NextcloudAsyncError(Exception):
+    reason = None
+
+    def __init__(self, reason: Optional[str] = None) -> None:
+        """Initialize our very own exception."""
+        super(BaseException, self).__init__()
+        self.reason = reason
+
+    def __str__(self) -> str:
+        return str(self.reason)
 
 
 class NextcloudError(Exception):
@@ -25,16 +34,6 @@ class NextcloudError(Exception):
             return f"[{self.status_code}] {self.reason}"
         else:
             return str(self.reason)
-
-
-class NextcloudNotModifiedError(NextcloudError):
-    """304 - Content not modified."""
-
-    status_code = 304
-    reason = "Not modified."
-
-    def __str__(self) -> str:
-        return f"[{self.status_code}] {self.reason}"
 
 
 class NextcloudBadRequestError(NextcloudError):
@@ -239,10 +238,9 @@ class NextcloudServiceNotAvailableError(NextcloudError):
         super().__init__(reason=reason or self.reason)
 
 
-class NextcloudChunkedUploadError(NextcloudError):
+class NextcloudChunkedUploadError(NextcloudAsyncError):
     """When there is more than one chunk in the local cache directory."""
 
-    status_code = 999
     reason = "Unable to determine chunked upload state."
 
     def __init__(self, reason: Optional[str] = None) -> None:

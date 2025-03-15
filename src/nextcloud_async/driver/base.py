@@ -58,7 +58,7 @@ class NextcloudBaseApi(NextcloudHttpApi):
             dict[str, Any]: Dictionary of reponse data
         """
         if method.lower() == "get":
-            path = self._munge_path_data(data, path)
+            path = self._path_args(data, path)
             data = None
 
         headers = self._munge_headers(headers)
