@@ -54,6 +54,7 @@ class NextcloudHttpApi(ABC):
 
     def __init__(self, client: NextcloudClient) -> None:
         self.client = client
+        self._capabilities_api = NextcloudCapabilities(client)
 
     @abstractmethod
     async def request(
@@ -408,6 +409,10 @@ class NextcloudCapabilities:
 
     def __init__(self, client: NextcloudClient) -> None:
         self.client = client
+
+    @classmethod
+    def destroy(cls) -> None:
+        cls._instance = None
 
     async def _get_capabilities(self) -> Dict[str, Any]:
         """Return capabilities for this server."""

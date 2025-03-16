@@ -38,7 +38,6 @@ class NextcloudOcsApi(NextcloudHttpApi):
             self.stub = f"/ocs/v{ocs_version}.php"
 
         self.ocs_version = ocs_version
-        self._capabilities_api = NextcloudCapabilities(client)
 
         super().__init__(client)
 
