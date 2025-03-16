@@ -4,14 +4,13 @@ https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-st
 """
 
 import datetime as dt
-
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional, Dict, Any, List
+from typing import Any, Dict, List, Optional
 
-from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
-from nextcloud_async.client import NextcloudClient
 from nextcloud_async.api.dataobject import NextcloudDataObject
+from nextcloud_async.client import NextcloudClient
+from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
 
 
 class StatusType(Enum):

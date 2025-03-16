@@ -4,17 +4,15 @@ https://docs.nextcloud.com/server/latest/developer_manual/client_apis/WebDAV/ind
 """
 
 import logging
-from typing import Any, ByteString, Dict, Optional, cast
+from typing import Any, Dict, Optional
+from xml.parsers.expat import ExpatError
 
 import httpx
 import xmltodict
 
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver import NextcloudHttpApi
-from nextcloud_async.exceptions import (
-    NextcloudError,
-    NextcloudRequestTimeoutError,
-)
+from nextcloud_async.exceptions import NextcloudAsyncError, NextcloudRequestTimeoutError
 
 log = logging.getLogger("nextcloud_async.driver")
 
@@ -31,36 +29,50 @@ class NextcloudDavApi(NextcloudHttpApi):
         else:
             self.stub = "/remote.php/dav"
 
+    # TODO: DeprecationWarning: Use 'content=<...>' to upload raw bytes/text content.
     async def request(
         self,
         method: str = "GET",
         path: str = "",
         data: Any = {},
         headers: Optional[Dict[str, Any]] = None,
+        content: bytes | None = None,
         raw_response: bool = False,
-    ) -> Dict[str, Any] | ByteString:
+    ) -> Dict[str, Any] | bytes:
         """Send a query to the Nextcloud DAV Endpoint.
 
         Args:
-            method (str): HTTP Method to use
+            method:
+                HTTP Method to use
 
-            path (str, optional): The part after the url stub. Defaults to ''.
+            path:
+                The part after the url stub. Defaults to ''.
 
-            data (dict, optional): Data to submit. Defaults to {}.
+            data:
+                Data to submit. Defaults to {}.
 
-            headers (dict, optional): Headers for submission. Defaults to {}.
+            headers:
+                Headers for submission. Defaults to {}.
+
+            content:
+                Content to submit.  Use this when data is binary.
+
+            raw_response:
+                Do no xml -> json manipulation on returned data.  Return exactly what
+                    is sent.
 
         Raises:
-            NextcloudException: Server API Errors
+            NextcloudRequestTimeoutError: Request timeout
 
         Returns:
             Dict: Response content
+            Bytstring: Raw response content if raw_response=True
         """
         headers = self._munge_headers(headers)
         if method.lower() == "get":
-            data, path = self._path_args(data, path)
+            path = self._path_args(data, path)
+            data = None
 
-        # TODO: DeprecationWarning: Use 'content=<...>' to upload raw bytes/text content.
         try:
             log.debug(f"{method} {self.client.endpoint}{self.stub}{path} :: {data}")
             response = await self.client.http_client.request(
@@ -69,6 +81,7 @@ class NextcloudDavApi(NextcloudHttpApi):
                 url=f"{self.client.endpoint}{self.stub}{path}",
                 data=data,
                 headers=headers,
+                content=content,
             )
             log.debug(f"Response: [{response.status_code}] {response.content}")
 
@@ -82,33 +95,25 @@ class NextcloudDavApi(NextcloudHttpApi):
             return response.content
 
         if response.content:
-            response_data = xmltodict.parse(response.content)
+            try:
+                response_data = xmltodict.parse(response.content)
+            except ExpatError as e:
+                raise NextcloudAsyncError(
+                    f"Unable to parse response: {str(e)} :: {response.content}"
+                )
             return response_data["d:multistatus"]["d:response"]
         else:
             return {}
 
-    async def raw_request(
-        self,
-        method: str = "GET",
-        path: str = "",
-        data: Optional[Any] = None,
-        headers: Optional[Dict[str, Any]] = None,
-    ) -> ByteString:
-        response = cast(
-            ByteString,
-            await self.request(
-                method=method, path=path, data=data, headers=headers, raw_response=True
-            ),
-        )
-        return response
-
     async def raise_response_exception(self, response: httpx.Response) -> None:
+        """Parses response and raises exception, if necessary.
+
+        Args:
+            response:
+                Response from server
+        """
         if response.status_code >= _HTTP_USER_ERROR:
             exception_data = xmltodict.parse(response.content)
             exception_message = exception_data["d:error"]["s:message"].replace("\t", " ")
 
             await self._raise_response_exception(response.status_code, exception_message)
-
-            raise NextcloudError(
-                status_code=response.status_code, reason=exception_message
-            )

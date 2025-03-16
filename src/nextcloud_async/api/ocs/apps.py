@@ -4,12 +4,12 @@ Reference:
     https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/instruction_set_for_apps.html
 """
 
-from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
-from nextcloud_async.client import NextcloudClient
-from nextcloud_async.api.dataobject import NextcloudDataObject
-from nextcloud_async.helpers import password_confirmation_required
+from typing import Dict, List, Optional
 
-from typing import Optional, Dict, List
+from nextcloud_async.api.dataobject import NextcloudDataObject
+from nextcloud_async.client import NextcloudClient
+from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
+from nextcloud_async.helpers import password_confirmation_required
 
 
 class App(NextcloudDataObject):

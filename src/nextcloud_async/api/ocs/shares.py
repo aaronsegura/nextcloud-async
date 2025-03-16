@@ -7,19 +7,18 @@ Not Implemented:
     Federated share management
 """
 
-import json
 import asyncio
-
 import datetime as dt
+import json
+from collections.abc import Awaitable
+from enum import Enum, IntFlag
+from typing import Any, Dict, List, NotRequired, Optional, TypedDict, Unpack
+
 from dateutil.tz import tzlocal
 
-from enum import Enum, IntFlag
-from typing import Any, Optional, List, Dict, TypedDict, Unpack, NotRequired
-from collections.abc import Awaitable
-
+from nextcloud_async.api.dataobject import NextcloudDataObject
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
-from nextcloud_async.api.dataobject import NextcloudDataObject
 from nextcloud_async.exceptions import NextcloudError
 from nextcloud_async.helpers import bool2str
 

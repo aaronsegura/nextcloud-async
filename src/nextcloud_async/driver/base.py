@@ -3,6 +3,7 @@
 https://docs.nextcloud.com/server/latest/developer_manual/client_apis/
 """
 
+import json
 import logging
 from typing import Any, Dict, Optional
 
@@ -10,9 +11,12 @@ import httpx
 
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver import NextcloudHttpApi
-from nextcloud_async.exceptions import NextcloudRequestTimeoutError
+from nextcloud_async.exceptions import NextcloudAsyncError, NextcloudRequestTimeoutError
 
 log = logging.getLogger("nextcloud_async.driver")
+
+_HTTP_SERVER_ERROR = 500
+_HTTP_USER_ERROR = 400
 
 
 class NextcloudBaseApi(NextcloudHttpApi):
@@ -25,16 +29,23 @@ class NextcloudBaseApi(NextcloudHttpApi):
         else:
             self.stub = "/index.php"
 
-    def raise_response_exception(self, status_code: int, reason: str) -> None:
-        """No need to implement for this driver.
+    async def raise_response_exception(self, response: httpx.Response) -> None:
+        """Raise an exception, if necessary.
 
         Args:
-            status_code:
-                N/a
+            response:
+                Response object from server.
 
-            reason:
-                N/a
+        Raises:
+            NextcloudAsyncError: When content is unintepretable.
         """
+        if response.content:
+            try:
+                response.json()
+            except json.JSONDecodeError as e:
+                raise NextcloudAsyncError(reason=str(e))
+
+        await self._raise_response_exception(response.status_code, response.text)
 
     async def request(
         self,
@@ -78,24 +89,6 @@ class NextcloudBaseApi(NextcloudHttpApi):
             log.warning("Request timed out.")
             raise NextcloudRequestTimeoutError()
 
-        await self._raise_response_exception(response.status_code, str(response.content))
+        await self.raise_response_exception(response)
 
         return response.json()
-
-    def _get_auth(self) -> httpx.BasicAuth | None:
-        if self.client.app_token:
-            auth = None
-        elif self.client.password:
-            auth = httpx.BasicAuth(self.client.user, self.client.password)
-        return auth
-
-    def _munge_headers(self, headers: dict[str, Any] | None) -> dict[str, Any]:
-        if headers:
-            headers["User-Agent"] = self.client.user_agent
-        else:
-            headers = {"User-Agent": self.client.user_agent}
-
-        if self.client.app_token:
-            headers.update(self.client.request_headers)
-
-        return headers

@@ -1,6 +1,6 @@
-import pytest
 import json
 
+import pytest
 from pytest_httpx import HTTPXMock
 
 from nextcloud_async.api import LoginFlowV2
@@ -39,13 +39,13 @@ class TestLoginFlowV2:
     async def test_login_flow_confirm_success(
         self, httpx_mock: HTTPXMock, loginflowv2_api: LoginFlowV2
     ):
-        json_response = bytes(
+        response = bytes(
             f'{{"server":"http:\\/\\/localhost:8181","loginName":"{USER}",'
             '"appPassword":"aoXMDFSBmFQhsqvuKuFXhW4s4Uj1GUJ3OZttYid7jbAxL'
             'XLZQDYOIywkW7kBLiroLyAik1Pf"}',
             "utf-8",
         )
-        httpx_mock.add_response(status_code=200, content=json_response)
+        httpx_mock.add_response(status_code=200, content=response)
         await loginflowv2_api.wait_confirm(TOKEN, timeout=3)
         request = httpx_mock.get_request()
         assert request.method == "POST"

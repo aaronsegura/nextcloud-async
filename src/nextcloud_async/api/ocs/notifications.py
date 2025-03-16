@@ -3,9 +3,9 @@
 https://github.com/nextcloud/notifications/blob/master/docs/ocs-endpoint-v2.md
 """
 
+from nextcloud_async.api.dataobject import NextcloudDataObject
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
-from nextcloud_async.api.dataobject import NextcloudDataObject
 
 
 class Notification(NextcloudDataObject):

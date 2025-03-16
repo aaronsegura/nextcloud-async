@@ -4,12 +4,12 @@
 https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/user_auth_ldap_api.html
 """
 
-from typing import Dict, Any
 from collections.abc import Coroutine
+from typing import Any, Dict
 
+from nextcloud_async.api.dataobject import NextcloudDataObject
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
-from nextcloud_async.api.dataobject import NextcloudDataObject
 from nextcloud_async.helpers import recursive_urlencode
 
 

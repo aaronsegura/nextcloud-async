@@ -19,7 +19,6 @@ DATA = {
 async def map_favorite(
     maps_api: Maps, network_blocked: bool
 ) -> AsyncGenerator[MapFavorite]:
-
     favorite = await maps_api.add(**DATA)
     yield favorite
     if not network_blocked:
@@ -32,7 +31,6 @@ async def map_favorite(
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestMaps:
-
     async def test_create_favorite(self, map_favorite: MapFavorite):
         assert isinstance(map_favorite, MapFavorite)
         assert map_favorite.latitude == DATA["lat"]

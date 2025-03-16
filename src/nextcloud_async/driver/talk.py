@@ -3,19 +3,20 @@
 https://nextcloud-talk.readthedocs.io/en/latest/global/
 """
 
-import json
 import logging
 from typing import Any, Dict, Optional, Tuple
 
 import httpx
 
 from nextcloud_async.client import NextcloudClient
-from nextcloud_async.driver import NextcloudCapabilities, NextcloudOcsApi
+from nextcloud_async.driver import NextcloudOcsApi
 from nextcloud_async.exceptions import (
-    NextcloudError,
     NextcloudNotCapableError,
     NextcloudRequestTimeoutError,
 )
+
+_HTTP_USER_ERROR = 400
+_HTTP_SERVER_ERROR = 500
 
 log = logging.getLogger("nextcloud_async.driver")
 
@@ -32,22 +33,23 @@ class NextcloudTalkApi(NextcloudOcsApi):
         client: NextcloudClient,
         ocs_version: Optional[str] = "2",
         stub: Optional[str] = None,
-    ):
-        if stub:
-            self.stub = stub
-        else:
-            self.stub = f"/ocs/v{ocs_version}.php"
-
-        self.ocs_version = ocs_version
-        self.capabilities_api = NextcloudCapabilities(client)
-
-        super().__init__(client)
+    ) -> None:
+        super().__init__(client, ocs_version, stub)
 
     async def has_talk_feature(self, capability: str) -> bool:
-        features = await self.capabilities_api.supported(
+        """Checks to see if Talk supports a given feature.
+
+        Args:
+            capability:
+                Dot-separated strings
+
+        Returns:
+            True or False
+        """
+        features = await self._capabilities_api.supported(
             ".".join(["spreed.features", capability])
         )
-        local_features = await self.capabilities_api.supported(
+        local_features = await self._capabilities_api.supported(
             ".".join(["spreed.features-local", capability])
         )
         return features or local_features
@@ -55,6 +57,7 @@ class NextcloudTalkApi(NextcloudOcsApi):
     has_talk_capability = has_talk_feature
 
     async def require_talk_feature(self, capability: str) -> None:
+        """Raise an exception if talk doesn't support the given feature."""
         if not await self.has_talk_feature(capability):
             raise NextcloudNotCapableError()
 
@@ -70,16 +73,21 @@ class NextcloudTalkApi(NextcloudOcsApi):
         """Submit OCS-type query to cloud endpoint.
 
         Args:
-            method (str): HTTP Method (eg, `GET`, `POST`, etc...)
+            method:
+                HTTP Method (eg, `GET`, `POST`, etc...)
 
-            url (str, optional): Use a URL outside of the given endpoint. Defaults to None.
+            url:
+                Use a URL outside of the given endpoint. Defaults to None.
 
-            path (str, optional): The portion of the URL after the host. Defaults to ''.
+            path:
+                The portion of the URL after the host. Defaults to ''.
 
-            data (Dict, optional): Data for submission.  Data for GET requests is translated by
-            urlencode and tacked on to the end of the URL as arguments. Defaults to {}.
+            data:
+                Data for submission.  Data for GET requests is translated by
+                urlencode and tacked on to the end of the URL as arguments.
 
-            headers (Dict, optional): Headers for submission. Defaults to {}.
+            headers:
+                Headers for submission. Defaults to {}.
 
         Returns:
             Tuple[Dict, Dict]: Response Data and headers
@@ -103,37 +111,10 @@ class NextcloudTalkApi(NextcloudOcsApi):
                 json=data,
                 headers=headers,
             )
-            log.debug(f"Response: [{response.status_code}] {response.json()}")
-
+            log.debug(f"Response: [{response.status_code}] {response.text}")
         except httpx.ReadTimeout:
             log.warning("Request timed out.")
             raise NextcloudRequestTimeoutError()
 
         await self.raise_response_exception(response)
         return response.json()["ocs"]["data"], response.headers
-
-    async def raise_response_exception(self, response: httpx.Response) -> None:
-        """Raise appropriate exception for given response.
-
-        Args:
-            response:
-                The response object.
-
-        Raises:
-            NextcloudError: If unable to decode response or if exception isn't
-                handled by inherited _raise_response_exception.
-        """
-        try:
-            response_content = json.loads(response.content.decode("utf-8"))
-        except json.JSONDecodeError:
-            raise NextcloudError(status_code=500, reason="Error decoding JSON response.")
-        ocs_meta = response_content["ocs"]["meta"]
-        if ocs_meta["status"] != "ok":
-            await self._raise_response_exception(
-                status_code=ocs_meta["statuscode"], reason=ocs_meta["message"]
-            )
-
-        if response.status_code >= 300:
-            raise NextcloudError(
-                status_code=response.status_code, reason=str(response.content)
-            )

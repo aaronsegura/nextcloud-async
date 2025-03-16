@@ -5,15 +5,13 @@ https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/instruc
 """
 
 import asyncio
-
-
-from typing import Optional, List, Dict, Any
 from collections.abc import Awaitable
+from typing import Any, Dict, List, Optional
 
-from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
-from nextcloud_async.client import NextcloudClient
 from nextcloud_async.api.dataobject import NextcloudDataObject
 from nextcloud_async.api.ocs.groups import Group, Groups
+from nextcloud_async.client import NextcloudClient
+from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
 from nextcloud_async.helpers import password_confirmation_required
 
 

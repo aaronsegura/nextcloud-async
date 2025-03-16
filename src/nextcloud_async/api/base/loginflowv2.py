@@ -15,17 +15,15 @@ Reference:
 """
 
 import asyncio
-
 import datetime as dt
+from typing import Any, Dict
 
-from typing import Dict, Any
-
+from nextcloud_async.client import NextcloudClient
+from nextcloud_async.driver import NextcloudBaseApi, NextcloudModule, NextcloudOcsApi
 from nextcloud_async.exceptions import (
     NextcloudLoginFlowTimeoutError,
     NextcloudNotFoundError,
 )
-from nextcloud_async.driver import NextcloudModule, NextcloudBaseApi, NextcloudOcsApi
-from nextcloud_async.client import NextcloudClient
 
 
 class LoginFlowV2(NextcloudModule):

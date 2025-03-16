@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
 from collections.abc import Awaitable, Coroutine
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any
+
 from nextcloud_async.driver import NextcloudModule
 
 
@@ -10,7 +11,7 @@ class NextcloudDataObject(ABC):
     data: dict[str, Any]
     self_api: NextcloudModule
 
-    _refresh_fn: Optional[Awaitable] = field(init=False, default=None)
+    _refresh_fn: Awaitable | None = field(init=False, default=None)
 
     @abstractmethod
     def __str__(self) -> str: ...

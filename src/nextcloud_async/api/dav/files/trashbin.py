@@ -1,10 +1,9 @@
 from dataclasses import dataclass
-
+from typing import TYPE_CHECKING, List
 from urllib.parse import unquote
 
-from typing import List, TYPE_CHECKING
-
 from nextcloud_async.driver import NextcloudIterator
+
 from .base_file import BaseFile
 
 if TYPE_CHECKING:
@@ -45,21 +44,6 @@ class Trashbin(NextcloudIterator):
 
     def __post_init__(self) -> None:
         self.set_iterator(self._files, 1)
-
-    # def __iter__(self) -> 'Trashbin':
-    #     self._index = 1
-    #     self._len = len(self._files)
-    #     return self
-
-    # def __next__(self) -> TrashFile:
-    #     if self._index >= self._len:
-    #         raise StopIteration
-    #     else:
-    #         self._index += 1
-    #         return self._files[self._index - 1]
-
-    # def __len__(self) -> int:
-    #     return len(self._files) - 1
 
     @property
     def files(self) -> List[TrashFile]:

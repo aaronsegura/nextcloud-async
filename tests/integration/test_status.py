@@ -1,187 +1,125 @@
-# # noqa: D100
+import pytest
+import pytest_asyncio
+import json
 
-# from nextcloud_async.api.ocs.status import StatusType as ST
+import datetime as dt
+from dateutil.tz import tzlocal
 
-# from .base import BaseTestCase
-# from .helpers import AsyncMock
-# from .constants import USER, ENDPOINT, PASSWORD, EMPTY_200
+from vcr.cassette import Cassette
 
-# import asyncio
-# import httpx
-# import datetime as dt
+from typing import AsyncGenerator
 
-# from unittest.mock import patch
+from nextcloud_async.api import (
+    Status,
+    MyStatus,
+    UserStatus,
+    PredefinedStatus,
+    StatusType,
+    Users,
+    User,
+)
+from nextcloud_async.exceptions import NextcloudBadRequestError
 
-# CLEAR_AT = (dt.datetime.now() + dt.timedelta(seconds=300)).timestamp()
+_CLEAR_AT = dt.datetime.now(tz=tzlocal()) + dt.timedelta(seconds=300)
 
 
-# class OCSStatusAPI(BaseTestCase):  # noqa: D101
+@pytest_asyncio.fixture(scope="function", loop_scope="session")
+async def my_status(status_api: Status, vcr: Cassette, network_blocked: bool) -> MyStatus:
+    if network_blocked:
+        # Since we are sending/checking expiration time, which changes on every run
+        # we pull the original request/response from the cassette and create a
+        # MyStatus object with the response data.
+        url = (
+            f"{status_api.api.client.endpoint}{status_api.api.stub}{status_api.stub}"
+            "/user_status/message/custom"
+        )
+        requests = [x for x in vcr.requests if x.uri == url and x.method == "PUT"]
+        responses = []
+        for request in requests:
+            for x in vcr.responses_of(request):
+                responses += x
+        # responses = [vcr.responses_of(x) for x in requests]
+        print("RESPONSES", responses)
+        response = [print("X", x[0]) for x in responses if x.status.code == 200]
+        print("RESPONSE++", response)
+        response_data = json.loads(response["body"]["string"])
+        status = MyStatus(response_data["ocs"]["data"], status_api)
+        print("DATA", status.data)
+        globals()["_CLEAR_AT"] = dt.datetime.fromtimestamp(status.clearAt, tz=tzlocal())
+    else:
+        status = await status_api.get()
+        await status.set(StatusType.online)
+        await status.set_message("Pytesting", status_icon="⌛", clear_at=_CLEAR_AT)
+    return status
 
-#     def test_get_status(self):  # noqa: D102
-#         json_response = bytes(
-#             '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},'
-#             f'"data":{{"userId":"{USER}","message":null,"messageId":null,"mes'
-#             'sageIsPredefined":false,"icon":null,"clearAt":null,"status":"awa'
-#             'y","statusIsUserDefined":false}}}', 'utf-8')
-#         with patch(
-#                 'httpx.AsyncClient.request',
-#                 new_callable=AsyncMock,
-#                 return_value=httpx.Response(
-#                     status_code=200,
-#                     content=json_response)) as mock:
-#             asyncio.run(self.ncc.get_status())
-#             mock.assert_called_with(
-#                 method='GET',
-#                 auth=(USER, PASSWORD),
-#                 url=f'{ENDPOINT}/ocs/v2.php/apps/user_status/api/v1/user_status?format=json',
-#                 data=None,
-#                 headers={'OCS-APIRequest': 'true'})
 
-#     def test_set_status(self):  # noqa: D102
-#         STATUS = ST['away']
-#         json_response = bytes(
-#             '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},'
-#             f'"data":{{"userId":"{USER}","message":null,"messageId":null,"mes'
-#             'sageIsPredefined":false,"icon":null,"clearAt":null,"status":'
-#             f'"{STATUS.name}","statusIsUserDefined":true}}}}}}', 'utf-8')
-#         with patch(
-#                 'httpx.AsyncClient.request',
-#                 new_callable=AsyncMock,
-#                 return_value=httpx.Response(
-#                     status_code=200,
-#                     content=json_response)) as mock:
-#             asyncio.run(self.ncc.set_status(STATUS))
-#             mock.assert_called_with(
-#                 method='PUT',
-#                 auth=(USER, PASSWORD),
-#                 url=f'{ENDPOINT}/ocs/v2.php/apps/user_status/api/v1/user_status/status',
-#                 data={'format': 'json', 'statusType': STATUS.name},
-#                 headers={'OCS-APIRequest': 'true'})
+@pytest_asyncio.fixture(scope="function", loop_scope="session")
+async def predefined_statuses(status_api: Status) -> list[PredefinedStatus]:
+    return await status_api.get_predefined_statuses()
 
-#     def test_get_predefined_statuses(self):  # noqa: D102
-#         json_response = bytes(
-#             '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},'
-#             '"data":[{"id":"meeting","icon":"\\ud83d\\udcc5","message":"In a '
-#             'meeting","clearAt":{"type":"period","time":3600}},{"id":"commuti'
-#             'ng","icon":"\\ud83d\\ude8c","message":"Commuting","clearAt":{"ty'
-#             'pe":"period","time":1800}},{"id":"remote-work","icon":"\\ud83c\\'
-#             'udfe1","message":"Working remotely","clearAt":{"type":"end-of","'
-#             'time":"day"}},{"id":"sick-leave","icon":"\\ud83e\\udd12","messag'
-#             'e":"Out sick","clearAt":{"type":"end-of","time":"day"}},{"id":"v'
-#             'acationing","icon":"\\ud83c\\udf34","message":"Vacationing","cle'
-#             'arAt":null}]}}', 'utf-8')
-#         with patch(
-#                 'httpx.AsyncClient.request',
-#                 new_callable=AsyncMock,
-#                 return_value=httpx.Response(
-#                     status_code=200,
-#                     content=json_response)) as mock:
-#             asyncio.run(self.ncc.get_predefined_statuses())
-#             mock.assert_called_with(
-#                 method='GET',
-#                 auth=(USER, PASSWORD),
-#                 url=f'{ENDPOINT}/ocs/v2.php/apps/user_status/api/v1/predefined_statuses?'
-#                     'format=json',
-#                 data=None,
-#                 headers={'OCS-APIRequest': 'true'})
 
-#     def test_choose_predefined_status(self):  # noqa: D102
-#         MESSAGEID = 'meeting'
+@pytest_asyncio.fixture(scope="function", loop_scope="session")
+async def test_user(network_blocked: bool, users_api: Users) -> AsyncGenerator[User]:
+    _test_user = {
+        "user_id": "pytest_user",
+        "display_name": "Pytest User Guy",
+        "email": "pytest@example.com",
+        "quota": None,
+        "password": "MyCoolPassword",
+        "language": "en",
+    }
 
-#         json_response = bytes(
-#             '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},'
-#             f'"data":{{"userId":"{USER}","message":null,"messageId":"{MESSAGEID}"'
-#             f',"messageIsPredefined":true,"icon":null,"clearAt":{CLEAR_AT},"statu'
-#             's":"away","statusIsUserDefined":true}}}', 'utf-8')
-#         with patch(
-#                 'httpx.AsyncClient.request',
-#                 new_callable=AsyncMock,
-#                 return_value=httpx.Response(
-#                     status_code=200,
-#                     content=json_response)) as mock:
-#             asyncio.run(self.ncc.choose_predefined_status(MESSAGEID, CLEAR_AT))
-#             mock.assert_called_with(
-#                 method='PUT',
-#                 auth=(USER, PASSWORD),
-#                 url=f'{ENDPOINT}/ocs/v2.php/apps/user_status/api/v1'
-#                     '/user_status/message/predefined',
-#                 data={'format': 'json', 'messageId': MESSAGEID, 'clearAt': CLEAR_AT},
-#                 headers={'OCS-APIRequest': 'true'})
+    if network_blocked:
+        _test_user.update({"id": _test_user["user_id"]})
+        test_user = User(_test_user, self_api=users_api)
+    else:
+        test_user = await users_api.create(**_test_user)
 
-#     def test_set_status_message(self):  # noqa: D102
-#         MESSAGE = 'Stinkfist'
-#         json_response = bytes(
-#             '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},'
-#             f'"data":{{"userId":"admin","message":"{MESSAGE}","messageId":nul'
-#             f'l,"messageIsPredefined":false,"icon":null,"clearAt":{CLEAR_AT},'
-#             '"status":"away","statusIsUserDefined":true}}}', 'utf-8')
-#         with patch(
-#                 'httpx.AsyncClient.request',
-#                 new_callable=AsyncMock,
-#                 return_value=httpx.Response(
-#                     status_code=200,
-#                     content=json_response)) as mock:
-#             asyncio.run(self.ncc.set_status_message(MESSAGE, clear_at=CLEAR_AT))
-#             mock.assert_called_with(
-#                 method='PUT',
-#                 auth=(USER, PASSWORD),
-#                 url=f'{ENDPOINT}/ocs/v2.php/apps/user_status/api/v1'
-#                     '/user_status/message/custom',
-#                 data={'format': 'json', 'message': MESSAGE, 'clearAt': CLEAR_AT},
-#                 headers={'OCS-APIRequest': 'true'})
+    yield test_user
+    if not network_blocked:
+        await test_user.delete()
 
-#     def test_clear_status_message(self):  # noqa: D102
-#         with patch(
-#                 'httpx.AsyncClient.request',
-#                 new_callable=AsyncMock,
-#                 return_value=httpx.Response(
-#                     status_code=200,
-#                     content=EMPTY_200)) as mock:
-#             asyncio.run(self.ncc.clear_status_message())
-#             mock.assert_called_with(
-#                 method='DELETE',
-#                 auth=(USER, PASSWORD),
-#                 url=f'{ENDPOINT}/ocs/v2.php/apps/user_status/api/v1/user_status/message',
-#                 data={'format': 'json'},
-#                 headers={'OCS-APIRequest': 'true'})
 
-#     def test_get_all_user_statuses(self):  # noqa: D102
-#         json_response = bytes(
-#             '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},'
-#             f'"data":[{{"userId":"{USER}","message":null,"icon":null,"clearA'
-#             't":null,"status":"away"}]}}', 'utf-8')
-#         with patch(
-#                 'httpx.AsyncClient.request',
-#                 new_callable=AsyncMock,
-#                 return_value=httpx.Response(
-#                     status_code=200,
-#                     content=json_response)) as mock:
-#             asyncio.run(self.ncc.get_all_user_statuses())
-#             mock.assert_called_with(
-#                 method='GET',
-#                 auth=(USER, PASSWORD),
-#                 url=f'{ENDPOINT}/ocs/v2.php/apps/user_status/api/v1/statuses?'
-#                     'limit=100&offset=0&format=json',
-#                 data=None,
-#                 headers={'OCS-APIRequest': 'true'})
+@pytest.mark.vcr
+@pytest.mark.asyncio(loop_scope="session")
+class TestStatus:
+    async def test_get_status(self, my_status: MyStatus):
+        assert isinstance(my_status, MyStatus)
 
-#     def test_get_user_status(self):  # noqa: D102
-#         json_response = bytes(
-#             '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},'
-#             f'"data":{{"userId":"{USER}","message":null,"icon":null,"clearAt"'
-#             ':null,"status":"away"}}}', 'utf-8')
-#         with patch(
-#                 'httpx.AsyncClient.request',
-#                 new_callable=AsyncMock,
-#                 return_value=httpx.Response(
-#                     status_code=200,
-#                     content=json_response)) as mock:
-#             response = asyncio.run(self.ncc.get_user_status(USER))
-#             mock.assert_called_with(
-#                 method='GET',
-#                 auth=(USER, PASSWORD),
-#                 url=f'{ENDPOINT}/ocs/v2.php/apps/user_status/api/v1/statuses/{USER}'
-#                 '?format=json',
-#                 data=None,
-#                 headers={'OCS-APIRequest': 'true'})
-#             assert response['userId'] == USER
+    async def test_set_status(self, my_status: MyStatus):
+        await my_status.set(StatusType.away)
+        assert my_status.status == StatusType.away.value
+
+    async def test_set_message(self, my_status: MyStatus):
+        await my_status.set_message("Pytesting", status_icon="⌛", clear_at=_CLEAR_AT)
+        assert my_status.message == "Pytesting"
+        assert my_status.icon == "⌛"
+
+    async def test_set_message_expired(self, my_status: MyStatus):
+        _clear_at = dt.datetime.now(tz=tzlocal()) - dt.timedelta(hours=1)
+        with pytest.raises(NextcloudBadRequestError):
+            await my_status.set_message("Pytesting", clear_at=_clear_at)
+
+    async def test_get_predefined_statuses(self, status_api: Status):
+        statuses = await status_api.get_predefined_statuses()
+        for status in statuses:
+            assert isinstance(status, PredefinedStatus)
+
+    async def test_set_predefined_status(
+        self, my_status: MyStatus, predefined_statuses: list[PredefinedStatus]
+    ):
+        _status = predefined_statuses[0]
+        await my_status.set_predefined_status(predefined_statuses[0])
+        assert my_status.messageIsPredefined is True
+        assert my_status.messageId == _status.id
+
+    async def test_clear_status(self, my_status: MyStatus):
+        await my_status.clear_message()
+        assert my_status.message == ""
+
+    async def test_get_all_user_statuses(self, status_api: Status):
+        await status_api.get_all_user_statuses()
+
+    async def test_get_user_status(self, status_api: Status):
+        user_status = await status_api.get_user_status(status_api.api.client.user)
+        assert isinstance(user_status, UserStatus)

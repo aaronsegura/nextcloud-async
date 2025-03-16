@@ -38,7 +38,7 @@ class NextcloudOcsApi(NextcloudHttpApi):
             self.stub = f"/ocs/v{ocs_version}.php"
 
         self.ocs_version = ocs_version
-        self.capabilities_api = NextcloudCapabilities(client)
+        self._capabilities_api = NextcloudCapabilities(client)
 
         super().__init__(client)
 
@@ -48,7 +48,8 @@ class NextcloudOcsApi(NextcloudHttpApi):
         path: str = "",
         data: Optional[dict[str, Any]] = None,
         headers: Optional[dict[str, Any]] = None,
-    ) -> dict[str, Any] | list[dict[str, Any]]:
+        raw_response: bool = False,
+    ) -> dict[str, Any] | list[dict[str, Any]] | bytes:
         """Submit OCS-type query to cloud endpoint.
 
         Args:
@@ -69,6 +70,9 @@ class NextcloudOcsApi(NextcloudHttpApi):
             headers:
                 Headers for submission. Defaults to {}.
 
+            raw_response:
+                Return entire OCS response, including metadata
+
         Returns:
             Dict|List: Response Data
 
@@ -81,6 +85,7 @@ class NextcloudOcsApi(NextcloudHttpApi):
         """
         headers = self._munge_headers(headers, extra={"OCS-APIRequest": "true"})
         data = self._format_json(data)
+
         if method.lower() == "get":
             path = self._path_args(data, path)
             data = None
@@ -99,15 +104,12 @@ class NextcloudOcsApi(NextcloudHttpApi):
             log.warning("Request timed out.")
             raise NextcloudRequestTimeoutError("Request timed out.")
 
+        if raw_response:
+            return response.content
+        log.debug("HERE")
         await self.raise_response_exception(response)
+        log.debug("THERE")
         return response.json()["ocs"]["data"]
-
-    def _format_json(self, data: dict[str, Any] | None) -> dict[str, Any]:
-        if data:
-            data.update({"format": "json"})
-        else:
-            data = {"format": "json"}
-        return data
 
     async def raise_response_exception(self, response: httpx.Response) -> None:
         """Raise an exception, if necessary.
