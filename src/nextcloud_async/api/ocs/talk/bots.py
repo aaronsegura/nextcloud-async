@@ -4,7 +4,7 @@ https://nextcloud-talk.readthedocs.io/en/latest/bot-management/
 """
 
 from dataclasses import dataclass
-from typing import List, Dict, Any
+from typing import Any, Dict, List
 
 from nextcloud_async.driver import NextcloudModule, NextcloudTalkApi
 
@@ -46,7 +46,7 @@ class Bots(NextcloudModule):
         self.api: NextcloudTalkApi = api
 
     async def _validate_capability(self) -> None:
-        await self.api.require_talk_feature("bots-v1")
+        await self.api.require_feature("bots-v1")
 
     async def list_installed(self) -> List[Bot]:
         """Get list of bots installed on the server.

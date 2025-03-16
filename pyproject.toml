@@ -95,6 +95,7 @@ ignore = [
   "ANN201",
   "ANN001",
   "PLR2004",  # No Magic Numbers
+  "E501",     # Long lines
 ]
 
 [tool.ruff.format]

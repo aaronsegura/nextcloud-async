@@ -1,4 +1,4 @@
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from httpx import ReadTimeout, Response
@@ -28,18 +28,13 @@ from nextcloud_async.exceptions import (
     NextcloudUpgradeRequiredError,
 )
 
-ENDPOINT = "http://localhost"
-USER = "USER"
-PASS = "PASSWORD"
-
-EMPTY_200 = (
-    b'{"ocs": {"meta": {"status": "ok", "statuscode": 200, "message": "OK"}, "data": []}}'
-)
-
-EXCEPTION_RESPONSE = (
-    b'{"ocs": {'
-    b'"meta": {"status": "failure", "statuscode": {status_code}, "message": "Excepted"}, '
-    b'"data": []}}'
+from .constants import (
+    CAPABILITIES_RESPONSE,
+    ENDPOINT,
+    OCS_EMPTY_200,
+    OCS_EXCEPTION_RESPONSE,
+    PASS,
+    USER,
 )
 
 
@@ -54,12 +49,12 @@ def nc_app_token() -> NextcloudClient:
 
 
 @pytest.fixture
-def talk(nc) -> NextcloudTalkApi:
+def talk(nc: NextcloudClient) -> NextcloudTalkApi:
     return NextcloudTalkApi(nc)
 
 
 @pytest.fixture
-def talk_app_token(nc_app_token) -> NextcloudTalkApi:
+def talk_app_token(nc_app_token: NextcloudClient) -> NextcloudTalkApi:
     return NextcloudTalkApi(nc_app_token)
 
 
@@ -97,7 +92,9 @@ class TestHelpers:
         response = Response(
             status_code,
             content=bytes(
-                EXCEPTION_RESPONSE.decode().replace("{status_code}", str(status_code)),
+                OCS_EXCEPTION_RESPONSE.decode().replace(
+                    "{status_code}", str(status_code)
+                ),
                 "utf-8",
             ),
         )
@@ -139,7 +136,9 @@ class TestHelpers:
         response = Response(
             200,
             content=bytes(
-                EXCEPTION_RESPONSE.decode().replace("{status_code}", str(status_code)),
+                OCS_EXCEPTION_RESPONSE.decode().replace(
+                    "{status_code}", str(status_code)
+                ),
                 "utf-8",
             ),
         )
@@ -162,7 +161,9 @@ class TestHelpers:
         response = Response(
             status_code,
             content=bytes(
-                EXCEPTION_RESPONSE.decode().replace("{status_code}", str(status_code)),
+                OCS_EXCEPTION_RESPONSE.decode().replace(
+                    "{status_code}", str(status_code)
+                ),
                 "utf-8",
             ),
         )
@@ -173,17 +174,17 @@ class TestHelpers:
 
 
 class TestInit:
-    def test_default(self, magicmock):
+    def test_default(self, magicmock: MagicMock):
         talk = NextcloudTalkApi(magicmock)
         assert talk.stub == "/ocs/v2.php"
         assert talk.client == magicmock
 
-    def test_version(self, magicmock):
+    def test_version(self, magicmock: MagicMock):
         talk = NextcloudTalkApi(magicmock, ocs_version="3")
         assert talk.ocs_version == "3"
         assert talk.stub == "/ocs/v3.php"
 
-    def test_stub(self, magicmock):
+    def test_stub(self, magicmock: MagicMock):
         talk = NextcloudTalkApi(magicmock, stub="/this/path/now")
         assert talk.stub == "/this/path/now"
 
@@ -194,7 +195,7 @@ class TestRequest:
         httpx_mock.add_response(
             status_code=200,
             method="GET",
-            content=EMPTY_200,
+            content=OCS_EMPTY_200,
             headers={"key": "value"},
             url=f"{ENDPOINT}{talk.stub}?format=json",
         )
@@ -219,3 +220,23 @@ class TestRequest:
         httpx_mock.add_response(200, content=b"this is not json")
         with pytest.raises(NextcloudAsyncError):
             await talk.request()
+
+    async def test_has_talk_feature(self, talk: NextcloudTalkApi, httpx_mock: HTTPXMock):
+        httpx_mock.add_response(200, content=CAPABILITIES_RESPONSE)
+        await talk._capabilities_api._pop_capabilities()
+        assert await talk.has_feature("chat-v2")
+
+    async def test_require_talk_feature_noexist(
+        self, talk: NextcloudTalkApi, httpx_mock: HTTPXMock
+    ):
+        httpx_mock.add_response(200, content=CAPABILITIES_RESPONSE)
+        await talk._capabilities_api._pop_capabilities()
+        with pytest.raises(NextcloudNotCapableError):
+            await talk.require_feature("noexist")
+
+    async def test_require_talk_feature(
+        self, talk: NextcloudTalkApi, httpx_mock: HTTPXMock
+    ):
+        httpx_mock.add_response(200, content=CAPABILITIES_RESPONSE)
+        await talk._capabilities_api._pop_capabilities()
+        await talk.require_feature("chat-v2")

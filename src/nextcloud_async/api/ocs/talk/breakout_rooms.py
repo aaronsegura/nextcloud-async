@@ -1,14 +1,13 @@
 from dataclasses import dataclass
-
-from typing import Any, List, Tuple, TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING, Any, Dict, List, Tuple
 
 from nextcloud_async.driver import NextcloudModule, NextcloudTalkApi
 
 if TYPE_CHECKING:
     from .conversations import Conversation
 
-from .types import BreakoutRoomData, ConversationData
 from .constants import BreakoutRoomAssignmentMode, BreakoutRoomStatus
+from .types import BreakoutRoomData, ConversationData
 
 
 @dataclass
@@ -109,7 +108,7 @@ class BreakoutRooms(NextcloudModule):
         self.api: NextcloudTalkApi = api
 
     async def _validate_capability(self) -> None:
-        await self.api.require_talk_feature("breakout-rooms-v1")
+        await self.api.require_feature("breakout-rooms-v1")
 
     def _create_rooms_by_type(
         self, rooms: List[ConversationData]

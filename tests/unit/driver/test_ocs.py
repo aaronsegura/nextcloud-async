@@ -28,19 +28,7 @@ from nextcloud_async.exceptions import (
     NextcloudUpgradeRequiredError,
 )
 
-ENDPOINT = "http://localhost"
-USER = "USER"
-PASS = "PASSWORD"
-
-EMPTY_200 = (
-    b'{"ocs": {"meta": {"status": "ok", "statuscode": 200, "message": "OK"}, "data": []}}'
-)
-
-EXCEPTION_RESPONSE = (
-    b'{"ocs": {'
-    b'"meta": {"status": "failure", "statuscode": {status_code}, "message": "Excepted"}, '
-    b'"data": []}}'
-)
+from .constants import ENDPOINT, OCS_EMPTY_200, OCS_EXCEPTION_RESPONSE, PASS, USER
 
 
 @pytest.fixture
@@ -97,7 +85,9 @@ class TestHelpers:
         response = Response(
             status_code,
             content=bytes(
-                EXCEPTION_RESPONSE.decode().replace("{status_code}", str(status_code)),
+                OCS_EXCEPTION_RESPONSE.decode().replace(
+                    "{status_code}", str(status_code)
+                ),
                 "utf-8",
             ),
         )
@@ -139,7 +129,9 @@ class TestHelpers:
         response = Response(
             200,
             content=bytes(
-                EXCEPTION_RESPONSE.decode().replace("{status_code}", str(status_code)),
+                OCS_EXCEPTION_RESPONSE.decode().replace(
+                    "{status_code}", str(status_code)
+                ),
                 "utf-8",
             ),
         )
@@ -162,7 +154,9 @@ class TestHelpers:
         response = Response(
             status_code,
             content=bytes(
-                EXCEPTION_RESPONSE.decode().replace("{status_code}", str(status_code)),
+                OCS_EXCEPTION_RESPONSE.decode().replace(
+                    "{status_code}", str(status_code)
+                ),
                 "utf-8",
             ),
         )
@@ -194,7 +188,7 @@ class TestRequest:
         httpx_mock.add_response(
             status_code=200,
             method="GET",
-            content=EMPTY_200,
+            content=OCS_EMPTY_200,
             headers={"key": "value"},
             url=f"{ENDPOINT}{ocs.stub}?format=json",
         )
@@ -215,6 +209,6 @@ class TestRequest:
             await ocs.request()
 
     async def test_raw_response(self, ocs: NextcloudOcsApi, httpx_mock: HTTPXMock):
-        httpx_mock.add_response(100, content=EMPTY_200)
+        httpx_mock.add_response(100, content=OCS_EMPTY_200)
         response = await ocs.request(raw_response=True)
-        assert response == EMPTY_200
+        assert response == OCS_EMPTY_200

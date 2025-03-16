@@ -36,7 +36,7 @@ class NextcloudTalkApi(NextcloudOcsApi):
     ) -> None:
         super().__init__(client, ocs_version, stub)
 
-    async def has_talk_feature(self, capability: str) -> bool:
+    async def has_feature(self, feature: str) -> bool:
         """Checks to see if Talk supports a given feature.
 
         Args:
@@ -46,22 +46,16 @@ class NextcloudTalkApi(NextcloudOcsApi):
         Returns:
             True or False
         """
-        features = await self._capabilities_api.supported(
-            ".".join(["spreed.features", capability])
-        )
+        features = await self._capabilities_api.supported(f"spreed.features.{feature}")
         local_features = await self._capabilities_api.supported(
-            ".".join(["spreed.features-local", capability])
+            f"spreed.features-local.{feature}"
         )
         return features or local_features
 
-    has_talk_capability = has_talk_feature
-
-    async def require_talk_feature(self, capability: str) -> None:
+    async def require_feature(self, feature: str) -> None:
         """Raise an exception if talk doesn't support the given feature."""
-        if not await self.has_talk_feature(capability):
+        if not await self.has_feature(feature):
             raise NextcloudNotCapableError()
-
-    require_talk_capability = require_talk_feature
 
     async def request(
         self,

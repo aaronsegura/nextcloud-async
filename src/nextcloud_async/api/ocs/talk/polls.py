@@ -3,8 +3,8 @@
 https://nextcloud-talk.readthedocs.io/en/latest/poll/
 """
 
-from typing import List, Dict, Any
 from dataclasses import dataclass
+from typing import Any, Dict, List
 
 from nextcloud_async.driver import NextcloudModule, NextcloudTalkApi
 
@@ -150,7 +150,7 @@ class Polls(NextcloudModule):
         Returns:
             Poll object
         """
-        await self.api.require_talk_feature("edit-draft-poll")
+        await self.api.require_feature("edit-draft-poll")
         response, _ = await self._post(
             path=f"/{room_token}",
             data={
@@ -190,7 +190,7 @@ class Polls(NextcloudModule):
         Returns:
             List of Poll objets
         """
-        await self.api.require_talk_feature("talk-polls-drafts")
+        await self.api.require_feature("talk-polls-drafts")
         response, _ = await self._get(path=f"/{room_token}/drafts")
 
         ret = []

@@ -400,14 +400,17 @@ class NextcloudCapabilities:
     def __new__(cls, client: NextcloudClient) -> "NextcloudCapabilities":  # noqa: ARG004
         """Singleton pattern for Capabilities API."""
         if not cls._instance:
+            log.debug("CREATING NEW CAPABILITIES OBJECT")
             cls._instance = super(NextcloudCapabilities, cls).__new__(cls)
+        else:
+            log.debug("RETURNING EXISTING CAPABILITIES OBJECT")
         return cls._instance
 
     def __init__(self, client: NextcloudClient) -> None:
         self.client = client
 
     async def _get_capabilities(self) -> Dict[str, Any]:
-        """Populate local capabilities cache for this server."""
+        """Return capabilities for this server."""
         headers = {"OCS-APIRequest": "true"}
         headers.update(self.client.request_headers)
 
@@ -420,6 +423,7 @@ class NextcloudCapabilities:
         return response.json()["ocs"]["data"]
 
     async def _pop_capabilities(self) -> None:
+        """Populate local capabilties cache."""
         response = await self._get_capabilities()
         self._capabilities = response["capabilities"]
         self._version = response["version"]

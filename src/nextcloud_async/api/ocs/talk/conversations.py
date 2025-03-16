@@ -13,32 +13,29 @@ API calls that require a specific capability that is missing on the server will 
 NextcloudNotCapable exception.
 """
 
+import datetime as dt
+import sys
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, TypedDict
+
 import httpx
 
-import datetime as dt
-
-from dataclasses import dataclass, field
-
-from typing import Dict, Optional, Any, List, Tuple, TypedDict, TYPE_CHECKING
-
-import sys
-
 if sys.version_info < (3, 11):
-    from typing_extensions import TypedDict, NotRequired, Unpack
+    from typing_extensions import NotRequired, TypedDict, Unpack
 else:
-    from typing import TypedDict, NotRequired, Unpack
+    from typing import NotRequired, TypedDict, Unpack
 
-from nextcloud_async.driver import NextcloudTalkApi, NextcloudModule
 from nextcloud_async.client import NextcloudClient
+from nextcloud_async.driver import NextcloudModule, NextcloudTalkApi
 from nextcloud_async.helpers import bool2int
 
 from .avatars import ConversationAvatars
-from .bots import Bots, Bot
+from .bots import Bot, Bots
 from .calls import Calls
-from .chat import Chat, Message, MessageReminder, Suggestion, ChatFileShareMetadata
+from .chat import Chat, ChatFileShareMetadata, Message, MessageReminder, Suggestion
 from .integrations import Integrations
-from .participants import Participants, Participant
-from .polls import Polls, Poll
+from .participants import Participant, Participants
+from .polls import Poll, Polls
 from .rich_objects import NextcloudTalkRichObject
 from .signaling import InternalSignaling
 from .webinars import Webinars
@@ -47,22 +44,22 @@ if TYPE_CHECKING:
     from .breakout_rooms import BreakoutRoom
 
 from .constants import (
-    ConversationType,
-    ConversationReadOnlyState,
+    BreakoutRoomAssignmentMode,
+    CallNotificationLevel,
     ConversationNotificationLevel,
-    ObjectSources,
-    ParticipantPermissions,
+    ConversationPermissionMode,
+    ConversationReadOnlyState,
+    ConversationType,
     ListableScope,
     MentionPermissions,
-    RoomObjectType,
-    WebinarLobbyState,
-    SipState,
-    ConversationPermissionMode,
-    CallNotificationLevel,
-    SharedItemType,
+    ObjectSources,
     ParticipantInCallFlags,
+    ParticipantPermissions,
     PollMode,
-    BreakoutRoomAssignmentMode,
+    RoomObjectType,
+    SharedItemType,
+    SipState,
+    WebinarLobbyState,
 )
 
 
@@ -162,6 +159,7 @@ class Conversation:
                 New display name of the conversation.
         """
         await self.api.rename(room_token=self.token, new_name=new_name)
+        # TODO: Make this object _refresh()
         self.display_name = new_name
 
     async def delete(self) -> None:
@@ -208,7 +206,7 @@ class Conversation:
             circle_id:
                 The ID of the circle to add.
         """
-        await self.talk_api.require_talk_feature("circles-support")
+        await self.talk_api.require_feature("circles-support")
         await self.participants_api.add_to_conversation(
             room_token=self.token, invitee=circle_id, source=ObjectSources.circle
         )
@@ -1154,7 +1152,7 @@ class Conversations(NextcloudModule):
         self.chat_api = Chat(self.api)
         self.integrations_api = Integrations(self.api)
 
-    async def list(
+    async def get_all(
         self, status_update: bool = False, include_status: bool = False
     ) -> List[Conversation]:
         """Return list of user's conversations.
@@ -1272,7 +1270,7 @@ class Conversations(NextcloudModule):
         Returns:
             List of BreakoutRoom objects.
         """
-        await self.api.require_talk_feature("breakout-rooms-v1")
+        await self.api.require_feature("breakout-rooms-v1")
         response, _ = await self._get(path=f"/{room_token}/breakout-rooms")
         return [BreakoutRoom(data, self.api) for data in response]
 
@@ -1309,7 +1307,7 @@ class Conversations(NextcloudModule):
             description:
                 New description.
         """
-        await self.api.require_talk_feature("room-description")
+        await self.api.require_feature("room-description")
         await self._put(
             path=f"/room/{room_token}/description", data={"description": description}
         )
@@ -1327,7 +1325,7 @@ class Conversations(NextcloudModule):
         """
         data: Dict[str, str] = {}
         if password:
-            await self.api.require_talk_feature("conversation-creation-password")
+            await self.api.require_feature("conversation-creation-password")
             data = {"password": password}
 
         await self._post(path=f"/room/{room_token}/public", data=data)
@@ -1353,7 +1351,7 @@ class Conversations(NextcloudModule):
             state:
                 ConversationReadOnlyState
         """
-        await self.api.require_talk_feature("read-only-rooms")
+        await self.api.require_feature("read-only-rooms")
         await self._put(path=f"/room/{room_token}/read-only", data={"state": state.value})
 
     async def set_conversation_password(self, token: str, password: str) -> None:
@@ -1402,7 +1400,7 @@ class Conversations(NextcloudModule):
             room_token:
                 Token of conversation.
         """
-        await self.api.require_talk_feature("favorites")
+        await self.api.require_feature("favorites")
         await self._post(path=f"/room/{room_token}/favorite")
 
     async def remove_from_favorites(self, room_token: str) -> None:
@@ -1414,7 +1412,7 @@ class Conversations(NextcloudModule):
             room_token:
                 Token of conversation.
         """
-        await self.api.require_talk_feature("favorites")
+        await self.api.require_feature("favorites")
         await self._delete(path=f"/room/{room_token}/favorites")
 
     async def set_notification_level(
@@ -1449,7 +1447,7 @@ class Conversations(NextcloudModule):
             notification_level:
                 CallNotificationLevel
         """
-        await self.api.require_talk_feature("notification-calls")
+        await self.api.require_feature("notification-calls")
         await self._post(
             path=f"/room/{room_token}/notify-calls",
             data={"level": notification_level.value},
@@ -1468,7 +1466,7 @@ class Conversations(NextcloudModule):
                 Number of seconds before deleting messages.  If is 0, messages will not
                 be deleted automatically.
         """
-        await self.api.require_talk_feature("message-expiration")
+        await self.api.require_feature("message-expiration")
         await self._post(
             path=f"/room/{room_token}/message-expiration", data={"seconds": seconds}
         )
@@ -1487,7 +1485,7 @@ class Conversations(NextcloudModule):
             consent_required:
                 New consent setting for the conversation
         """
-        await self.api.require_talk_feature("recording-consent")
+        await self.api.require_feature("recording-consent")
         await self._put(
             path=f"/room/{room_token}/recording-consent",
             data={"recordingConsent": bool2int(consent_required)},
@@ -1507,7 +1505,7 @@ class Conversations(NextcloudModule):
             scope:
                 ListableScope
         """
-        await self.api.require_talk_feature("listable-rooms")
+        await self.api.require_feature("listable-rooms")
         await self._put(path=f"/room/{room_token}/listable", data={"scope": scope.value})
 
     async def set_mention_permissions(
@@ -1524,7 +1522,7 @@ class Conversations(NextcloudModule):
             permissions:
                 MentionPermissions
         """
-        await self.api.require_talk_feature("mention-permissions")
+        await self.api.require_feature("mention-permissions")
         await self._put(
             path=f"/room/{room_token}/mention-permissions",
             data={"mentionPermissions": permissions.value},

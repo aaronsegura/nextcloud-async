@@ -6,11 +6,7 @@ import pytest
 from nextcloud_async import NextcloudClient
 from nextcloud_async.driver import NextcloudHttpApi
 
-ENDPOINT = "http://localhost"
-USER = "USER"
-PASS = "PASSWORD"
-
-EMPTY_RESPONSE = b"[]"
+from .constants import ENDPOINT, PASS, USER
 
 
 class PytestDummyApi(NextcloudHttpApi):
@@ -109,6 +105,7 @@ class TestFormatJson:
         assert result == {"TestKey": "TestValue", "format": "json"}
 
 
+# TODO: Write capability tests
 class TestCapabilityApi:
     def test_wipe_requested(self, api: PytestDummyApi): ...
 

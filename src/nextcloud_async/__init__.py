@@ -32,14 +32,13 @@ https://sabre.io/dav/building-a-caldav-client/
 https://sabre.io/dav/building-a-carddav-client/
 """
 
-import os
 import logging
+import os
 from logging import config as logging_config
 
-from nextcloud_async.loggers import LOGGING_CONFIG
-from nextcloud_async.client import NextcloudClient
 from nextcloud_async import api
-
+from nextcloud_async.client import NextcloudClient
+from nextcloud_async.loggers import LOGGING_CONFIG
 
 __all__ = [
     "NextcloudClient",

@@ -1,7 +1,6 @@
-import httpx
 import logging
 
-from typing import Optional
+import httpx
 
 from nextcloud_async.version import USER_AGENT
 
@@ -13,8 +12,8 @@ class NextcloudClient:
         self,
         endpoint: str,
         user: str,
-        password: Optional[str] = None,
-        app_token: Optional[str] = None,
+        password: str | None = None,
+        app_token: str | None = None,
         http_client: httpx.AsyncClient = httpx.AsyncClient(),
         user_agent: str = USER_AGENT,
     ) -> None:

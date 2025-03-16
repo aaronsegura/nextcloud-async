@@ -6,11 +6,10 @@ https://nextcloud-talk.readthedocs.io/en/latest/reaction/
 """
 
 import datetime as dt
-from dateutil.tz import tzlocal
-
 from dataclasses import dataclass
+from typing import Any, Dict, List, Optional
 
-from typing import Optional, Dict, Any, List
+from dateutil.tz import tzlocal
 
 from nextcloud_async.driver import NextcloudModule, NextcloudTalkApi
 
@@ -84,7 +83,7 @@ class Reactions(NextcloudModule):
         Returns:
             List of reactions to message
         """
-        await self.api.require_talk_feature("reactions")
+        await self.api.require_feature("reactions")
         response, _ = await self._post(
             path=f"/{room_token}/{message_id}", data={"reaction": reaction}
         )
@@ -108,7 +107,7 @@ class Reactions(NextcloudModule):
         Returns:
             List of reactions to message.
         """
-        await self.api.require_talk_feature("reactions")
+        await self.api.require_feature("reactions")
         response, _ = await self._delete(
             path=f"/{room_token}/{message_id}", data={"reaction": reaction}
         )
@@ -132,7 +131,7 @@ class Reactions(NextcloudModule):
         Returns:
             List of Reaction
         """
-        await self.api.require_talk_feature("reactions")
+        await self.api.require_feature("reactions")
         response, _ = await self._get(
             path=f"/{room_token}/{message_id}",
             data={"reaction": reaction} if reaction else None,

@@ -1,38 +1,15 @@
-from unittest.mock import AsyncMock, MagicMock
-
 import pytest
-from httpx import ReadTimeout, Response
+from httpx import ReadTimeout
 from pytest_httpx import HTTPXMock
 
 from nextcloud_async import NextcloudClient
 from nextcloud_async.driver import NextcloudBaseApi
 from nextcloud_async.exceptions import (
     NextcloudAsyncError,
-    NextcloudBadRequestError,
-    NextcloudConflictError,
-    NextcloudDeviceWipeRequestedError,
-    NextcloudError,
-    NextcloudFederationRemoteError,
-    NextcloudForbiddenError,
-    NextcloudGenericServerError,
-    NextcloudMethodNotAllowedError,
-    NextcloudNotCapableError,
-    NextcloudNotFoundError,
-    NextcloudNotSupportedError,
-    NextcloudPreconditionError,
     NextcloudRequestTimeoutError,
-    NextcloudServiceNotAvailableError,
-    NextcloudTooManyRequestsError,
-    NextcloudUnauthorizedError,
-    NextcloudUnsupportedMediaTypeError,
-    NextcloudUpgradeRequiredError,
 )
 
-ENDPOINT = "http://localhost"
-USER = "USER"
-PASS = "PASSWORD"
-
-EMPTY_RESPONSE = b"[]"
+from .constants import EMPTY_RESPONSE, ENDPOINT, PASS, USER
 
 
 @pytest.fixture

@@ -28,9 +28,7 @@ from nextcloud_async.exceptions import (
     NextcloudUpgradeRequiredError,
 )
 
-ENDPOINT = "http://localhost"
-USER = "USER"
-PASS = "PASSWORD"
+from .constants import ENDPOINT, PASS, USER
 
 EXCEPTION_RESPONSE = (
     b'<?xml version="1.0" encoding="utf-8"?>\n<d:error xmlns:d="DAV:" '
@@ -153,7 +151,7 @@ class TestRequest:
         )
 
         http_response = await dav.request()
-        assert http_response == None
+        assert http_response is None
 
         httpx_mock.assert_all_responses_sent()
 

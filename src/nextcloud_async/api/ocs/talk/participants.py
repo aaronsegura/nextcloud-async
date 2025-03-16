@@ -4,22 +4,21 @@ https://nextcloud-talk.readthedocs.io/en/latest/participant/
 
 """
 
+from dataclasses import dataclass
+from typing import Any, Dict, List, Optional, Tuple
+
 import httpx
 
-from dataclasses import dataclass
-from typing import Optional, List, Dict, Any, Tuple
-
-from nextcloud_async.driver import NextcloudTalkApi, NextcloudModule
+from nextcloud_async.driver import NextcloudModule, NextcloudTalkApi
 from nextcloud_async.helpers import phone_number_to_e164
 
-from .types import ConversationData
-
 from .constants import (
-    ParticipantPermissions,
-    SessionState,
-    PermissionAction,
     ObjectSources,
+    ParticipantPermissions,
+    PermissionAction,
+    SessionState,
 )
+from .types import ConversationData
 
 
 @dataclass
@@ -90,7 +89,7 @@ class Participants(NextcloudModule):
         """Return list of participants."""
         path = f"/room/{room_token}/participants"
         if include_breakout_rooms:
-            await self.api.require_talk_feature("breakout-rooms-v1")
+            await self.api.require_feature("breakout-rooms-v1")
             path = f"/room/{room_token}/breakout-rooms/participants"
 
         response, headers = await self._get(
@@ -151,7 +150,7 @@ class Participants(NextcloudModule):
             state:
                 SessionState
         """
-        await self.api.require_talk_feature("session-state")
+        await self.api.require_feature("session-state")
         await self._put(
             path=f"/room/{room_token}/participants/state", data={"state": state.value}
         )
@@ -206,7 +205,7 @@ class Participants(NextcloudModule):
                 Attendee id can be used for guests and users, not setting it will resend
                 all invitations
         """
-        await self.api.require_talk_feature("sip-support")
+        await self.api.require_feature("sip-support")
         await self._post(
             path=f"/room/{room_token}/participants/resend-invitations",
             data={"attendeeId": participant_id or "none"},
@@ -291,7 +290,7 @@ class Participants(NextcloudModule):
         Returns:
             Participant
         """
-        await self.api.require_talk_feature("sip-support-dialout")
+        await self.api.require_feature("sip-support-dialout")
         response, _ = await self._post(
             path=f"/room/{room_token}/verify-dialin", data={"pin": pin}
         )
@@ -328,7 +327,7 @@ class Participants(NextcloudModule):
         Returns:
             Participant
         """
-        await self.api.require_talk_feature("sip-support-dialout")
+        await self.api.require_feature("sip-support-dialout")
         response, _ = await self._post(
             path=f"/room/{room_token}/verify-dialout",
             data={
@@ -357,7 +356,7 @@ class Participants(NextcloudModule):
             options:
                 The options as received in the dialout request.
         """
-        await self.api.require_talk_feature("sip-support-dialout")
+        await self.api.require_feature("sip-support-dialout")
         await self._delete(
             path=f"/room/{room_token}/rejected-dialout",
             data={"options": options, "callId": call_id},

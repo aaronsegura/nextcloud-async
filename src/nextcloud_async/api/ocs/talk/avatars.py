@@ -7,7 +7,7 @@ https://nextcloud-talk.readthedocs.io/en/latest/avatar/
 
 from typing import Optional
 
-from nextcloud_async.driver import NextcloudTalkApi, NextcloudModule
+from nextcloud_async.driver import NextcloudModule, NextcloudTalkApi
 
 
 class ConversationAvatars(NextcloudModule):
@@ -16,7 +16,7 @@ class ConversationAvatars(NextcloudModule):
         self.api: NextcloudTalkApi = api
 
     async def _validate_capability(self) -> None:
-        await self.api.require_talk_feature("avatar")
+        await self.api.require_feature("avatar")
 
     async def set_image(self, room_token: str, image_data: bytes) -> None:
         """Set conversations avatar.
@@ -108,8 +108,8 @@ class ConversationAvatars(NextcloudModule):
         Returns:
             Image data
         """
-        await self.api.require_talk_feature("avatar")
-        await self.api.require_talk_feature("federated-v1")
+        await self.api.require_feature("avatar")
+        await self.api.require_feature("federated-v1")
 
         if dark_mode:
             response = await self.api.client.http_client.request(

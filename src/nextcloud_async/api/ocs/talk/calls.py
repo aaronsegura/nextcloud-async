@@ -5,7 +5,7 @@ https://nextcloud-talk.readthedocs.io/en/latest/call/
 
 from typing import List
 
-from nextcloud_async.driver import NextcloudTalkApi, NextcloudModule
+from nextcloud_async.driver import NextcloudModule, NextcloudTalkApi
 
 from .constants import ParticipantInCallFlags
 from .types import ParticipantData
@@ -79,7 +79,7 @@ class Calls(NextcloudModule):
             user_id:
                 Participant to notify.
         """
-        await self.api.require_talk_feature("send-call-notification")
+        await self.api.require_feature("send-call-notification")
         await self._post(
             path=f"/{room_token}/ring/{user_id}", data={"attendeeId": user_id}
         )
@@ -96,7 +96,7 @@ class Calls(NextcloudModule):
             user_id:
                 The participant to call
         """
-        await self.api.require_talk_feature("sip-support-dialout")
+        await self.api.require_feature("sip-support-dialout")
         await self._post(
             path=f"/{room_token}/dialout/{user_id}", data={"attendeeId": user_id}
         )
