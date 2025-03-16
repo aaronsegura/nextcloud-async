@@ -1,9 +1,9 @@
 """Helper functions for NextcloudAsync."""
 
+from typing import Any, Awaitable, Callable, Dict, List
 from urllib.parse import quote
-import httpx
 
-from typing import Dict, Any, List, Callable, Awaitable
+import httpx
 
 from nextcloud_async.driver import NextcloudModule
 from nextcloud_async.exceptions import NextcloudForbiddenError
@@ -50,15 +50,19 @@ def bool2int(b: bool) -> int:
     Returns:
         0 if False, 1 if True
     """
+    if not isinstance(b, bool):
+        raise TypeError("Given value is not a boolean.")
     return 1 if b else 0
 
 
 def bool2str(b: bool) -> str:
     """Translate a boolean value to string."""
+    if not isinstance(b, bool):
+        raise TypeError("Given value is not a boolean.")
     return "true" if b else "false"
 
 
-def phone_number_to_e164(phone_number: str) -> str:
+def phone_number_to_e164(phone_number: str | int) -> str:
     """Translate phone number to E164 format.
 
     Args:
@@ -68,8 +72,17 @@ def phone_number_to_e164(phone_number: str) -> str:
     Returns:
         E164 phone number
     """
+    if not any([isinstance(phone_number, int), isinstance(phone_number, str)]):
+        raise TypeError("Phone number must be string or integer.")
+
     new_format: List[str] = []
+
+    if isinstance(phone_number, int):
+        phone_number = str(phone_number)
+
     for digit in reversed(phone_number):
+        if digit not in list(map(str, range(10))):
+            raise ValueError(f"Found unrecognized digit: {digit}")
         new_format.append(digit)
 
     return f"{'.'.join(new_format)}.e164.arpa"
@@ -88,7 +101,8 @@ def filter_headers(filter: List[str], headers: httpx.Headers) -> httpx.Headers:
     Returns:
         List of filtered headers
     """
-    return httpx.Headers([x for x in headers.items() if x[0].lower() in filter])
+    filter = [x.lower() for x in filter]
+    return httpx.Headers([x for x in headers.items() if x[0] in filter])
 
 
 def password_confirmation_required(
