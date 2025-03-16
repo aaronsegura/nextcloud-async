@@ -19,6 +19,8 @@ class NextcloudClient:
     ) -> None:
         if not (password or app_token):
             raise RuntimeError("Must supply one of password or app_token")
+        if password and app_token:
+            raise RuntimeError("`password` and `app_token` are mutually exclusive.")
 
         if app_token:
             self.auth = None
