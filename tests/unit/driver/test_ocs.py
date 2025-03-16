@@ -28,17 +28,17 @@ from nextcloud_async.exceptions import (
     NextcloudUpgradeRequiredError,
 )
 
-from .constants import ENDPOINT, OCS_EMPTY_200, OCS_EXCEPTION_RESPONSE, PASS, USER
+from .constants import ENDPOINT, OCS_EMPTY_200, OCS_EXCEPTION_RESPONSE, PASSWORD, USER
 
 
 @pytest.fixture
 def nc() -> NextcloudClient:
-    return NextcloudClient(ENDPOINT, USER, PASS)
+    return NextcloudClient(ENDPOINT, USER, PASSWORD)
 
 
 @pytest.fixture
 def nc_app_token() -> NextcloudClient:
-    return NextcloudClient(ENDPOINT, USER, app_token=PASS)
+    return NextcloudClient(ENDPOINT, USER, app_token=PASSWORD)
 
 
 @pytest.fixture

@@ -28,7 +28,7 @@ from nextcloud_async.exceptions import (
     NextcloudUpgradeRequiredError,
 )
 
-from .constants import ENDPOINT, PASS, USER
+from .constants import ENDPOINT, PASSWORD, USER
 
 EXCEPTION_RESPONSE = (
     b'<?xml version="1.0" encoding="utf-8"?>\n<d:error xmlns:d="DAV:" '
@@ -51,12 +51,12 @@ EMPTY_RESPONSE = (
 
 @pytest.fixture
 def nc() -> NextcloudClient:
-    return NextcloudClient(ENDPOINT, USER, PASS)
+    return NextcloudClient(ENDPOINT, USER, PASSWORD)
 
 
 @pytest.fixture
 def nc_app_token() -> NextcloudClient:
-    return NextcloudClient(ENDPOINT, USER, app_token=PASS)
+    return NextcloudClient(ENDPOINT, USER, app_token=PASSWORD)
 
 
 @pytest.fixture

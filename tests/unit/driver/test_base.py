@@ -9,17 +9,17 @@ from nextcloud_async.exceptions import (
     NextcloudRequestTimeoutError,
 )
 
-from .constants import EMPTY_RESPONSE, ENDPOINT, PASS, USER
+from .constants import EMPTY_RESPONSE, ENDPOINT, PASSWORD, USER
 
 
 @pytest.fixture
 def nc() -> NextcloudClient:
-    return NextcloudClient(ENDPOINT, USER, PASS)
+    return NextcloudClient(ENDPOINT, USER, PASSWORD)
 
 
 @pytest.fixture
 def nc_app_token() -> NextcloudClient:
-    return NextcloudClient(ENDPOINT, USER, app_token=PASS)
+    return NextcloudClient(ENDPOINT, USER, app_token=PASSWORD)
 
 
 @pytest.fixture

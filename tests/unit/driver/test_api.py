@@ -6,7 +6,7 @@ import pytest
 from nextcloud_async import NextcloudClient
 from nextcloud_async.driver import NextcloudHttpApi
 
-from .constants import ENDPOINT, PASS, USER
+from .constants import ENDPOINT, PASSWORD, USER
 
 
 class PytestDummyApi(NextcloudHttpApi):
@@ -15,12 +15,12 @@ class PytestDummyApi(NextcloudHttpApi):
 
 @pytest.fixture
 def nc() -> NextcloudClient:
-    return NextcloudClient(ENDPOINT, USER, PASS, http_client=AsyncMock)
+    return NextcloudClient(ENDPOINT, USER, PASSWORD, http_client=AsyncMock)
 
 
 @pytest.fixture
 def nc_app_token() -> NextcloudClient:
-    return NextcloudClient(ENDPOINT, USER, app_token=PASS)
+    return NextcloudClient(ENDPOINT, USER, app_token=PASSWORD)
 
 
 @pytest.fixture
@@ -105,11 +105,9 @@ class TestFormatJson:
         assert result == {"TestKey": "TestValue", "format": "json"}
 
 
-# TODO: Write capability tests
-class TestCapabilityApi:
-    def test_wipe_requested(self, api: PytestDummyApi): ...
+class TestCapabilities:
+    def test_has_capability(self, api: PytestDummyApi):
 
-    def test_has_capability(self, api: PytestDummyApi): ...
 
     def test_require_capability(self, api: PytestDummyApi): ...
 
@@ -149,3 +147,6 @@ class TestRequests:
             call(method="GET", path="", data=None, headers=None, raw_response=True)
         ]
         api.request.assert_has_calls(expected)
+
+
+def test_wipe_requested(self, api: PytestDummyApi): ...
