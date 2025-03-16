@@ -12,7 +12,6 @@ from nextcloud_async.api import (
     Groups,
 )
 from nextcloud_async.exceptions import (
-    NextcloudError,
     NextcloudGenericServerError,
     NextcloudNotFoundError,
 )

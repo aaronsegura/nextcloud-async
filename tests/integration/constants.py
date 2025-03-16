@@ -15,3 +15,7 @@ REQUEST_HEADERS = {
     "ocs-apirequest": True,
     "user-agent": USER_AGENT,
 }
+
+EMPTY_200 = (
+    b'{"ocs": {"meta": {"status": "ok", "statuscode": 200, "message": "OK"}, "data": []}}'
+)
