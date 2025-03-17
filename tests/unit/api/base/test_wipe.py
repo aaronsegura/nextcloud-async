@@ -61,7 +61,7 @@ class TestWipe:
     async def test_check_wipe_empty_response(self, wipe: Wipe, httpx_mock: HTTPXMock):
         httpx_mock.add_response(
             200,
-            content=EMPTY_RESPONSE,
+            json=EMPTY_RESPONSE,
             method="POST",
             url=f"{ENDPOINT}{wipe.api.stub}{wipe.stub}/check",
         )
@@ -72,7 +72,7 @@ class TestWipe:
     async def test_notify_wiped(self, wipe: Wipe, httpx_mock: HTTPXMock):
         httpx_mock.add_response(
             200,
-            content=EMPTY_RESPONSE,
+            json=EMPTY_RESPONSE,
             method="POST",
             url=f"{ENDPOINT}{wipe.stub}/success",
         )

@@ -51,7 +51,7 @@ class TestMaps:
     ):
         httpx_mock.add_response(
             200,
-            content=EMPTY_RESPONSE,
+            json=EMPTY_RESPONSE,
             method="DELETE",
             url=f"{ENDPOINT}{maps.api.stub}{maps.stub}/favorites/{_FAVORITE_DATA['id']}",
         )

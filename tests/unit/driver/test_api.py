@@ -121,67 +121,62 @@ class TestFormatJson:
 @pytest.mark.asyncio
 class TestCapabilities:
     async def test_has_capability(self, api: PytestDummyApi, httpx_mock: HTTPXMock):
-        httpx_mock.add_response(200, content=CAPABILITIES_RESPONSE)
+        httpx_mock.add_response(200, json=CAPABILITIES_RESPONSE)
         assert await api.has_capability("files")
 
     async def test_has_capability_noexist(
         self, api: PytestDummyApi, httpx_mock: HTTPXMock
     ):
-        httpx_mock.add_response(200, content=CAPABILITIES_RESPONSE)
+        httpx_mock.add_response(200, json=CAPABILITIES_RESPONSE)
         assert not await api.has_capability("noexist")
 
     async def test_require_capability(self, api: PytestDummyApi, httpx_mock: HTTPXMock):
-        httpx_mock.add_response(200, content=CAPABILITIES_RESPONSE)
+        httpx_mock.add_response(200, json=CAPABILITIES_RESPONSE)
         await api.require_capability("files")
 
     async def test_raise_response_exception(
         self, api: PytestDummyApi, httpx_mock: HTTPXMock
     ):
-        httpx_mock.add_response(200, content=CAPABILITIES_RESPONSE)
+        httpx_mock.add_response(200, json=CAPABILITIES_RESPONSE)
         with pytest.raises(NextcloudNotCapableError):
             await api.require_capability("noexist")
 
     async def test_get_capability(self, api: PytestDummyApi, httpx_mock: HTTPXMock):
-        httpx_mock.add_response(200, content=CAPABILITIES_RESPONSE)
+        httpx_mock.add_response(200, json=CAPABILITIES_RESPONSE)
         result = await api._capabilities_api.get_capability("core")
-        assert (
-            result
-            == json.loads(CAPABILITIES_RESPONSE)["ocs"]["data"]["capabilities"]["core"]
-        )
+        assert result == CAPABILITIES_RESPONSE["ocs"]["data"]["capabilities"]["core"]
 
     async def test_get_capability_deep(self, api: PytestDummyApi, httpx_mock: HTTPXMock):
-        httpx_mock.add_response(200, content=CAPABILITIES_RESPONSE)
+        httpx_mock.add_response(200, json=CAPABILITIES_RESPONSE)
         result = await api._capabilities_api.get_capability("spreed.features")
-        assert (
-            result
-            == json.loads(CAPABILITIES_RESPONSE)["ocs"]["data"]["capabilities"]["spreed"][
-                "features"
-            ]
-        )
+
+        result == CAPABILITIES_RESPONSE["ocs"]["data"]["capabilities"]["spreed"][
+            "features"
+        ]
 
     async def test_get_capability_deep_noexist(
         self, api: PytestDummyApi, httpx_mock: HTTPXMock
     ):
-        httpx_mock.add_response(200, content=CAPABILITIES_RESPONSE)
+        httpx_mock.add_response(200, json=CAPABILITIES_RESPONSE)
         with pytest.raises(NextcloudNotCapableError):
             await api._capabilities_api.get_capability("spreed.features.noexist")
 
     async def test_get_capability_noexist(
         self, api: PytestDummyApi, httpx_mock: HTTPXMock
     ):
-        httpx_mock.add_response(200, content=CAPABILITIES_RESPONSE)
+        httpx_mock.add_response(200, json=CAPABILITIES_RESPONSE)
         with pytest.raises(NextcloudNotCapableError):
             await api._capabilities_api.get_capability("noexist")
 
     async def test_server_version(self, api: PytestDummyApi, httpx_mock: HTTPXMock):
-        httpx_mock.add_response(200, content=CAPABILITIES_RESPONSE)
+        httpx_mock.add_response(200, json=CAPABILITIES_RESPONSE)
         result = await api._capabilities_api.server_version()
-        assert result == json.loads(CAPABILITIES_RESPONSE)["ocs"]["data"]["version"]
+        assert result == CAPABILITIES_RESPONSE["ocs"]["data"]["version"]
 
     async def test_get_all(self, api: PytestDummyApi, httpx_mock: HTTPXMock):
-        httpx_mock.add_response(200, content=CAPABILITIES_RESPONSE)
+        httpx_mock.add_response(200, json=CAPABILITIES_RESPONSE)
         result = await api._capabilities_api.get_all()
-        assert result == json.loads(CAPABILITIES_RESPONSE)["ocs"]["data"]["capabilities"]
+        assert result == CAPABILITIES_RESPONSE["ocs"]["data"]["capabilities"]
 
 
 class TestRequests:
@@ -221,6 +216,6 @@ class TestRequests:
 
 @pytest.mark.asyncio
 async def test_wipe_requested(api: PytestDummyApi, httpx_mock: HTTPXMock):
-    httpx_mock.add_response(404, content=EMPTY_RESPONSE)
+    httpx_mock.add_response(404, json=EMPTY_RESPONSE)
     api.client.app_token = APP_TOKEN
     assert await api._wipe_requested() is False

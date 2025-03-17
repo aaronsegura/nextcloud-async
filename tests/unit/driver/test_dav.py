@@ -145,7 +145,7 @@ class TestRequest:
         httpx_mock.add_response(
             status_code=200,
             method="GET",
-            content=EMPTY_RESPONSE,
+            json=EMPTY_RESPONSE,
             headers={"key": "value"},
             url=f"{ENDPOINT}{dav.stub}",
         )
@@ -166,7 +166,7 @@ class TestRequest:
             await dav.request()
 
     async def test_raw_response(self, dav: NextcloudDavApi, httpx_mock: HTTPXMock):
-        httpx_mock.add_response(200, content=EMPTY_RESPONSE)
+        httpx_mock.add_response(200, json=EMPTY_RESPONSE)
         response = await dav.request(raw_response=True)
         assert response == EMPTY_RESPONSE
 

@@ -49,7 +49,7 @@ class TestRequest:
         httpx_mock.add_response(
             status_code=200,
             method="GET",
-            content=EMPTY_RESPONSE,
+            json=EMPTY_RESPONSE,
             headers={"key": "value"},
             url=f"{ENDPOINT}{base.stub}",
         )
@@ -65,7 +65,7 @@ class TestRequest:
         httpx_mock.add_response(
             status_code=200,
             method="GET",
-            content=EMPTY_RESPONSE,
+            json=EMPTY_RESPONSE,
             headers={"key": "value", "Authorization": f"Bearer: {APP_TOKEN}"},
             url=f"{ENDPOINT}{base_app_token.stub}",
         )

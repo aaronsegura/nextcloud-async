@@ -82,15 +82,9 @@ class TestHelpers:
         status_code: int,
         exception: BaseException,
     ):
-        response = Response(
-            status_code,
-            content=bytes(
-                OCS_EXCEPTION_RESPONSE.decode().replace(
-                    "{status_code}", str(status_code)
-                ),
-                "utf-8",
-            ),
-        )
+        ocs_exception = OCS_EXCEPTION_RESPONSE.copy()
+        ocs_exception["ocs"]["meta"]["statuscode"] = status_code
+        response = Response(status_code, json=ocs_exception)
         asyncmock.return_value = False
         ocs._wipe_requested = asyncmock
         with pytest.raises(exception):  # type: ignore
@@ -126,15 +120,9 @@ class TestHelpers:
         status_code: int,
         exception: BaseException,
     ):
-        response = Response(
-            200,
-            content=bytes(
-                OCS_EXCEPTION_RESPONSE.decode().replace(
-                    "{status_code}", str(status_code)
-                ),
-                "utf-8",
-            ),
-        )
+        ocs_exception = OCS_EXCEPTION_RESPONSE.copy()
+        ocs_exception["ocs"]["meta"]["statuscode"] = status_code
+        response = Response(200, json=ocs_exception)
         asyncmock.return_value = False
         ocs._wipe_requested = asyncmock
         with pytest.raises(exception):  # type: ignore
@@ -151,15 +139,9 @@ class TestHelpers:
         asyncmock: AsyncMock,
         status_code: int,
     ):
-        response = Response(
-            status_code,
-            content=bytes(
-                OCS_EXCEPTION_RESPONSE.decode().replace(
-                    "{status_code}", str(status_code)
-                ),
-                "utf-8",
-            ),
-        )
+        ocs_exception = OCS_EXCEPTION_RESPONSE.copy()
+        ocs_exception["ocs"]["meta"]["statuscode"] = status_code
+        response = Response(status_code, json=ocs_exception)
         asyncmock.return_value = True
         ocs._wipe_requested = asyncmock
         with pytest.raises(NextcloudDeviceWipeRequestedError):
@@ -188,7 +170,7 @@ class TestRequest:
         httpx_mock.add_response(
             status_code=200,
             method="GET",
-            content=OCS_EMPTY_200,
+            json=OCS_EMPTY_200,
             headers={"key": "value"},
             url=f"{ENDPOINT}{ocs.stub}?format=json",
         )
@@ -209,6 +191,6 @@ class TestRequest:
             await ocs.request()
 
     async def test_raw_response(self, ocs: NextcloudOcsApi, httpx_mock: HTTPXMock):
-        httpx_mock.add_response(100, content=OCS_EMPTY_200)
+        httpx_mock.add_response(100, json=OCS_EMPTY_200)
         response = await ocs.request(raw_response=True)
         assert response == OCS_EMPTY_200
