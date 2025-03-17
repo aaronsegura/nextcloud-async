@@ -141,5 +141,5 @@ class TestAppDataObject:
         expected = [call.enable(app_id="app_id")]
         app.self_api.assert_has_calls(expected)  # type: ignore
 
-    async def test_str(sef, app: App):
+    async def test_str(self, app: App):
         assert str(app) == f"<Nextcloud App {app.id} v{app.version}>"
