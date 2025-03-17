@@ -107,9 +107,9 @@ class NextcloudHttpApi(ABC):
         return data
 
     async def _wipe_requested(self) -> bool:
-        from nextcloud_async.api import Wipe
+        from nextcloud_async.api import WipeApi
 
-        wipe = Wipe(self.client)
+        wipe = WipeApi(self.client)
         return await wipe.check()
 
     async def has_capability(self, capability: str) -> bool:
