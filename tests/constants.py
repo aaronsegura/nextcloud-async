@@ -1,4 +1,3 @@
-import json
 import os
 
 from nextcloud_async.version import VERSION

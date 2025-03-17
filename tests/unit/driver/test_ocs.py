@@ -1,3 +1,4 @@
+import json
 from unittest.mock import AsyncMock
 
 import pytest
@@ -193,4 +194,6 @@ class TestRequest:
     async def test_raw_response(self, ocs: NextcloudOcsApi, httpx_mock: HTTPXMock):
         httpx_mock.add_response(100, json=OCS_EMPTY_200)
         response = await ocs.request(raw_response=True)
-        assert response == OCS_EMPTY_200
+        assert response == bytes(
+            json.dumps(OCS_EMPTY_200, separators=(",", ":")), "utf-8"
+        )

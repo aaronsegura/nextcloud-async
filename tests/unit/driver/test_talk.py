@@ -205,14 +205,14 @@ class TestRequest:
 
     @pytest.mark.httpx_mock(assert_all_responses_were_requested=False)
     async def test_has_talk_feature(self, talk: NextcloudTalkApi, httpx_mock: HTTPXMock):
-        httpx_mock.add_response(200, content=CAPABILITIES_RESPONSE)
+        httpx_mock.add_response(200, json=CAPABILITIES_RESPONSE)
         assert await talk.has_feature("chat-v2")
 
     @pytest.mark.httpx_mock(assert_all_responses_were_requested=False)
     async def test_require_talk_feature_noexist(
         self, talk: NextcloudTalkApi, httpx_mock: HTTPXMock
     ):
-        httpx_mock.add_response(200, content=CAPABILITIES_RESPONSE)
+        httpx_mock.add_response(200, json=CAPABILITIES_RESPONSE)
         with pytest.raises(NextcloudNotCapableError):
             await talk.require_feature("noexist")
 
@@ -220,5 +220,5 @@ class TestRequest:
     async def test_require_talk_feature(
         self, talk: NextcloudTalkApi, httpx_mock: HTTPXMock
     ):
-        httpx_mock.add_response(200, content=CAPABILITIES_RESPONSE)
+        httpx_mock.add_response(200, json=CAPABILITIES_RESPONSE)
         await talk.require_feature("chat-v2")
