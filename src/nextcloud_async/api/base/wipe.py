@@ -6,12 +6,18 @@ In order for this to work, you must be logged in using an app token.
 See api.loginflow.LoginFlowV2.
 """
 
-import json
+import logging
+
 import httpx
 
-from nextcloud_async.driver import NextcloudModule, NextcloudBaseApi
 from nextcloud_async.client import NextcloudClient
-from nextcloud_async.exceptions import NextcloudNotFoundError
+from nextcloud_async.driver import NextcloudBaseApi, NextcloudModule
+from nextcloud_async.exceptions import (
+    NextcloudMethodNotAllowedError,
+    NextcloudNotFoundError,
+)
+
+log = logging.getLogger("nextcloud_async.wipe")
 
 
 class Wipe(NextcloudModule):
@@ -41,22 +47,21 @@ class Wipe(NextcloudModule):
         Returns:
             bool: Whether user has flagged this device for remote wiping.
         """
-        # Here we use the direct httpx.post method without authentication.
+        if not self.api.client.app_token:
+            raise NextcloudMethodNotAllowedError(
+                "Only valid with app_token authentication."
+            )
+
         try:
-            response = await self.api.client.http_client.post(
-                url=f"{self.api.client.endpoint}{self.stub}/check",
-                data={"token": self.api.client.password},
+            response = await self._post(
+                path="/check",
+                data={"token": self.api.client.app_token},
             )
         except NextcloudNotFoundError:
             return False
 
-        try:
-            result = response.json()
-        except json.decoder.JSONDecodeError:
-            return False
-
-        if "wipe" in result:
-            return result["wipe"]
+        if "wipe" in response:
+            return response["wipe"]
         return False
 
     async def notify_wiped(self) -> httpx.Response:

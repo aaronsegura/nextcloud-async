@@ -4,11 +4,11 @@ https://github.com/nextcloud/maps/blob/master/openapi.yml
 
 """
 
-from typing import Optional, TypedDict, NotRequired, Unpack
+from typing import NotRequired, Optional, TypedDict, Unpack
 
-from nextcloud_async.client import NextcloudClient
-from nextcloud_async.driver import NextcloudModule, NextcloudBaseApi
 from nextcloud_async.api.dataobject import NextcloudDataObject
+from nextcloud_async.client import NextcloudClient
+from nextcloud_async.driver import NextcloudBaseApi, NextcloudModule
 
 
 class MapFavorite(NextcloudDataObject):
@@ -30,6 +30,7 @@ class MapFavorite(NextcloudDataObject):
     async def delete(self) -> None:
         """Delete this favorite."""
         await self.self_api.delete(self.id)
+        self.data = {"name": "**deleted**"}
 
     class _UpdateArgs(TypedDict):
         name: NotRequired[str]
