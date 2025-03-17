@@ -1,4 +1,5 @@
 from ...constants import (
+    APP_TOKEN,
     CAPABILITIES_RESPONSE,
     EMPTY_RESPONSE,
     ENDPOINT,

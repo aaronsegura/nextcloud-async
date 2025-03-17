@@ -1,4 +1,3 @@
-import json
 from typing import Callable
 from unittest.mock import AsyncMock, call
 
@@ -150,9 +149,10 @@ class TestCapabilities:
         httpx_mock.add_response(200, json=CAPABILITIES_RESPONSE)
         result = await api._capabilities_api.get_capability("spreed.features")
 
-        result == CAPABILITIES_RESPONSE["ocs"]["data"]["capabilities"]["spreed"][
-            "features"
-        ]
+        assert (
+            result
+            == CAPABILITIES_RESPONSE["ocs"]["data"]["capabilities"]["spreed"]["features"]
+        )
 
     async def test_get_capability_deep_noexist(
         self, api: PytestDummyApi, httpx_mock: HTTPXMock
