@@ -1,4 +1,4 @@
-from ....constants import (  # noqa: F401
+from ....constants import (
     APP_TOKEN,
     EMPTY_RESPONSE,
     ENDPOINT,

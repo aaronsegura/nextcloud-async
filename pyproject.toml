@@ -99,6 +99,9 @@ ignore = [
   "E501",     # Long lines
   "ANN202",   # object not accessed
 ]
+"tests/**/constants.py" = [
+  "F401"      # Import not used
+]
 
 [tool.ruff.format]
 docstring-code-line-length = 90
