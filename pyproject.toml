@@ -87,6 +87,7 @@ ignore = [
   "COM812",   # Add trailing comma
   "SLF001",   # Private member accessed
   "FIX002",   # Line contains TODO
+  "ASYNC109", # Async function with Timeout argument
   ]
 
 [tool.ruff.lint.per-file-ignores]
@@ -96,6 +97,7 @@ ignore = [
   "ANN001",
   "PLR2004",  # No Magic Numbers
   "E501",     # Long lines
+  "ANN202",   # object not accessed
 ]
 
 [tool.ruff.format]
