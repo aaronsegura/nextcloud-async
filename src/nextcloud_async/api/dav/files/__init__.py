@@ -1,10 +1,11 @@
-from .files import Files
-from .user_files import UserPath, UserFile
+from .files import FilesApi, files_api
 from .trashbin import Trashbin, TrashFile
-from .versions import Versions, Version
+from .user_files import UserFile, UserPath
+from .versions import Version, Versions
 
 __all__ = [
-    "Files",
+    "FilesApi",
+    "files_api",
     "UserFile",
     "UserPath",
     "Trashbin",

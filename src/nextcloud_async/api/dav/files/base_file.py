@@ -1,17 +1,15 @@
 from abc import ABC, abstractmethod
-
 from dataclasses import dataclass
-
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from .files import Files
+    from .files import FilesApi
 
 
 @dataclass
 class BaseFile(ABC):
     data: dict[str, Any]
-    files_api: "Files"
+    files_api: "FilesApi"
 
     def __post_init__(self) -> None:
         """Do some translation.

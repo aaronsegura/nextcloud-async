@@ -1,13 +1,8 @@
-import json
+from unittest.mock import AsyncMock, call
 
-import httpx
 import pytest
-from pytest_httpx import HTTPXMock
 
-from nextcloud_async import NextcloudClient
-from nextcloud_async.api import MapFavorite, Maps
-
-from .constants import EMPTY_RESPONSE, ENDPOINT, PASSWORD, USER
+from nextcloud_async.api import MapFavorite, MapsApi
 
 _FAVORITE_DATA = {
     "id": 1,
@@ -27,17 +22,16 @@ _UPDATED_DATA = {
 
 @pytest.fixture
 def maps():
-    client = NextcloudClient(ENDPOINT, USER, PASSWORD, http_client=httpx.AsyncClient())
-    return Maps(client)
+    return MapsApi(AsyncMock())
 
 
 @pytest.fixture
-def map_favorite(maps: Maps):
+def map_favorite(maps: MapsApi):
     return MapFavorite(_FAVORITE_DATA, maps)
 
 
 @pytest.mark.asyncio
-class TestMaps:
+class TestMapFavorites:
     async def test_mapfavorite_properties(self, map_favorite: MapFavorite):
         assert map_favorite.latitude == _FAVORITE_DATA["lat"]
         assert map_favorite.longitude == _FAVORITE_DATA["lng"]
@@ -46,53 +40,58 @@ class TestMaps:
     async def test_str(self, map_favorite):
         assert f'<MapFavorite "{_FAVORITE_DATA["name"]}">' == str(map_favorite)
 
-    async def test_map_favorite_delete(
-        self, maps: Maps, map_favorite: MapFavorite, httpx_mock: HTTPXMock
-    ):
-        httpx_mock.add_response(
-            200,
-            json=EMPTY_RESPONSE,
-            method="DELETE",
-            url=f"{ENDPOINT}{maps.api.stub}{maps.stub}/favorites/{_FAVORITE_DATA['id']}",
-        )
+    async def test_map_favorite_delete(self, map_favorite: MapFavorite):
         await map_favorite.delete()
-        httpx_mock.assert_all_responses_sent()
+        expected = [
+            call.delete(path="/apps/maps/api/1.0/favorites/1", data=None, headers=None)
+        ]
+        map_favorite.self_api.api.assert_has_calls(expected)
 
-    async def test_map_favorite_update(
-        self, maps: Maps, map_favorite: MapFavorite, httpx_mock: HTTPXMock
-    ):
-        httpx_mock.add_response(
-            200,
-            json=_UPDATED_DATA,
-            method="PUT",
-            url=f"{ENDPOINT}{maps.api.stub}{maps.stub}/favorites/{_FAVORITE_DATA['id']}",
-        )
+    async def test_map_favorite_update(self, map_favorite: MapFavorite):
         await map_favorite.update(**_UPDATED_DATA)
-        httpx_mock.assert_all_responses_sent()
-        assert map_favorite.name == _UPDATED_DATA["name"]
+        expected = [
+            call.put(
+                path="/apps/maps/api/1.0/favorites/1",
+                data={
+                    "name": _UPDATED_DATA["name"],
+                    "lat": _UPDATED_DATA["lat"],
+                    "lng": _UPDATED_DATA["lng"],
+                    "category": _UPDATED_DATA["category"],
+                    "comment": None,
+                    "extensions": None,
+                },
+                headers=None,
+            )
+        ]
+        map_favorite.self_api.api.assert_has_calls(expected)
 
-    async def test_map_favorite_create(self, maps: Maps, httpx_mock: HTTPXMock):
+
+@pytest.mark.asyncio
+class TestMapsApi:
+    async def test_map_favorite_create(self, maps: MapsApi):
         _data = _FAVORITE_DATA.copy()
         _data.pop("id")
-        httpx_mock.add_response(
-            200,
-            json=_FAVORITE_DATA,
-            method="POST",
-            url=f"{ENDPOINT}{maps.api.stub}{maps.stub}/favorites",
-        )
-        new_favorite = await maps.add(**_data)
-        httpx_mock.assert_all_responses_sent()
-        assert new_favorite.id == _FAVORITE_DATA["id"]
+        await maps.add(**_data)
+        expected = [
+            call.post(
+                path="/apps/maps/api/1.0/favorites",
+                data={
+                    "name": _data["name"],
+                    "lat": _data["lat"],
+                    "lng": _data["lng"],
+                    "category": _data["category"],
+                    "comment": None,
+                    "extensions": None,
+                },
+                headers=None,
+            )
+        ]
+        maps.api.assert_has_calls(expected)
 
-    async def test_list_favorites(self, maps: Maps, httpx_mock: HTTPXMock):
-        httpx_mock.add_response(
-            200,
-            json=[_FAVORITE_DATA],
-            method="GET",
-            url=f"{ENDPOINT}{maps.api.stub}{maps.stub}/favorites",
-        )
-        result = await maps.list_favorites()
-        assert isinstance(result[0], MapFavorite)
-
-        assert result[0].name == _FAVORITE_DATA["name"]
-        httpx_mock.assert_all_responses_sent()
+    async def test_list_favorites(self, maps: MapsApi):
+        await maps.list_favorites()
+        expected = [
+            call.get(path="/apps/maps/api/1.0/favorites", data=None, headers=None),
+            call.get().__iter__(),
+        ]
+        maps.api.assert_has_calls(expected)

@@ -1,15 +1,13 @@
 from dataclasses import dataclass
-
+from typing import TYPE_CHECKING, List
 from urllib.parse import unquote
-
-from typing import List, TYPE_CHECKING
 
 from nextcloud_async.driver import NextcloudIterator
 
 from .base_file import BaseFile
 
 if TYPE_CHECKING:
-    from . import Files
+    from . import FilesApi
 
 
 class Version(BaseFile):
@@ -38,7 +36,7 @@ class Versions(NextcloudIterator):
     """Class for making sense of Nextcloud Trashbins."""
 
     _files: List[Version]
-    files_api: "Files"
+    files_api: "FilesApi"
 
     def __post_init__(self):
         self.set_iterator(self._files, starting_index=1)

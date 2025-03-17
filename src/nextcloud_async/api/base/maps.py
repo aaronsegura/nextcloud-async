@@ -12,7 +12,7 @@ from nextcloud_async.driver import NextcloudBaseApi, NextcloudModule
 
 
 class MapFavorite(NextcloudDataObject):
-    self_api: "Maps"
+    self_api: "MapsApi"
 
     def __str__(self) -> str:
         return f'<MapFavorite "{self.name}">'
@@ -67,15 +67,19 @@ class MapFavorite(NextcloudDataObject):
         self.data = response.data
 
 
-class Maps(NextcloudModule):
+class MapsApi(NextcloudModule):
     """Interact with Nextcloud Maps API.
 
     Add/remove/edit/delete map favorites.
     """
 
-    def __init__(self, client: NextcloudClient, api_version: str = "1.0") -> None:
+    def __init__(
+        self,
+        base_api: NextcloudBaseApi,
+        api_version: str = "1.0",
+    ) -> None:
         self.stub = f"/apps/maps/api/{api_version}"
-        self.api = NextcloudBaseApi(client)
+        self.api = base_api
 
     async def list_favorites(self) -> list[MapFavorite]:
         """Get a list of map favorites.
@@ -186,3 +190,9 @@ class Maps(NextcloudModule):
         }
         response = await self._post(path="/favorites", data=data)
         return MapFavorite(response, self)
+
+
+def maps_api(client: NextcloudClient) -> MapsApi:
+    """MapsApi factory."""
+    base_api = NextcloudBaseApi(client)
+    return MapsApi(base_api)

@@ -1,80 +1,50 @@
-import httpx
+from unittest.mock import AsyncMock, PropertyMock, call
+
 import pytest
-from pytest_httpx import HTTPXMock
 
-from nextcloud_async import NextcloudClient
-from nextcloud_async.api import Wipe
-from nextcloud_async.exceptions import (
-    NextcloudMethodNotAllowedError,
-    NextcloudNotFoundError,
-)
+from nextcloud_async.api import WipeApi
+from nextcloud_async.exceptions import NextcloudMethodNotAllowedError
 
-from ....constants import APP_TOKEN, EMPTY_RESPONSE, ENDPOINT, USER
-
-FALSE_RESPONSE = r'{"wipe": false}'
-TRUE_RESPONSE = b'{"wipe": true}'
+from .constants import APP_TOKEN, ENDPOINT
 
 
-@pytest.fixture
-def wipe():
-    client = NextcloudClient(
-        ENDPOINT, USER, app_token=APP_TOKEN, http_client=httpx.AsyncClient()
-    )
-    return Wipe(client)
+@pytest.fixture(name="wipe_api")
+def _wipe_api() -> WipeApi:
+    return WipeApi(AsyncMock())
 
 
 @pytest.mark.asyncio
 class TestWipe:
-    async def test_check_no_app_token(self, wipe: Wipe):
-        wipe.api.client.app_token = None
+    async def test_check_no_app_token(self, wipe_api: WipeApi):
+        wipe_api.api.client = PropertyMock(app_token=None)
         with pytest.raises(NextcloudMethodNotAllowedError):
-            await wipe.check()
+            await wipe_api.check()
+        wipe_api.api.assert_not_called()
 
-    async def test_check_no_wipe(self, wipe: Wipe, httpx_mock: HTTPXMock):
-        httpx_mock.add_response(
-            200,
-            text=FALSE_RESPONSE,
-            url=f"{ENDPOINT}{wipe.api.stub}{wipe.stub}/check",
-            method="POST",
-        )
-        result = await wipe.check()
-        httpx_mock.assert_all_responses_sent()
+    async def test_check_app_token(self, wipe_api: WipeApi):
+        wipe_api.api.client = PropertyMock(app_token=APP_TOKEN)
+        result = await wipe_api.check()
+        expected = [
+            call.post(
+                path="/index.php/core/wipe/check",
+                data={"token": APP_TOKEN},
+                headers=None,
+            ),
+            call.post().__contains__("wipe"),
+        ]
+        wipe_api.api.assert_has_calls(expected)
         assert result is False
 
-    async def test_check_not_found(self, wipe: Wipe, httpx_mock: HTTPXMock):
-        httpx_mock.add_exception(NextcloudNotFoundError(), method="POST")
-        result = await wipe.check()
-        assert result is False
-        httpx_mock.assert_all_responses_sent()
-
-    async def test_check_wipe(self, wipe: Wipe, httpx_mock: HTTPXMock):
-        httpx_mock.add_response(
-            200,
-            content=TRUE_RESPONSE,
-            method="POST",
-            url=f"{ENDPOINT}{wipe.api.stub}{wipe.stub}/check",
+    async def test_notify_wiped(self, wipe_api: WipeApi):
+        client_property = PropertyMock(
+            endpoint=ENDPOINT, app_token=APP_TOKEN, http_client=AsyncMock()
         )
-        result = await wipe.check()
-        httpx_mock.assert_all_responses_sent()
-        assert result is True
-
-    async def test_check_wipe_empty_response(self, wipe: Wipe, httpx_mock: HTTPXMock):
-        httpx_mock.add_response(
-            200,
-            json=EMPTY_RESPONSE,
-            method="POST",
-            url=f"{ENDPOINT}{wipe.api.stub}{wipe.stub}/check",
-        )
-        result = await wipe.check()
-        httpx_mock.assert_all_responses_sent()
-        assert result is False
-
-    async def test_notify_wiped(self, wipe: Wipe, httpx_mock: HTTPXMock):
-        httpx_mock.add_response(
-            200,
-            json=EMPTY_RESPONSE,
-            method="POST",
-            url=f"{ENDPOINT}{wipe.stub}/success",
-        )
-        await wipe.notify_wiped()
-        httpx_mock.assert_all_responses_sent()
+        wipe_api.api.client = client_property
+        await wipe_api.notify_wiped()
+        expected = [
+            call.post(
+                url=f"{ENDPOINT}/index.php/core/wipe/success",
+                data={"token": "[app token]"},
+            )
+        ]
+        wipe_api.api.client.http_client.assert_has_calls(expected)

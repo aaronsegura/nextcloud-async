@@ -3,10 +3,19 @@
 https://docs.nextcloud.com/server/latest/developer_manual/client_apis/
 """
 
-from .base.loginflowv2 import LoginFlowV2
-from .base.maps import MapFavorite, Maps
-from .base.wipe import Wipe
-from .dav.files import Files, Trashbin, TrashFile, UserFile, UserPath, Version, Versions
+from .base.loginflowv2 import LoginFlowV2Api, loginflowv2_api
+from .base.maps import MapFavorite, MapsApi, maps_api
+from .base.wipe import WipeApi, wipe_api
+from .dav.files import (
+    FilesApi,
+    Trashbin,
+    TrashFile,
+    UserFile,
+    UserPath,
+    Version,
+    Versions,
+    files_api,
+)
 from .ocs.apps import App, Apps
 from .ocs.groupfolders import (
     AclManagerType,
@@ -77,7 +86,8 @@ __all__ = [
     "Polls",
     "Poll",
     "Suggestion",
-    "Files",
+    "FilesApi",
+    "files_api",
     "UserFile",
     "UserPath",
     "Trashbin",
@@ -91,8 +101,10 @@ __all__ = [
     "Group",
     "Ldap",
     "LdapConfiguration",
-    "LoginFlowV2",
-    "Maps",
+    "LoginFlowV2Api",
+    "loginflowv2_api",
+    "maps_api",
+    "MapsApi",
     "MapFavorite",
     "Message",
     "MessageReminder",
@@ -112,7 +124,8 @@ __all__ = [
     "StatusType",
     "Users",
     "User",
-    "Wipe",
+    "WipeApi",
+    "wipe_api",
     "ConversationAvatars",
     "Bot",
     "Bots",

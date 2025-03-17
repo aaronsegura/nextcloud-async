@@ -20,7 +20,7 @@ from nextcloud_async.exceptions import (
 log = logging.getLogger("nextcloud_async.wipe")
 
 
-class Wipe(NextcloudModule):
+class WipeApi(NextcloudModule):
     """Interact with Nextcloud Remote Wipe API.
 
     Two simple functions: one to check if the user wants their data
@@ -37,8 +37,8 @@ class Wipe(NextcloudModule):
 
     """
 
-    def __init__(self, client: NextcloudClient) -> None:
-        self.api = NextcloudBaseApi(client)
+    def __init__(self, base_api: NextcloudBaseApi) -> None:
+        self.api = base_api
         self.stub = "/index.php/core/wipe"
 
     async def check(self) -> bool:
@@ -52,13 +52,10 @@ class Wipe(NextcloudModule):
                 "Only valid with app_token authentication."
             )
 
-        try:
-            response = await self._post(
-                path="/check",
-                data={"token": self.api.client.app_token},
-            )
-        except NextcloudNotFoundError:
-            return False
+        response = await self._post(
+            path="/check",
+            data={"token": self.api.client.app_token},
+        )
 
         if "wipe" in response:
             return response["wipe"]
@@ -74,5 +71,11 @@ class Wipe(NextcloudModule):
         """
         return await self.api.client.http_client.post(
             url=f"{self.api.client.endpoint}{self.stub}/success",
-            data={"token": self.api.client.password},
+            data={"token": self.api.client.app_token},
         )
+
+
+def wipe_api(client: NextcloudClient) -> WipeApi:
+    """Factory for WipeApi."""
+    base_api = NextcloudBaseApi(client)
+    return WipeApi(base_api)

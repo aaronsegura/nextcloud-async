@@ -7,7 +7,7 @@ from nextcloud_async.driver import NextcloudIterator
 from .base_file import BaseFile
 
 if TYPE_CHECKING:
-    from . import Files
+    from . import FilesApi
 
 
 class TrashFile(BaseFile):
@@ -40,7 +40,7 @@ class Trashbin(NextcloudIterator):
     """Class for making sense of Nextcloud Trashbins."""
 
     _files: List[TrashFile]
-    files_api: "Files"
+    files_api: "FilesApi"
 
     def __post_init__(self) -> None:
         self.set_iterator(self._files, 1)
