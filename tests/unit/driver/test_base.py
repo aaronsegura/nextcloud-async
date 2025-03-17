@@ -9,7 +9,7 @@ from nextcloud_async.exceptions import (
     NextcloudRequestTimeoutError,
 )
 
-from .constants import EMPTY_RESPONSE, ENDPOINT, PASSWORD, USER
+from .constants import APP_TOKEN, EMPTY_RESPONSE, ENDPOINT, PASSWORD, USER
 
 
 @pytest.fixture
@@ -19,7 +19,7 @@ def nc() -> NextcloudClient:
 
 @pytest.fixture
 def nc_app_token() -> NextcloudClient:
-    return NextcloudClient(ENDPOINT, USER, app_token=PASSWORD)
+    return NextcloudClient(ENDPOINT, USER, app_token=APP_TOKEN)
 
 
 @pytest.fixture
@@ -58,6 +58,17 @@ class TestRequest:
         assert http_response == []
 
         httpx_mock.assert_all_responses_sent()
+
+    async def test_get_app_token(
+        self, base_app_token: NextcloudBaseApi, httpx_mock: HTTPXMock
+    ):
+        httpx_mock.add_response(
+            status_code=200,
+            method="GET",
+            content=EMPTY_RESPONSE,
+            headers={"key": "value", "Authorization": f"Bearer: {APP_TOKEN}"},
+            url=f"{ENDPOINT}{base_app_token.stub}",
+        )
 
     async def test_request_readtimeout(
         self, base: NextcloudBaseApi, httpx_mock: HTTPXMock
