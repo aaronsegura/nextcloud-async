@@ -63,7 +63,7 @@ class TestMaps:
     ):
         httpx_mock.add_response(
             200,
-            content=bytes(json.dumps(_UPDATED_DATA), "utf-8"),
+            json=_UPDATED_DATA,
             method="PUT",
             url=f"{ENDPOINT}{maps.api.stub}{maps.stub}/favorites/{_FAVORITE_DATA['id']}",
         )
@@ -76,7 +76,7 @@ class TestMaps:
         _data.pop("id")
         httpx_mock.add_response(
             200,
-            content=bytes(json.dumps(_FAVORITE_DATA), "utf-8"),
+            json=_FAVORITE_DATA,
             method="POST",
             url=f"{ENDPOINT}{maps.api.stub}{maps.stub}/favorites",
         )
@@ -87,7 +87,7 @@ class TestMaps:
     async def test_list_favorites(self, maps: Maps, httpx_mock: HTTPXMock):
         httpx_mock.add_response(
             200,
-            content=bytes(json.dumps([_FAVORITE_DATA]), "utf-8"),
+            json=[_FAVORITE_DATA],
             method="GET",
             url=f"{ENDPOINT}{maps.api.stub}{maps.stub}/favorites",
         )
