@@ -412,6 +412,10 @@ class NextcloudCapabilities:
 
     @classmethod
     def destroy(cls) -> None:
+        """Destroy singleton instance.
+
+        This is useful for unit testing.
+        """
         cls._instance = None
 
     async def _get_capabilities(self) -> Dict[str, Any]:
