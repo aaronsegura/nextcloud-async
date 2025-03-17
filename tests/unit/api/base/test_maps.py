@@ -7,7 +7,7 @@ from pytest_httpx import HTTPXMock
 from nextcloud_async import NextcloudClient
 from nextcloud_async.api import MapFavorite, Maps
 
-from ...constants import EMPTY_RESPONSE, ENDPOINT, PASSWORD, USER
+from .constants import EMPTY_RESPONSE, ENDPOINT, PASSWORD, USER
 
 _FAVORITE_DATA = {
     "id": 1,

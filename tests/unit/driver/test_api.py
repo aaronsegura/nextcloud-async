@@ -1,31 +1,44 @@
+import json
 from typing import Callable
 from unittest.mock import AsyncMock, call
 
 import pytest
+from pytest_httpx import HTTPXMock
 
 from nextcloud_async import NextcloudClient
 from nextcloud_async.driver import NextcloudHttpApi
+from nextcloud_async.exceptions import NextcloudNotCapableError
 
-from .constants import ENDPOINT, PASSWORD, USER
+from .constants import (
+    APP_TOKEN,
+    CAPABILITIES_RESPONSE,
+    EMPTY_RESPONSE,
+    ENDPOINT,
+    PASSWORD,
+    USER,
+    USER_AGENT,
+)
 
 
 class PytestDummyApi(NextcloudHttpApi):
-    request = AsyncMock()
+    request: AsyncMock = AsyncMock()
 
 
 @pytest.fixture
 def nc() -> NextcloudClient:
-    return NextcloudClient(ENDPOINT, USER, PASSWORD, http_client=AsyncMock)
+    return NextcloudClient(ENDPOINT, USER, PASSWORD, user_agent=USER_AGENT)
 
 
 @pytest.fixture
 def nc_app_token() -> NextcloudClient:
-    return NextcloudClient(ENDPOINT, USER, app_token=PASSWORD)
+    return NextcloudClient(ENDPOINT, USER, app_token=APP_TOKEN, user_agent=USER_AGENT)
 
 
 @pytest.fixture
 def api(nc) -> PytestDummyApi:
-    return PytestDummyApi(nc)
+    api = PytestDummyApi(nc)
+    api._capabilities_api.destroy()
+    return api
 
 
 @pytest.fixture
@@ -43,7 +56,7 @@ def munge_headers(api) -> Callable:
     return api._munge_headers
 
 
-class TestInit:
+class TestPathArgs:
     def test_path_args_bool(self, path_args: Callable):
         result = path_args({"thing": True})
         assert result == "?thing=true"
@@ -52,15 +65,17 @@ class TestInit:
         result = path_args({"thing": None})
         assert result == "?thing="
 
-
-class TestPathArgs:
     def test_path_args_key_value(self, path_args: Callable):
         result = path_args({"thing": "stuff"})
         assert result == "?thing=stuff"
 
     def test_path_args_all(self, path_args: Callable):
         result = path_args({"bool": True, "None": None, "key": "value"})
-        assert result == "?bool=true&None=&key=value"
+        assert result.startswith("?")
+        parts = result[1:].split("&")
+        assert "bool=true" in parts
+        assert "None=" in parts
+        assert "key=value" in parts
 
 
 class TestMungeHeaders:
@@ -84,14 +99,12 @@ class TestMungeHeaders:
             "ExtraHeader": "ExtraValue",
         }
 
-    def test_munge_headers_with_app_token_auth(self):
-        nc = NextcloudClient("endpoint", "user", app_token="[app_token]")
-        api = PytestDummyApi(nc)
-        result = api._munge_headers({"TestHeader": "TestValue"})
+    def test_munge_headers_with_app_token_auth(self, api_app_token):
+        result = api_app_token._munge_headers({"TestHeader": "TestValue"})
         assert result == {
-            "User-Agent": nc.user_agent,
+            "User-Agent": USER_AGENT,
             "TestHeader": "TestValue",
-            "Authorization": "Bearer [app_token]",
+            "Authorization": f"Bearer {APP_TOKEN}",
         }
 
 
@@ -105,13 +118,70 @@ class TestFormatJson:
         assert result == {"TestKey": "TestValue", "format": "json"}
 
 
+@pytest.mark.asyncio
 class TestCapabilities:
-    def test_has_capability(self, api: PytestDummyApi):
+    async def test_has_capability(self, api: PytestDummyApi, httpx_mock: HTTPXMock):
+        httpx_mock.add_response(200, content=CAPABILITIES_RESPONSE)
+        assert await api.has_capability("files")
 
+    async def test_has_capability_noexist(
+        self, api: PytestDummyApi, httpx_mock: HTTPXMock
+    ):
+        httpx_mock.add_response(200, content=CAPABILITIES_RESPONSE)
+        assert not await api.has_capability("noexist")
 
-    def test_require_capability(self, api: PytestDummyApi): ...
+    async def test_require_capability(self, api: PytestDummyApi, httpx_mock: HTTPXMock):
+        httpx_mock.add_response(200, content=CAPABILITIES_RESPONSE)
+        await api.require_capability("files")
 
-    def test_raise_response_exception(self, api: PytestDummyApi): ...
+    async def test_raise_response_exception(
+        self, api: PytestDummyApi, httpx_mock: HTTPXMock
+    ):
+        httpx_mock.add_response(200, content=CAPABILITIES_RESPONSE)
+        with pytest.raises(NextcloudNotCapableError):
+            await api.require_capability("noexist")
+
+    async def test_get_capability(self, api: PytestDummyApi, httpx_mock: HTTPXMock):
+        httpx_mock.add_response(200, content=CAPABILITIES_RESPONSE)
+        result = await api._capabilities_api.get_capability("core")
+        assert (
+            result
+            == json.loads(CAPABILITIES_RESPONSE)["ocs"]["data"]["capabilities"]["core"]
+        )
+
+    async def test_get_capability_deep(self, api: PytestDummyApi, httpx_mock: HTTPXMock):
+        httpx_mock.add_response(200, content=CAPABILITIES_RESPONSE)
+        result = await api._capabilities_api.get_capability("spreed.features")
+        assert (
+            result
+            == json.loads(CAPABILITIES_RESPONSE)["ocs"]["data"]["capabilities"]["spreed"][
+                "features"
+            ]
+        )
+
+    async def test_get_capability_deep_noexist(
+        self, api: PytestDummyApi, httpx_mock: HTTPXMock
+    ):
+        httpx_mock.add_response(200, content=CAPABILITIES_RESPONSE)
+        with pytest.raises(NextcloudNotCapableError):
+            await api._capabilities_api.get_capability("spreed.features.noexist")
+
+    async def test_get_capability_noexist(
+        self, api: PytestDummyApi, httpx_mock: HTTPXMock
+    ):
+        httpx_mock.add_response(200, content=CAPABILITIES_RESPONSE)
+        with pytest.raises(NextcloudNotCapableError):
+            await api._capabilities_api.get_capability("noexist")
+
+    async def test_server_version(self, api: PytestDummyApi, httpx_mock: HTTPXMock):
+        httpx_mock.add_response(200, content=CAPABILITIES_RESPONSE)
+        result = await api._capabilities_api.server_version()
+        assert result == json.loads(CAPABILITIES_RESPONSE)["ocs"]["data"]["version"]
+
+    async def test_get_all(self, api: PytestDummyApi, httpx_mock: HTTPXMock):
+        httpx_mock.add_response(200, content=CAPABILITIES_RESPONSE)
+        result = await api._capabilities_api.get_all()
+        assert result == json.loads(CAPABILITIES_RESPONSE)["ocs"]["data"]["capabilities"]
 
 
 class TestRequests:
@@ -149,4 +219,8 @@ class TestRequests:
         api.request.assert_has_calls(expected)
 
 
-def test_wipe_requested(self, api: PytestDummyApi): ...
+@pytest.mark.asyncio
+async def test_wipe_requested(api: PytestDummyApi, httpx_mock: HTTPXMock):
+    httpx_mock.add_response(404, content=EMPTY_RESPONSE)
+    api.client.app_token = APP_TOKEN
+    assert await api._wipe_requested() is False

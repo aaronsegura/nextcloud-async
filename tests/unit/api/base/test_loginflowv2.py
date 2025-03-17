@@ -10,7 +10,7 @@ from nextcloud_async.exceptions import (
     NextcloudNotFoundError,
 )
 
-from ...constants import APP_TOKEN, ENDPOINT, PASSWORD, USER
+from .constants import APP_TOKEN, ENDPOINT, PASSWORD, USER
 
 
 @pytest.fixture

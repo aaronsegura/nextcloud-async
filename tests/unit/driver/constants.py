@@ -1,5 +1,5 @@
-# noqa: E501
-from ...constants import (
+from ...constants import (  # noqa: F401
+    APP_TOKEN,
     CAPABILITIES_RESPONSE,
     EMPTY_RESPONSE,
     ENDPOINT,
@@ -7,14 +7,5 @@ from ...constants import (
     OCS_EXCEPTION_RESPONSE,
     PASSWORD,
     USER,
+    USER_AGENT,
 )
-
-__all__ = [
-    "EMPTY_RESPONSE",
-    "ENDPOINT",
-    "OCS_EMPTY_200",
-    "OCS_EXCEPTION_RESPONSE",
-    "PASSWORD",
-    "USER",
-    "CAPABILITIES_RESPONSE",
-]

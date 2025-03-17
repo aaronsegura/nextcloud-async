@@ -9,7 +9,7 @@ from nextcloud_async.exceptions import (
     NextcloudNotFoundError,
 )
 
-from ...constants import APP_TOKEN, EMPTY_RESPONSE, ENDPOINT, USER
+from ....constants import APP_TOKEN, EMPTY_RESPONSE, ENDPOINT, USER
 
 FALSE_RESPONSE = r'{"wipe": false}'
 TRUE_RESPONSE = b'{"wipe": true}'
