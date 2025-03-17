@@ -102,7 +102,7 @@ class GroupFolder(NextcloudDataObject):
         if await self._changes_require_refresh():
             await self._refresh()
 
-    async def add_advanced_permission(self, object: Group | User) -> None:
+    async def add_acl_manager(self, object: Group | User) -> None:
         """Enable `object_id` as manager of advanced permissions.
 
         Args:
@@ -113,13 +113,13 @@ class GroupFolder(NextcloudDataObject):
         elif isinstance(object, Group):
             object_type = AclManagerType.group
 
-        await self.self_api.add_advanced_permissions(
+        await self.self_api.add_acl_manager(
             folder_id=self.id, object_id=object.id, object_type=object_type
         )
         if await self._changes_require_refresh():
             await self._refresh()
 
-    async def remove_advanced_permission(self, object: User | Group) -> None:
+    async def remove_acl_manager(self, object: User | Group) -> None:
         """Disable `object_id` as manager of advanced permissions.
 
         Args:
@@ -130,15 +130,13 @@ class GroupFolder(NextcloudDataObject):
         elif isinstance(object, Group):
             object_type = AclManagerType.group
 
-        await self.self_api.remove_advanced_permissions(
+        await self.self_api.remove_acl_manager(
             folder_id=self.id, object_id=object.id, object_type=object_type
         )
         if await self._changes_require_refresh():
             await self._refresh()
 
-    async def set_advanced_permissions(
-        self, group: Group, permissions: GroupFoldersPermissions
-    ) -> None:
+    async def set_acl(self, group: Group, permissions: GroupFoldersPermissions) -> None:
         """Set permissions a group has in this folder.
 
         Args:
@@ -146,7 +144,7 @@ class GroupFolder(NextcloudDataObject):
 
             permissions: New permissions.
         """
-        await self.self_api.set_advanced_permissions(
+        await self.self_api.set_acl(
             folder_id=self.id, group_id=group.id, permissions=permissions
         )
         if await self._changes_require_refresh():
@@ -285,7 +283,7 @@ class GroupFolders(NextcloudModule):
     async def _advanced_permissions(self, folder_id: int, enable: bool) -> None:
         await self._post(path=f"/{folder_id}/acl", data={"acl": 1 if enable else 0})
 
-    async def add_advanced_permissions(
+    async def add_acl_manager(
         self, folder_id: int, object_id: str, object_type: AclManagerType
     ) -> None:
         """Enable `object_id` as manager of advanced permissions.
@@ -305,7 +303,7 @@ class GroupFolders(NextcloudModule):
             manage_acl=True,
         )
 
-    async def remove_advanced_permissions(
+    async def remove_acl_manager(
         self, folder_id: int, object_id: str, object_type: AclManagerType
     ) -> None:
         """Disable `object_id` as manager of advanced permissions.
@@ -339,7 +337,7 @@ class GroupFolders(NextcloudModule):
 
         return response["success"]
 
-    async def set_advanced_permissions(
+    async def set_acl(
         self, folder_id: int, group_id: str, permissions: GroupFoldersPermissions
     ) -> bool:
         """Set permissions a group has in a folder.
