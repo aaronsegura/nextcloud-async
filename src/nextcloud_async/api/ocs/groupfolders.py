@@ -4,10 +4,11 @@ https://github.com/nextcloud/groupfolders#api
 https://github.com/nextcloud/groupfolders/blob/master/openapi.json
 """
 
-from dataclasses import dataclass
 from enum import Enum, IntFlag
-from typing import Any, Dict, List, Optional
 
+from semver import Version
+
+from nextcloud_async.api.dataobject import NextcloudDataObject
 from nextcloud_async.api.ocs.groups import Group
 from nextcloud_async.api.ocs.users import User
 from nextcloud_async.client import NextcloudClient
@@ -31,31 +32,42 @@ class AclManagerType(Enum):
     group = "group"
 
 
-@dataclass
-class GroupFolder:
-    data: Dict[str, Any]
-    groupfolder_api: "GroupFolders"
-
-    def __getattr__(self, k: str) -> Any:
-        return self.data[k]
+class GroupFolder(NextcloudDataObject):
+    self_api: "GroupFolders"
 
     def __str__(self) -> str:
         return f'<GroupFolder "{self.mount_point}">'
 
-    def __repr__(self) -> str:
-        return str(self.data)
+    async def _changes_require_refresh(self) -> bool:
+        """Whether or not object needs to be refreshed after changes.
+
+        GroupFolders after commit 69200078 returns the changed folder with the
+        response so we don't have to manually pull it again.
+
+        https://github.com/nextcloud/groupfolders/commit/6920007850f430db4798993507b02950e45bac9d
+
+        Returns:
+            True or False
+        """
+        min_version = Version.parse("999.0.0")  # TODO: Update when commit released
+        version = Version.parse(
+            await self.self_api.api.get_capability("groupfolders.appVersion")
+        )
+        if version >= min_version:
+            return False
+        return True
 
     async def _refresh(self) -> None:
         """Refresh this GroupFolder after changes.
 
         Would be nice if the API returned mofidied objects after POSTs.
         """
-        _updates = await self.groupfolder_api.get(self.id)
+        _updates = await self.self_api.get(self.id)
         self.data = _updates.data
 
     async def delete(self) -> None:
         """Delete this group folder."""
-        await self.groupfolder_api.delete(self.id)
+        await self.self_api.delete(self.id)
         self.data = {"id": self.id, "mount_point": "**deleted**"}
 
     async def permit_group(self, group: Group) -> None:
@@ -64,8 +76,9 @@ class GroupFolder:
         Args:
             group: Group object
         """
-        await self.groupfolder_api.permit_group(folder_id=self.id, group_id=group.id)
-        await self._refresh()
+        await self.self_api.permit_group(folder_id=self.id, group_id=group.id)
+        if await self._changes_require_refresh():
+            await self._refresh()
 
     async def deny_group(self, group: Group) -> None:
         """Remove `group_id` access fom this group.
@@ -73,18 +86,21 @@ class GroupFolder:
         Args:
             group: Group object
         """
-        await self.groupfolder_api.deny_group(folder_id=self.id, group_id=group.id)
-        await self._refresh()
+        await self.self_api.deny_group(folder_id=self.id, group_id=group.id)
+        if await self._changes_require_refresh():
+            await self._refresh()
 
     async def enable_advanced_permissions(self) -> None:
         """Enable advanced permissions."""
-        await self.groupfolder_api.enable_advanced_permissions(folder_id=self.id)
-        await self._refresh()
+        await self.self_api.enable_advanced_permissions(folder_id=self.id)
+        if await self._changes_require_refresh():
+            await self._refresh()
 
     async def disable_advanced_permissions(self) -> None:
         """Disable advanced permissios."""
-        await self.groupfolder_api.disable_advanced_permissions(folder_id=self.id)
-        await self._refresh()
+        await self.self_api.disable_advanced_permissions(folder_id=self.id)
+        if await self._changes_require_refresh():
+            await self._refresh()
 
     async def add_advanced_permission(self, object: Group | User) -> None:
         """Enable `object_id` as manager of advanced permissions.
@@ -97,10 +113,11 @@ class GroupFolder:
         elif isinstance(object, Group):
             object_type = AclManagerType.group
 
-        await self.groupfolder_api.add_advanced_permissions(
+        await self.self_api.add_advanced_permissions(
             folder_id=self.id, object_id=object.id, object_type=object_type
         )
-        await self._refresh()
+        if await self._changes_require_refresh():
+            await self._refresh()
 
     async def remove_advanced_permission(self, object: User | Group) -> None:
         """Disable `object_id` as manager of advanced permissions.
@@ -113,10 +130,11 @@ class GroupFolder:
         elif isinstance(object, Group):
             object_type = AclManagerType.group
 
-        await self.groupfolder_api.remove_advanced_permissions(
+        await self.self_api.remove_advanced_permissions(
             folder_id=self.id, object_id=object.id, object_type=object_type
         )
-        await self._refresh()
+        if await self._changes_require_refresh():
+            await self._refresh()
 
     async def set_advanced_permissions(
         self, group: Group, permissions: GroupFoldersPermissions
@@ -128,19 +146,21 @@ class GroupFolder:
 
             permissions: New permissions.
         """
-        await self.groupfolder_api.set_advanced_permissions(
+        await self.self_api.set_advanced_permissions(
             folder_id=self.id, group_id=group.id, permissions=permissions
         )
-        await self._refresh()
+        if await self._changes_require_refresh():
+            await self._refresh()
 
-    async def set_quota(self, quota: Optional[int]) -> None:
+    async def set_quota(self, quota: int | None) -> None:
         """Set quota for group folder.
 
         Args:
             quota: Quota in bytes.  None for unlimited.
         """
-        await self.groupfolder_api.set_quota(self.id, quota)
-        await self._refresh()
+        await self.self_api.set_quota(self.id, quota)
+        if await self._changes_require_refresh():
+            await self._refresh()
 
     async def rename(self, mount_point: str) -> None:
         """Rename a group folder.
@@ -150,7 +170,7 @@ class GroupFolder:
 
             mount_point: New mount point.
         """
-        await self.groupfolder_api.rename(self.id, mount_point=mount_point)
+        await self.self_api.rename(self.id, mount_point=mount_point)
         self.mount_point = mount_point
 
 
@@ -169,7 +189,7 @@ class GroupFolders(NextcloudModule):
     async def _validate_capability(self) -> None:
         await self.api.require_capability("groupfolders")
 
-    async def list(self) -> List[GroupFolder]:
+    async def list(self) -> list[GroupFolder]:
         """Get list of all group folders.
 
         Returns:
@@ -338,7 +358,7 @@ class GroupFolders(NextcloudModule):
         )
         return response["success"]
 
-    async def set_quota(self, folder_id: int, quota: Optional[int]) -> None:
+    async def set_quota(self, folder_id: int, quota: int | None) -> None:
         """Set quota for group folder.
 
         Args:
