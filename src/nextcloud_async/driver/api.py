@@ -126,6 +126,20 @@ class NextcloudHttpApi(ABC):
         """
         return await self._capabilities_api.supported(capability)
 
+    async def get_capability(self, capability: str) -> Any:
+        """Return value of capability.
+
+        Args:
+            capability:
+                Dot-separated strings
+
+                Example: `files.versioning`
+
+        Returns:
+            Value from server capabilities
+        """
+        return await self._capabilities_api.get_capability(capability)
+
     async def require_capability(self, capability: str) -> None:
         """Throw exception if server doesn't have a capability.
 
@@ -140,6 +154,10 @@ class NextcloudHttpApi(ABC):
         """
         if not await self.has_capability(capability):
             raise NextcloudNotCapableError()
+
+    def destroy_capabilities(self) -> None:
+        """Force refresh of capabilities from server."""
+        self._capabilities_api.destroy()
 
     async def _raise_response_exception(self, status_code: int, reason: str) -> None:
         """Optionally raise an exception based on response status_code.
