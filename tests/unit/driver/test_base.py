@@ -69,6 +69,8 @@ class TestRequest:
             headers={"key": "value", "Authorization": f"Bearer: {APP_TOKEN}"},
             url=f"{ENDPOINT}{base_app_token.stub}",
         )
+        await base_app_token.request()
+        httpx_mock.assert_all_responses_sent()
 
     async def test_request_readtimeout(
         self, base: NextcloudBaseApi, httpx_mock: HTTPXMock
