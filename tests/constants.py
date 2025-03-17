@@ -31,6 +31,7 @@ OCS_EXCEPTION_RESPONSE = {
     }
 }
 
+CAPABILITIES_URL = f"{ENDPOINT}/ocs/v1.php/cloud/capabilities?format=json"
 CAPABILITIES_RESPONSE = {
     "ocs": {
         "meta": {"status": "ok", "statuscode": 200, "message": "OK"},
