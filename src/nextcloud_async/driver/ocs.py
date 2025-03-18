@@ -10,7 +10,7 @@ from typing import Any, Optional
 import httpx
 
 from nextcloud_async.client import NextcloudClient
-from nextcloud_async.driver import NextcloudCapabilities, NextcloudHttpApi
+from nextcloud_async.driver import NextcloudHttpApi
 from nextcloud_async.exceptions import NextcloudAsyncError, NextcloudRequestTimeoutError
 
 _HTTP_USER_ERROR = 400
@@ -81,6 +81,7 @@ class NextcloudOcsApi(NextcloudHttpApi):
 
         Raises:
             NextcloudRequestTimeoutError - When request times out.
+
         """
         headers = self._munge_headers(headers, extra={"OCS-APIRequest": "true"})
         data = self._format_json(data)
@@ -105,9 +106,7 @@ class NextcloudOcsApi(NextcloudHttpApi):
 
         if raw_response:
             return response.content
-        log.debug("HERE")
         await self.raise_response_exception(response)
-        log.debug("THERE")
         return response.json()["ocs"]["data"]
 
     async def raise_response_exception(self, response: httpx.Response) -> None:
@@ -119,6 +118,7 @@ class NextcloudOcsApi(NextcloudHttpApi):
 
         Raises:
             NextcloudAsyncError: When content is unintepretable.
+
         """
         try:
             response_data = response.json()
