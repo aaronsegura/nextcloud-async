@@ -1,11 +1,10 @@
+from typing import AsyncGenerator
+
 import pytest
 import pytest_asyncio
 
-from typing import AsyncGenerator
-
-from nextcloud_async.api import Groups, Group, Users, User
+from nextcloud_async.api import Group, GroupsApi, User, UsersApi
 from nextcloud_async.exceptions import NextcloudForbiddenError
-
 
 _TEST_GROUP_NAME = "pytest_group"
 _TEST_USER = {
@@ -20,7 +19,7 @@ _TEST_USER = {
 
 @pytest_asyncio.fixture(scope="function", loop_scope="session")
 async def test_groups(
-    network_blocked: bool, groups_api: Groups
+    network_blocked: bool, groups_api: GroupsApi
 ) -> AsyncGenerator[list[Group]]:
     ret: list[Group] = []
 
@@ -43,7 +42,7 @@ async def test_groups(
 
 
 @pytest_asyncio.fixture(scope="function", loop_scope="session")
-async def test_user(network_blocked: bool, users_api: Users) -> AsyncGenerator[User]:
+async def test_user(network_blocked: bool, users_api: UsersApi) -> AsyncGenerator[User]:
     if network_blocked:
         _TEST_USER.update({"id": _TEST_USER["user_id"]})
         test_user = User(_TEST_USER, self_api=users_api)
@@ -58,7 +57,7 @@ async def test_user(network_blocked: bool, users_api: Users) -> AsyncGenerator[U
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestGroups:
-    async def test_search_groups(self, groups_api: Groups, test_groups: list[Group]):
+    async def test_search_groups(self, groups_api: GroupsApi, test_groups: list[Group]):
         group = test_groups[0]
         groups = await groups_api.search(group.id)
         assert len(groups) == 1
@@ -82,7 +81,7 @@ class TestGroups:
         subadmins = await group.get_subadmins()
         assert test_user.id in subadmins
 
-    async def test_remove_group(self, groups_api: Groups, test_groups: list[Group]):
+    async def test_remove_group(self, groups_api: GroupsApi, test_groups: list[Group]):
         group = test_groups[1]
         id = group.id
         await group.delete()

@@ -1,32 +1,46 @@
-import httpx
-import os
 import asyncio
+import os
+
+import httpx
 import pytest
 import pytest_asyncio
 
 from nextcloud_async import NextcloudClient
 from nextcloud_async.api import (
-    Files,
-    Ldap,
-    Apps,
-    Groups,
-    GroupFolders,
-    LoginFlowV2,
-    Maps,
-    Notifications,
-    Shares,
-    Sharees,
-    Status,
-    Users,
+    AppsApi,
+    FilesApi,
+    GroupFoldersApi,
+    GroupsApi,
+    LdapApi,
+    LoginFlowV2Api,
+    MapsApi,
+    NotificationsApi,
+    ShareesApi,
+    SharesApi,
+    StatusApi,
+    UsersApi,
+    apps_api,
+    files_api,
+    groupfolders_api,
+    groups_api,
+    ldap_api,
+    loginflowv2_api,
+    maps_api,
+    notifications_api,
+    sharees_api,
+    shares_api,
+    status_api,
+    users_api,
 )
 from nextcloud_async.exceptions import NextcloudMethodNotAllowedError
 
 from .constants import (
-    NEXTCLOUD_VERSION,
-    USER,
-    PASSWORD,
+    APP_TOKEN,
     ENDPOINT,
+    NEXTCLOUD_VERSION,
+    PASSWORD,
     REMOTE_TEST_DIR,
+    USER,
     USER_AGENT,
 )
 
@@ -50,7 +64,7 @@ def vcr_cassette_dir(request):
     # Put all cassettes in cassettes/nextcloud-{version}/{module}/{test}.yaml
     return os.path.join(
         f"tests/integration/cassettes/nextcloud-{NEXTCLOUD_VERSION}",
-        ".".join(request.module.__name__.split(".")[1:]),
+        ".".join(request.module.__name__.split(".")[2:]),
     )
 
 
@@ -84,13 +98,13 @@ async def async_sessionstart():
         http_client=httpx.AsyncClient(timeout=30),
         user_agent=USER_AGENT,
     )
-    files_api = Files(nc)
+    files = files_api(nc)
 
     try:
-        await files_api.mkdir(REMOTE_TEST_DIR)
+        await files.mkdir(REMOTE_TEST_DIR)
     except NextcloudMethodNotAllowedError:
-        await files_api.delete(REMOTE_TEST_DIR)
-        await files_api.mkdir(REMOTE_TEST_DIR)
+        await files.delete(REMOTE_TEST_DIR)
+        await files.mkdir(REMOTE_TEST_DIR)
 
 
 def pytest_sessionfinish(exitstatus: int):
@@ -100,73 +114,73 @@ def pytest_sessionfinish(exitstatus: int):
 async def async_sessionfinish(exitstatus: int):
     if exitstatus == 0 and not _NETWORK_BLOCKED:
         nc = NextcloudClient(ENDPOINT, USER, PASSWORD, http_client=httpx.AsyncClient())
-        files_api = Files(nc)
-        await files_api.delete(REMOTE_TEST_DIR)
+        files = files_api(nc)
+        await files.delete(REMOTE_TEST_DIR)
 
 
 @pytest_asyncio.fixture(scope="session", loop_scope="session")
 async def nc():
     async with httpx.AsyncClient() as client:
         yield NextcloudClient(
-            ENDPOINT, USER, PASSWORD, http_client=client, user_agent=USER_AGENT
+            ENDPOINT, USER, app_token=APP_TOKEN, http_client=client, user_agent=USER_AGENT
         )
 
 
-@pytest.fixture(scope="session")
-def ldap_api(nc: NextcloudClient):
-    return Ldap(nc)
+@pytest.fixture(scope="session", name="ldap_api")
+def _ldap_api(nc: NextcloudClient) -> LdapApi:
+    return ldap_api(nc)
+
+
+@pytest.fixture(scope="session", name="apps_api")
+def _apps_api(nc: NextcloudClient) -> AppsApi:
+    return apps_api(nc)
+
+
+@pytest.fixture(scope="session", name="files_api")
+def _files_api(nc: NextcloudClient) -> FilesApi:
+    return files_api(nc)
 
 
 @pytest.fixture(scope="session")
-def apps(nc: NextcloudClient) -> Apps:
-    return Apps(nc)
+def gf_api(nc: NextcloudClient) -> GroupFoldersApi:
+    return groupfolders_api(nc)
 
 
-@pytest.fixture(scope="session")
-def files_api(nc: NextcloudClient):
-    return Files(nc)
+@pytest.fixture(scope="session", name="groups_api")
+def _groups_api(nc: NextcloudClient) -> GroupsApi:
+    return groups_api(nc)
 
 
-@pytest.fixture(scope="session")
-def gf_api(nc: NextcloudClient) -> GroupFolders:
-    return GroupFolders(nc)
+@pytest.fixture(scope="session", name="loginflowv2_api")
+def _loginflowv2_api(nc: NextcloudClient) -> LoginFlowV2Api:
+    return loginflowv2_api(nc)
 
 
-@pytest.fixture(scope="session")
-def groups_api(nc: NextcloudClient) -> Groups:
-    return Groups(nc)
+@pytest.fixture(scope="session", name="maps_api")
+def _maps_api(nc: NextcloudClient) -> MapsApi:
+    return maps_api(nc)
 
 
-@pytest.fixture(scope="session")
-def loginflowv2_api(nc: NextcloudClient) -> LoginFlowV2:
-    return LoginFlowV2(nc)
+@pytest.fixture(scope="session", name="notifications_api")
+def _notifications_api(nc: NextcloudClient) -> NotificationsApi:
+    return notifications_api(nc)
 
 
-@pytest.fixture(scope="session")
-def maps_api(nc: NextcloudClient) -> Maps:
-    return Maps(nc)
+@pytest.fixture(scope="session", name="shares_api")
+def _shares_api(nc: NextcloudClient) -> SharesApi:
+    return shares_api(nc)
 
 
-@pytest.fixture(scope="session")
-def notifications_api(nc: NextcloudClient) -> Notifications:
-    return Notifications(nc)
+@pytest.fixture(scope="session", name="sharees_api")
+def _sharees_api(nc: NextcloudClient) -> ShareesApi:
+    return sharees_api(nc)
 
 
-@pytest.fixture(scope="session")
-def shares_api(nc: NextcloudClient) -> Shares:
-    return Shares(nc)
+@pytest.fixture(scope="session", name="users_api")
+def _users_api(nc: NextcloudClient) -> UsersApi:
+    return users_api(nc)
 
 
-@pytest.fixture(scope="session")
-def sharees_api(nc: NextcloudClient) -> Sharees:
-    return Sharees(nc)
-
-
-@pytest.fixture(scope="session")
-def users_api(nc: NextcloudClient) -> Users:
-    return Users(nc)
-
-
-@pytest.fixture(scope="session")
-def status_api(nc: NextcloudClient) -> Status:
-    return Status(nc)
+@pytest.fixture(scope="session", name="status_api")
+def _status_api(nc: NextcloudClient) -> StatusApi:
+    return status_api(nc)

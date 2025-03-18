@@ -1,9 +1,9 @@
-import pytest
 import json
 
+import pytest
 from pytest_httpx import HTTPXMock
 
-from nextcloud_async.api import Notifications, Notification
+from nextcloud_async.api import Notification, NotificationsApi
 
 
 @pytest.mark.asyncio(loop_scope="session")
@@ -41,12 +41,12 @@ class TestNotifications:
     )
 
     @pytest.fixture
-    def notification(self, notifications_api: Notifications) -> Notification:
+    def notification(self, notifications_api: NotificationsApi) -> Notification:
         data = json.loads(self._single_response)
         return Notification(data["ocs"]["data"], notifications_api)
 
     async def test_get_notifications(
-        self, notifications_api: Notifications, httpx_mock: HTTPXMock
+        self, notifications_api: NotificationsApi, httpx_mock: HTTPXMock
     ):
         httpx_mock.add_response(200, content=self._multi_response)
         notifications = await notifications_api.get_all()
@@ -66,7 +66,7 @@ class TestNotifications:
         assert str(request.url) == assert_url
 
     async def test_get_notification(
-        self, notifications_api: Notifications, httpx_mock: HTTPXMock
+        self, notifications_api: NotificationsApi, httpx_mock: HTTPXMock
     ):
         httpx_mock.add_response(200, content=self._single_response)
 
@@ -88,7 +88,7 @@ class TestNotifications:
         assert request.method == "GET"
 
     async def test_clear_notifications(
-        self, notifications_api: Notifications, httpx_mock: HTTPXMock
+        self, notifications_api: NotificationsApi, httpx_mock: HTTPXMock
     ):
         httpx_mock.add_response(200, content=self._empty_response)
         await notifications_api.clear()
@@ -106,7 +106,7 @@ class TestNotifications:
 
     async def test_remove_notification(
         self,
-        notifications_api: Notifications,
+        notifications_api: NotificationsApi,
         notification: Notification,
         httpx_mock: HTTPXMock,
     ):

@@ -1,9 +1,9 @@
+from typing import AsyncGenerator
+
 import pytest
 import pytest_asyncio
 
-from typing import AsyncGenerator
-
-from nextcloud_async.api import Maps, MapFavorite
+from nextcloud_async.api import MapFavorite, MapsApi
 from nextcloud_async.exceptions import NextcloudNotFoundError
 
 DATA = {
@@ -17,7 +17,7 @@ DATA = {
 
 @pytest_asyncio.fixture(scope="function", loop_scope="session")
 async def map_favorite(
-    maps_api: Maps, network_blocked: bool
+    maps_api: MapsApi, network_blocked: bool
 ) -> AsyncGenerator[MapFavorite]:
     favorite = await maps_api.add(**DATA)
     yield favorite
@@ -43,12 +43,12 @@ class TestMaps:
     # Fixture map_favorite isn't directly accessed in this test, but it it required
     # to guarantee a favorite is in the system before running maps_api.list_favorites()
     #
-    async def test_list_favorites(self, maps_api: Maps, map_favorite: MapFavorite):
+    async def test_list_favorites(self, maps_api: MapsApi, map_favorite: MapFavorite):
         favorites = await maps_api.list_favorites()
         for fav in favorites:
             assert isinstance(fav, MapFavorite)
 
-    async def test_update_favorite(self, maps_api: Maps, map_favorite: MapFavorite):
+    async def test_update_favorite(self, maps_api: MapsApi, map_favorite: MapFavorite):
         new_data = {
             "name": "Palisades Reservoir",
             "lat": 43.250235495324,
@@ -72,7 +72,7 @@ class TestMaps:
         assert favorite.category == new_data["category"]
         assert favorite.comment == new_data["comment"]
 
-    async def test_delete_favorite(self, maps_api: Maps):
+    async def test_delete_favorite(self, maps_api: MapsApi):
         favorites = await maps_api.list_favorites()
         for favorite in favorites:
             if (favorite.lat, favorite.lng) == (DATA["lat"], DATA["lng"]):

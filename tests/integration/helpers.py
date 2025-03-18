@@ -1,8 +1,8 @@
-from nextcloud_async.api import Files
+from nextcloud_async.api import FilesApi
 from nextcloud_async.exceptions import NextcloudMethodNotAllowedError
 
 
-async def create_clean_test_directory(files_api: Files, dirpath: str) -> None:
+async def create_clean_test_directory(files_api: FilesApi, dirpath: str) -> None:
     try:
         await files_api.mkdir(dirpath)
     except NextcloudMethodNotAllowedError:
@@ -11,7 +11,7 @@ async def create_clean_test_directory(files_api: Files, dirpath: str) -> None:
 
 
 async def create_remote_test_files(
-    files_api: Files,
+    files_api: FilesApi,
     test_directory: str,
     local_test_file: str,
     name_base: str = "file",

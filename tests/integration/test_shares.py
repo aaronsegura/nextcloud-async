@@ -1,38 +1,35 @@
-import pytest
-import pytest_asyncio
-import aiofile
-import os
-import json
-
-from vcr.cassette import Cassette
-
 import datetime as dt
-from dateutil.tz import tzlocal
-
+import json
+import os
 from pathlib import Path
 from typing import AsyncGenerator
 
+import aiofile
+import pytest
+import pytest_asyncio
+from dateutil.tz import tzlocal
+from vcr.cassette import Cassette
+
 from nextcloud_async.api import (
-    Users,
-    Shares,
+    FilesApi,
     Share,
-    Sharees,
-    User,
-    Files,
+    ShareesApi,
     SharePermission,
+    SharesApi,
     ShareType,
+    User,
+    UsersApi,
 )
 
+from .constants import ENDPOINT, REMOTE_TEST_DIR
 from .helpers import create_clean_test_directory, create_remote_test_files
-from .constants import REMOTE_TEST_DIR
-
 
 _FILE_CONTENTS = b"[File Contents]"
 _EXPIRATION = (dt.datetime.now(tz=tzlocal()) + dt.timedelta(days=1)).date()
 
 
 @pytest_asyncio.fixture(scope="module", loop_scope="session")
-async def test_directory(files_api: Files, network_blocked: bool) -> str:
+async def test_directory(files_api: FilesApi, network_blocked: bool) -> str:
     dir = f"{REMOTE_TEST_DIR}/shares"
     if not network_blocked:
         await create_clean_test_directory(files_api, dir)
@@ -40,7 +37,7 @@ async def test_directory(files_api: Files, network_blocked: bool) -> str:
 
 
 @pytest_asyncio.fixture(scope="function", loop_scope="session")
-async def target_user(network_blocked: bool, users_api: Users) -> AsyncGenerator[User]:
+async def target_user(network_blocked: bool, users_api: UsersApi) -> AsyncGenerator[User]:
     _test_user = {
         "user_id": "pytest_user",
         "display_name": "Pytest User Guy",
@@ -82,7 +79,7 @@ async def local_test_file(
 
 @pytest_asyncio.fixture(scope="module", loop_scope="session")
 async def remote_test_files(
-    files_api: Files, test_directory: str, local_test_file: str, network_blocked: bool
+    files_api: FilesApi, test_directory: str, local_test_file: str, network_blocked: bool
 ) -> list[str]:
     files = await create_remote_test_files(
         files_api,
@@ -96,7 +93,7 @@ async def remote_test_files(
 
 @pytest_asyncio.fixture(scope="function", loop_scope="session")
 async def shared_file(
-    shares_api: Shares,
+    shares_api: SharesApi,
     target_user: User,
     remote_test_files: list[str],
     network_blocked: bool,
@@ -114,7 +111,8 @@ async def shared_file(
         # Since we are sending/checking expiration date, which changes on every run
         # we pull the original request/response from the cassette and create a
         # Share object with the response data.
-        _url = f"{shares_api.api.client.endpoint}{shares_api.api.stub}{shares_api.stub}"
+        _url = f"{ENDPOINT}{shares_api.api.stub}{shares_api.stub}"
+        print("URK", _url)
         request = [x for x in vcr.requests if x.uri == _url and x.method == "POST"].pop()
         response = vcr.responses_of(request).pop()
         response_data = json.loads(response["body"]["string"])
@@ -133,7 +131,7 @@ async def shared_file(
 class TestShares:
     async def test_get_all_shares(
         self,
-        shares_api: Shares,
+        shares_api: SharesApi,
         shared_file: list[Share],
         remote_test_files: list[str],
     ):
@@ -144,7 +142,7 @@ class TestShares:
         assert share.expiration == _EXPIRATION.strftime(r"%Y-%m-%d %H:%M:%S")
         assert shared_file in shares
 
-    async def test_get_share_info(self, shares_api: Shares, shared_file: Share):
+    async def test_get_share_info(self, shares_api: SharesApi, shared_file: Share):
         response = await shares_api.get(shared_file.id)
         assert response == shared_file
 
@@ -168,7 +166,7 @@ class TestShares:
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestSharees:
-    async def test_get_sharees(self, sharees_api: Sharees, target_user: User):
+    async def test_get_sharees(self, sharees_api: ShareesApi, target_user: User):
         response = await sharees_api.search_sharees(target_user.id)
         match = [
             x
@@ -177,5 +175,8 @@ class TestSharees:
         ].pop()
         assert match
 
-    async def test_get_recommended_sharees(self, sharees_api: Sharees):
+    async def test_get_recommended_sharees(self, sharees_api: ShareesApi):
         await sharees_api.sharee_recommendations()
+
+
+# TODO: Test without app_token

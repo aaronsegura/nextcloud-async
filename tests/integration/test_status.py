@@ -1,22 +1,20 @@
-import pytest
-import pytest_asyncio
-import json
-
 import datetime as dt
-from dateutil.tz import tzlocal
-
-from vcr.cassette import Cassette
-
+import json
 from typing import AsyncGenerator
 
+import pytest
+import pytest_asyncio
+from dateutil.tz import tzlocal
+from vcr.cassette import Cassette
+
 from nextcloud_async.api import (
-    Status,
     MyStatus,
-    UserStatus,
     PredefinedStatus,
+    StatusApi,
     StatusType,
-    Users,
     User,
+    UsersApi,
+    UserStatus,
 )
 from nextcloud_async.exceptions import NextcloudBadRequestError
 
@@ -24,7 +22,9 @@ _CLEAR_AT = dt.datetime.now(tz=tzlocal()) + dt.timedelta(seconds=300)
 
 
 @pytest_asyncio.fixture(scope="function", loop_scope="session")
-async def my_status(status_api: Status, vcr: Cassette, network_blocked: bool) -> MyStatus:
+async def my_status(
+    status_api: StatusApi, vcr: Cassette, network_blocked: bool
+) -> MyStatus:
     if network_blocked:
         # Since we are sending/checking expiration time, which changes on every run
         # we pull the original request/response from the cassette and create a
@@ -54,12 +54,12 @@ async def my_status(status_api: Status, vcr: Cassette, network_blocked: bool) ->
 
 
 @pytest_asyncio.fixture(scope="function", loop_scope="session")
-async def predefined_statuses(status_api: Status) -> list[PredefinedStatus]:
+async def predefined_statuses(status_api: StatusApi) -> list[PredefinedStatus]:
     return await status_api.get_predefined_statuses()
 
 
 @pytest_asyncio.fixture(scope="function", loop_scope="session")
-async def test_user(network_blocked: bool, users_api: Users) -> AsyncGenerator[User]:
+async def test_user(network_blocked: bool, users_api: UsersApi) -> AsyncGenerator[User]:
     _test_user = {
         "user_id": "pytest_user",
         "display_name": "Pytest User Guy",
@@ -100,7 +100,7 @@ class TestStatus:
         with pytest.raises(NextcloudBadRequestError):
             await my_status.set_message("Pytesting", clear_at=_clear_at)
 
-    async def test_get_predefined_statuses(self, status_api: Status):
+    async def test_get_predefined_statuses(self, status_api: StatusApi):
         statuses = await status_api.get_predefined_statuses()
         for status in statuses:
             assert isinstance(status, PredefinedStatus)
@@ -117,9 +117,9 @@ class TestStatus:
         await my_status.clear_message()
         assert my_status.message == ""
 
-    async def test_get_all_user_statuses(self, status_api: Status):
+    async def test_get_all_user_statuses(self, status_api: StatusApi):
         await status_api.get_all_user_statuses()
 
-    async def test_get_user_status(self, status_api: Status):
+    async def test_get_user_status(self, status_api: StatusApi):
         user_status = await status_api.get_user_status(status_api.api.client.user)
         assert isinstance(user_status, UserStatus)

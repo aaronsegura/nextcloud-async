@@ -4,12 +4,12 @@ import pytest
 import pytest_asyncio
 
 from nextcloud_async.api import (
-    Files,
+    FilesApi,
     Group,
     GroupFolder,
-    GroupFolders,
+    GroupFoldersApi,
     GroupFoldersPermissions,
-    Groups,
+    GroupsApi,
 )
 from nextcloud_async.exceptions import (
     NextcloudGenericServerError,
@@ -21,7 +21,7 @@ from .helpers import create_clean_test_directory
 
 
 @pytest_asyncio.fixture(scope="module", loop_scope="session")
-async def test_directory(files_api: Files, network_blocked: bool) -> str:
+async def test_directory(files_api: FilesApi, network_blocked: bool) -> str:
     dir = f"{REMOTE_TEST_DIR}/groupfolders"
     if not network_blocked:
         await create_clean_test_directory(files_api, dir)
@@ -30,7 +30,7 @@ async def test_directory(files_api: Files, network_blocked: bool) -> str:
 
 @pytest_asyncio.fixture(scope="function", loop_scope="session")
 async def group_folders(
-    gf_api: GroupFolders,
+    gf_api: GroupFoldersApi,
     test_directory: str,
 ) -> AsyncGenerator[list[GroupFolder]]:
     ret: list[GroupFolder] = []
@@ -49,7 +49,9 @@ async def group_folders(
 
 
 @pytest_asyncio.fixture(scope="function", loop_scope="session")
-async def test_group(groups_api: Groups, network_blocked: bool) -> AsyncGenerator[Group]:
+async def test_group(
+    groups_api: GroupsApi, network_blocked: bool
+) -> AsyncGenerator[Group]:
     group_id = "groupfolders_test"
     if network_blocked:
         group = Group({"id": group_id}, groups_api)
@@ -69,7 +71,9 @@ class TestGroupFolders:
         for folder in group_folders:
             assert folder.mount_point.startswith(f"{REMOTE_TEST_DIR}/groupfolders")
 
-    async def test_get_all(self, gf_api: GroupFolders, group_folders: list[GroupFolder]):
+    async def test_get_all(
+        self, gf_api: GroupFoldersApi, group_folders: list[GroupFolder]
+    ):
         folder = group_folders[0]
         folder_list = await gf_api.list()
         assert folder in folder_list
@@ -82,7 +86,7 @@ class TestGroupFolders:
         assert get_folder == folder
 
     async def test_remove_group_folder(
-        self, gf_api: GroupFolders, group_folders: list[GroupFolder]
+        self, gf_api: GroupFoldersApi, group_folders: list[GroupFolder]
     ):
         folder = group_folders[0]
         folder_id = folder.id
@@ -113,10 +117,10 @@ class TestGroupFolders:
     ):
         folder = group_folders[1]
         await folder.enable_advanced_permissions()
-        await folder.add_advanced_permission(test_group)
+        await folder.add_acl_manager(test_group)
         manage = {"type": "group", "id": test_group.id, "displayname": test_group.id}
         assert manage in folder.manage
-        await folder.remove_advanced_permission(test_group)
+        await folder.remove_acl_manager(test_group)
         assert manage not in folder.manage
 
     async def test_set_group_folder_permissions(
@@ -125,7 +129,7 @@ class TestGroupFolders:
         folder = group_folders[1]
         await folder.enable_advanced_permissions()
         await folder.permit_group(test_group)
-        await folder.set_advanced_permissions(
+        await folder.set_acl(
             test_group, GroupFoldersPermissions.read | GroupFoldersPermissions.write
         )
         acl = {

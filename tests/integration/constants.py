@@ -1,4 +1,5 @@
 from ..constants import (
+    APP_TOKEN,
     ENDPOINT,
     NEXTCLOUD_VERSION,
     OCS_EMPTY_200,
@@ -9,15 +10,3 @@ from ..constants import (
     USER_AGENT,
     VERSION,
 )
-
-__all__ = [
-    "ENDPOINT",
-    "NEXTCLOUD_VERSION",
-    "OCS_EMPTY_200",
-    "PASSWORD",
-    "REMOTE_TEST_DIR",
-    "REQUEST_HEADERS",
-    "USER",
-    "USER_AGENT",
-    "VERSION",
-]
