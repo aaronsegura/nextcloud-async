@@ -156,12 +156,12 @@ class TestInit:
         assert ocs.client == magicmock
 
     def test_version(self, magicmock):
-        ocs = NextcloudOcsApi(magicmock, ocs_version="2")
+        ocs = NextcloudOcsApi(magicmock, version="2")
         assert ocs.ocs_version == "2"
         assert ocs.stub == "/ocs/v2.php"
 
     def test_stub(self, magicmock):
-        ocs = NextcloudOcsApi(magicmock, ocs_stub="/this/path/now")
+        ocs = NextcloudOcsApi(magicmock, stub="/this/path/now")
         assert ocs.stub == "/this/path/now"
 
 
