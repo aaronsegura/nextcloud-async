@@ -1,9 +1,10 @@
+import pytest
+import pytest_asyncio
+
 import asyncio
 import os
 
 import httpx
-import pytest
-import pytest_asyncio
 
 from nextcloud_async import NextcloudClient
 from nextcloud_async.api import (
@@ -35,7 +36,6 @@ from nextcloud_async.api import (
 from nextcloud_async.exceptions import NextcloudMethodNotAllowedError
 
 from .constants import (
-    APP_TOKEN,
     ENDPOINT,
     NEXTCLOUD_VERSION,
     PASSWORD,
@@ -56,6 +56,7 @@ def vcr_config():
         "filter_headers": ["cookie", "authorization"],
         # Write plain text responses to cassettes
         "decode_compressed_response": True,
+        "allow_playback_repeats": False,
     }
 
 
@@ -113,16 +114,18 @@ def pytest_sessionfinish(exitstatus: int):
 
 async def async_sessionfinish(exitstatus: int):
     if exitstatus == 0 and not _NETWORK_BLOCKED:
-        nc = NextcloudClient(ENDPOINT, USER, PASSWORD, http_client=httpx.AsyncClient())
+        nc = NextcloudClient(
+            ENDPOINT, USER, PASSWORD, http_client=httpx.AsyncClient(timeout=30)
+        )
         files = files_api(nc)
         await files.delete(REMOTE_TEST_DIR)
 
 
 @pytest_asyncio.fixture(scope="session", loop_scope="session")
 async def nc():
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=30) as client:
         yield NextcloudClient(
-            ENDPOINT, USER, app_token=APP_TOKEN, http_client=client, user_agent=USER_AGENT
+            ENDPOINT, USER, PASSWORD, http_client=client, user_agent=USER_AGENT
         )
 
 

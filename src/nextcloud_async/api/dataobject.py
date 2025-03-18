@@ -30,9 +30,13 @@ class NextcloudDataObject(ABC):
         translated_key = k.replace("_", "-")
         for key in self.data.keys():
             if key in (translated_key, k):
-                try:
-                    return int(self.data[key])
-                except (ValueError, TypeError):
+                # Translate string'd integers
+                if isinstance(self.data[key], str):
+                    try:
+                        return int(self.data[key])
+                    except (ValueError, TypeError):
+                        return self.data[key]
+                else:
                     return self.data[key]
 
         return self.data[k]
@@ -50,4 +54,5 @@ class NextcloudDataObject(ABC):
     async def _refresh(self) -> None:
         log.debug("Refreshing object.")
         new_object = await self.refresh_function()
+        log.debug(f"Setting new data {new_object.data}")
         self.data = new_object.data

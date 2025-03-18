@@ -35,7 +35,7 @@ class LdapConfiguration(NextcloudDataObject):
         """Delete this configuration."""
         await self.self_api.delete(self.id)
 
-    async def update(self, config_data: Dict[str, Any]) -> None:
+    async def update(self, config_data: dict[str, Any]) -> None:
         """Update/set the properties of this LDAP configuration.
 
         Args:
@@ -88,7 +88,7 @@ class LdapApi(NextcloudModule):
         response = await self._get(path=f"/config/{id}")
         return LdapConfiguration(response, self)
 
-    async def update(self, id: str, config_data: Dict[str, Any]) -> None:
+    async def update(self, id: str, config_data: dict[str, Any]) -> None:
         """Update/set the properties of a given LDAP configuration.
 
         Args:

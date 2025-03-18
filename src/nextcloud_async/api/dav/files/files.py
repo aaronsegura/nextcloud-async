@@ -36,7 +36,7 @@ class FilesApi(NextcloudModule):
         self.api = dav_api
         self.stub = ""
 
-    def _namespace_favorites_properties(self, properties: List[str]) -> str:
+    def _namespace_favorites_properties(self, properties: list[str]) -> str:
         data: str = ""
         default_properties = ["oc:fileid", "d:resourcetype", "oc:favorite"]
 
@@ -66,7 +66,7 @@ class FilesApi(NextcloudModule):
 
         return data
 
-    def _namespace_properties(self, properties: List[str]) -> str:
+    def _namespace_properties(self, properties: list[str]) -> str:
         data: str = ""
 
         default_properties = ["oc:fileid", "d:resourcetype"]
@@ -97,7 +97,7 @@ class FilesApi(NextcloudModule):
         return data
 
     async def list(
-        self, path: str, properties: List[str] = [], directory_only: bool = False
+        self, path: str, properties: list[str] = [], directory_only: bool = False
     ) -> UserPath:
         """Return a list of files at `path`.
 
@@ -116,7 +116,7 @@ class FilesApi(NextcloudModule):
             list[File]
         """
         data = self._namespace_properties(properties)
-        response: List[dict[str, Any]] | dict[str, Any] = await self._propfind(
+        response: list[dict[str, Any]] | dict[str, Any] = await self._propfind(
             path=f"/files/{self.api.client.user}/{path}",
             headers={"Depth": "0" if directory_only else ""},
             data=data,
@@ -268,8 +268,8 @@ class FilesApi(NextcloudModule):
         return UserFile(response, self.api)
 
     async def get_favorites(
-        self, path: str = "", properties: List[str] = []
-    ) -> List[UserFile]:
+        self, path: str = "", properties: list[str] = []
+    ) -> list[UserFile]:
         """List favorites below given Path.
 
         Args:
@@ -497,7 +497,7 @@ class FilesApi(NextcloudModule):
 
     async def get_groupfolder_acl(
         self, path: str, inherited: bool = False
-    ) -> List[dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Return a list of groupfolder ACL rules set for `path`.
 
         Args:
@@ -535,7 +535,7 @@ class FilesApi(NextcloudModule):
             path=f"/files/{self.api.client.user}/{path}", data=data
         )
 
-        ret: List[dict[str, Any]] = []
+        ret: list[dict[str, Any]] = []
         if result["d:propstat"]["d:prop"][ruleprop]:
             ret = result["d:propstat"]["d:prop"][ruleprop]["nc:acl"]
         else:
@@ -546,12 +546,12 @@ class FilesApi(NextcloudModule):
 
         return ret
 
-    async def set_groupfolder_acl(self, path: str, acls: List[dict[str, Any]]) -> None:
+    async def set_groupfolder_acl(self, path: str, acls: list[dict[str, Any]]) -> None:
         """Apply a list of groupfolder ACL rules to `path`.
 
         Args:
             path (str): Filesystem path
-            acls (List[dict[str, Any]]): List of ACL rule dicts
+            acls (list[dict[str, Any]]): List of ACL rule dicts
         """
         data = None
 

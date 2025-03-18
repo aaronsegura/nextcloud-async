@@ -15,6 +15,7 @@ from nextcloud_async.api.ocs.groups import Group
 from nextcloud_async.api.ocs.users import User
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
+from nextcloud_async.helpers import password_confirmation_required
 
 log = logging.getLogger("nextcloud_async.api")
 
@@ -212,6 +213,7 @@ class GroupFoldersApi(NextcloudModule):
             return []
         return [GroupFolder(value, self) for _, value in response.items()]
 
+    @password_confirmation_required
     async def create(self, path: str) -> GroupFolder:
         """Create new group folder.
 
@@ -240,6 +242,7 @@ class GroupFoldersApi(NextcloudModule):
         response = await self._get(path=f"/{folder_id}")
         return GroupFolder(response, self)
 
+    @password_confirmation_required
     async def delete(self, folder_id: int) -> None:
         """Delete group folder with id `folder_id`.
 
@@ -253,6 +256,7 @@ class GroupFoldersApi(NextcloudModule):
         await self._validate_capability()
         await self._delete(path=f"/{folder_id}")
 
+    @password_confirmation_required
     async def permit_group(self, group_id: str, folder_id: int) -> None:
         """Give `group_id` access to `folder_id`.
 
@@ -265,6 +269,7 @@ class GroupFoldersApi(NextcloudModule):
         await self._validate_capability()
         await self._post(path=f"/{folder_id}/groups", data={"group": group_id})
 
+    @password_confirmation_required
     async def deny_group(self, group_id: str, folder_id: int) -> None:
         """Remove `group_id` access from `folder_id`.
 
@@ -277,6 +282,7 @@ class GroupFoldersApi(NextcloudModule):
         await self._validate_capability()
         await self._delete(path=f"/{folder_id}/groups/{group_id}")
 
+    @password_confirmation_required
     async def enable_advanced_permissions(self, folder_id: int) -> None:
         """Enable advanced permissions on `folder_id`.
 
@@ -290,6 +296,7 @@ class GroupFoldersApi(NextcloudModule):
         await self._validate_capability()
         await self._advanced_permissions(folder_id, True)
 
+    @password_confirmation_required
     async def disable_advanced_permissions(self, folder_id: int) -> None:
         """Disable advanced permissions on `folder_id`.
 
@@ -303,6 +310,7 @@ class GroupFoldersApi(NextcloudModule):
     async def _advanced_permissions(self, folder_id: int, enable: bool) -> None:
         await self._post(path=f"/{folder_id}/acl", data={"acl": 1 if enable else 0})
 
+    @password_confirmation_required
     async def add_acl_manager(
         self, folder_id: int, object_id: str, object_type: AclManagerType
     ) -> None:
@@ -324,6 +332,7 @@ class GroupFoldersApi(NextcloudModule):
             manage_acl=True,
         )
 
+    @password_confirmation_required
     async def remove_acl_manager(
         self, folder_id: int, object_id: str, object_type: AclManagerType
     ) -> None:
@@ -359,6 +368,7 @@ class GroupFoldersApi(NextcloudModule):
 
         return response["success"]
 
+    @password_confirmation_required
     async def set_acl(
         self, folder_id: int, group_id: str, permissions: GroupFoldersPermissions
     ) -> bool:
@@ -379,6 +389,7 @@ class GroupFoldersApi(NextcloudModule):
         )
         return response["success"]
 
+    @password_confirmation_required
     async def set_quota(self, folder_id: int, quota: int | None) -> None:
         """Set quota for group folder.
 

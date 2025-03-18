@@ -37,14 +37,15 @@ class NextcloudTalkApi(NextcloudOcsApi):
         super().__init__(client, ocs_version, stub)
 
     async def has_feature(self, feature: str) -> bool:
-        """Checks to see if Talk supports a given feature.
+        """Check to see if Talk supports a given feature.
 
         Args:
-            capability:
-                Dot-separated strings
+            feature:
+                String from Capabilities.spreed.features list.
 
         Returns:
             True or False
+
         """
         features = await self._capabilities_api.supported(f"spreed.features.{feature}")
         local_features = await self._capabilities_api.supported(
@@ -61,9 +62,9 @@ class NextcloudTalkApi(NextcloudOcsApi):
         self,
         method: str = "GET",
         path: str = "",
-        data: Optional[Dict[str, Any]] = None,
-        headers: Optional[Dict[str, Any]] = None,
-    ) -> Tuple[Dict[str, Any], httpx.Headers]:
+        data: Optional[dict[str, Any]] = None,
+        headers: Optional[dict[str, Any]] = None,
+    ) -> tuple[dict[str, Any], httpx.Headers]:
         """Submit OCS-type query to cloud endpoint.
 
         Args:
@@ -84,10 +85,11 @@ class NextcloudTalkApi(NextcloudOcsApi):
                 Headers for submission. Defaults to {}.
 
         Returns:
-            Tuple[Dict, Dict]: Response Data and headers
+            tuple[Dict, Dict]: Response Data and headers
 
         Raises:
             NextcloudException - when invalid response from server
+
         """
         headers = self._munge_headers(headers)
         data = self._format_json(data)

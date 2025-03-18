@@ -1,11 +1,12 @@
+import pytest
+import pytest_asyncio
+from vcr.cassette import Cassette
+
 import datetime as dt
 import json
 from typing import AsyncGenerator
 
-import pytest
-import pytest_asyncio
 from dateutil.tz import tzlocal
-from vcr.cassette import Cassette
 
 from nextcloud_async.api import (
     MyStatus,
@@ -18,7 +19,7 @@ from nextcloud_async.api import (
 )
 from nextcloud_async.exceptions import NextcloudBadRequestError
 
-_CLEAR_AT = dt.datetime.now(tz=tzlocal()) + dt.timedelta(seconds=300)
+_CLEAR_AT_DT = dt.datetime.now(tz=tzlocal()) + dt.timedelta(seconds=300)
 
 
 @pytest_asyncio.fixture(scope="function", loop_scope="session")
@@ -36,20 +37,18 @@ async def my_status(
         requests = [x for x in vcr.requests if x.uri == url and x.method == "PUT"]
         responses = []
         for request in requests:
-            for x in vcr.responses_of(request):
-                responses += x
-        # responses = [vcr.responses_of(x) for x in requests]
-        print("RESPONSES", responses)
-        response = [print("X", x[0]) for x in responses if x.status.code == 200]
-        print("RESPONSE++", response)
+            responses += vcr.responses_of(request)
+
+        response = [x for x in responses if x["status"]["code"] == 200].pop()
+
         response_data = json.loads(response["body"]["string"])
         status = MyStatus(response_data["ocs"]["data"], status_api)
-        print("DATA", status.data)
-        globals()["_CLEAR_AT"] = dt.datetime.fromtimestamp(status.clearAt, tz=tzlocal())
+        status.data["clearAt"] = int(_CLEAR_AT_DT.timestamp())
+        dt.datetime.fromtimestamp(status.clearAt, tz=tzlocal())
     else:
         status = await status_api.get()
         await status.set(StatusType.online)
-        await status.set_message("Pytesting", status_icon="⌛", clear_at=_CLEAR_AT)
+        await status.set_message("Pytesting", status_icon="⌛", clear_at=_CLEAR_AT_DT)
     return status
 
 
@@ -91,7 +90,7 @@ class TestStatus:
         assert my_status.status == StatusType.away.value
 
     async def test_set_message(self, my_status: MyStatus):
-        await my_status.set_message("Pytesting", status_icon="⌛", clear_at=_CLEAR_AT)
+        await my_status.set_message("Pytesting", status_icon="⌛", clear_at=_CLEAR_AT_DT)
         assert my_status.message == "Pytesting"
         assert my_status.icon == "⌛"
 

@@ -11,11 +11,11 @@ from nextcloud_async.driver import NextcloudModule, NextcloudTalkApi
 
 @dataclass
 class Bot:
-    data: Dict[str, Any]
+    data: dict[str, Any]
     talk_api: NextcloudTalkApi
 
     def __post_init__(self) -> None:
-        self.api = Bots(self.talk_api)
+        self.api = BotsApi(self.talk_api)
 
     def __getattr__(self, k: str) -> Any:
         return self.data[k]
@@ -35,7 +35,7 @@ class Bot:
         await self.api.disable_bot(room_token=room_token, bot_id=self.id)
 
 
-class Bots(NextcloudModule):
+class BotsApi(NextcloudModule):
     """Interact with Nextcloud Talk Bots API.
 
     Requires capability: bots-v1
@@ -48,7 +48,7 @@ class Bots(NextcloudModule):
     async def _validate_capability(self) -> None:
         await self.api.require_feature("bots-v1")
 
-    async def list_installed(self) -> List[Bot]:
+    async def list_installed(self) -> list[Bot]:
         """Get list of bots installed on the server.
 
         This is an administrator-only method.
@@ -60,7 +60,7 @@ class Bots(NextcloudModule):
         response, _ = await self._get(path="/admin")
         return [Bot(data, self.api) for data in response]
 
-    async def list_conversation_bots(self, room_token: str) -> List[Bot]:
+    async def list_conversation_bots(self, room_token: str) -> list[Bot]:
         """Get list of bots for a conversation.
 
         This is a moderator-level method.

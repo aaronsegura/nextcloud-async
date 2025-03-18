@@ -47,7 +47,7 @@ class LoginFlowV2Api(NextcloudModule):
         self.api = base_api
         self.stub = f"/login/v{api_version}"
 
-    async def initiate(self) -> Dict[str, Any]:
+    async def initiate(self) -> dict[str, Any]:
         """Initiate login flow v2.
 
         Returns:
@@ -58,7 +58,7 @@ class LoginFlowV2Api(NextcloudModule):
         response = await self._post()
         return response
 
-    async def wait_confirm(self, token: str, timeout: int = 60) -> Dict[str, Any]:
+    async def wait_confirm(self, token: str, timeout: int = 60) -> dict[str, Any]:
         """Wait for user to confirm application authorization.
 
         This function may be called repeatedly until the user accepts.

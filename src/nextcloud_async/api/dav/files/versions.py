@@ -35,7 +35,7 @@ class Version(BaseFile):
 class Versions(NextcloudIterator):
     """Class for making sense of Nextcloud Trashbins."""
 
-    _files: List[Version]
+    _files: list[Version]
     files_api: "FilesApi"
 
     def __post_init__(self):

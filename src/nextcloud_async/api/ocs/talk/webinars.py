@@ -1,14 +1,13 @@
 import datetime as dt
+from typing import Optional
 
 from nextcloud_async.driver import NextcloudModule, NextcloudTalkApi
 
-from typing import Optional
-
+from .constants import SipState, WebinarLobbyState
 from .types import ConversationData
-from .constants import WebinarLobbyState, SipState
 
 
-class Webinars(NextcloudModule):
+class WebinarsApi(NextcloudModule):
     """Nextcloud Talk Webinars API.
 
     https://nextcloud-talk.readthedocs.io/en/latest/webinar/

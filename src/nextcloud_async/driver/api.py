@@ -123,6 +123,7 @@ class NextcloudHttpApi(ABC):
 
         Returns:
             True or False
+
         """
         return await self._capabilities_api.supported(capability)
 
@@ -137,6 +138,7 @@ class NextcloudHttpApi(ABC):
 
         Returns:
             Value from server capabilities
+
         """
         return await self._capabilities_api.get_capability(capability)
 
@@ -151,6 +153,7 @@ class NextcloudHttpApi(ABC):
 
         Raises:
             NextcloudNotCapableError: When server doesn't support capability.
+
         """
         if not await self.has_capability(capability):
             raise NextcloudNotCapableError()
@@ -411,18 +414,18 @@ class NextcloudModule(ABC):
 
 class NextcloudCapabilities:
     _instance: Optional["NextcloudCapabilities"] = None
-    _capabilities: Dict[str, Any] = {}
-    _version: Dict[str, Any] = {}
+    _capabilities: dict[str, Any] = {}
+    _version: dict[str, Any] = {}
 
     client: NextcloudClient
 
     def __new__(cls, client: NextcloudClient) -> "NextcloudCapabilities":  # noqa: ARG004
         """Singleton pattern for Capabilities API."""
         if not cls._instance:
-            log.debug("CREATING NEW CAPABILITIES OBJECT")
+            log.debug("Creating new Capabilities object.")
             cls._instance = super(NextcloudCapabilities, cls).__new__(cls)
         else:
-            log.debug("RETURNING EXISTING CAPABILITIES OBJECT")
+            log.debug("Reusing existing Capabilities object.")
         return cls._instance
 
     def __init__(self, client: NextcloudClient) -> None:
@@ -436,7 +439,7 @@ class NextcloudCapabilities:
         """
         cls._instance = None
 
-    async def _get_capabilities(self) -> Dict[str, Any]:
+    async def _get_capabilities(self) -> dict[str, Any]:
         """Return capabilities for this server."""
         headers = {"OCS-APIRequest": "true"}
         headers.update(self.client.request_headers)
@@ -474,6 +477,7 @@ class NextcloudCapabilities:
 
         Returns:
             Capability value
+
         """
         if not self._capabilities:
             await self._pop_capabilities()
@@ -505,6 +509,7 @@ class NextcloudCapabilities:
 
         Returns:
             True or False
+
         """
         if not self._capabilities:
             await self._pop_capabilities()
@@ -557,6 +562,7 @@ class NextcloudIterator:
 
             starting_index:
                 list index for first value.
+
         """
         self._iterator = target
         self._starting_index = starting_index

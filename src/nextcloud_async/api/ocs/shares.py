@@ -140,7 +140,7 @@ class SharesApi(NextcloudModule):
         subfiles: bool = False,
         shared_with_me: bool = False,
         include_tags: bool = False,
-    ) -> List[Share]:
+    ) -> list[Share]:
         """Return list of shares for given file/folder.
 
         Args:
@@ -160,7 +160,7 @@ class SharesApi(NextcloudModule):
                 Include tags with listing
 
         Returns:
-            List[Share]
+            list[Share]
 
         """
         response = await self._get(
@@ -192,7 +192,7 @@ class SharesApi(NextcloudModule):
         path: str,
         permissions: SharePermission,
         share_type: ShareType,
-        share_with: Optional[Dict[str, Any]] = None,
+        share_with: Optional[dict[str, Any]] = None,
         allow_public_upload: bool = False,
         password: Optional[str] = None,
         send_password_by_talk: bool = False,
@@ -357,7 +357,7 @@ class SharesApi(NextcloudModule):
         reqs = [self.__update_share(share_id, k, v) for k, v in updates]
         await asyncio.gather(*reqs)
 
-    async def __update_share(self, share_id: int, key: str, value: Any) -> Dict[str, Any]:
+    async def __update_share(self, share_id: int, key: str, value: Any) -> dict[str, Any]:
         return await self._put(path=f"/{share_id}", data={key: value})
 
     async def send_email(self, share_id: int, password: Optional[str] = None) -> None:

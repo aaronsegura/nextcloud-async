@@ -48,7 +48,7 @@ class ShareesApi(NextcloudModule):
         Returns:
             Dictionary of exact and potential matches.
         """
-        data: Dict[str, Any] = {
+        data: dict[str, Any] = {
             "search": search,
             "itemType": item_type,
             "perPage": limit,

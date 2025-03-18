@@ -29,7 +29,7 @@ class Group(NextcloudDataObject):
         """No reason to refresh this object."""
         ...
 
-    async def get_members(self) -> List[str]:
+    async def get_members(self) -> list[str]:
         """Get group members.
 
         Returns:
@@ -38,7 +38,7 @@ class Group(NextcloudDataObject):
         """
         return await self.self_api.get_members(self.id)
 
-    async def get_subadmins(self) -> List[str]:
+    async def get_subadmins(self) -> list[str]:
         """Get `group_id` subadmins.
 
         Args:
@@ -65,7 +65,7 @@ class GroupsApi(NextcloudModule):
 
     async def search(
         self, search: str = "", limit: int = 100, offset: int = 0
-    ) -> List[Group]:
+    ) -> list[Group]:
         """Search groups.
 
         This is the way to 'get' a group.
@@ -103,7 +103,7 @@ class GroupsApi(NextcloudModule):
         await self._post(data={"groupid": group_id})
         return Group({"id": group_id}, self)
 
-    async def get_members(self, group_id: str) -> List[str]:
+    async def get_members(self, group_id: str) -> list[str]:
         """Get group members.
 
         Args:
@@ -117,7 +117,7 @@ class GroupsApi(NextcloudModule):
         return response["users"]
 
     @password_confirmation_required
-    async def get_subadmins(self, group_id: str) -> List[str]:
+    async def get_subadmins(self, group_id: str) -> list[str]:
         """Get `group_id` subadmins.
 
         Args:

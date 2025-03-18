@@ -7,7 +7,7 @@ https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/instruc
 import asyncio
 import logging
 from collections.abc import Awaitable
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from nextcloud_async.api.dataobject import NextcloudDataObject
 from nextcloud_async.api.ocs.groups import Group, GroupsApi
@@ -29,9 +29,10 @@ class User(NextcloudDataObject):
 
     def refresh_function(self) -> Awaitable:
         """Define how to refresh this object."""
+        log.debug("Refreshing User.")
         return self.self_api.get(self.id)
 
-    async def update(self, new_data: Dict[str, Any]) -> None:
+    async def update(self, new_data: dict[str, Any]) -> None:
         """Update this user.
 
         Args:
@@ -57,7 +58,7 @@ class User(NextcloudDataObject):
         await self.self_api.delete(self.id)
         self.data = {"id": "**deleted**"}
 
-    async def get_groups(self) -> List[Group]:
+    async def get_groups(self) -> list[Group]:
         """Get list of groups this memeber is in."""
         return await self.self_api.get_group_membership(self.id)
 
@@ -105,11 +106,11 @@ class User(NextcloudDataObject):
         await self.self_api.demote_from_group_subadmin(self.id, group.id)
         await self._refresh()
 
-    async def get_subadmin_groups(self) -> List[Group]:
+    async def get_subadmin_groups(self) -> list[Group]:
         """Return list of groups of which this user is a subadmin.
 
         Returns:
-            List[Group]
+            list[Group]
 
         """
         return await self.self_api.get_subadmin_groups(self.id)
@@ -119,7 +120,7 @@ class UsersApi(NextcloudModule):
     """Manage users on a Nextcloud instance."""
 
     def __init__(self, ocs_api: NextcloudOcsApi) -> None:
-        self.stub = r"/cloud/users"
+        self.stub = "/cloud"
         self.api = ocs_api
 
     @password_confirmation_required
@@ -166,6 +167,7 @@ class UsersApi(NextcloudModule):
 
         """
         await self._post(
+            path="/users",
             data={
                 "userid": user_id,
                 "displayName": display_name,
@@ -175,12 +177,12 @@ class UsersApi(NextcloudModule):
                 "language": language,
                 "quota": str(quota) if quota else "none",
                 "password": password,
-            }
+            },
         )
 
         return await self.get(user_id)
 
-    async def search(self, search: str, limit: int = 100, offset: int = 0) -> List[str]:
+    async def search(self, search: str, limit: int = 100, offset: int = 0) -> list[str]:
         """Search for users.
 
         Args:
@@ -198,7 +200,7 @@ class UsersApi(NextcloudModule):
 
         """
         response = await self._get(
-            data={"search": search, "limit": limit, "offset": offset}
+            path="/users", data={"search": search, "limit": limit, "offset": offset}
         )
         return response["users"]
 
@@ -213,10 +215,10 @@ class UsersApi(NextcloudModule):
             User object.
 
         """
-        response = await self._get(path=f"/{user_id}")
+        response = await self._get(path=f"/users/{user_id}")
         return User(response, self)
 
-    async def list(self) -> List[str]:
+    async def get_all(self) -> list[str]:
         """Return all user IDs.
 
         Admin required
@@ -225,57 +227,63 @@ class UsersApi(NextcloudModule):
             List: User IDs
 
         """
-        response = await self._get()
+        response = await self._get(path="/users")
         return response["users"]
 
-    # TODO: Put into OCS-specific module, along with other TODOs
+    # TODO: Move into another module and referene from here
     # async def user_autocomplete(
-    #         self,
-    #         search: str,
-    #         item_type: Optional[str] = None,
-    #         item_id: Optional[str] = None,
-    #         sorter: Optional[str] = None,
-    #         share_types: Optional[List[ShareType]] = [ShareType['user']],
-    #         limit: int = 25) -> List[Dict[str, str]]:
+    #     self,
+    #     search: str,
+    #     item_type: str | None = None,
+    #     item_id: str | None = None,
+    #     sorter: str | None = None,
+    #     share_types: list[ShareType] = [ShareType["user"]],
+    #     limit: int = 25,
+    # ) -> list[dict[str, str]]:
     #     """Search for a user using incomplete information.
 
-    #     Reference:
-    #         https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-api-overview.html#auto-complete-and-user-search
+    #     https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-api-overview.html#auto-complete-and-user-search
 
-    #         https://github.com/nextcloud/server/blob/master/core/Controller/AutoCompleteController.php#L62
+    #     https://github.com/nextcloud/server/blob/master/core/Controller/AutoCompleteController.php#L62
 
-    #     Args
-    #         search (str): Search string
+    #     Args:
+    #         search:
+    #             Search string
 
-    #         item_type (str, optional): Item type, `users` or `groups`. Used for sorting.
-    #         Defaults to None.
+    #         item_type:
+    #             Item type, `users` or `groups`. Used for sorting.
 
-    #         item_id (str, optional): Item id, used for sorting.  Defaults to None.
+    #         item_id:
+    #             Item id, used for sorting.  Defaults to None.
 
-    #         sorter (str, optional): Can be piped, top priority first, e.g.:
-    #         "commenters|share-recipients"
+    #         sorter:
+    #             Can be piped, top priority first, e.g.: "commenters|share-recipients"
 
-    #         share_types (ShareType, optional): ShareType, defaults to ShareType['user']
+    #         share_types:
+    #             ShareType, defaults to ShareType['user']
 
-    #         limit (int, optional): Results per page. Defaults to 25.
+    #         limit:
+    #             Results per page. Defaults to 25.
 
-    #     Returns
+    #     Returns:
     #         list: Potential matches
 
     #     """
     #     share_types_values = [x.value for x in share_types]
     #     return await self._get(
-    #         path='/ocs/v2.php/core/autocomplete/get',
+    #         path="/ocs/v2.php/core/autocomplete/get",
     #         data={
-    #             'search': search,
-    #             'itemType': item_type,
-    #             'itemId': item_id,
-    #             'sorter': sorter,
-    #             'shareTypes[]': share_types_values,
-    #             'limit': limit})
+    #             "search": search,
+    #             "itemType": item_type,
+    #             "itemId": item_id,
+    #             "sorter": sorter,
+    #             "shareTypes[]": share_types_values,
+    #             "limit": limit,
+    #         },
+    #     )
 
     @password_confirmation_required
-    async def update(self, user_id: str, new_data: Dict[str, Any]) -> None:
+    async def update(self, user_id: str, new_data: dict[str, Any]) -> None:
         """Update a user's information.
 
         Use async/await to update everything at once.
@@ -294,17 +302,17 @@ class UsersApi(NextcloudModule):
 
         await asyncio.gather(*reqs)
 
-    async def _update_user(self, user_id: str, k: str, v: str | int) -> List[str]:
-        return await self._put(path=f"/{user_id}", data={"key": k, "value": v})
+    async def _update_user(self, user_id: str, k: str, v: str | int) -> list[str]:
+        return await self._put(path=f"/users/{user_id}", data={"key": k, "value": v})
 
-    async def get_editable_fields(self) -> List[str]:
+    async def get_editable_fields(self) -> list[str]:
         """Get user-editable fields.
 
         Returns:
             list: User-editable fields
 
         """
-        return await self._get(path=r"/fields")
+        return await self._get(path="/user/fields")
 
     @password_confirmation_required
     async def disable(self, user_id: str) -> None:
@@ -316,7 +324,7 @@ class UsersApi(NextcloudModule):
             user_id: User ID
 
         """
-        await self._put(path=f"/{user_id}/disable")
+        await self._put(path=f"/users/{user_id}/disable")
 
     @password_confirmation_required
     async def enable(self, user_id: str) -> None:
@@ -326,7 +334,7 @@ class UsersApi(NextcloudModule):
             user_id: User ID
 
         """
-        await self._put(path=f"/{user_id}/enable")
+        await self._put(path=f"/users/{user_id}/enable")
 
     @password_confirmation_required
     async def delete(self, user_id: str) -> None:
@@ -336,9 +344,9 @@ class UsersApi(NextcloudModule):
             user_id: User ID
 
         """
-        return await self._delete(path=f"/{user_id}")
+        return await self._delete(path=f"/users/{user_id}")
 
-    async def get_group_membership(self, user_id: Optional[str] = None) -> List[Group]:
+    async def get_group_membership(self, user_id: str | None = None) -> list[Group]:
         """Get list of groups `user_id` belongs to.
 
         Args:
@@ -349,7 +357,7 @@ class UsersApi(NextcloudModule):
 
         """
         response = await self._get(
-            path=f"/{user_id if user_id else self.api.client.user}/groups"
+            path=f"/users/{user_id if user_id else self.api.client.user}/groups"
         )
         return [Group({"id": group_id}, self) for group_id in response["groups"]]
 
@@ -365,7 +373,7 @@ class UsersApi(NextcloudModule):
                 Group ID
 
         """
-        await self._post(path=f"/{user_id}/groups", data={"groupid": group_id})
+        await self._post(path=f"/users/{user_id}/groups", data={"groupid": group_id})
 
     @password_confirmation_required
     async def remove_from_group(self, user_id: str, group_id: str) -> None:
@@ -379,7 +387,7 @@ class UsersApi(NextcloudModule):
                 Group Id
 
         """
-        await self._delete(path=f"/{user_id}/groups", data={"groupid": group_id})
+        await self._delete(path=f"/users/{user_id}/groups", data={"groupid": group_id})
 
     @password_confirmation_required
     async def promote_to_group_subadmin(self, user_id: str, group_id: str) -> None:
@@ -393,7 +401,7 @@ class UsersApi(NextcloudModule):
                 Group ID
 
         """
-        await self._post(path=f"/{user_id}/subadmins", data={"groupid": group_id})
+        await self._post(path=f"/users/{user_id}/subadmins", data={"groupid": group_id})
 
     @password_confirmation_required
     async def demote_from_group_subadmin(self, user_id: str, group_id: str) -> None:
@@ -408,10 +416,10 @@ class UsersApi(NextcloudModule):
 
         """
         return await self._delete(
-            path=f"/{user_id}/subadmins", data={"groupid": group_id}
+            path=f"/users/{user_id}/subadmins", data={"groupid": group_id}
         )
 
-    async def get_subadmin_groups(self, user_id: str) -> List[Group]:
+    async def get_subadmin_groups(self, user_id: str) -> list[Group]:
         """Return list of groups of which `user_id` is subadmin.
 
         Args:
@@ -421,7 +429,7 @@ class UsersApi(NextcloudModule):
             list: group ids
 
         """
-        response = await self._get(path=f"/{user_id}/subadmins")
+        response = await self._get(path=f"/users/{user_id}/subadmins")
         return [
             Group({"id": group_id}, GroupsApi(self.api.client)) for group_id in response
         ]
@@ -434,7 +442,7 @@ class UsersApi(NextcloudModule):
             user_id: User ID
 
         """
-        return await self._post(path=f"/{user_id}/welcome")
+        await self._post(path=f"/users/{user_id}/welcome")
 
 
 def users_api(client: NextcloudClient) -> UsersApi:

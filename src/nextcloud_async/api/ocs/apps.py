@@ -50,7 +50,7 @@ class AppsApi(NextcloudModule):
         response = await self._get(path=f"/{app_id}")
         return App(response, self)
 
-    async def list(self, filter: Optional[str] = None) -> List[str]:
+    async def list(self, filter: Optional[str] = None) -> list[str]:
         """Get list of applications.
 
         Args:
@@ -60,18 +60,18 @@ class AppsApi(NextcloudModule):
             list: List of application ids
 
         """
-        data: Dict[str, str] = {}
+        data: dict[str, str] = {}
         if filter:
             data = {"filter": filter.lower()}
 
         response = await self._get(data=data)
         return response["apps"]
 
-    async def list_enabled(self) -> List[str]:
+    async def list_enabled(self) -> list[str]:
         """Get list of enabled applications."""
         return await self.list("enabled")
 
-    async def list_disabled(self) -> List[str]:
+    async def list_disabled(self) -> list[str]:
         """Get list of disabled applications."""
         # Prior to Nextcloud 31, using filter=disabled on this call returns a dictionary
         # instead of a list.  This is fixed in commit 77114fb3...

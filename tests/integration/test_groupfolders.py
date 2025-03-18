@@ -157,5 +157,5 @@ class TestGroupFolders:
         folder = group_folders[2]
         new_name = f"{test_directory}/SomeOtherFolder"
         await folder.rename(new_name)
-        new_folder = await folder.groupfolder_api.get(folder.id)
+        new_folder = await folder.self_api.get(folder.id)
         assert new_folder.mount_point == new_name

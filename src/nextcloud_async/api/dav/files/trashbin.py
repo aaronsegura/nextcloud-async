@@ -39,14 +39,14 @@ class TrashFile(BaseFile):
 class Trashbin(NextcloudIterator):
     """Class for making sense of Nextcloud Trashbins."""
 
-    _files: List[TrashFile]
+    _files: list[TrashFile]
     files_api: "FilesApi"
 
     def __post_init__(self) -> None:
         self.set_iterator(self._files, 1)
 
     @property
-    def files(self) -> List[TrashFile]:
+    def files(self) -> list[TrashFile]:
         """Filter out the trashbin object itself and return just trash files.
 
         Returns:

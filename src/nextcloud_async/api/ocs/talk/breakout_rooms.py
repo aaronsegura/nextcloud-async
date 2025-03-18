@@ -17,10 +17,10 @@ class BreakoutRoom:
 
     def __post_init__(self) -> None:
         """Set up required external APIs."""
-        from .conversations import Conversations
+        from .conversations import ConversationsApi
 
-        self.api = BreakoutRooms(self.talk_api)
-        self.conversations_api = Conversations(self.talk_api.client)
+        self.api = BreakoutRoomsApi(self.talk_api)
+        self.conversations_api = ConversationsApi(self.talk_api.client)
 
     def __getattr__(self, k: str) -> Any:
         return self.data[k]
@@ -77,7 +77,7 @@ class BreakoutRoom:
         await self.api.reset_request_assistance(room_token=self.token)
 
 
-class BreakoutRooms(NextcloudModule):
+class BreakoutRoomsApi(NextcloudModule):
     """Nextcloud BreakoutRooms API.
 
     Requires capability: breakout-rooms-v1
@@ -111,12 +111,12 @@ class BreakoutRooms(NextcloudModule):
         await self.api.require_feature("breakout-rooms-v1")
 
     def _create_rooms_by_type(
-        self, rooms: List[ConversationData]
-    ) -> Tuple["Conversation", List[BreakoutRoom]]:
+        self, rooms: list[ConversationData]
+    ) -> tuple["Conversation", list[BreakoutRoom]]:
         from .conversations import Conversation
 
         parent_room: Conversation = Conversation(rooms[0], self.api)
-        breakout_rooms: List[BreakoutRoom] = []
+        breakout_rooms: list[BreakoutRoom] = []
 
         for room in rooms:
             if hasattr(room, "breakoutRoomStatus"):
@@ -131,8 +131,8 @@ class BreakoutRooms(NextcloudModule):
         room_token: str,
         mode: BreakoutRoomAssignmentMode,
         num_rooms: int,
-        attendee_map: Dict[str, int],
-    ) -> Tuple["Conversation", List["BreakoutRoom"]]:
+        attendee_map: dict[str, int],
+    ) -> tuple["Conversation", list["BreakoutRoom"]]:
         """Configure breakout rooms for Conversation.
 
         Args:
@@ -182,7 +182,7 @@ class BreakoutRooms(NextcloudModule):
         await self._validate_capability()
         return await self._delete(path=f"/{room_token}")
 
-    async def start(self, room_token: str) -> Tuple["Conversation", List[BreakoutRoom]]:
+    async def start(self, room_token: str) -> tuple["Conversation", list[BreakoutRoom]]:
         """Start breakout rooms.
 
         Args:
@@ -196,7 +196,7 @@ class BreakoutRooms(NextcloudModule):
         response = await self._post(path=f"/{room_token}/rooms")
         return self._create_rooms_by_type(response)
 
-    async def stop(self, room_token: str) -> Tuple["Conversation", List[BreakoutRoom]]:
+    async def stop(self, room_token: str) -> tuple["Conversation", list[BreakoutRoom]]:
         """Stop breakout rooms for a conversation.
 
         Args:
@@ -229,8 +229,8 @@ class BreakoutRooms(NextcloudModule):
         )
 
     async def reorganize_attendees(
-        self, room_token: str, attendee_map: Dict[str, int]
-    ) -> Tuple["Conversation", List[BreakoutRoom]]:
+        self, room_token: str, attendee_map: dict[str, int]
+    ) -> tuple["Conversation", list[BreakoutRoom]]:
         """Reorganize attendees in breakout rooms.
 
         Args:

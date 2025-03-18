@@ -31,12 +31,12 @@ class ChatFileShareMetadata:
 
 @dataclass
 class Message:
-    data: Dict[str, Any]
+    data: dict[str, Any]
     talk_api: NextcloudTalkApi
 
     def __post_init__(self) -> None:
-        self._reactions: List[Reaction] = []
-        self.chat_api = Chat(self.talk_api)
+        self._reactions: list[Reaction] = []
+        self.chat_api = ChatApi(self.talk_api)
         self.reaction_api = Reactions(self.talk_api)
 
     def __getattr__(self, k: str) -> Any:
@@ -49,7 +49,7 @@ class Message:
         return str(self.data)
 
     @property
-    def reactions(self) -> List[Reaction]:
+    def reactions(self) -> list[Reaction]:
         """Property wrapper for lazy loading reactions.
 
         Returns:
@@ -135,7 +135,7 @@ class Message:
         self.data = message.data
         return headers
 
-    async def get_reactions(self, reaction: Optional[str] = None) -> List[Reaction]:
+    async def get_reactions(self, reaction: Optional[str] = None) -> list[Reaction]:
         """Retrieve reactions of a message by type.
 
         Args:
@@ -158,7 +158,7 @@ class Message:
 
 @dataclass
 class MessageReminder:
-    data: Dict[str, Any]
+    data: dict[str, Any]
 
     def __getattr__(self, k: str) -> Any:
         return self.data[k]
@@ -190,7 +190,7 @@ class MessageReminder:
 
 @dataclass
 class Suggestion:
-    data: Dict[str, Any]
+    data: dict[str, Any]
 
     def __getattr__(self, k: str) -> Any:
         return self.data[k]
@@ -229,11 +229,11 @@ class Suggestion:
         return self.statusMessage
 
 
-class Chat(NextcloudModule):
+class ChatApi(NextcloudModule):
     """Interact with Nextcloud Talk Chat API."""
 
-    def __init__(self, api: NextcloudTalkApi, api_version: str = "1") -> None:
-        self.stub = f"/apps/spreed/api/v{api_version}"
+    def __init__(self, api: NextcloudTalkApi, version: str = "1") -> None:
+        self.stub = f"/apps/spreed/api/v{version}"
         self.api: NextcloudTalkApi = api
 
     async def get_messages(
@@ -248,7 +248,7 @@ class Chat(NextcloudModule):
         include_last_known: bool = False,
         no_status_update: bool = False,
         mark_notifications_as_read: bool = True,
-    ) -> Tuple[List[Message], httpx.Headers]:
+    ) -> tuple[list[Message], httpx.Headers]:
         """Receive messages from a conversation.
 
         https://nextcloud-talk.readthedocs.io/en/latest/chat/#receive-chat-messages-of-a-conversation
@@ -306,7 +306,7 @@ class Chat(NextcloudModule):
                 private the value the header is not set (only available with
                 chat-read-status capability and when last_common_read_id was sent)
         """
-        return_headers: List[str] = ["x-chat-last-given", "x-chat-last-common-read"]
+        return_headers: list[str] = ["x-chat-last-given", "x-chat-last-common-read"]
         data = {
             "lookIntoFuture": bool2int(look_into_future),
             "limit": limit,
@@ -330,7 +330,7 @@ class Chat(NextcloudModule):
 
     async def get_context(
         self, room_token: str, message_id: int, limit: int = 50
-    ) -> Tuple[List[Message], httpx.Headers]:
+    ) -> tuple[list[Message], httpx.Headers]:
         """Get context around a message.
 
         Requires Capability: chat-get-context
@@ -353,7 +353,7 @@ class Chat(NextcloudModule):
         response, headers = await self._get(
             path=f"/chat/{room_token}/{message_id}/context", data={"limit": limit}
         )
-        return_headers: List[str] = ["x-chat-last-given", "x-chat-last-common-read"]
+        return_headers: list[str] = ["x-chat-last-given", "x-chat-last-common-read"]
         return [Message(data, self.api) for data in response], filter_headers(
             return_headers, headers
         )
@@ -366,7 +366,7 @@ class Chat(NextcloudModule):
         display_name: Optional[str] = None,
         reference_id: Optional[str] = None,
         silent: bool = False,
-    ) -> Tuple[Message, httpx.Headers]:
+    ) -> tuple[Message, httpx.Headers]:
         """Send message to a conversation.
 
         Args:
@@ -406,9 +406,9 @@ class Chat(NextcloudModule):
                 private the value the header is not set (only available with
                 chat-read-status capability and when last_common_read_id was sent)
         """
-        return_headers: List[str] = ["x-chat-last-common-read"]
+        return_headers: list[str] = ["x-chat-last-common-read"]
 
-        data: Dict[str, Any] = {
+        data: dict[str, Any] = {
             "message": message,
             "actorDisplayName": display_name,
             "replyTo": reply_to,
@@ -435,7 +435,7 @@ class Chat(NextcloudModule):
         rich_object: NextcloudTalkRichObject,
         reference_id: Optional[str] = None,
         actor_display_name: Optional[str] = None,
-    ) -> Tuple[Message, httpx.Headers]:
+    ) -> tuple[Message, httpx.Headers]:
         """Share a rich object to the conversation.
 
         https://github.com/nextcloud/server/blob/master/lib/public/RichObjectStrings/Definitions.php
@@ -522,7 +522,7 @@ class Chat(NextcloudModule):
         """
         if metadata.silent:
             await self.api.require_feature("silent-send")
-        data: Dict[str, Any] = {
+        data: dict[str, Any] = {
             "shareType": 10,
             "shareWith": room_token,
             "path": path,
@@ -547,7 +547,7 @@ class Chat(NextcloudModule):
 
         return response
 
-    async def list_shared_items(self, room_token: str, limit: int = 7) -> List[Message]:
+    async def list_shared_items(self, room_token: str, limit: int = 7) -> list[Message]:
         """List overview of items shared into a chat.
 
         Args:
@@ -573,7 +573,7 @@ class Chat(NextcloudModule):
         object_type: SharedItemType,
         last_known_message_id: int,
         limit: int = 7,
-    ) -> Tuple[List[Message], httpx.Headers]:
+    ) -> tuple[list[Message], httpx.Headers]:
         """List items of type shared in a chat.
 
         Args:
@@ -599,7 +599,7 @@ class Chat(NextcloudModule):
         return_headers = ["x-chat-last-given"]
 
         await self.api.require_feature("rich-object-list-media")
-        data: Dict[str, Any] = {
+        data: dict[str, Any] = {
             "objectType": object_type.value,
             "lastKnownMessageId": last_known_message_id,
             "limit": limit,
@@ -625,7 +625,7 @@ class Chat(NextcloudModule):
 
     async def delete(
         self, room_token: str, message_id: int
-    ) -> Tuple[Message, httpx.Headers]:
+    ) -> tuple[Message, httpx.Headers]:
         """Delete a message in a conversation.
 
         https://nextcloud-talk.readthedocs.io/en/latest/chat/#deleting-a-chat-message
@@ -655,7 +655,7 @@ class Chat(NextcloudModule):
 
     async def edit(
         self, room_token: str, message_id: int, message: str
-    ) -> Tuple[Message, httpx.Headers]:
+    ) -> tuple[Message, httpx.Headers]:
         """Edit an existing message in a conversation.
 
         Args:
@@ -771,7 +771,7 @@ class Chat(NextcloudModule):
         """
         return_headers = ["x-chat-last-common-read"]
         await self.api.require_feature("chat-read-marker")
-        data: Dict[str, Any] = {}
+        data: dict[str, Any] = {}
         if last_read_message_id:
             await self.api.require_feature("chat-read-last")
             data = {"lastReadMessage": last_read_message_id}
@@ -806,7 +806,7 @@ class Chat(NextcloudModule):
         search: str,
         include_status: bool = False,
         limit: int = 20,
-    ) -> List[Suggestion]:
+    ) -> list[Suggestion]:
         """Get mention autocomplete suggestions.
 
         Args:
@@ -825,7 +825,7 @@ class Chat(NextcloudModule):
         Returns:
             List of Suggestions
         """
-        data: Dict[str, Any] = {
+        data: dict[str, Any] = {
             "search": search,
             "includeStatus": include_status,
             "limit": limit,

@@ -13,11 +13,11 @@ from .constants import PollMode, PollStatus
 
 @dataclass
 class Poll:
-    data: Dict[str, Any]
+    data: dict[str, Any]
     talk_api: NextcloudTalkApi
 
     def __post_init__(self) -> None:
-        self.api = Polls(self.talk_api)
+        self.api = PollsApi(self.talk_api)
 
     def __getattr__(self, k: str) -> Any:
         return self.data[k]
@@ -55,7 +55,7 @@ class Poll:
         response = await self.api.get(room_token=self.token, poll_id=self.id)
         self.data = response.data
 
-    async def vote(self, votes: List[int]) -> None:
+    async def vote(self, votes: list[int]) -> None:
         """Vote on this poll.
 
         Args:
@@ -70,7 +70,7 @@ class Poll:
         self.status = PollStatus.closed
 
 
-class Polls(NextcloudModule):
+class PollsApi(NextcloudModule):
     def __init__(self, api: NextcloudTalkApi, api_version: str = "1") -> None:
         self.stub = f"/apps/spreed/api/v{api_version}/poll"
         self.api: NextcloudTalkApi = api
@@ -79,7 +79,7 @@ class Polls(NextcloudModule):
         self,
         room_token: str,
         question: str,
-        options: List[str],
+        options: list[str],
         result_mode: PollMode,
         max_votes: int,
         draft: bool = False,
@@ -125,7 +125,7 @@ class Polls(NextcloudModule):
         self,
         room_token: str,
         question: str,
-        options: List[str],
+        options: list[str],
         result_mode: PollMode,
         max_votes: int,
     ) -> Poll:
@@ -180,7 +180,7 @@ class Polls(NextcloudModule):
         response.update({"token": room_token})
         return Poll(response, self.api)
 
-    async def list_drafts(self, room_token: str) -> List[Poll]:
+    async def list_drafts(self, room_token: str) -> list[Poll]:
         """Get a list of all poll drafts in a conversation.
 
         Args:
@@ -199,7 +199,7 @@ class Polls(NextcloudModule):
             ret.append(Poll(data, self.api))
         return ret
 
-    async def vote(self, room_token: str, poll_id: int, votes: List[int]) -> None:
+    async def vote(self, room_token: str, poll_id: int, votes: list[int]) -> None:
         """Vote on a poll.
 
         Args:

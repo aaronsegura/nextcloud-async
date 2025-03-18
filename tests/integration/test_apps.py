@@ -1,7 +1,7 @@
-from typing import AsyncGenerator
-
 import pytest
 import pytest_asyncio
+
+from typing import AsyncGenerator
 
 from nextcloud_async.api import App, AppsApi
 
@@ -15,7 +15,7 @@ async def test_app(apps_api: AppsApi) -> AsyncGenerator[App]:
 
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
-class TestApps:
+class TestAppsApi:
     _enabled_by_default = ["files", "activity", "dashboard"]
 
     async def test_app_enable_disable(self, apps_api: AppsApi):

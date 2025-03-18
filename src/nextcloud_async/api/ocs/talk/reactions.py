@@ -16,7 +16,7 @@ from nextcloud_async.driver import NextcloudModule, NextcloudTalkApi
 
 @dataclass
 class Reaction:
-    data: Dict[str, Any]
+    data: dict[str, Any]
 
     def __getattr__(self, k: str) -> Any:
         return self.data[k]
@@ -67,7 +67,7 @@ class Reactions(NextcloudModule):
 
     async def add(
         self, room_token: str, message_id: int, reaction: str
-    ) -> List[Reaction]:
+    ) -> list[Reaction]:
         """React to a message.
 
         Args:
@@ -91,7 +91,7 @@ class Reactions(NextcloudModule):
 
     async def delete(
         self, room_token: str, message_id: int, reaction: str
-    ) -> List[Reaction]:
+    ) -> list[Reaction]:
         """Delete a reaction.
 
         Args:
@@ -115,7 +115,7 @@ class Reactions(NextcloudModule):
 
     async def list(
         self, room_token: str, message_id: int, reaction: Optional[str] = None
-    ) -> List[Reaction]:
+    ) -> list[Reaction]:
         """Retrieve reactions of a message by type.
 
         Args:

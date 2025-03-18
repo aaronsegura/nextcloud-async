@@ -25,7 +25,7 @@ class StatusType(Enum):
 
 @dataclass
 class PredefinedStatus:
-    data: Dict[str, Any]
+    data: dict[str, Any]
 
     def __getattr__(self, k: str) -> Any:
         return self.data[k]
@@ -108,7 +108,7 @@ class MyStatus(NextcloudDataObject):
 
 @dataclass
 class UserStatus:
-    data: Dict[str, Any]
+    data: dict[str, Any]
 
     def __getattr__(self, k: str) -> Any:
         return self.data[k]
@@ -137,7 +137,7 @@ class StatusApi(NextcloudModule):
         response = await self._get("/user_status")
         return MyStatus(response, self)
 
-    async def set(self, status_type: StatusType) -> Dict[str, Any]:
+    async def set(self, status_type: StatusType) -> dict[str, Any]:
         """Set user status.
 
         Args:
@@ -152,7 +152,7 @@ class StatusApi(NextcloudModule):
             path="/user_status/status", data={"statusType": status_type.value}
         )
 
-    async def get_predefined_statuses(self) -> List[PredefinedStatus]:
+    async def get_predefined_statuses(self) -> list[PredefinedStatus]:
         """Get list of predefined statuses.
 
         Returns:
@@ -164,7 +164,7 @@ class StatusApi(NextcloudModule):
 
     async def choose_predefined_status(
         self, status: PredefinedStatus, clear_at: Optional[dt.datetime] = None
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Choose from predefined status messages.
 
         Args:
@@ -189,7 +189,7 @@ class StatusApi(NextcloudModule):
         message: str,
         status_icon: Optional[str] = None,
         clear_at: Optional[dt.datetime] = None,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Set a custom status message.
 
         Args:

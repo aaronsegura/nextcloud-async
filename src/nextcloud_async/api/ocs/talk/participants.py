@@ -4,11 +4,9 @@ https://nextcloud-talk.readthedocs.io/en/latest/participant/
 
 """
 
-from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple
-
 import httpx
 
+from nextcloud_async.api.dataobject import NextcloudDataObject
 from nextcloud_async.driver import NextcloudModule, NextcloudTalkApi
 from nextcloud_async.helpers import phone_number_to_e164
 
@@ -21,25 +19,17 @@ from .constants import (
 from .types import ConversationData
 
 
-@dataclass
-class Participant:
-    data: Dict[str, Any]
-    api: NextcloudTalkApi
+class Participant(NextcloudDataObject):
+    self_api: NextcloudTalkApi
 
     def __post_init__(self) -> None:
-        self.participants_api = Participants(self.api)
+        self.participants_api = ParticipantsApi(self.api)
 
     def __str__(self) -> str:
-        return (
-            f"<Participant, room: {self.data['roomToken']}, "
-            f"Id: {self.data['attendeeId']}>"
-        )
+        return f"<Participant, room: {self.roomToken}, Id: {self.attendeeId}>"
 
-    def __repr__(self) -> str:
-        return str(self.data)
-
-    def __getattr__(self, k: str) -> Any:
-        return self.data[k]
+    def __eq__(self, other: "Participant") -> bool:
+        return self.roomToken == other.roomToken
 
     @property
     def id(self) -> int:
@@ -47,6 +37,7 @@ class Participant:
 
         Returns:
             self.attendeeId
+
         """
         return self.data["attendeeId"]
 
@@ -56,6 +47,7 @@ class Participant:
 
         Returns:
             self.actorId
+
         """
         return self.data["actorId"]
 
@@ -65,6 +57,7 @@ class Participant:
 
         Returns:
             self.roomToken
+
         """
         return self.data["roomToken"]
 
@@ -73,7 +66,7 @@ class Participant:
         await self.participants_api.leave(self.room_token)
 
 
-class Participants(NextcloudModule):
+class ParticipantsApi(NextcloudModule):
     """Interact with Nextcloud Talk API."""
 
     def __init__(self, api: NextcloudTalkApi, api_version: str = "4") -> None:
@@ -85,7 +78,7 @@ class Participants(NextcloudModule):
         room_token: str,
         include_status: bool = False,
         include_breakout_rooms: bool = False,
-    ) -> Tuple[List[Participant], httpx.Headers]:
+    ) -> tuple[list[Participant], httpx.Headers]:
         """Return list of participants."""
         path = f"/room/{room_token}/participants"
         if include_breakout_rooms:
@@ -96,7 +89,7 @@ class Participants(NextcloudModule):
             path=path, data={"includeStatus": include_status}
         )
 
-        return [Participant(data, self.api) for data in response], headers
+        return [Participant(data, self) for data in response], headers
 
     async def add_to_conversation(
         self, room_token: str, invitee: str, source: ObjectSources = ObjectSources.user
@@ -120,6 +113,7 @@ class Participants(NextcloudModule):
 
             source:
                 ObjectSources : Type of object to invite.
+
         """
         await self._post(
             path=f"/room/{room_token}/participants",
@@ -135,6 +129,7 @@ class Participants(NextcloudModule):
 
             attendee_id:
                 Attendee ID to remove.
+
         """
         await self._delete(
             path=f"/room/{room_token}/attendees", data={"attendeeId": attendee_id}
@@ -149,6 +144,7 @@ class Participants(NextcloudModule):
 
             state:
                 SessionState
+
         """
         await self.api.require_feature("session-state")
         await self._put(
@@ -161,11 +157,12 @@ class Participants(NextcloudModule):
         Args:
             token:
                 Token of conversation
+
         """
         await self._delete(path=f"/room/{token}/participants/self")
 
     async def join(
-        self, room_token: str, password: Optional[str], force: bool = True
+        self, room_token: str, password: str | None = None, force: bool = True
     ) -> ConversationData:
         """Join a conversation.
 
@@ -183,6 +180,7 @@ class Participants(NextcloudModule):
 
         Returns:
             ConversationData
+
         """
         response, _ = await self._post(
             path=f"/room/{room_token}/participants/active",
@@ -191,7 +189,7 @@ class Participants(NextcloudModule):
         return response
 
     async def resend_invitation_emails(
-        self, room_token: str, participant_id: Optional[int] = None
+        self, room_token: str, participant_id: int | None = None
     ) -> None:
         """Resent invitaition emails.
 
@@ -204,6 +202,7 @@ class Participants(NextcloudModule):
             participant_id:
                 Attendee id can be used for guests and users, not setting it will resend
                 all invitations
+
         """
         await self.api.require_feature("sip-support")
         await self._post(
@@ -220,6 +219,7 @@ class Participants(NextcloudModule):
 
             attendee_id:
                 Attendee ID to promot
+
         """
         await self._post(
             path=f"/room/{room_token}/moderators", data={"attendeeId": attendee_id}
@@ -234,6 +234,7 @@ class Participants(NextcloudModule):
 
             attendee_id:
                 ID of attendee to demote
+
         """
         await self._delete(
             path=f"/room/{room_token}/moderators", data={"attendeeId": attendee_id}
@@ -267,6 +268,7 @@ class Participants(NextcloudModule):
                 will be initialised with the call or default conversation permissions
                 before, falling back to 126 for moderators and 118 for normal
                 participants.
+
         """
         await self._put(
             path=f"/room/{room_token}/attendees/permissions",
@@ -289,12 +291,13 @@ class Participants(NextcloudModule):
 
         Returns:
             Participant
+
         """
         await self.api.require_feature("sip-support-dialout")
         response, _ = await self._post(
             path=f"/room/{room_token}/verify-dialin", data={"pin": pin}
         )
-        return Participant(response, self.api)
+        return Participant(response, self)
 
     async def verify_dial_out_number(
         self,
@@ -326,6 +329,7 @@ class Participants(NextcloudModule):
 
         Returns:
             Participant
+
         """
         await self.api.require_feature("sip-support-dialout")
         response, _ = await self._post(
@@ -337,7 +341,7 @@ class Participants(NextcloudModule):
                 "attendeeId": attendee_id,
             },
         )
-        return Participant(response, self.api)
+        return Participant(response, self)
 
     async def reset_rejected_dial_out(
         self, room_token: str, call_id: str, options: str
@@ -355,6 +359,7 @@ class Participants(NextcloudModule):
 
             options:
                 The options as received in the dialout request.
+
         """
         await self.api.require_feature("sip-support-dialout")
         await self._delete(
@@ -371,6 +376,7 @@ class Participants(NextcloudModule):
 
             name:
                 Your new name
+
         """
         await self.api.request(
             path=f'/guest/{room_token}/name"', data={"displayName": name}

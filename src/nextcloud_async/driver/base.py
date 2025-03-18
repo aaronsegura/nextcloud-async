@@ -51,9 +51,9 @@ class NextcloudBaseApi(NextcloudHttpApi):
         self,
         method: str = "GET",
         path: str = "",
-        data: Optional[Dict[str, Any]] = None,
-        headers: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        data: Optional[dict[str, Any]] = None,
+        headers: Optional[dict[str, Any]] = None,
+    ) -> dict[str, Any]:
         """Send a request to the Nextcloud endpoint.
 
         Args:

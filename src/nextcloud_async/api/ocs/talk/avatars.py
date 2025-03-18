@@ -10,7 +10,7 @@ from typing import Optional
 from nextcloud_async.driver import NextcloudModule, NextcloudTalkApi
 
 
-class ConversationAvatars(NextcloudModule):
+class ConversationAvatarsApi(NextcloudModule):
     def __init__(self, api: NextcloudTalkApi, api_version: str = "1") -> None:
         self.stub = f"/apps/spreed/api/v{api_version}"
         self.api: NextcloudTalkApi = api

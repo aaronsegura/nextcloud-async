@@ -25,7 +25,7 @@ class NextcloudTalkRichObject:
         self.object_type = self.object_type
 
     @property
-    def metadata(self) -> Dict[str, str]:
+    def metadata(self) -> dict[str, str]:
         """Return metadata array."""
         return {k: v for k, v in self.__dict__.items() if k not in ["id", "object_type"]}
 

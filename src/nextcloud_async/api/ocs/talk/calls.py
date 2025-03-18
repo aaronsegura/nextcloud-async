@@ -11,7 +11,7 @@ from .constants import ParticipantInCallFlags
 from .types import ParticipantData
 
 
-class Calls(NextcloudModule):
+class CallsApi(NextcloudModule):
     """Interact with Nextcloud Talk API."""
 
     api: NextcloudTalkApi
@@ -20,7 +20,7 @@ class Calls(NextcloudModule):
         self.stub = f"/apps/spreed/api/v{api_version}/call"
         self.api = api
 
-    async def get_connected_participants(self, room_token: str) -> List[ParticipantData]:
+    async def get_connected_participants(self, room_token: str) -> list[ParticipantData]:
         """Get list of connected participants.
 
         Args:

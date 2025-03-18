@@ -3,29 +3,20 @@
 https://nextcloud-talk.readthedocs.io/en/latest/global/
 """
 
-from .avatars import ConversationAvatars
-from .bots import Bot, Bots
-from .breakout_rooms import BreakoutRoom, BreakoutRooms
-from .calls import Calls
-from .chat import Chat, Message, MessageReminder, Suggestion
-from .conversations import Conversations, Conversation
-from .integrations import Integrations
-from .participants import Participants, Participant
-from .polls import Polls, Poll
-from .reactions import Reactions
-from .signaling import InternalSignaling
-from .webinars import Webinars
-
-
+from .avatars import ConversationAvatarsApi
+from .bots import Bot, BotsApi
+from .breakout_rooms import BreakoutRoom, BreakoutRoomsApi
+from .calls import CallsApi
+from .chat import ChatApi, Message, MessageReminder, Suggestion
 from .constants import (
     BreakoutRoomAssignmentMode,
     BreakoutRoomStatus,
     CallNotificationLevel,
+    ConversationNotificationLevel,
     ConversationType,
     FileShareMessageType,
     ListableScope,
     MentionPermissions,
-    ConversationNotificationLevel,
     ObjectSources,
     ParticipantInCallFlags,
     ParticipantPermissions,
@@ -35,33 +26,40 @@ from .constants import (
     PollStatus,
     ReadStatusPrivacy,
     RoomObjectType,
-    SignalingMode,
     SessionState,
     SharedItemType,
+    SignalingMode,
     SipState,
     WebinarLobbyState,
 )
+from .conversations import Conversation, ConversationsApi
+from .integrations import IntegrationsApi
+from .participants import Participant, ParticipantsApi
+from .polls import Poll, PollsApi
+from .reactions import Reactions
+from .signaling import InternalSignalingApi
+from .webinars import WebinarsApi
 
 __all__ = [
-    "ConversationAvatars",
+    "ConversationAvatarsApi",
     "Bot",
-    "Bots",
+    "BotsApi",
     "BreakoutRoom",
-    "BreakoutRooms",
-    "Calls",
-    "Chat",
+    "BreakoutRoomsApi",
+    "CallsApi",
+    "ChatApi",
     "Message",
     "MessageReminder",
     "Suggestion",
-    "Conversations",
+    "ConversationsApi",
     "Conversation",
-    "Integrations",
-    "Participants",
+    "IntegrationsApi",
+    "ParticipantsApi",
     "Participant",
-    "Polls",
+    "PollsApi",
     "Poll",
     "Reactions",
-    "InternalSignaling",
+    "InternalSignalingApi",
     "BreakoutRoomAssignmentMode",
     "BreakoutRoomStatus",
     "CallNotificationLevel",
@@ -83,6 +81,6 @@ __all__ = [
     "SessionState",
     "SharedItemType",
     "SipState",
-    "Webinars",
+    "WebinarsApi",
     "WebinarLobbyState",
 ]

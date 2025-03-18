@@ -1,3 +1,7 @@
+import pytest
+import pytest_asyncio
+from vcr.cassette import Cassette
+
 import datetime as dt
 import json
 import os
@@ -5,10 +9,7 @@ from pathlib import Path
 from typing import AsyncGenerator
 
 import aiofile
-import pytest
-import pytest_asyncio
 from dateutil.tz import tzlocal
-from vcr.cassette import Cassette
 
 from nextcloud_async.api import (
     FilesApi,
@@ -92,43 +93,46 @@ async def remote_test_files(
 
 
 @pytest_asyncio.fixture(scope="function", loop_scope="session")
+# @pytest.mark.vcr(filter_post_data_parameters={"expire_date": _EXPIRATION})
 async def shared_file(
     shares_api: SharesApi,
     target_user: User,
     remote_test_files: list[str],
-    network_blocked: bool,
     vcr: Cassette,
+    network_blocked: bool,
 ):
     _path = remote_test_files[0]
-    _shared_file_data = {
-        "path": _path,
-        "permissions": SharePermission.read,
-        "share_type": ShareType.user,
-        "share_with": target_user.id,
-        "expire_date": _EXPIRATION,
-    }
+
+    # Since we are sending/checking expiration date, which changes on every run
+    # we pull the original request/response from the cassette and create a
+    # Share object using the recorded expiration
     if network_blocked:
-        # Since we are sending/checking expiration date, which changes on every run
-        # we pull the original request/response from the cassette and create a
-        # Share object with the response data.
         _url = f"{ENDPOINT}{shares_api.api.stub}{shares_api.stub}"
-        print("URK", _url)
         request = [x for x in vcr.requests if x.uri == _url and x.method == "POST"].pop()
         response = vcr.responses_of(request).pop()
         response_data = json.loads(response["body"]["string"])
         _share = Share(response_data["ocs"]["data"], shares_api)
         globals()["_EXPIRATION"] = dt.datetime.strptime(  # noqa: DTZ007
             _share.expiration, r"%Y-%m-%d %H:%M:%S"
-        )
+        ).date()
     else:
+        _shared_file_data = {
+            "path": _path,
+            "permissions": SharePermission.read,
+            "share_type": ShareType.user,
+            "share_with": target_user.id,
+            "expire_date": _EXPIRATION,
+        }
         _share = await shares_api.create(**_shared_file_data)
 
     return _share
 
 
+# TODO TEST THIS TOMORROW
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestShares:
+    @pytest.mark.vcr(filter_post_data_parameters={"expire_date": _EXPIRATION})
     async def test_get_all_shares(
         self,
         shares_api: SharesApi,
@@ -147,6 +151,8 @@ class TestShares:
         assert response == shared_file
 
     async def test_delete_share(self, shared_file: Share):
+        print(shared_file)
+        print(shared_file.data)
         await shared_file.delete()
 
     async def test_update_share(
@@ -177,6 +183,3 @@ class TestSharees:
 
     async def test_get_recommended_sharees(self, sharees_api: ShareesApi):
         await sharees_api.sharee_recommendations()
-
-
-# TODO: Test without app_token

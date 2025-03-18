@@ -1,7 +1,5 @@
 from dataclasses import dataclass
-
-from typing import List, Optional, Any
-
+from typing import Any, List, Optional
 from urllib.parse import unquote
 
 from nextcloud_async.driver import NextcloudIterator
@@ -89,7 +87,7 @@ class UserPath(NextcloudIterator):
     """
 
     _path: str
-    _files: List[UserFile]
+    _files: list[UserFile]
 
     def __post_init__(self):
         self.set_iterator(self._files, starting_index=1)

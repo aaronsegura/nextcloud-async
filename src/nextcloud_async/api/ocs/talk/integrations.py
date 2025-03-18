@@ -1,12 +1,12 @@
-from typing import Dict, Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict
 
 if TYPE_CHECKING:
     from .conversations import Conversation
 
-from nextcloud_async.driver import NextcloudTalkApi, NextcloudModule
+from nextcloud_async.driver import NextcloudModule, NextcloudTalkApi
 
 
-class Integrations(NextcloudModule):
+class IntegrationsApi(NextcloudModule):
     """Nextcloud Talk Integrations API.
 
     https://nextcloud-talk.readthedocs.io/en/latest/integration/
@@ -26,9 +26,9 @@ class Integrations(NextcloudModule):
         Returns:
             Conversation
         """
-        from .conversations import Conversations
+        from .conversations import ConversationsApi
 
-        conversations = Conversations(self.api.client)
+        conversations = ConversationsApi(self.api.client)
         response, _ = await self._get(path=f"/file/{file_id}")
         return await conversations.get(response)
 
@@ -42,15 +42,15 @@ class Integrations(NextcloudModule):
         Returns:
             Conversation token
         """
-        from .conversations import Conversations
+        from .conversations import ConversationsApi
 
-        conversations = Conversations(self.api.client)
+        conversations = ConversationsApi(self.api.client)
         response, _ = await self._get(path=f"/publicshare/{share_token}")
         return await conversations.get(response["token"])
 
     async def create_password_request_conversation(
         self, share_token: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Create a conversation to request the password for a public share.
 
         Args:

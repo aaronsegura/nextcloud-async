@@ -35,10 +35,10 @@ class NextcloudDavApi(NextcloudHttpApi):
         method: str = "GET",
         path: str = "",
         data: Any = {},
-        headers: Optional[Dict[str, Any]] = None,
+        headers: Optional[dict[str, Any]] = None,
         content: bytes | None = None,
         raw_response: bool = False,
-    ) -> Dict[str, Any] | bytes:
+    ) -> dict[str, Any] | bytes:
         """Send a query to the Nextcloud DAV Endpoint.
 
         Args:
