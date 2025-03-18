@@ -60,7 +60,10 @@ class Share(NextcloudDataObject):
     def __str__(self) -> str:
         return f'<Nextcloud Share "{self.path}" by {self.displayname_owner}>'
 
-    def async_refresh(self) -> Awaitable:
+    def __eq__(self, other: "Share") -> bool:
+        return self.id == other.id
+
+    def refresh_function(self) -> Awaitable:
         """Define how this object is refreshed."""
         return self.self_api.get(self.id)
 
@@ -107,6 +110,7 @@ class Share(NextcloudDataObject):
             send_mail:
                 send an email to the recipient. This will not send an email on its
                 own. You will have to use the send-email endpoint to send the email.
+
         """
         await self.self_api.update(share_id=self.id, **kwargs)
         await self._refresh()
@@ -117,6 +121,7 @@ class Share(NextcloudDataObject):
         Args:
             password:
                 Share password, if enabled
+
         """
         await self.self_api.send_email(self.id, password)
 
@@ -156,6 +161,7 @@ class SharesApi(NextcloudModule):
 
         Returns:
             List[Share]
+
         """
         response = await self._get(
             data={
@@ -176,6 +182,7 @@ class SharesApi(NextcloudModule):
 
         Returns:
             Share object
+
         """
         response = await self._get(path=f"/{share_id}", data={"share_id": share_id})
         return Share(response[0], self)
@@ -236,6 +243,7 @@ class SharesApi(NextcloudModule):
 
         Returns:
             New Share object.
+
         """
         if expire_date:
             if expire_date <= dt.datetime.now(tz=tzlocal()).date():
@@ -271,6 +279,7 @@ class SharesApi(NextcloudModule):
 
         Returns:
             Query results.
+
         """
         return await self._delete(path=f"/{share_id}", data={"share_id": share_id})
 
@@ -321,6 +330,7 @@ class SharesApi(NextcloudModule):
             send_mail:
                 send an email to the recipient. This will not send an email on its
                 own. You will have to use the send-email endpoint to send the email.
+
         """
         if attributes:
             attributes = json.dumps(attributes)
@@ -359,6 +369,7 @@ class SharesApi(NextcloudModule):
 
             password:
                 The share password if enabled.
+
         """
         if password:
             data = {"password": password}
@@ -369,6 +380,6 @@ class SharesApi(NextcloudModule):
 
 
 def shares_api(client: NextcloudClient) -> SharesApi:
-    """Factory for SharesApi."""
+    """SharesApi Factory."""
     ocs_api = NextcloudOcsApi(client, version="2")
     return SharesApi(ocs_api)

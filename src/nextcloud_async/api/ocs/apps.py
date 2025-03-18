@@ -18,6 +18,9 @@ class App(NextcloudDataObject):
     def __str__(self) -> str:
         return f"<Nextcloud App {self.id} v{self.version}>"
 
+    def __eq__(self, other: "App") -> bool:
+        return (self.id, self.version) == (other.id, other.version)
+
     async def disable(self) -> None:
         """Disable this app."""
         await self.self_api.disable(app_id=self.id)
@@ -42,6 +45,7 @@ class AppsApi(NextcloudModule):
 
         Returns:
             App object
+
         """
         response = await self._get(path=f"/{app_id}")
         return App(response, self)
@@ -54,6 +58,7 @@ class AppsApi(NextcloudModule):
 
         Returns:
             list: List of application ids
+
         """
         data: Dict[str, str] = {}
         if filter:
@@ -84,6 +89,7 @@ class AppsApi(NextcloudModule):
 
         Args:
             app_id (str): Application ID
+
         """
         return await self._post(path=f"/{app_id}")
 
@@ -95,11 +101,12 @@ class AppsApi(NextcloudModule):
 
         Args:
             app_id (str): Application ID
+
         """
         await self._delete(path=f"/{app_id}")
 
 
 def apps_api(client: NextcloudClient) -> AppsApi:
-    """Factory for AppsApi."""
+    """AppsApi Factory."""
     ocs_api = NextcloudOcsApi(client, version="1")
     return AppsApi(ocs_api)

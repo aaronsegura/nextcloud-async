@@ -17,6 +17,9 @@ class MapFavorite(NextcloudDataObject):
     def __str__(self) -> str:
         return f'<MapFavorite "{self.name}">'
 
+    def __eq__(self, other: "MapFavorite") -> bool:
+        return (self.name, self.lat, self.lng) == (other.name, other.lat, other.lng)
+
     @property
     def latitude(self) -> float:
         """Alias for self.lat."""
@@ -86,6 +89,7 @@ class MapsApi(NextcloudModule):
 
         Returns:
             list of favorites
+
         """
         response = await self._get(path="/favorites")
         return [MapFavorite(data, self) for data in response]
@@ -95,6 +99,7 @@ class MapsApi(NextcloudModule):
 
         Args:
             id: ID of favorite to remove
+
         """
         await self._delete(path=f"/favorites/{id}")
         self.data = {"deleted": True}
@@ -132,8 +137,10 @@ class MapsApi(NextcloudModule):
 
             extensions:
                 Not really sure /shrug
+
         Returns:
             MapFavorite
+
         """
         data = {
             "name": name,
@@ -179,6 +186,7 @@ class MapsApi(NextcloudModule):
 
         Returns:
             New MapFavorite
+
         """
         data = {
             "name": name,

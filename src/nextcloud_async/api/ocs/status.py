@@ -43,11 +43,15 @@ class MyStatus(NextcloudDataObject):
     def __str__(self) -> str:
         return f'<My Status {self.icon}{self.status} "{self.message}">'
 
+    def __eq__(self, other: "MyStatus") -> bool:
+        raise NotImplementedError
+
     async def set(self, status_type: StatusType) -> None:
         """Set user status.
 
         Args:
             status_type: See StatusType Enum
+
         """
         response = await self.self_api.set(status_type=status_type)
         self.data = response
@@ -65,6 +69,7 @@ class MyStatus(NextcloudDataObject):
 
             clear_at:
                 datetime at which to clear this status.
+
         """
         response = await self.self_api.choose_predefined_status(
             status=status, clear_at=clear_at
@@ -88,6 +93,7 @@ class MyStatus(NextcloudDataObject):
 
             clear_at:
                 datetime at which to clear this message.
+
         """
         response = await self.self_api.set_message(
             message=message, status_icon=status_icon, clear_at=clear_at
@@ -126,6 +132,7 @@ class StatusApi(NextcloudModule):
 
         Returns:
             dict: Status description
+
         """
         response = await self._get("/user_status")
         return MyStatus(response, self)
@@ -139,6 +146,7 @@ class StatusApi(NextcloudModule):
 
         Returns:
             New status data
+
         """
         return await self._put(
             path="/user_status/status", data={"statusType": status_type.value}
@@ -149,6 +157,7 @@ class StatusApi(NextcloudModule):
 
         Returns:
             PredefinedStatus list
+
         """
         response = await self._get(path="/predefined_statuses")
         return [PredefinedStatus(data) for data in response]
@@ -167,6 +176,7 @@ class StatusApi(NextcloudModule):
 
         Returns:
             dict: New status description
+
         """
         data = {"messageId": status.id}
         if clear_at:
@@ -191,6 +201,7 @@ class StatusApi(NextcloudModule):
 
         Returns:
             dict: New status description
+
         """
         data = {"message": message}
         if status_icon:
@@ -215,6 +226,7 @@ class StatusApi(NextcloudModule):
 
         Returns:
             list: User statuses
+
         """
         response = await self._get(
             path="/statuses", data={"limit": limit, "offset": offset}
@@ -229,12 +241,13 @@ class StatusApi(NextcloudModule):
 
         Returns:
             dict: User status description
+
         """
         response = await self._get(path=f"/statuses/{user}")
         return UserStatus(response)
 
 
 def status_api(client: NextcloudClient) -> StatusApi:
-    """Factory for StatusApi."""
+    """StatusApi Factory."""
     ocs_api = NextcloudOcsApi(client, version="2")
     return StatusApi(ocs_api)

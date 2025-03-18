@@ -4,7 +4,9 @@ https://github.com/nextcloud/groupfolders#api
 https://github.com/nextcloud/groupfolders/blob/master/openapi.json
 """
 
+import logging
 from enum import Enum, IntFlag
+from typing import Awaitable
 
 from semver import Version
 
@@ -13,6 +15,8 @@ from nextcloud_async.api.ocs.groups import Group
 from nextcloud_async.api.ocs.users import User
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
+
+log = logging.getLogger("nextcloud_async.api")
 
 
 class GroupFoldersPermissions(IntFlag):
@@ -38,6 +42,9 @@ class GroupFolder(NextcloudDataObject):
     def __str__(self) -> str:
         return f'<GroupFolder "{self.mount_point}">'
 
+    def __eq__(self, other: "GroupFolder") -> bool:
+        return self.mount_point == other.mount_point
+
     async def _changes_require_refresh(self) -> bool:
         """Whether or not object needs to be refreshed after changes.
 
@@ -48,6 +55,7 @@ class GroupFolder(NextcloudDataObject):
 
         Returns:
             True or False
+
         """
         min_version = Version.parse("999.0.0")  # TODO: Update when commit released
         version = Version.parse(
@@ -57,13 +65,10 @@ class GroupFolder(NextcloudDataObject):
             return False
         return True
 
-    async def _refresh(self) -> None:
-        """Refresh this GroupFolder after changes.
-
-        Would be nice if the API returned mofidied objects after POSTs.
-        """
-        _updates = await self.self_api.get(self.id)
-        self.data = _updates.data
+    def refresh_function(self) -> Awaitable:
+        """Define how to refresh this object."""
+        log.debug("Providing refreshed object.")
+        return self.self_api.get(self.id)
 
     async def delete(self) -> None:
         """Delete this group folder."""
@@ -75,6 +80,7 @@ class GroupFolder(NextcloudDataObject):
 
         Args:
             group: Group object
+
         """
         await self.self_api.permit_group(folder_id=self.id, group_id=group.id)
         if await self._changes_require_refresh():
@@ -85,6 +91,7 @@ class GroupFolder(NextcloudDataObject):
 
         Args:
             group: Group object
+
         """
         await self.self_api.deny_group(folder_id=self.id, group_id=group.id)
         if await self._changes_require_refresh():
@@ -107,6 +114,7 @@ class GroupFolder(NextcloudDataObject):
 
         Args:
             object: User or Group object
+
         """
         if isinstance(object, User):
             object_type = AclManagerType.user
@@ -124,6 +132,7 @@ class GroupFolder(NextcloudDataObject):
 
         Args:
             object: Object to remove from advanced permissions.
+
         """
         if isinstance(object, User):
             object_type = AclManagerType.user
@@ -143,6 +152,7 @@ class GroupFolder(NextcloudDataObject):
             group: Group object
 
             permissions: New permissions.
+
         """
         await self.self_api.set_acl(
             folder_id=self.id, group_id=group.id, permissions=permissions
@@ -155,6 +165,7 @@ class GroupFolder(NextcloudDataObject):
 
         Args:
             quota: Quota in bytes.  None for unlimited.
+
         """
         await self.self_api.set_quota(self.id, quota)
         if await self._changes_require_refresh():
@@ -167,6 +178,7 @@ class GroupFolder(NextcloudDataObject):
             folder_id: Folder ID
 
             mount_point: New mount point.
+
         """
         await self.self_api.rename(self.id, mount_point=mount_point)
         self.mount_point = mount_point
@@ -192,6 +204,7 @@ class GroupFoldersApi(NextcloudModule):
 
         Returns:
             List of group folders.
+
         """
         await self._validate_capability()
         response = await self._get()
@@ -207,6 +220,7 @@ class GroupFoldersApi(NextcloudModule):
 
         Returns:
             New GroupFolder object
+
         """
         await self._validate_capability()
         response = await self._post(data={"mountpoint": path})
@@ -220,6 +234,7 @@ class GroupFoldersApi(NextcloudModule):
 
         Returns:
             Groupfolder
+
         """
         await self._validate_capability()
         response = await self._get(path=f"/{folder_id}")
@@ -233,6 +248,7 @@ class GroupFoldersApi(NextcloudModule):
 
         Returns:
             bool: success(True) or failure(False)
+
         """
         await self._validate_capability()
         await self._delete(path=f"/{folder_id}")
@@ -244,6 +260,7 @@ class GroupFoldersApi(NextcloudModule):
             group_id: Group ID
 
             folder_id: Folder ID
+
         """
         await self._validate_capability()
         await self._post(path=f"/{folder_id}/groups", data={"group": group_id})
@@ -255,6 +272,7 @@ class GroupFoldersApi(NextcloudModule):
             group_id: Group ID
 
             folder_id: Folder ID
+
         """
         await self._validate_capability()
         await self._delete(path=f"/{folder_id}/groups/{group_id}")
@@ -267,6 +285,7 @@ class GroupFoldersApi(NextcloudModule):
 
         Returns:
             bool: success(True) or failure(False)
+
         """
         await self._validate_capability()
         await self._advanced_permissions(folder_id, True)
@@ -276,6 +295,7 @@ class GroupFoldersApi(NextcloudModule):
 
         Args:
             folder_id: Folder ID
+
         """
         await self._validate_capability()
         await self._advanced_permissions(folder_id, False)
@@ -294,6 +314,7 @@ class GroupFoldersApi(NextcloudModule):
             object_id: Object ID
 
             object_type: either `user` or `group`
+
         """
         await self._validate_capability()
         await self._advanced_permissions_admin(
@@ -314,6 +335,7 @@ class GroupFoldersApi(NextcloudModule):
             object_id: Object ID
 
             object_type: AclManagerType
+
         """
         await self._validate_capability()
         await self._advanced_permissions_admin(
@@ -348,6 +370,7 @@ class GroupFoldersApi(NextcloudModule):
             group_id: Group ID
 
             permissions: New permissions.
+
         """
         await self._validate_capability()
         response = await self._post(
@@ -363,6 +386,7 @@ class GroupFoldersApi(NextcloudModule):
             folder_id : Folder ID
 
             quota: Quota in bytes.  None for unlimited.
+
         """
         await self._validate_capability()
         await self._post(
@@ -376,6 +400,7 @@ class GroupFoldersApi(NextcloudModule):
             folder_id: Folder ID
 
             mount_point: New mount point.
+
         """
         await self._validate_capability()
         await self._post(
@@ -384,6 +409,6 @@ class GroupFoldersApi(NextcloudModule):
 
 
 def groupfolders_api(client: NextcloudClient) -> GroupFoldersApi:
-    """Factory for GroupFoldersApi."""
+    """GroupFoldersApi Factory."""
     ocs_api = NextcloudOcsApi(client, stub="/index.php")
     return GroupFoldersApi(ocs_api)

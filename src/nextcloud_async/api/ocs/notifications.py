@@ -14,6 +14,9 @@ class Notification(NextcloudDataObject):
     def __str__(self) -> str:
         return f'<Notification #{self.id} from "{self.app}">'
 
+    def __eq__(self, other: "Notification") -> bool:
+        return self.id == other.id
+
     @property
     def id(self) -> int:
         """Alias for self.notification_id."""
@@ -36,6 +39,7 @@ class NotificationsApi(NextcloudModule):
 
         Returns:
             List of Notification
+
         """
         response = await self._get()
         return [Notification(data, self) for data in response]
@@ -48,6 +52,7 @@ class NotificationsApi(NextcloudModule):
 
         Returns:
             Notification
+
         """
         response = await self._get(path=f"/{id}")
         return Notification(response, self)
@@ -61,11 +66,12 @@ class NotificationsApi(NextcloudModule):
 
         Args:
             id (int): Notification ID
+
         """
         return await self._delete(path=f"/{id}")
 
 
 def notifications_api(client: NextcloudClient) -> NotificationsApi:
-    """Factory for NotificationsApi."""
+    """NotificationsApi Factory."""
     ocs_api = NextcloudOcsApi(client, version="2")
     return NotificationsApi(ocs_api)

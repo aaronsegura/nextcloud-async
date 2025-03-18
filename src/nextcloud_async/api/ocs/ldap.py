@@ -19,12 +19,15 @@ class LdapConfiguration(NextcloudDataObject):
     def __str__(self) -> str:
         return f"<Nextcloud Ldap Config {self.id}>"
 
+    def __eq__(self, other: "LdapConfiguration") -> bool:
+        return self.id == other.id
+
     @property
     def id(self) -> str:
         """Alias for self.data['configID]."""
         return self.configID
 
-    async def async_refresh(self) -> Coroutine[None, None, "LdapConfiguration"]:
+    async def refresh_function(self) -> Coroutine[None, None, "LdapConfiguration"]:
         """Set up object refresh."""
         return self.self_api.get(self.id)
 
@@ -37,6 +40,7 @@ class LdapConfiguration(NextcloudDataObject):
 
         Args:
             config_data (Dict): New values for configuration.
+
         """
         await self.self_api.update(self.id, config_data)
         await self._refresh()
@@ -57,6 +61,7 @@ class LdapApi(NextcloudModule):
 
         Returns:
             dict: New configuration ID, { "configID": ID }
+
         """
         response = await self._post(path="/config")
         return LdapConfiguration(response, self)
@@ -66,6 +71,7 @@ class LdapApi(NextcloudModule):
 
         Args:
             id (str): LDAP Configuration ID
+
         """
         await self._delete(path=f"/config/{id}")
 
@@ -77,6 +83,7 @@ class LdapApi(NextcloudModule):
 
         Returns:
             dict: LDAP configuration description
+
         """
         response = await self._get(path=f"/config/{id}")
         return LdapConfiguration(response, self)
@@ -88,6 +95,7 @@ class LdapApi(NextcloudModule):
             id (str): LDAP Configuration ID
 
             config_data (Dict): New values for configuration.
+
         """
         if "configData" not in config_data:
             # Attempt to fix improperly formatted dictionary
@@ -98,6 +106,6 @@ class LdapApi(NextcloudModule):
 
 
 def ldap_api(client: NextcloudClient) -> LdapApi:
-    """Factory for LdapApi."""
+    """LdapApi Factory."""
     ocs_api = NextcloudOcsApi(client, version="2")
     return LdapApi(ocs_api)

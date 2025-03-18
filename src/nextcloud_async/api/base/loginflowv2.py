@@ -53,6 +53,7 @@ class LoginFlowV2Api(NextcloudModule):
         Returns:
             Dict: Containing the user login URL and your temporary token for polling
             results.
+
         """
         response = await self._post()
         return response
@@ -74,6 +75,7 @@ class LoginFlowV2Api(NextcloudModule):
 
         Returns:
             Dict: Your new credentials.
+
         """
         start_dt = dt.datetime.now()  # noqa: DTZ005
         running_time = 0
@@ -101,6 +103,7 @@ class LoginFlowV2Api(NextcloudModule):
 
         Raises:
             NextcloudForbiddenError: User not using app_token
+
         """
         # This requires OCS api
         if not self.api.client.app_token:

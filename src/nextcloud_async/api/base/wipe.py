@@ -14,7 +14,6 @@ from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver import NextcloudBaseApi, NextcloudModule
 from nextcloud_async.exceptions import (
     NextcloudMethodNotAllowedError,
-    NextcloudNotFoundError,
 )
 
 log = logging.getLogger("nextcloud_async.wipe")
@@ -48,9 +47,7 @@ class WipeApi(NextcloudModule):
             bool: Whether user has flagged this device for remote wiping.
         """
         if not self.api.client.app_token:
-            raise NextcloudMethodNotAllowedError(
-                "Only valid with app_token authentication."
-            )
+            return False
 
         response = await self._post(
             path="/check",

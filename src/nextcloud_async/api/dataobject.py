@@ -1,9 +1,12 @@
+import logging
 from abc import ABC, abstractmethod
 from collections.abc import Awaitable, Coroutine
 from dataclasses import dataclass, field
 from typing import Any
 
 from nextcloud_async.driver import NextcloudModule
+
+log = logging.getLogger("nextcloud_async.api")
 
 
 @dataclass
@@ -16,13 +19,28 @@ class NextcloudDataObject(ABC):
     @abstractmethod
     def __str__(self) -> str: ...
 
+    @abstractmethod
+    def __eq__(self, other: "NextcloudDataObject") -> bool: ...
+
+    def __getitem__(self, k: str) -> Any:
+        return self.data[k]
+
     def __getattr__(self, k: str) -> Any:
+        # Nextcloud likes to use dashes in keys.  We translate them to underscores.
+        translated_key = k.replace("_", "-")
+        for key in self.data.keys():
+            if key in (translated_key, k):
+                try:
+                    return int(self.data[key])
+                except (ValueError, TypeError):
+                    return self.data[key]
+
         return self.data[k]
 
     def __repr__(self) -> str:
-        return str(self.data)
+        return f"<{__class__.__name__} data={str(self.data)}>"
 
-    async def async_refresh(self) -> Coroutine[None, None, "NextcloudDataObject"]:
+    def refresh_function(self) -> Coroutine[None, None, "NextcloudDataObject"]:
         """Define how this object is refreshed when calling self._refresh().
 
         For example: `return self.self_api.get(self.id)`
@@ -30,5 +48,6 @@ class NextcloudDataObject(ABC):
         raise NotImplementedError
 
     async def _refresh(self) -> None:
-        new_object = await self.async_refresh()
-        self.data = new_object.data  # type: ignore
+        log.debug("Refreshing object.")
+        new_object = await self.refresh_function()
+        self.data = new_object.data

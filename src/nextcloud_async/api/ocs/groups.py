@@ -17,11 +17,15 @@ from nextcloud_async.helpers import password_confirmation_required
 
 class Group(NextcloudDataObject):
     self_api: "GroupsApi"
+    self_type = "Group"
+
+    def __eq__(self, other: "Group") -> bool:
+        return self.id == other.id
 
     def __str__(self) -> str:
         return f'<Nextcloud Group "{self.id}">'
 
-    def async_refresh(self) -> None:
+    def refresh_function(self) -> None:
         """No reason to refresh this object."""
         ...
 
@@ -30,6 +34,7 @@ class Group(NextcloudDataObject):
 
         Returns:
             list: Users belonging to `group_id`
+
         """
         return await self.self_api.get_members(self.id)
 
@@ -41,6 +46,7 @@ class Group(NextcloudDataObject):
 
         Returns:
             list: Users who are subadmins of this group.
+
         """
         return await self.self_api.get_subadmins(self.id)
 
@@ -76,6 +82,7 @@ class GroupsApi(NextcloudModule):
 
         Returns:
             List of Groups
+
         """
         response = await self._get(
             data={"limit": limit, "offset": offset, "search": search}
@@ -91,6 +98,7 @@ class GroupsApi(NextcloudModule):
 
         Returns:
             New Group
+
         """
         await self._post(data={"groupid": group_id})
         return Group({"id": group_id}, self)
@@ -103,6 +111,7 @@ class GroupsApi(NextcloudModule):
 
         Returns:
             list: Users belonging to `group_id`
+
         """
         response = await self._get(path=f"/{group_id}")
         return response["users"]
@@ -116,6 +125,7 @@ class GroupsApi(NextcloudModule):
 
         Returns:
             list: Users who are subadmins of this group.
+
         """
         return await self._get(path=f"/{group_id}/subadmins")
 
@@ -125,11 +135,12 @@ class GroupsApi(NextcloudModule):
 
         Args:
             group_id (str): Group ID
+
         """
         return await self._delete(path=f"/{group_id}")
 
 
 def groups_api(client: NextcloudClient) -> GroupsApi:
-    """Factory for GroupsApi."""
+    """GroupsApi Factory."""
     ocs_api = NextcloudOcsApi(client)
     return GroupsApi(ocs_api)
