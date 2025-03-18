@@ -1,28 +1,26 @@
 import copy
 from hashlib import sha1
-from unittest.mock import AsyncMock, MagicMock, call
+from unittest.mock import AsyncMock, call
 
-import httpx
 import pytest
 from pytest_httpx import HTTPXMock
 
-from nextcloud_async import NextcloudClient
 from nextcloud_async.api import (
     AclManagerType,
     Group,
     GroupFolder,
-    GroupFolders,
+    GroupFoldersApi,
     GroupFoldersPermissions,
+    GroupsApi,
     User,
 )
+from nextcloud_async.client.client import NextcloudClient
 
 from .constants import (
     CAPABILITIES_RESPONSE,
     CAPABILITIES_URL,
     ENDPOINT,
     OCS_EMPTY_200,
-    PASSWORD,
-    USER,
 )
 
 _LEGACY_SUCCESS_RESPONSE = copy.deepcopy(OCS_EMPTY_200)
@@ -108,16 +106,21 @@ LIST_RESPONSE = {
 }
 
 
+class GroupFoldersMock(GroupFoldersApi):
+    api: AsyncMock
+
+
+class GroupFolderMock(GroupFolder):
+    self_api: GroupFoldersMock
+
+
 @pytest.fixture(name="gfs")
-def _groupfolders(monkeypatch: pytest.MonkeyPatch):
-    monkeypatch.setattr(
-        "nextcloud_async.api.ocs.groupfolders.GroupFolders._validate_capability",
-        AsyncMock(),
-    )
-    nc = NextcloudClient(ENDPOINT, USER, PASSWORD, http_client=httpx.AsyncClient())
-    gf = GroupFolders(nc)
-    gf.api.destroy_capabilities()
-    return gf
+def _groupfolders(
+    nc_basic_mocked: NextcloudClient, asyncmock: AsyncMock
+) -> GroupFoldersMock:
+    gfs = GroupFoldersMock(nc_basic_mocked)
+    gfs.api = asyncmock
+    return gfs
 
 
 _STUB = "/index.php/apps/groupfolders/folders"
@@ -125,97 +128,93 @@ _STUB = "/index.php/apps/groupfolders/folders"
 
 @pytest.mark.asyncio
 class TestGroupFoldersApi:
-    async def test_validate_capability(self, magicmock: MagicMock, asyncmock: AsyncMock):
-        gfs = GroupFolders(magicmock)
-        gfs.api = asyncmock
+    async def test_validate_capability(self, gfs: GroupFoldersMock):
         await gfs._validate_capability()
         expected = [call.require_capability("groupfolders")]
         gfs.api.assert_has_calls(expected)
 
-    async def test_list(self, gfs: GroupFolders, httpx_mock: HTTPXMock):
-        httpx_mock.add_response(
-            200, json=LIST_RESPONSE, url=f"{ENDPOINT}{_STUB}?format=json", method="GET"
-        )
-        folders = await gfs.list()
-        for folder in folders:
-            assert isinstance(folder, GroupFolder)
-        httpx_mock.assert_all_responses_sent()
+    async def test_list(self, gfs: GroupFoldersMock):
+        gfs.api.get.return_value = LIST_RESPONSE["ocs"]["data"]
+        await gfs.list()
+        expected = [
+            call.require_capability("groupfolders"),
+            call.get(path="/apps/groupfolders/folders", data=None, headers=None),
+        ]
+        gfs.api.assert_has_calls(expected)
 
-    async def test_create(self, gfs: GroupFolders, httpx_mock: HTTPXMock):
+    async def test_create(self, gfs: GroupFoldersMock):
         _folder = sha1().hexdigest()
-        httpx_mock.add_response(
-            200,
-            json=GET_RESPONSE,
-            url=f"{ENDPOINT}{_STUB}",
-            match_json={"mountpoint": _folder, "format": "json"},
-            method="POST",
-        )
         await gfs.create(_folder)
-        httpx_mock.assert_all_responses_sent()
+        expected = [
+            call.require_capability("groupfolders"),
+            call.post(
+                path="/apps/groupfolders/folders",
+                data={"mountpoint": _folder},
+                headers=None,
+            ),
+        ]
+        gfs.api.assert_has_calls(expected)
 
-    async def test_get(self, gfs: GroupFolders, httpx_mock: HTTPXMock):
+    async def test_get(self, gfs: GroupFoldersMock):
         folder_id = GET_RESPONSE["ocs"]["data"]["id"]
-        httpx_mock.add_response(
-            200,
-            json=GET_RESPONSE,
-            url=f"{ENDPOINT}{_STUB}/{folder_id}?format=json",
-            method="GET",
-        )
         folder = await gfs.get(folder_id)
+        expected = [
+            call.require_capability("groupfolders"),
+            call.get(
+                path=f"/apps/groupfolders/folders/{folder_id}", data=None, headers=None
+            ),
+        ]
+        gfs.api.assert_has_calls(expected)
         assert isinstance(folder, GroupFolder)
-        httpx_mock.assert_all_responses_sent()
 
 
-@pytest.fixture(name="gf")
-def _groupfolder(gfs: GroupFolders):
-    return GroupFolder(GET_RESPONSE["ocs"]["data"], gfs)
+@pytest.fixture(name="gf_old")
+def _groupfolder(gfs: GroupFoldersMock):
+    gf = GroupFolderMock(GET_RESPONSE["ocs"]["data"], gfs)
+    gf._changes_require_refresh = AsyncMock(return_value=True)
+    return gf
 
 
 @pytest.fixture(name="group")
-def _group(asyncmock: AsyncMock):
-    return Group({"id": "TestGroup"}, asyncmock)
+def _group(magicmock, nc_basic_mocked):
+    group = Group({"id": "TestGroup"}, GroupsApi(nc_basic_mocked))
+    return group
 
 
 @pytest.fixture(name="user")
-def _user(asyncmock: AsyncMock):
-    return User({"id": "TestUser"}, asyncmock)
+def _user(gfs: GroupFoldersMock):
+    return User({"id": "TestUser"}, gfs)
 
 
 @pytest.mark.asyncio
-class TestGroupFolderObjectLegacy:
-    async def test_delete(self, gf: GroupFolder, httpx_mock: HTTPXMock):
+class TestGroupFolderObjectWithRefresh:
+    async def test_delete(self, gf: GroupFolderMock):
         folder_id = GET_RESPONSE["ocs"]["data"]["id"]
-        httpx_mock.add_response(
-            200,
-            json=_LEGACY_SUCCESS_RESPONSE,
-            url=f"{ENDPOINT}{_STUB}/{folder_id}",
-            match_json={"format": "json"},
-            method="DELETE",
-        )
         await gf.delete()
-        httpx_mock.assert_all_responses_sent()
+        expected = [
+            call.require_capability("groupfolders"),
+            call.delete(
+                path=f"/apps/groupfolders/folders/{folder_id}", data=None, headers=None
+            ),
+        ]
+        gf.self_api.api.assert_has_calls(expected)
 
-    async def test_permit_group(
-        self, gf: GroupFolder, group: Group, httpx_mock: HTTPXMock
-    ):
-        httpx_mock.add_response(
-            200, json=CAPABILITIES_RESPONSE, url=CAPABILITIES_URL, method="GET"
-        )
-        httpx_mock.add_response(
-            200,
-            json=_LEGACY_SUCCESS_RESPONSE,
-            url=f"{ENDPOINT}{_STUB}/{gf.id}/groups",
-            match_json={"group": group.id, "format": "json"},
-            method="POST",
-        )
-        httpx_mock.add_response(
-            200,
-            json=GET_RESPONSE,
-            url=f"{ENDPOINT}{_STUB}/{gf.id}?format=json",
-            method="GET",
-        )
-        await gf.permit_group(group)
-        httpx_mock.assert_all_responses_sent()
+    async def test_permit_group(self, gf_old: GroupFolderMock, group: Group):
+        await gf_old.permit_group(group)
+        expected = [
+            call.require_capability("groupfolders"),
+            call.post(
+                path=f"/apps/groupfolders/folders/{gf_old.id}/groups",
+                data={"group": group.id},
+                headers=None,
+            ),
+            call.require_capability("groupfolders"),
+            call.get(
+                path=f"/apps/groupfolders/folders/{gf_old.id}", data=None, headers=None
+            ),
+        ]
+        gf_old.self_api.api.assert_has_calls(expected)
+        gf_old._changes_require_refresh.assert_has_calls([call()])
 
     async def test_deny_group(self, gf: GroupFolder, group: Group, httpx_mock: HTTPXMock):
         httpx_mock.add_response(
