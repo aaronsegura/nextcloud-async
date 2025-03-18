@@ -9,14 +9,14 @@ from collections.abc import Awaitable
 from typing import Any, Dict, List, Optional
 
 from nextcloud_async.api.dataobject import NextcloudDataObject
-from nextcloud_async.api.ocs.groups import Group, Groups
+from nextcloud_async.api.ocs.groups import Group, GroupsApi
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
 from nextcloud_async.helpers import password_confirmation_required
 
 
 class User(NextcloudDataObject):
-    self_api: "Users"
+    self_api: "UsersApi"
 
     def __getattr__(self, k: str) -> Any:
         return self.data[k]
@@ -107,12 +107,12 @@ class User(NextcloudDataObject):
         return await self.self_api.get_subadmin_groups(self.id)
 
 
-class Users(NextcloudModule):
+class UsersApi(NextcloudModule):
     """Manage users on a Nextcloud instance."""
 
-    def __init__(self, client: NextcloudClient, ocs_version: str = "1") -> None:
+    def __init__(self, ocs_api: NextcloudOcsApi) -> None:
         self.stub = r"/cloud/users"
-        self.api = NextcloudOcsApi(client, ocs_version=ocs_version)
+        self.api = ocs_api
 
     @password_confirmation_required
     async def create(
@@ -332,7 +332,7 @@ class Users(NextcloudModule):
             path=f"/{user_id if user_id else self.api.client.user}/groups"
         )
         return [
-            Group(group_id, Groups(self.api.client)) for group_id in response["groups"]
+            Group(group_id, GroupsApi(self.api.client)) for group_id in response["groups"]
         ]
 
     @password_confirmation_required
@@ -399,7 +399,7 @@ class Users(NextcloudModule):
             list: group ids
         """
         response = await self._get(path=f"/{user_id}/subadmins")
-        return [Group(group_id, Groups(self.api.client)) for group_id in response]
+        return [Group(group_id, GroupsApi(self.api.client)) for group_id in response]
 
     @password_confirmation_required
     async def resend_welcome_email(self, user_id: str) -> None:
@@ -409,3 +409,8 @@ class Users(NextcloudModule):
             user_id: User ID
         """
         return await self._post(path=f"/{user_id}/welcome")
+
+
+def users_api(client: NextcloudClient) -> UsersApi:
+    ocs_api = NextcloudOcsApi(client)
+    return UsersApi(ocs_api)

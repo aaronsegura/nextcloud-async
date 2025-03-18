@@ -12,14 +12,12 @@ from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
 
 
-class Sharees(NextcloudModule):
+class ShareesApi(NextcloudModule):
     """Sharees interface."""
 
-    def __init__(
-        self, client: NextcloudClient, ocs_version: str = "1", api_version: str = "1"
-    ) -> None:
+    def __init__(self, ocs_api: NextcloudOcsApi, api_version: str = "1") -> None:
         self.stub = f"/apps/files_sharing/api/v{api_version}"
-        self.api = NextcloudOcsApi(client, ocs_version=ocs_version)
+        self.api = ocs_api
 
     async def search_sharees(
         self,
@@ -70,3 +68,9 @@ class Sharees(NextcloudModule):
             Recommended sharees.
         """
         return await self._get(path="/sharees_recommended", data={"itemType": item_type})
+
+
+def sharees_api(client: NextcloudClient) -> ShareesApi:
+    """Factory for ShareesApi."""
+    ocs_api = NextcloudOcsApi(client)
+    return ShareesApi(ocs_api)

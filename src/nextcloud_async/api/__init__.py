@@ -16,19 +16,27 @@ from .dav.files import (
     Versions,
     files_api,
 )
-from .ocs.apps import App, Apps
+from .ocs.apps import App, AppsApi, apps_api
 from .ocs.groupfolders import (
     AclManagerType,
     GroupFolder,
-    GroupFolders,
+    GroupFoldersApi,
     GroupFoldersPermissions,
+    groupfolders_api,
 )
-from .ocs.groups import Group, Groups
-from .ocs.ldap import Ldap, LdapConfiguration
-from .ocs.notifications import Notification, Notifications
-from .ocs.sharees import Sharees
-from .ocs.shares import Share, SharePermission, Shares, ShareType
-from .ocs.status import MyStatus, PredefinedStatus, Status, StatusType, UserStatus
+from .ocs.groups import Group, GroupsApi, groups_api
+from .ocs.ldap import LdapApi, LdapConfiguration, ldap_api
+from .ocs.notifications import Notification, NotificationsApi, notifications_api
+from .ocs.sharees import ShareesApi, sharees_api
+from .ocs.shares import Share, SharePermission, SharesApi, ShareType, shares_api
+from .ocs.status import (
+    MyStatus,
+    PredefinedStatus,
+    StatusApi,
+    StatusType,
+    UserStatus,
+    status_api,
+)
 from .ocs.talk import (
     Bot,
     Bots,
@@ -73,11 +81,20 @@ from .ocs.talk import (
     WebinarLobbyState,
     Webinars,
 )
-from .ocs.users import User, Users
+from .ocs.users import User, UsersApi, users_api
 
 __all__ = [
+    "users_api",
+    "shares_api",
+    "ldap_api",
+    "sharees_api",
+    "groups_api",
+    "groupfolders_api",
+    "status_api",
+    "notifications_api",
+    "apps_api",
     "AclManagerType",
-    "Apps",
+    "AppsApi",
     "App",
     "Chat",
     "Conversations",
@@ -94,12 +111,12 @@ __all__ = [
     "TrashFile",
     "Versions",
     "Version",
-    "GroupFolders",
+    "GroupFoldersApi",
     "GroupFolder",
     "GroupFoldersPermissions",
-    "Groups",
+    "GroupsApi",
     "Group",
-    "Ldap",
+    "LdapApi",
     "LdapConfiguration",
     "LoginFlowV2Api",
     "loginflowv2_api",
@@ -111,18 +128,18 @@ __all__ = [
     "PredefinedStatus",
     "MyStatus",
     "UserStatus",
-    "Notifications",
+    "NotificationsApi",
     "Notification",
     "Participants",
     "Participant",
-    "Shares",
+    "SharesApi",
     "Share",
     "ShareType",
     "SharePermission",
-    "Sharees",
-    "Status",
+    "ShareesApi",
+    "StatusApi",
     "StatusType",
-    "Users",
+    "UsersApi",
     "User",
     "WipeApi",
     "wipe_api",

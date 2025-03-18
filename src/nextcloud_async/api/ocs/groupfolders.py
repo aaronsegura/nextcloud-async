@@ -33,7 +33,7 @@ class AclManagerType(Enum):
 
 
 class GroupFolder(NextcloudDataObject):
-    self_api: "GroupFolders"
+    self_api: "GroupFoldersApi"
 
     def __str__(self) -> str:
         return f'<GroupFolder "{self.mount_point}">'
@@ -172,7 +172,7 @@ class GroupFolder(NextcloudDataObject):
         self.mount_point = mount_point
 
 
-class GroupFolders(NextcloudModule):
+class GroupFoldersApi(NextcloudModule):
     """Manage Group Folders.
 
     Requires capability: groupfolders
@@ -180,9 +180,9 @@ class GroupFolders(NextcloudModule):
 
     api: NextcloudOcsApi
 
-    def __init__(self, client: NextcloudClient) -> None:
+    def __init__(self, ocs_api: NextcloudOcsApi) -> None:
         self.stub = "/apps/groupfolders/folders"
-        self.api = NextcloudOcsApi(client, ocs_stub="/index.php")
+        self.api = ocs_api
 
     async def _validate_capability(self) -> None:
         await self.api.require_capability("groupfolders")
@@ -381,3 +381,9 @@ class GroupFolders(NextcloudModule):
         await self._post(
             path=f"/{folder_id}/mountpoint", data={"mountpoint": mount_point}
         )
+
+
+def groupfolders_api(client: NextcloudClient) -> GroupFoldersApi:
+    """Factory for GroupFoldersApi."""
+    ocs_api = NextcloudOcsApi(client, stub="/index.php")
+    return GroupFoldersApi(ocs_api)

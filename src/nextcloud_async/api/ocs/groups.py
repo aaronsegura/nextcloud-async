@@ -8,14 +8,15 @@ https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/instruc
 """
 
 from typing import List
-from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
-from nextcloud_async.client import NextcloudClient
+
 from nextcloud_async.api.dataobject import NextcloudDataObject
+from nextcloud_async.client import NextcloudClient
+from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
 from nextcloud_async.helpers import password_confirmation_required
 
 
 class Group(NextcloudDataObject):
-    self_api: "Groups"
+    self_api: "GroupsApi"
 
     def __str__(self) -> str:
         return f'<Nextcloud Group "{self.id}">'
@@ -49,11 +50,11 @@ class Group(NextcloudDataObject):
         self.id = "<deleted>"
 
 
-class Groups(NextcloudModule):
+class GroupsApi(NextcloudModule):
     """Manage groups on a Nextcloud instance."""
 
-    def __init__(self, client: NextcloudClient) -> None:
-        self.api = NextcloudOcsApi(client)
+    def __init__(self, ocs_api: NextcloudOcsApi) -> None:
+        self.api = ocs_api
         self.stub = "/cloud/groups"
 
     async def search(
@@ -126,3 +127,9 @@ class Groups(NextcloudModule):
             group_id (str): Group ID
         """
         return await self._delete(path=f"/{group_id}")
+
+
+def groups_api(client: NextcloudClient) -> GroupsApi:
+    """Factory for GroupsApi."""
+    ocs_api = NextcloudOcsApi(client)
+    return GroupsApi(ocs_api)

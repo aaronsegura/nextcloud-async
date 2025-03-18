@@ -55,7 +55,7 @@ class SharePermission(IntFlag):
 
 
 class Share(NextcloudDataObject):
-    self_api: "Shares"
+    self_api: "SharesApi"
 
     def __str__(self) -> str:
         return f'<Nextcloud Share "{self.path}" by {self.displayname_owner}>'
@@ -121,14 +121,12 @@ class Share(NextcloudDataObject):
         await self.self_api.send_email(self.id, password)
 
 
-class Shares(NextcloudModule):
+class SharesApi(NextcloudModule):
     """Manage local shares on Nextcloud instances."""
 
-    def __init__(
-        self, client: NextcloudClient, ocs_version: str = "2", api_version: str = "1"
-    ) -> None:
+    def __init__(self, ocs_api: NextcloudOcsApi, api_version: str = "1") -> None:
         self.stub = f"/apps/files_sharing/api/v{api_version}/shares"
-        self.api = NextcloudOcsApi(client, ocs_version=ocs_version)
+        self.api = ocs_api
 
     async def get_file_shares(
         self,
@@ -368,3 +366,9 @@ class Shares(NextcloudModule):
             data = None
 
         await self._post(path=f"/{share_id}/send-email", data=data)
+
+
+def shares_api(client: NextcloudClient) -> SharesApi:
+    """Factory for SharesApi."""
+    ocs_api = NextcloudOcsApi(client, version="2")
+    return SharesApi(ocs_api)

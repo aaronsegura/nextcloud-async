@@ -38,7 +38,7 @@ class PredefinedStatus:
 
 
 class MyStatus(NextcloudDataObject):
-    self_api: "Status"
+    self_api: "StatusApi"
 
     def __str__(self) -> str:
         return f'<My Status {self.icon}{self.status} "{self.message}">'
@@ -114,14 +114,12 @@ class UserStatus:
         return str(self.data)
 
 
-class Status(NextcloudModule):
+class StatusApi(NextcloudModule):
     """Manage a user's status on Nextcloud instances."""
 
-    def __init__(
-        self, client: NextcloudClient, ocs_version: str = "2", api_version: str = "1"
-    ) -> None:
+    def __init__(self, ocs_api: NextcloudOcsApi, api_version: str = "1") -> None:
         self.stub = f"/apps/user_status/api/v{api_version}"
-        self.api = NextcloudOcsApi(client, ocs_version=ocs_version)
+        self.api = ocs_api
 
     async def get(self) -> MyStatus:
         """Get current status.
@@ -234,3 +232,9 @@ class Status(NextcloudModule):
         """
         response = await self._get(path=f"/statuses/{user}")
         return UserStatus(response)
+
+
+def status_api(client: NextcloudClient) -> StatusApi:
+    """Factory for StatusApi."""
+    ocs_api = NextcloudOcsApi(client, version="2")
+    return StatusApi(ocs_api)

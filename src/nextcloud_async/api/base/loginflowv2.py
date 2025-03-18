@@ -107,7 +107,7 @@ class LoginFlowV2Api(NextcloudModule):
             log.warning("User attempting to delete app token, but using password auth.")
             raise NextcloudForbiddenError("Not logged in using app_token.")
         log.debug("Deleting app token")
-        ocs_api = NextcloudOcsApi(self.api.client, ocs_version="2")
+        ocs_api = NextcloudOcsApi(self.api.client, version="2")
         await ocs_api.delete(path="/core/apppassword")
 
 

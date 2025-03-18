@@ -14,7 +14,7 @@ from nextcloud_async.helpers import recursive_urlencode
 
 
 class LdapConfiguration(NextcloudDataObject):
-    self_api: "Ldap"
+    self_api: "LdapApi"
 
     def __str__(self) -> str:
         return f"<Nextcloud Ldap Config {self.id}>"
@@ -42,15 +42,15 @@ class LdapConfiguration(NextcloudDataObject):
         await self._refresh()
 
 
-class Ldap(NextcloudModule):
+class LdapApi(NextcloudModule):
     """Manage the LDAP configuration of a Nextcloud instance.
 
     Server must have LDAP user and group back-end enabled.
     """
 
-    def __init__(self, client: NextcloudClient, api_version: str = "1") -> None:
+    def __init__(self, ocs_api: NextcloudOcsApi, api_version: str = "1") -> None:
+        self.api = ocs_api
         self.stub = f"/apps/user_ldap/api/v{api_version}"
-        self.api = NextcloudOcsApi(client, ocs_version="2")
 
     async def create(self) -> LdapConfiguration:
         """Create a new LDAP configuration.
@@ -95,3 +95,9 @@ class Ldap(NextcloudModule):
 
         url_data = recursive_urlencode(config_data)
         await self._put(path=f"/config/{id}?{url_data}")
+
+
+def ldap_api(client: NextcloudClient) -> LdapApi:
+    """Factory for LdapApi."""
+    ocs_api = NextcloudOcsApi(client, version="2")
+    return LdapApi(ocs_api)

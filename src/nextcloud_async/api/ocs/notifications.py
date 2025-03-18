@@ -9,7 +9,7 @@ from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
 
 
 class Notification(NextcloudDataObject):
-    self_api: "Notifications"
+    self_api: "NotificationsApi"
 
     def __str__(self) -> str:
         return f'<Notification #{self.id} from "{self.app}">'
@@ -24,12 +24,12 @@ class Notification(NextcloudDataObject):
         await self.self_api.delete(self.id)
 
 
-class Notifications(NextcloudModule):
+class NotificationsApi(NextcloudModule):
     """Manage user notifications on Nextcloud instance."""
 
-    def __init__(self, client: NextcloudClient, api_version: str = "2") -> None:
-        self.stub = f"/apps/notifications/api/v{api_version}/notifications"
-        self.api = NextcloudOcsApi(client, ocs_version="2")
+    def __init__(self, ocs_api: NextcloudOcsApi) -> None:
+        self.api = ocs_api
+        self.stub = "/apps/notifications/api/v2/notifications"
 
     async def get_all(self) -> list[Notification]:
         """Get user's notifications.
@@ -63,3 +63,9 @@ class Notifications(NextcloudModule):
             id (int): Notification ID
         """
         return await self._delete(path=f"/{id}")
+
+
+def notifications_api(client: NextcloudClient) -> NotificationsApi:
+    """Factory for NotificationsApi."""
+    ocs_api = NextcloudOcsApi(client, version="2")
+    return NotificationsApi(ocs_api)

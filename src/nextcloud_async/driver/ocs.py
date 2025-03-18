@@ -29,15 +29,15 @@ class NextcloudOcsApi(NextcloudHttpApi):
     def __init__(
         self,
         client: NextcloudClient,
-        ocs_version: Optional[str] = "1",
-        ocs_stub: Optional[str] = None,
+        version: Optional[str] = "1",
+        stub: Optional[str] = None,
     ) -> None:
-        if ocs_stub:
-            self.stub = ocs_stub
+        if stub:
+            self.stub = stub
         else:
-            self.stub = f"/ocs/v{ocs_version}.php"
+            self.stub = f"/ocs/v{version}.php"
 
-        self.ocs_version = ocs_version
+        self.ocs_version = version
 
         super().__init__(client)
 

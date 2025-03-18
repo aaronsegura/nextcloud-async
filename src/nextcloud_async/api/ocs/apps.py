@@ -13,7 +13,7 @@ from nextcloud_async.helpers import password_confirmation_required
 
 
 class App(NextcloudDataObject):
-    self_api: "Apps"
+    self_api: "AppsApi"
 
     def __str__(self) -> str:
         return f"<Nextcloud App {self.id} v{self.version}>"
@@ -27,12 +27,11 @@ class App(NextcloudDataObject):
         await self.self_api.enable(app_id=self.id)
 
 
-class Apps(NextcloudModule):
+class AppsApi(NextcloudModule):
     """Manage applications on a Nextcloud instance."""
 
-    def __init__(self, client: NextcloudClient, ocs_version: str = "1") -> None:
-        self.client = client
-        self.api = NextcloudOcsApi(client, ocs_version=ocs_version)
+    def __init__(self, ocs_api: NextcloudOcsApi) -> None:
+        self.api = ocs_api
         self.stub = "/cloud/apps"
 
     async def get(self, app_id: str) -> App:
@@ -98,3 +97,9 @@ class Apps(NextcloudModule):
             app_id (str): Application ID
         """
         await self._delete(path=f"/{app_id}")
+
+
+def apps_api(client: NextcloudClient) -> AppsApi:
+    """Factory for AppsApi."""
+    ocs_api = NextcloudOcsApi(client, version="1")
+    return AppsApi(ocs_api)
