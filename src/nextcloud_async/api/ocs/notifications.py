@@ -32,7 +32,7 @@ class NotificationsApi(NextcloudModule):
     """Manage user notifications on Nextcloud instance."""
 
     def __init__(self, ocs_driver: NextcloudOcsDriver) -> None:
-        self.api = ocs_driver
+        self.driver = ocs_driver
         self.stub = "/apps/notifications/api/v2/notifications"
 
     async def get_all(self) -> list[Notification]:

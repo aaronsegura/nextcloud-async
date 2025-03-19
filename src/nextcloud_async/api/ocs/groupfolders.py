@@ -60,7 +60,7 @@ class GroupFolder(NextcloudDataObject):
         """
         min_version = Version.parse("999.0.0")  # TODO: Update when commit released
         version = Version.parse(
-            await self._api.api.get_capability("groupfolders.appVersion")
+            await self._api.driver.get_capability("groupfolders.appVersion")
         )
         if version >= min_version:
             return False
@@ -191,14 +191,14 @@ class GroupFoldersApi(NextcloudModule):
     Requires capability: groupfolders
     """
 
-    api: NextcloudOcsDriver
+    driver: NextcloudOcsDriver
 
     def __init__(self, ocs_driver: NextcloudOcsDriver) -> None:
         self.stub = "/apps/groupfolders/folders"
-        self.api = ocs_driver
+        self.driver = ocs_driver
 
     async def _validate_capability(self) -> None:
-        await self.api.require_capability("groupfolders")
+        await self.driver.require_capability("groupfolders")
 
     async def list(self) -> list[GroupFolder]:
         """Get list of all group folders.

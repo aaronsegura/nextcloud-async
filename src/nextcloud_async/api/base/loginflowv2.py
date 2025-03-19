@@ -2,10 +2,10 @@
 
 This will allow your application to:
 
-    * Use an app token to log in as a user
+    * Obtain an app token
     * Check for Remote Wipe status (see api.wipe)
 
-Using an app token for authorization will allow the user to:
+Using an app token for authorization will allow a nextcloud user to:
 
     * Have the ability to disable access for your application
     * Signal your application to wipe all of its data (see api.wipe)
@@ -48,7 +48,7 @@ class LoginFlowV2Api(NextcloudModule):
     """
 
     def __init__(self, base_driver: NextcloudBaseDriver, api_version: str = "2") -> None:
-        self.api = base_driver
+        self.driver = base_driver
         self.stub = f"/login/v{api_version}"
 
     async def initiate(self) -> dict[str, Any]:
@@ -110,11 +110,11 @@ class LoginFlowV2Api(NextcloudModule):
 
         """
         # This requires OCS api
-        if not self.api.client.app_token:
+        if not self.driver.client.app_token:
             log.warning("User attempting to delete app token, but using password auth.")
             raise NextcloudForbiddenError("Not logged in using app_token.")
         log.debug("Deleting app token")
-        ocs_driver = NextcloudOcsDriver(self.api.client, version="2")
+        ocs_driver = NextcloudOcsDriver(self.driver.client, version="2")
         await ocs_driver.delete(path="/core/apppassword")
 
 

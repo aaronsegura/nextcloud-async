@@ -126,7 +126,7 @@ class StatusApi(NextcloudModule):
 
     def __init__(self, ocs_driver: NextcloudOcsDriver, api_version: str = "1") -> None:
         self.stub = f"/apps/user_status/api/v{api_version}"
-        self.api = ocs_driver
+        self.driver = ocs_driver
 
     async def get(self) -> MyStatus:
         """Get current status.

@@ -3,11 +3,9 @@
 https://nextcloud-talk.readthedocs.io/en/latest/global/
 """
 
-from .avatars import ConversationAvatarsApi
-from .bots import Bot, BotsApi
-from .breakout_rooms import BreakoutRoom, BreakoutRoomsApi
-from .calls import CallsApi
-from .chat import ChatApi, Message, MessageReminder, Suggestion
+from .bots import Bot
+from .breakout_rooms import BreakoutRoom
+from .chat import Message, MessageReminder, Suggestion
 from .constants import (
     BreakoutRoomAssignmentMode,
     BreakoutRoomStatus,
@@ -32,55 +30,43 @@ from .constants import (
     SipState,
     WebinarLobbyState,
 )
-from .conversations import Conversation, ConversationsApi
-from .integrations import IntegrationsApi
-from .participants import Participant, ParticipantsApi
-from .polls import Poll, PollsApi
+from .conversations import Conversation
+from .participants import Participant
+from .polls import Poll
 from .reactions import Reactions
-from .signaling import InternalSignalingApi
-from .webinars import WebinarsApi
+from .talk import talk_api
 
 __all__ = [
-    "ConversationAvatarsApi",
     "Bot",
-    "BotsApi",
     "BreakoutRoom",
-    "BreakoutRoomsApi",
-    "CallsApi",
-    "ChatApi",
-    "Message",
-    "MessageReminder",
-    "Suggestion",
-    "ConversationsApi",
-    "Conversation",
-    "IntegrationsApi",
-    "ParticipantsApi",
-    "Participant",
-    "PollsApi",
-    "Poll",
-    "Reactions",
-    "InternalSignalingApi",
     "BreakoutRoomAssignmentMode",
     "BreakoutRoomStatus",
     "CallNotificationLevel",
+    "Conversation",
+    "ConversationNotificationLevel",
     "ConversationType",
     "FileShareMessageType",
     "ListableScope",
     "MentionPermissions",
-    "ConversationNotificationLevel",
+    "Message",
+    "MessageReminder",
     "ObjectSources",
+    "Participant",
     "ParticipantInCallFlags",
     "ParticipantPermissions",
     "ParticipantType",
     "PermissionAction",
+    "Poll",
     "PollMode",
     "PollStatus",
+    "Reactions",
     "ReadStatusPrivacy",
     "RoomObjectType",
-    "SignalingMode",
     "SessionState",
     "SharedItemType",
+    "SignalingMode",
     "SipState",
-    "WebinarsApi",
+    "Suggestion",
+    "talk_api",
     "WebinarLobbyState",
 ]

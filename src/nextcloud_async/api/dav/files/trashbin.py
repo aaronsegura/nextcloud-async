@@ -54,7 +54,7 @@ class Trashbin(NextcloudIterator):
             List of Trash
 
         """
-        user = self.files_api.api.client.user
+        user = self.files_api.driver.client.user
         return [
             file
             for file in self._files

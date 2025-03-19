@@ -57,7 +57,7 @@ class GroupsApi(NextcloudModule):
     """Manage groups on a Nextcloud instance."""
 
     def __init__(self, ocs_driver: NextcloudOcsDriver) -> None:
-        self.api = ocs_driver
+        self.driver = ocs_driver
         self.stub = "/cloud/groups"
 
     async def search(

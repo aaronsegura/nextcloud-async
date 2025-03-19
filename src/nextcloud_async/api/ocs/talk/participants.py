@@ -75,7 +75,7 @@ class ParticipantsApi(NextcloudModule):
         self.stub = f"/apps/spreed/api/v{api_version}"
         self.api: NextcloudTalkDriver = api
 
-    async def list(
+    async def get_all(
         self,
         room_token: str,
         include_status: bool = False,

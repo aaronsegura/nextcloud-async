@@ -1,7 +1,4 @@
-from typing import TYPE_CHECKING, Any
-
-if TYPE_CHECKING:
-    from .conversations import Conversation
+from typing import Any
 
 from nextcloud_async.api.modules import NextcloudModule
 from nextcloud_async.driver import NextcloudTalkDriver
@@ -13,11 +10,15 @@ class IntegrationsApi(NextcloudModule):
     https://nextcloud-talk.readthedocs.io/en/latest/integration/
     """
 
-    def __init__(self, api: NextcloudTalkDriver, api_version: str = "1") -> None:
+    def __init__(
+        self,
+        api: NextcloudTalkDriver,
+        api_version: str = "1",
+    ) -> None:
         self.stub = f"/apps/spreed/api/v{api_version}"
         self.api: NextcloudTalkDriver = api
 
-    async def get_interal_file_chat(self, file_id: int) -> "Conversation":
+    async def get_internal_file_chat(self, file_id: int) -> str:
         """Return conversation token for discussion of internal file.
 
         Args:
@@ -26,14 +27,12 @@ class IntegrationsApi(NextcloudModule):
 
         Returns:
             Conversation
+
         """
-        from .conversations import ConversationsApi
-
-        conversations = ConversationsApi(self.api.client)
         response, _ = await self._get(path=f"/file/{file_id}")
-        return await conversations.get(response)
+        return response
 
-    async def get_public_file_share_chat(self, share_token: str) -> "Conversation":
+    async def get_public_file_share_chat(self, share_token: str) -> str:
         """Return conversationtoken for discussion of shared file.
 
         Args:
@@ -42,12 +41,10 @@ class IntegrationsApi(NextcloudModule):
 
         Returns:
             Conversation token
-        """
-        from .conversations import ConversationsApi
 
-        conversations = ConversationsApi(self.api.client)
+        """
         response, _ = await self._get(path=f"/publicshare/{share_token}")
-        return await conversations.get(response["token"])
+        return response
 
     async def create_password_request_conversation(
         self, share_token: str
@@ -63,6 +60,7 @@ class IntegrationsApi(NextcloudModule):
                 token:  The token of the conversation for this file
                 name:   A technical name for the conversation
                 displayName: The visual name of the conversation
+
         """
         response, _ = await self._post(
             path="/publicshareauth", data={"shareToken": share_token}

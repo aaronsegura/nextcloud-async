@@ -16,6 +16,9 @@ class BreakoutRoom(NextcloudDataObject):
     def __str__(self) -> str:
         return f'<Talk BreakoutRoom token={self.token}, "{self.name}"">'
 
+    def __eq__(self, other: "BreakoutRoom") -> bool:
+        return self.token == other.token
+
     @property
     def status(self) -> BreakoutRoomStatus:
         """Return status of breakout room.
@@ -93,26 +96,14 @@ class BreakoutRoomsApi(NextcloudModule):
 
     def __init__(self, api: NextcloudTalkDriver, api_version: str = "1") -> None:
         self.stub = f"/apps/spreed/api/v{api_version}/breakout-rooms"
-        self.api: NextcloudTalkDriver = api
+        self.api = api
 
     async def _validate_capability(self) -> None:
         await self.api.require_feature("breakout-rooms-v1")
 
     def _create_rooms_by_type(
         self, rooms: list[dict[str, Any]]
-    ) -> tuple["Conversation", list[BreakoutRoom]]:
-        from .conversations import Conversation
-
-        parent_room: Conversation = Conversation(rooms[0], self.self_api)
-        breakout_rooms: list[BreakoutRoom] = []
-
-        for room in rooms:
-            if hasattr(room, "breakoutRoomStatus"):
-                breakout_rooms.append(BreakoutRoom(room, self.api))
-            else:
-                parent_room = Conversation(room, self.api)
-
-        return parent_room, breakout_rooms
+    ) -> tuple["Conversation", list[BreakoutRoom]]: ...
 
     async def configure(
         self,

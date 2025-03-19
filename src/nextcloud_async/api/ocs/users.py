@@ -121,7 +121,7 @@ class UsersApi(NextcloudModule):
 
     def __init__(self, ocs_driver: NextcloudOcsDriver) -> None:
         self.stub = "/cloud"
-        self.api = ocs_driver
+        self.driver = ocs_driver
 
     @password_confirmation_required
     async def create(
@@ -357,7 +357,7 @@ class UsersApi(NextcloudModule):
 
         """
         response = await self._get(
-            path=f"/users/{user_id if user_id else self.api.client.user}/groups"
+            path=f"/users/{user_id if user_id else self.driver.client.user}/groups"
         )
         return [Group({"id": group_id}, self) for group_id in response["groups"]]
 
@@ -431,7 +431,8 @@ class UsersApi(NextcloudModule):
         """
         response = await self._get(path=f"/users/{user_id}/subadmins")
         return [
-            Group({"id": group_id}, GroupsApi(self.api.client)) for group_id in response
+            Group({"id": group_id}, GroupsApi(self.driver.client))
+            for group_id in response
         ]
 
     @password_confirmation_required

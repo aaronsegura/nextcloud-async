@@ -37,6 +37,7 @@ class WebinarsApi(NextcloudModule):
 
         Returns:
             Updated Conversation object.
+
         """
         await self.api.require_capability("webinary-lobby")
         response, _ = await self._put(
@@ -60,6 +61,7 @@ class WebinarsApi(NextcloudModule):
 
         Returns:
             Updated Conversation object
+
         """
         await self.api.require_capability("sip-support")
         response, _ = await self._put(

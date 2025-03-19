@@ -28,6 +28,7 @@ class Reaction:
 
         Returns:
             self.actorType
+
         """
         return self.actorType
 
@@ -37,6 +38,7 @@ class Reaction:
 
         Returns:
             self.actorId
+
         """
         return self.actorId
 
@@ -46,6 +48,7 @@ class Reaction:
 
         Returns:
             self.actorDisplayName
+
         """
         return self.actorDisplayName
 
@@ -55,6 +58,7 @@ class Reaction:
 
         Returns:
             datetime of reaction
+
         """
         return dt.datetime.fromtimestamp(self.data["timestamp"], tz=tzlocal())
 
@@ -83,6 +87,7 @@ class Reactions(NextcloudModule):
 
         Returns:
             List of reactions to message
+
         """
         await self.api.require_feature("reactions")
         response, _ = await self._post(
@@ -107,6 +112,7 @@ class Reactions(NextcloudModule):
 
         Returns:
             List of reactions to message.
+
         """
         await self.api.require_feature("reactions")
         response, _ = await self._delete(
@@ -131,6 +137,7 @@ class Reactions(NextcloudModule):
 
         Returns:
             List of Reaction
+
         """
         await self.api.require_feature("reactions")
         response, _ = await self._get(

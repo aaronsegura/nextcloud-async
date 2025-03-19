@@ -6,7 +6,7 @@ https://nextcloud-talk.readthedocs.io/en/latest/conversation/
 import datetime as dt
 import json
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 

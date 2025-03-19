@@ -34,7 +34,7 @@ class FilesApi(NextcloudModule):
     """Interact with Nextcloud DAV Files Endpoint."""
 
     def __init__(self, dav_driver: NextcloudDavDriver) -> None:
-        self.api = dav_driver
+        self.driver = dav_driver
         self.stub = ""
 
     def _namespace_favorites_properties(self, properties: list[str]) -> str:
@@ -119,7 +119,7 @@ class FilesApi(NextcloudModule):
         """
         data = self._namespace_properties(properties)
         response: list[dict[str, Any]] | dict[str, Any] = await self._propfind(
-            path=f"/files/{self.api.client.user}/{path}",
+            path=f"/files/{self.driver.client.user}/{path}",
             headers={"Depth": "0" if directory_only else ""},
             data=data,
         )
@@ -139,7 +139,7 @@ class FilesApi(NextcloudModule):
             str: File content
 
         """
-        return await self._get_raw(path=f"/files/{self.api.client.user}/{path}")
+        return await self._get_raw(path=f"/files/{self.driver.client.user}/{path}")
 
     async def upload(self, local_path: str, remote_path: str) -> None:
         """Upload a file.
@@ -152,7 +152,8 @@ class FilesApi(NextcloudModule):
         """
         async with async_open(local_path, "rb") as fp:
             await self._put(
-                path=f"/files/{self.api.client.user}/{remote_path}", data=await fp.read()
+                path=f"/files/{self.driver.client.user}/{remote_path}",
+                data=await fp.read(),
             )
 
     async def mkdir(self, path: str, create_parents: bool = False) -> None:
@@ -168,7 +169,7 @@ class FilesApi(NextcloudModule):
             await self.mkdir_with_parents(path)
             return
 
-        await self._mkcol(path=f"/files/{self.api.client.user}/{path}")
+        await self._mkcol(path=f"/files/{self.driver.client.user}/{path}")
 
     async def delete(self, path: str) -> None:
         """Delete file or folder.
@@ -178,7 +179,7 @@ class FilesApi(NextcloudModule):
             trash:
 
         """
-        _path: str = f"/files/{self.api.client.user}/{path}"
+        _path: str = f"/files/{self.driver.client.user}/{path}"
         await self._delete(path=_path)
 
     async def move(self, source: str, dest: str, overwrite: bool = False) -> None:
@@ -194,11 +195,11 @@ class FilesApi(NextcloudModule):
 
         """
         await self._move(
-            path=f"/files/{self.api.client.user}/{source}",
+            path=f"/files/{self.driver.client.user}/{source}",
             headers={
                 "Destination": (
-                    f"{self.api.client.endpoint}/remote.php/dav/files/"
-                    f"{self.api.client.user}/{quote(dest)}"
+                    f"{self.driver.client.endpoint}/remote.php/dav/files/"
+                    f"{self.driver.client.user}/{quote(dest)}"
                 ),
                 "Overwrite": "T" if overwrite else "F",
             },
@@ -217,11 +218,11 @@ class FilesApi(NextcloudModule):
 
         """
         await self._copy(
-            path=f"/files/{self.api.client.user}/{source}",
+            path=f"/files/{self.driver.client.user}/{source}",
             headers={
                 "Destination": (
-                    f"{self.api.client.endpoint}/remote.php/dav/files/"
-                    f"{self.api.client.user}/{quote(dest)}"
+                    f"{self.driver.client.endpoint}/remote.php/dav/files/"
+                    f"{self.driver.client.user}/{quote(dest)}"
                 ),
                 "Overwrite": "T" if overwrite else "F",
             },
@@ -249,7 +250,7 @@ class FilesApi(NextcloudModule):
         """
 
         return await self._proppatch(
-            path=f"/files/{self.api.client.user}/{path}", data=data
+            path=f"/files/{self.driver.client.user}/{path}", data=data
         )
 
     async def set_favorite(self, path: str) -> UserFile:
@@ -263,7 +264,7 @@ class FilesApi(NextcloudModule):
 
         """
         response = await self._favorite(path, True)
-        return UserFile(response, self.api)
+        return UserFile(response, self.driver)
 
     async def unset_favorite(self, path: str) -> UserFile:
         """Remove file/folder as a favorite.
@@ -276,7 +277,7 @@ class FilesApi(NextcloudModule):
 
         """
         response = await self._favorite(path, False)
-        return UserFile(response, self.api)
+        return UserFile(response, self.driver)
 
     async def get_favorites(
         self, path: str = "", properties: list[str] = []
@@ -293,12 +294,12 @@ class FilesApi(NextcloudModule):
         """
         data = self._namespace_favorites_properties(properties)
         response = await self._report(
-            path=f"/files/{self.api.client.user}/{path}", data=data
+            path=f"/files/{self.driver.client.user}/{path}", data=data
         )
         if isinstance(response, dict):
-            return [UserFile(response, self.api)]
+            return [UserFile(response, self.driver)]
         elif isinstance(response, list):
-            return [UserFile(data, self.api) for data in response]
+            return [UserFile(data, self.driver) for data in response]
         else:
             raise NextcloudError(status_code=500, reason="Unparseable response")
 
@@ -317,7 +318,7 @@ class FilesApi(NextcloudModule):
         data = self._namespace_properties(_properties)
 
         response = await self._propfind(
-            path=f"/trashbin/{self.api.client.user}/trash", data=data
+            path=f"/trashbin/{self.driver.client.user}/trash", data=data
         )
         if isinstance(response, list):
             return Trashbin([TrashFile(d, self) for d in response], self)
@@ -334,7 +335,7 @@ class FilesApi(NextcloudModule):
             path (str): Trash path (without `/remote.php/dav/`)
 
         """
-        if not path.startswith(f"/trashbin/{self.api.client.user}/trash"):
+        if not path.startswith(f"/trashbin/{self.driver.client.user}/trash"):
             raise NextcloudBadRequestError(f"Path is not a trashfile: {path}")
         await self._delete(path=path)
 
@@ -349,15 +350,15 @@ class FilesApi(NextcloudModule):
             path=path,
             headers={
                 "Destination": (
-                    f"{self.api.client.endpoint}/remote.php/dav/trashbin/"
-                    f"{self.api.client.user}/restore/file"
+                    f"{self.driver.client.endpoint}/remote.php/dav/trashbin/"
+                    f"{self.driver.client.user}/restore/file"
                 )
             },
         )
 
     async def empty_trashbin(self) -> None:
         """Empty the trash."""
-        await self._delete(path=f"/trashbin/{self.api.client.user}/trash")
+        await self._delete(path=f"/trashbin/{self.driver.client.user}/trash")
 
     async def get_versions(self, file_id: int) -> Versions:
         """List of file versions.
@@ -370,7 +371,7 @@ class FilesApi(NextcloudModule):
 
         """
         response = await self._propfind(
-            path=f"/versions/{self.api.client.user}/versions/{file_id}"
+            path=f"/versions/{self.driver.client.user}/versions/{file_id}"
         )
         return Versions([Version(data, self) for data in response], self)
 
@@ -385,8 +386,8 @@ class FilesApi(NextcloudModule):
             path=path,
             headers={
                 "Destination": (
-                    f"{self.api.client.endpoint}/remote.php/dav/versions/"
-                    f"{self.api.client.user}/restore/file"
+                    f"{self.driver.client.endpoint}/remote.php/dav/versions/"
+                    f"{self.driver.client.user}/restore/file"
                 )
             },
         )
@@ -416,16 +417,16 @@ class FilesApi(NextcloudModule):
     async def __upload_file_chunk(self, local_path: str, uuid_dir: str) -> httpx.Response:
         async with async_open(local_path, "rb") as fp:
             return await self._put(
-                path=f"/uploads/{self.api.client.user}/{uuid_dir}/{os.path.basename(local_path)}",
+                path=f"/uploads/{self.driver.client.user}/{uuid_dir}/{os.path.basename(local_path)}",
                 data=await fp.read(),
             )
 
     async def __assemble_chunks(self, uuid_dir: str, remote_path: str) -> httpx.Response:
         return await self._move(
-            path=f"/uploads/{self.api.client.user}/{uuid_dir}/.file",
+            path=f"/uploads/{self.driver.client.user}/{uuid_dir}/.file",
             headers={
-                "Destination": f"{self.api.client.endpoint}/remote.php/dav/files/"
-                f"{self.api.client.user}/{quote(remote_path.strip('/'))}",
+                "Destination": f"{self.driver.client.endpoint}/remote.php/dav/files/"
+                f"{self.driver.client.user}/{quote(remote_path.strip('/'))}",
                 "Overwrite": "T",
             },
         )
@@ -488,7 +489,7 @@ class FilesApi(NextcloudModule):
             os.remove(f"{local_cache_dir}/{resume_chunk}")
         else:
             # Make remote upload directory
-            await self._mkcol(path=f"/uploads/{self.api.client.user}/{uuid_dir}")
+            await self._mkcol(path=f"/uploads/{self.driver.client.user}/{uuid_dir}")
 
         async with async_open(local_path, "rb") as source_fp:
             source_fp.seek(file_position)
@@ -552,7 +553,7 @@ class FilesApi(NextcloudModule):
             data = _mem.read().decode("utf-8")
 
         result = await self._propfind(
-            path=f"/files/{self.api.client.user}/{path}", data=data
+            path=f"/files/{self.driver.client.user}/{path}", data=data
         )
 
         ret: list[dict[str, Any]] = []
@@ -603,7 +604,7 @@ class FilesApi(NextcloudModule):
             data = _mem.read().decode("utf-8")
 
         return await self._proppatch(
-            path=f"/files/{self.api.client.user}/{path}", data=data
+            path=f"/files/{self.driver.client.user}/{path}", data=data
         )
 
 

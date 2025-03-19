@@ -35,7 +35,7 @@ class WipeApi(NextcloudModule):
     """
 
     def __init__(self, base_driver: NextcloudBaseDriver) -> None:
-        self.api = base_driver
+        self.driver = base_driver
         self.stub = "/core/wipe"
 
     async def check(self) -> bool:
@@ -45,12 +45,12 @@ class WipeApi(NextcloudModule):
             bool: Whether user has flagged this device for remote wiping.
 
         """
-        if not self.api.client.app_token:
+        if not self.driver.client.app_token:
             return False
 
         response = await self._post(
             path="/check",
-            data={"token": self.api.client.app_token},
+            data={"token": self.driver.client.app_token},
         )
 
         if "wipe" in response:
@@ -66,9 +66,9 @@ class WipeApi(NextcloudModule):
             Empty 200 Response
 
         """
-        return await self.api.client.http_client.post(
-            url=f"{self.api.client.endpoint}{self.stub}/success",
-            data={"token": self.api.client.app_token},
+        return await self.driver.client.http_client.post(
+            url=f"{self.driver.client.endpoint}{self.stub}/success",
+            data={"token": self.driver.client.app_token},
         )
 
 

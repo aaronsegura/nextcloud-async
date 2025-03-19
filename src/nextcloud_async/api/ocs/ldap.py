@@ -54,7 +54,7 @@ class LdapApi(NextcloudModule):
     """
 
     def __init__(self, ocs_driver: NextcloudOcsDriver, api_version: str = "1") -> None:
-        self.api = ocs_driver
+        self.driver = ocs_driver
         self.stub = f"/apps/user_ldap/api/v{api_version}"
 
     async def create(self) -> LdapConfiguration:

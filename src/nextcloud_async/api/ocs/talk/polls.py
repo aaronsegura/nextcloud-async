@@ -35,6 +35,7 @@ class Poll:
 
         Returns:
             PollStatus
+
         """
         return PollStatus(self.data["status"])
 
@@ -48,6 +49,7 @@ class Poll:
 
         Returns:
             PollMode
+
         """
         return PollMode(self.resultMode)
 
@@ -62,6 +64,7 @@ class Poll:
         Args:
             votes:
                 The option IDs the participant wants to vote for
+
         """
         await self.api.vote(room_token=self.token, poll_id=self.id, votes=votes)
 
@@ -108,6 +111,7 @@ class PollsApi(NextcloudModule):
 
         Returns:
             Poll object
+
         """
         response, _ = await self._post(
             path=f"/{room_token}",
@@ -150,6 +154,7 @@ class PollsApi(NextcloudModule):
 
         Returns:
             Poll object
+
         """
         await self.api.require_feature("edit-draft-poll")
         response, _ = await self._post(
@@ -176,6 +181,7 @@ class PollsApi(NextcloudModule):
 
         Returns:
             Poll object
+
         """
         response, _ = await self._get(path=f"/{room_token}/{poll_id}")
         response.update({"token": room_token})
@@ -190,6 +196,7 @@ class PollsApi(NextcloudModule):
 
         Returns:
             List of Poll objets
+
         """
         await self.api.require_feature("talk-polls-drafts")
         response, _ = await self._get(path=f"/{room_token}/drafts")
@@ -212,6 +219,7 @@ class PollsApi(NextcloudModule):
 
             votes:
                 The option IDs the participant wants to vote for
+
         """
         await self._post(path=f"/{room_token}/{poll_id}", data={"optionIds": votes})
 
@@ -224,5 +232,6 @@ class PollsApi(NextcloudModule):
 
             poll_id:
                 Poll ID
+
         """
         await self._delete(path=f"/{room_token}/{poll_id}")

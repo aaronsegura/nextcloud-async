@@ -5,7 +5,7 @@ from nextcloud_async.exceptions import NextcloudForbiddenError
 
 
 class NextcloudModule(ABC):
-    api: Any
+    driver: Any
     stub: str
 
     async def _get(
@@ -14,7 +14,9 @@ class NextcloudModule(ABC):
         data: Any | None = None,
         headers: dict[str, Any] | None = None,
     ) -> Any:
-        return await self.api.get(path=f"{self.stub}{path}", data=data, headers=headers)
+        return await self.driver.get(
+            path=f"{self.stub}{path}", data=data, headers=headers
+        )
 
     async def _get_raw(
         self,
@@ -22,7 +24,7 @@ class NextcloudModule(ABC):
         data: Any | None = None,
         headers: dict[str, Any] | None = None,
     ) -> Any:
-        return await self.api.get_raw(
+        return await self.driver.get_raw(
             path=f"{self.stub}{path}",
             data=data,
             headers=headers,
@@ -34,7 +36,9 @@ class NextcloudModule(ABC):
         path: str = "",
         headers: dict[str, Any] | None = None,
     ) -> Any:
-        return await self.api.post(path=f"{self.stub}{path}", data=data, headers=headers)
+        return await self.driver.post(
+            path=f"{self.stub}{path}", data=data, headers=headers
+        )
 
     async def _put(
         self,
@@ -42,7 +46,9 @@ class NextcloudModule(ABC):
         path: str = "",
         headers: dict[str, Any] | None = None,
     ) -> Any:
-        return await self.api.put(path=f"{self.stub}{path}", data=data, headers=headers)
+        return await self.driver.put(
+            path=f"{self.stub}{path}", data=data, headers=headers
+        )
 
     async def _delete(
         self,
@@ -50,7 +56,7 @@ class NextcloudModule(ABC):
         path: str = "",
         headers: dict[str, Any] | None = None,
     ) -> Any:
-        return await self.api.delete(
+        return await self.driver.delete(
             path=f"{self.stub}{path}", data=data, headers=headers
         )
 
@@ -60,7 +66,7 @@ class NextcloudModule(ABC):
         data: Any | None = None,
         headers: dict[str, Any] | None = None,
     ) -> Any:
-        return await self.api.propfind(
+        return await self.driver.propfind(
             path=f"{self.stub}{path}", data=data, headers=headers
         )
 
@@ -70,7 +76,9 @@ class NextcloudModule(ABC):
         data: Any | None = None,
         headers: dict[str, Any] | None = None,
     ) -> Any:
-        return await self.api.mkcol(path=f"{self.stub}{path}", data=data, headers=headers)
+        return await self.driver.mkcol(
+            path=f"{self.stub}{path}", data=data, headers=headers
+        )
 
     async def _move(
         self,
@@ -78,7 +86,9 @@ class NextcloudModule(ABC):
         data: Any | None = None,
         headers: dict[str, Any] | None = None,
     ) -> Any:
-        return await self.api.move(path=f"{self.stub}{path}", data=data, headers=headers)
+        return await self.driver.move(
+            path=f"{self.stub}{path}", data=data, headers=headers
+        )
 
     async def _copy(
         self,
@@ -86,7 +96,9 @@ class NextcloudModule(ABC):
         data: Any | None = None,
         headers: dict[str, Any] | None = None,
     ) -> Any:
-        return await self.api.copy(path=f"{self.stub}{path}", data=data, headers=headers)
+        return await self.driver.copy(
+            path=f"{self.stub}{path}", data=data, headers=headers
+        )
 
     async def _proppatch(
         self,
@@ -94,7 +106,7 @@ class NextcloudModule(ABC):
         data: Any | None = None,
         headers: dict[str, Any] | None = None,
     ) -> Any:
-        return await self.api.proppatch(
+        return await self.driver.proppatch(
             path=f"{self.stub}{path}", data=data, headers=headers
         )
 
@@ -104,7 +116,7 @@ class NextcloudModule(ABC):
         data: Any | None = None,
         headers: dict[str, Any] | None = None,
     ) -> Any:
-        return await self.api.report(
+        return await self.driver.report(
             path=f"{self.stub}{path}", data=data, headers=headers
         )
 
@@ -141,7 +153,7 @@ def password_confirmation_required(
             return await func(self, *args, **kwargs)
         except NextcloudForbiddenError as e:
             if "confirmation" in str(e):
-                self.api.client.http_client.cookies.delete("oc_sessionPassphrase")
+                self.driver.client.http_client.cookies.delete("oc_sessionPassphrase")
                 return await func(self, *args, **kwargs)
             else:
                 raise

@@ -83,7 +83,7 @@ class MapsApi(NextcloudModule):
         api_version: str = "1.0",
     ) -> None:
         self.stub = f"/apps/maps/api/{api_version}"
-        self.api = base_driver
+        self.driver = base_driver
 
     async def list_favorites(self) -> list[MapFavorite]:
         """Get a list of map favorites.
