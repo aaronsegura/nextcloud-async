@@ -31,8 +31,8 @@ class App(NextcloudDataObject):
 class AppsApi(NextcloudModule):
     """Manage applications on a Nextcloud instance."""
 
-    def __init__(self, ocs_api: NextcloudOcsDriver) -> None:
-        self.api = ocs_api
+    def __init__(self, ocs_driver: NextcloudOcsDriver) -> None:
+        self.api = ocs_driver
         self.stub = "/cloud/apps"
 
     async def get(self, app_id: str) -> App:
@@ -106,5 +106,5 @@ class AppsApi(NextcloudModule):
 
 def apps_api(client: NextcloudClient) -> AppsApi:
     """AppsApi Factory."""
-    ocs_api = NextcloudOcsDriver(client, version="1")
-    return AppsApi(ocs_api)
+    ocs_driver = NextcloudOcsDriver(client, version="1")
+    return AppsApi(ocs_driver)

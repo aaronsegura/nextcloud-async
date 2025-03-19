@@ -193,9 +193,9 @@ class GroupFoldersApi(NextcloudModule):
 
     api: NextcloudOcsDriver
 
-    def __init__(self, ocs_api: NextcloudOcsDriver) -> None:
+    def __init__(self, ocs_driver: NextcloudOcsDriver) -> None:
         self.stub = "/apps/groupfolders/folders"
-        self.api = ocs_api
+        self.api = ocs_driver
 
     async def _validate_capability(self) -> None:
         await self.api.require_capability("groupfolders")
@@ -421,5 +421,5 @@ class GroupFoldersApi(NextcloudModule):
 
 def groupfolders_api(client: NextcloudClient) -> GroupFoldersApi:
     """GroupFoldersApi Factory."""
-    ocs_api = NextcloudOcsDriver(client, stub="/index.php")
-    return GroupFoldersApi(ocs_api)
+    ocs_driver = NextcloudOcsDriver(client, stub="/index.php")
+    return GroupFoldersApi(ocs_driver)

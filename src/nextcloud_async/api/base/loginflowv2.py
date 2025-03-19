@@ -47,8 +47,8 @@ class LoginFlowV2Api(NextcloudModule):
     You may then use `appPassword` to log in as the user with your application.
     """
 
-    def __init__(self, base_api: NextcloudBaseDriver, api_version: str = "2") -> None:
-        self.api = base_api
+    def __init__(self, base_driver: NextcloudBaseDriver, api_version: str = "2") -> None:
+        self.api = base_driver
         self.stub = f"/login/v{api_version}"
 
     async def initiate(self) -> dict[str, Any]:
@@ -114,11 +114,11 @@ class LoginFlowV2Api(NextcloudModule):
             log.warning("User attempting to delete app token, but using password auth.")
             raise NextcloudForbiddenError("Not logged in using app_token.")
         log.debug("Deleting app token")
-        ocs_api = NextcloudOcsDriver(self.api.client, version="2")
-        await ocs_api.delete(path="/core/apppassword")
+        ocs_driver = NextcloudOcsDriver(self.api.client, version="2")
+        await ocs_driver.delete(path="/core/apppassword")
 
 
 def loginflowv2_api(client: NextcloudClient) -> LoginFlowV2Api:
     """Separate the creation of the API from the use of the API."""
-    base_api = NextcloudBaseDriver(client)
-    return LoginFlowV2Api(base_api)
+    base_driver = NextcloudBaseDriver(client)
+    return LoginFlowV2Api(base_driver)

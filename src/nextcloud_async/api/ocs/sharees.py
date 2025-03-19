@@ -16,9 +16,9 @@ from nextcloud_async.driver import NextcloudOcsDriver
 class ShareesApi(NextcloudModule):
     """Sharees interface."""
 
-    def __init__(self, ocs_api: NextcloudOcsDriver, api_version: str = "1") -> None:
+    def __init__(self, ocs_driver: NextcloudOcsDriver, api_version: str = "1") -> None:
         self.stub = f"/apps/files_sharing/api/v{api_version}"
-        self.api = ocs_api
+        self.api = ocs_driver
 
     async def search_sharees(
         self,
@@ -75,5 +75,5 @@ class ShareesApi(NextcloudModule):
 
 def sharees_api(client: NextcloudClient) -> ShareesApi:
     """ShareesApi Factory."""
-    ocs_api = NextcloudOcsDriver(client)
-    return ShareesApi(ocs_api)
+    ocs_driver = NextcloudOcsDriver(client)
+    return ShareesApi(ocs_driver)

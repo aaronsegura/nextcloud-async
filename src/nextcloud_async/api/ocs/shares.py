@@ -130,9 +130,9 @@ class Share(NextcloudDataObject):
 class SharesApi(NextcloudModule):
     """Manage local shares on Nextcloud instances."""
 
-    def __init__(self, ocs_api: NextcloudOcsDriver, api_version: str = "1") -> None:
+    def __init__(self, ocs_driver: NextcloudOcsDriver, api_version: str = "1") -> None:
         self.stub = f"/apps/files_sharing/api/v{api_version}/shares"
-        self.api = ocs_api
+        self.api = ocs_driver
 
     async def get_file_shares(
         self,
@@ -382,5 +382,5 @@ class SharesApi(NextcloudModule):
 
 def shares_api(client: NextcloudClient) -> SharesApi:
     """SharesApi Factory."""
-    ocs_api = NextcloudOcsDriver(client, version="2")
-    return SharesApi(ocs_api)
+    ocs_driver = NextcloudOcsDriver(client, version="2")
+    return SharesApi(ocs_driver)

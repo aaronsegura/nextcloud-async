@@ -119,9 +119,9 @@ class User(NextcloudDataObject):
 class UsersApi(NextcloudModule):
     """Manage users on a Nextcloud instance."""
 
-    def __init__(self, ocs_api: NextcloudOcsDriver) -> None:
+    def __init__(self, ocs_driver: NextcloudOcsDriver) -> None:
         self.stub = "/cloud"
-        self.api = ocs_api
+        self.api = ocs_driver
 
     @password_confirmation_required
     async def create(
@@ -447,5 +447,5 @@ class UsersApi(NextcloudModule):
 
 def users_api(client: NextcloudClient) -> UsersApi:
     """UsersApi Factory."""
-    ocs_api = NextcloudOcsDriver(client)
-    return UsersApi(ocs_api)
+    ocs_driver = NextcloudOcsDriver(client)
+    return UsersApi(ocs_driver)

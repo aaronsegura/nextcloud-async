@@ -34,8 +34,8 @@ class WipeApi(NextcloudModule):
 
     """
 
-    def __init__(self, base_api: NextcloudBaseDriver) -> None:
-        self.api = base_api
+    def __init__(self, base_driver: NextcloudBaseDriver) -> None:
+        self.api = base_driver
         self.stub = "/core/wipe"
 
     async def check(self) -> bool:
@@ -74,5 +74,5 @@ class WipeApi(NextcloudModule):
 
 def wipe_api(client: NextcloudClient) -> WipeApi:
     """WipeApi Factory."""
-    base_api = NextcloudBaseDriver(client)
-    return WipeApi(base_api)
+    base_driver = NextcloudBaseDriver(client)
+    return WipeApi(base_driver)

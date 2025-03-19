@@ -56,8 +56,8 @@ class Group(NextcloudDataObject):
 class GroupsApi(NextcloudModule):
     """Manage groups on a Nextcloud instance."""
 
-    def __init__(self, ocs_api: NextcloudOcsDriver) -> None:
-        self.api = ocs_api
+    def __init__(self, ocs_driver: NextcloudOcsDriver) -> None:
+        self.api = ocs_driver
         self.stub = "/cloud/groups"
 
     async def search(
@@ -139,5 +139,5 @@ class GroupsApi(NextcloudModule):
 
 def groups_api(client: NextcloudClient) -> GroupsApi:
     """GroupsApi Factory."""
-    ocs_api = NextcloudOcsDriver(client)
-    return GroupsApi(ocs_api)
+    ocs_driver = NextcloudOcsDriver(client)
+    return GroupsApi(ocs_driver)

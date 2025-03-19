@@ -33,8 +33,8 @@ from .versions import Version, Versions
 class FilesApi(NextcloudModule):
     """Interact with Nextcloud DAV Files Endpoint."""
 
-    def __init__(self, dav_api: NextcloudDavDriver) -> None:
-        self.api = dav_api
+    def __init__(self, dav_driver: NextcloudDavDriver) -> None:
+        self.api = dav_driver
         self.stub = ""
 
     def _namespace_favorites_properties(self, properties: list[str]) -> str:
@@ -609,5 +609,5 @@ class FilesApi(NextcloudModule):
 
 def files_api(client: NextcloudClient) -> FilesApi:
     """FilesApi Factory."""
-    dav_api = NextcloudDavDriver(client)
-    return FilesApi(dav_api)
+    dav_driver = NextcloudDavDriver(client)
+    return FilesApi(dav_driver)

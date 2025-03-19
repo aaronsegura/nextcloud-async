@@ -53,8 +53,8 @@ class LdapApi(NextcloudModule):
     Server must have LDAP user and group back-end enabled.
     """
 
-    def __init__(self, ocs_api: NextcloudOcsDriver, api_version: str = "1") -> None:
-        self.api = ocs_api
+    def __init__(self, ocs_driver: NextcloudOcsDriver, api_version: str = "1") -> None:
+        self.api = ocs_driver
         self.stub = f"/apps/user_ldap/api/v{api_version}"
 
     async def create(self) -> LdapConfiguration:
@@ -108,5 +108,5 @@ class LdapApi(NextcloudModule):
 
 def ldap_api(client: NextcloudClient) -> LdapApi:
     """LdapApi Factory."""
-    ocs_api = NextcloudOcsDriver(client, version="2")
-    return LdapApi(ocs_api)
+    ocs_driver = NextcloudOcsDriver(client, version="2")
+    return LdapApi(ocs_driver)

@@ -79,11 +79,11 @@ class MapsApi(NextcloudModule):
 
     def __init__(
         self,
-        base_api: NextcloudBaseDriver,
+        base_driver: NextcloudBaseDriver,
         api_version: str = "1.0",
     ) -> None:
         self.stub = f"/apps/maps/api/{api_version}"
-        self.api = base_api
+        self.api = base_driver
 
     async def list_favorites(self) -> list[MapFavorite]:
         """Get a list of map favorites.
@@ -203,5 +203,5 @@ class MapsApi(NextcloudModule):
 
 def maps_api(client: NextcloudClient) -> MapsApi:
     """MapsApi factory."""
-    base_api = NextcloudBaseDriver(client)
-    return MapsApi(base_api)
+    base_driver = NextcloudBaseDriver(client)
+    return MapsApi(base_driver)
