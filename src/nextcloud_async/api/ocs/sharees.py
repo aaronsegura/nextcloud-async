@@ -6,7 +6,7 @@ Not Implemented:
     Federated share management
 """
 
-from typing import Any, Optional
+from typing import Any
 
 from nextcloud_async.api.modules import NextcloudModule
 from nextcloud_async.client import NextcloudClient

@@ -11,7 +11,7 @@ from nextcloud_async.driver import NextcloudOcsDriver
 
 
 class App(NextcloudDataObject):
-    self_api: "AppsApi"
+    _api: "AppsApi"
 
     def __str__(self) -> str:
         return f"<Nextcloud App {self.id} v{self.version}>"
@@ -21,11 +21,11 @@ class App(NextcloudDataObject):
 
     async def disable(self) -> None:
         """Disable this app."""
-        await self.self_api.disable(app_id=self.id)
+        await self._api.disable(app_id=self.id)
 
     async def enable(self) -> None:
         """Enable this app."""
-        await self.self_api.enable(app_id=self.id)
+        await self._api.enable(app_id=self.id)
 
 
 class AppsApi(NextcloudModule):

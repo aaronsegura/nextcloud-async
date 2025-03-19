@@ -39,7 +39,7 @@ class PredefinedStatus:
 
 
 class MyStatus(NextcloudDataObject):
-    self_api: "StatusApi"
+    _api: "StatusApi"
 
     def __str__(self) -> str:
         return f'<My Status {self.icon}{self.status} "{self.message}">'
@@ -54,7 +54,7 @@ class MyStatus(NextcloudDataObject):
             status_type: See StatusType Enum
 
         """
-        response = await self.self_api.set(status_type=status_type)
+        response = await self._api.set(status_type=status_type)
         self.data = response
 
     async def set_predefined_status(
@@ -72,7 +72,7 @@ class MyStatus(NextcloudDataObject):
                 datetime at which to clear this status.
 
         """
-        response = await self.self_api.choose_predefined_status(
+        response = await self._api.choose_predefined_status(
             status=status, clear_at=clear_at
         )
         self.data = response
@@ -96,14 +96,14 @@ class MyStatus(NextcloudDataObject):
                 datetime at which to clear this message.
 
         """
-        response = await self.self_api.set_message(
+        response = await self._api.set_message(
             message=message, status_icon=status_icon, clear_at=clear_at
         )
         self.data = response
 
     async def clear_message(self) -> None:
         """Clear my status message."""
-        await self.self_api.clear_message()
+        await self._api.clear_message()
         self.message = ""
 
 

@@ -38,7 +38,7 @@ class AclManagerType(Enum):
 
 
 class GroupFolder(NextcloudDataObject):
-    self_api: "GroupFoldersApi"
+    _api: "GroupFoldersApi"
 
     def __str__(self) -> str:
         return f'<GroupFolder "{self.mount_point}">'
@@ -60,7 +60,7 @@ class GroupFolder(NextcloudDataObject):
         """
         min_version = Version.parse("999.0.0")  # TODO: Update when commit released
         version = Version.parse(
-            await self.self_api.api.get_capability("groupfolders.appVersion")
+            await self._api.api.get_capability("groupfolders.appVersion")
         )
         if version >= min_version:
             return False
@@ -69,11 +69,11 @@ class GroupFolder(NextcloudDataObject):
     def refresh_function(self) -> Awaitable:
         """Define how to refresh this object."""
         log.debug("Providing refreshed object.")
-        return self.self_api.get(self.id)
+        return self._api.get(self.id)
 
     async def delete(self) -> None:
         """Delete this group folder."""
-        await self.self_api.delete(self.id)
+        await self._api.delete(self.id)
         self.data = {"id": self.id, "mount_point": "**deleted**"}
 
     async def permit_group(self, group: Group) -> None:
@@ -83,7 +83,7 @@ class GroupFolder(NextcloudDataObject):
             group: Group object
 
         """
-        await self.self_api.permit_group(folder_id=self.id, group_id=group.id)
+        await self._api.permit_group(folder_id=self.id, group_id=group.id)
         if await self._changes_require_refresh():
             await self._refresh()
 
@@ -94,19 +94,19 @@ class GroupFolder(NextcloudDataObject):
             group: Group object
 
         """
-        await self.self_api.deny_group(folder_id=self.id, group_id=group.id)
+        await self._api.deny_group(folder_id=self.id, group_id=group.id)
         if await self._changes_require_refresh():
             await self._refresh()
 
     async def enable_advanced_permissions(self) -> None:
         """Enable advanced permissions."""
-        await self.self_api.enable_advanced_permissions(folder_id=self.id)
+        await self._api.enable_advanced_permissions(folder_id=self.id)
         if await self._changes_require_refresh():
             await self._refresh()
 
     async def disable_advanced_permissions(self) -> None:
         """Disable advanced permissios."""
-        await self.self_api.disable_advanced_permissions(folder_id=self.id)
+        await self._api.disable_advanced_permissions(folder_id=self.id)
         if await self._changes_require_refresh():
             await self._refresh()
 
@@ -122,7 +122,7 @@ class GroupFolder(NextcloudDataObject):
         elif isinstance(object, Group):
             object_type = AclManagerType.group
 
-        await self.self_api.add_acl_manager(
+        await self._api.add_acl_manager(
             folder_id=self.id, object_id=object.id, object_type=object_type
         )
         if await self._changes_require_refresh():
@@ -140,7 +140,7 @@ class GroupFolder(NextcloudDataObject):
         elif isinstance(object, Group):
             object_type = AclManagerType.group
 
-        await self.self_api.remove_acl_manager(
+        await self._api.remove_acl_manager(
             folder_id=self.id, object_id=object.id, object_type=object_type
         )
         if await self._changes_require_refresh():
@@ -155,7 +155,7 @@ class GroupFolder(NextcloudDataObject):
             permissions: New permissions.
 
         """
-        await self.self_api.set_acl(
+        await self._api.set_acl(
             folder_id=self.id, group_id=group.id, permissions=permissions
         )
         if await self._changes_require_refresh():
@@ -168,7 +168,7 @@ class GroupFolder(NextcloudDataObject):
             quota: Quota in bytes.  None for unlimited.
 
         """
-        await self.self_api.set_quota(self.id, quota)
+        await self._api.set_quota(self.id, quota)
         if await self._changes_require_refresh():
             await self._refresh()
 
@@ -181,7 +181,7 @@ class GroupFolder(NextcloudDataObject):
             mount_point: New mount point.
 
         """
-        await self.self_api.rename(self.id, mount_point=mount_point)
+        await self._api.rename(self.id, mount_point=mount_point)
         self.mount_point = mount_point
 
 

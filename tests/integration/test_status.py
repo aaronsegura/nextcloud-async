@@ -70,7 +70,7 @@ async def test_user(network_blocked: bool, users_api: UsersApi) -> AsyncGenerato
 
     if network_blocked:
         _test_user.update({"id": _test_user["user_id"]})
-        test_user = User(_test_user, self_api=users_api)
+        test_user = User(_test_user, users_api)
     else:
         test_user = await users_api.create(**_test_user)
 

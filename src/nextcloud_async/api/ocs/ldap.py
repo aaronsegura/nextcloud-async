@@ -15,7 +15,7 @@ from nextcloud_async.helpers import recursive_urlencode
 
 
 class LdapConfiguration(NextcloudDataObject):
-    self_api: "LdapApi"
+    _api: "LdapApi"
 
     def __str__(self) -> str:
         return f"<Nextcloud Ldap Config {self.id}>"
@@ -30,11 +30,11 @@ class LdapConfiguration(NextcloudDataObject):
 
     async def refresh_function(self) -> Coroutine[None, None, "LdapConfiguration"]:
         """Set up object refresh."""
-        return self.self_api.get(self.id)
+        return self._api.get(self.id)
 
     async def delete(self) -> None:
         """Delete this configuration."""
-        await self.self_api.delete(self.id)
+        await self._api.delete(self.id)
 
     async def update(self, config_data: dict[str, Any]) -> None:
         """Update/set the properties of this LDAP configuration.
@@ -43,7 +43,7 @@ class LdapConfiguration(NextcloudDataObject):
             config_data (Dict): New values for configuration.
 
         """
-        await self.self_api.update(self.id, config_data)
+        await self._api.update(self.id, config_data)
         await self._refresh()
 
 

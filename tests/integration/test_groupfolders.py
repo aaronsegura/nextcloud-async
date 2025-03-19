@@ -1,7 +1,7 @@
-from typing import AsyncGenerator
-
 import pytest
 import pytest_asyncio
+
+from typing import AsyncGenerator
 
 from nextcloud_async.api import (
     FilesApi,
@@ -157,5 +157,5 @@ class TestGroupFolders:
         folder = group_folders[2]
         new_name = f"{test_directory}/SomeOtherFolder"
         await folder.rename(new_name)
-        new_folder = await folder.self_api.get(folder.id)
+        new_folder = await folder._api.get(folder.id)
         assert new_folder.mount_point == new_name

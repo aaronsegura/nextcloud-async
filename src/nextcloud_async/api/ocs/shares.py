@@ -56,7 +56,7 @@ class SharePermission(IntFlag):
 
 
 class Share(NextcloudDataObject):
-    self_api: "SharesApi"
+    _api: "SharesApi"
 
     def __str__(self) -> str:
         return f'<Nextcloud Share "{self.path}" by {self.displayname_owner}>'
@@ -66,11 +66,11 @@ class Share(NextcloudDataObject):
 
     def refresh_function(self) -> Awaitable:
         """Define how this object is refreshed."""
-        return self.self_api.get(self.id)
+        return self._api.get(self.id)
 
     async def delete(self) -> None:
         """Delete this share."""
-        await self.self_api.delete(self.id)
+        await self._api.delete(self.id)
         self.data = {}
 
     class _ShareUpdateArgs(TypedDict):
@@ -113,7 +113,7 @@ class Share(NextcloudDataObject):
                 own. You will have to use the send-email endpoint to send the email.
 
         """
-        await self.self_api.update(share_id=self.id, **kwargs)
+        await self._api.update(share_id=self.id, **kwargs)
         await self._refresh()
 
     async def send_email(self, password: str | None = None) -> None:
@@ -124,7 +124,7 @@ class Share(NextcloudDataObject):
                 Share password, if enabled
 
         """
-        await self.self_api.send_email(self.id, password)
+        await self._api.send_email(self.id, password)
 
 
 class SharesApi(NextcloudModule):

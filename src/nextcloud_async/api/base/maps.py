@@ -13,7 +13,7 @@ from nextcloud_async.driver import NextcloudBaseDriver
 
 
 class MapFavorite(NextcloudDataObject):
-    self_api: "MapsApi"
+    _api: "MapsApi"
 
     def __str__(self) -> str:
         return f'<MapFavorite "{self.name}">'
@@ -33,7 +33,7 @@ class MapFavorite(NextcloudDataObject):
 
     async def delete(self) -> None:
         """Delete this favorite."""
-        await self.self_api.delete(self.id)
+        await self._api.delete(self.id)
         self.data = {"name": "**deleted**"}
 
     class _UpdateArgs(TypedDict):
@@ -67,7 +67,7 @@ class MapFavorite(NextcloudDataObject):
                 Not really sure /shrug
 
         """
-        response = await self.self_api.update(id=self.id, **kwargs)
+        response = await self._api.update(id=self.id, **kwargs)
         self.data = response.data
 
 

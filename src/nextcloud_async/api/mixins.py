@@ -12,7 +12,7 @@ log = logging.getLogger("nextcloud_async.api")
 @dataclass
 class NextcloudDataObject(ABC):
     data: dict[str, Any]
-    self_api: NextcloudModule
+    _api: NextcloudModule
 
     _refresh_fn: Awaitable | None = field(init=False, default=None)
 
@@ -47,7 +47,7 @@ class NextcloudDataObject(ABC):
     def refresh_function(self) -> Coroutine[None, None, "NextcloudDataObject"]:
         """Define how this object is refreshed when calling self._refresh().
 
-        For example: `return self.self_api.get(self.id)`
+        For example: `return self._api.get(self.id)`
         """
         raise NotImplementedError
 

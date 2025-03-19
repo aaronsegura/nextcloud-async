@@ -14,8 +14,7 @@ from nextcloud_async.driver import NextcloudOcsDriver
 
 
 class Group(NextcloudDataObject):
-    self_api: "GroupsApi"
-    self_type = "Group"
+    _api: "GroupsApi"
 
     def __eq__(self, other: "Group") -> bool:
         return self.id == other.id
@@ -34,7 +33,7 @@ class Group(NextcloudDataObject):
             list: Users belonging to `group_id`
 
         """
-        return await self.self_api.get_members(self.id)
+        return await self._api.get_members(self.id)
 
     async def get_subadmins(self) -> list[str]:
         """Get `group_id` subadmins.
@@ -46,11 +45,11 @@ class Group(NextcloudDataObject):
             list: Users who are subadmins of this group.
 
         """
-        return await self.self_api.get_subadmins(self.id)
+        return await self._api.get_subadmins(self.id)
 
     async def delete(self) -> None:
         """Delete this group."""
-        await self.self_api.delete(self.id)
+        await self._api.delete(self.id)
         self.id = "<deleted>"
 
 

@@ -8,11 +8,10 @@ if TYPE_CHECKING:
     from .conversations import Conversation
 
 from .constants import BreakoutRoomAssignmentMode, BreakoutRoomStatus
-from .types import NextcloudTalkDataObject
 
 
-class BreakoutRoom(NextcloudTalkDataObject):
-    self_api: NextcloudTalkDriver
+class BreakoutRoom(NextcloudDataObject):
+    _api: "BreakoutRoomsApi"
 
     def __str__(self) -> str:
         return f'<Talk BreakoutRoom token={self.token}, "{self.name}"">'

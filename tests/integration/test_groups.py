@@ -1,7 +1,7 @@
-from typing import AsyncGenerator
-
 import pytest
 import pytest_asyncio
+
+from typing import AsyncGenerator
 
 from nextcloud_async.api import Group, GroupsApi, User, UsersApi
 from nextcloud_async.exceptions import NextcloudForbiddenError
@@ -45,7 +45,7 @@ async def test_groups(
 async def test_user(network_blocked: bool, users_api: UsersApi) -> AsyncGenerator[User]:
     if network_blocked:
         _TEST_USER.update({"id": _TEST_USER["user_id"]})
-        test_user = User(_TEST_USER, self_api=users_api)
+        test_user = User(_TEST_USER, users_api)
     else:
         test_user = await users_api.create(**_TEST_USER)
 

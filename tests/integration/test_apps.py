@@ -24,7 +24,7 @@ class TestAppsApi:
         await test_app.disable()
 
     async def test_apps_list(self, apps_api: AppsApi):
-        response = await apps_api.list("enabled")
+        response = await apps_api.get_all("enabled")
         assert isinstance(response, list)
 
     async def test_apps_list_enabled(self, apps_api: AppsApi):

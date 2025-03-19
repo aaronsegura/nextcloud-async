@@ -10,7 +10,7 @@ from nextcloud_async.driver import NextcloudOcsDriver
 
 
 class Notification(NextcloudDataObject):
-    self_api: "NotificationsApi"
+    _api: "NotificationsApi"
 
     def __str__(self) -> str:
         return f'<Notification #{self.id} from "{self.app}">'
@@ -25,7 +25,7 @@ class Notification(NextcloudDataObject):
 
     async def delete(self) -> None:
         """Delete this notification."""
-        await self.self_api.delete(self.id)
+        await self._api.delete(self.id)
 
 
 class NotificationsApi(NextcloudModule):

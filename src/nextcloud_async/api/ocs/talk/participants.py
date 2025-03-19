@@ -22,7 +22,7 @@ from .constants import (
 
 
 class Participant(NextcloudDataObject):
-    self_api: NextcloudTalkDriver
+    _api: NextcloudTalkDriver
 
     def __post_init__(self) -> None:
         self.participants_api = ParticipantsApi(self.api)

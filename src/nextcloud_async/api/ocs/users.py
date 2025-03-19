@@ -19,7 +19,7 @@ log = logging.getLogger("nextcloud_async.api")
 
 
 class User(NextcloudDataObject):
-    self_api: "UsersApi"
+    _api: "UsersApi"
 
     def __eq__(self, other: "User") -> bool:
         return self.id == other.id
@@ -30,7 +30,7 @@ class User(NextcloudDataObject):
     def refresh_function(self) -> Awaitable:
         """Define how to refresh this object."""
         log.debug("Refreshing User.")
-        return self.self_api.get(self.id)
+        return self._api.get(self.id)
 
     async def update(self, new_data: dict[str, Any]) -> None:
         """Update this user.
@@ -40,27 +40,27 @@ class User(NextcloudDataObject):
                 Dictionary describing new attributes.
 
         """
-        await self.self_api.update(self.id, new_data)
+        await self._api.update(self.id, new_data)
         await self._refresh()
 
     async def disable(self) -> None:
         """Disable this user."""
-        await self.self_api.disable(self.id)
+        await self._api.disable(self.id)
         self.enabled = False
 
     async def enable(self) -> None:
         """Enable this user."""
-        await self.self_api.enable(self.id)
+        await self._api.enable(self.id)
         self.enabled = True
 
     async def delete(self) -> None:
         """Delete this user."""
-        await self.self_api.delete(self.id)
+        await self._api.delete(self.id)
         self.data = {"id": "**deleted**"}
 
     async def get_groups(self) -> list[Group]:
         """Get list of groups this memeber is in."""
-        return await self.self_api.get_group_membership(self.id)
+        return await self._api.get_group_membership(self.id)
 
     async def add_to_group(self, group: Group) -> None:
         """Add this user to the given group.
@@ -70,7 +70,7 @@ class User(NextcloudDataObject):
                 Group object
 
         """
-        await self.self_api.add_to_group(self.id, group.id)
+        await self._api.add_to_group(self.id, group.id)
         await self._refresh()
 
     async def remove_from_group(self, group: Group) -> None:
@@ -81,7 +81,7 @@ class User(NextcloudDataObject):
                 Group object
 
         """
-        await self.self_api.remove_from_group(self.id, group.id)
+        await self._api.remove_from_group(self.id, group.id)
         await self._refresh()
 
     async def promote_to_group_subadmin(self, group: Group) -> None:
@@ -92,7 +92,7 @@ class User(NextcloudDataObject):
                 Group object
 
         """
-        await self.self_api.promote_to_group_subadmin(self.id, group.id)
+        await self._api.promote_to_group_subadmin(self.id, group.id)
         await self._refresh()
 
     async def demote_from_group_subadmin(self, group: Group) -> None:
@@ -103,7 +103,7 @@ class User(NextcloudDataObject):
                 Group object
 
         """
-        await self.self_api.demote_from_group_subadmin(self.id, group.id)
+        await self._api.demote_from_group_subadmin(self.id, group.id)
         await self._refresh()
 
     async def get_subadmin_groups(self) -> list[Group]:
@@ -113,7 +113,7 @@ class User(NextcloudDataObject):
             list[Group]
 
         """
-        return await self.self_api.get_subadmin_groups(self.id)
+        return await self._api.get_subadmin_groups(self.id)
 
 
 class UsersApi(NextcloudModule):

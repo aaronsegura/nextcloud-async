@@ -1,9 +1,10 @@
+import pytest
+import pytest_asyncio
+
 import os
 from pathlib import Path
 
 import aiofile
-import pytest
-import pytest_asyncio
 
 from nextcloud_async.api import (
     FilesApi,
@@ -79,7 +80,7 @@ class TestUploadDownload:
         await files_api.upload(local_test_file, f"{test_directory}/uploaded_file")
 
     async def test_download_file(self, files_api: FilesApi, remote_download_file: str):
-        file = await files_api.list(remote_download_file)
+        file = await files_api.get_all(remote_download_file)
         contents = await file.download()
         assert contents == FILE_CONTENTS_ORIG
 
@@ -120,7 +121,7 @@ class TestList:
         props = ["oc:fileid", "oc:size", "nc:has-preview", "nc:noexist"]
         remote_file = remote_test_files[0]
 
-        path = await files_api.list(remote_file, props)
+        path = await files_api.get_all(remote_file, props)
         assert isinstance(path, UserPath)
         assert len(path._files) == 1  # noqa: SLF001
         assert path.is_file
@@ -151,10 +152,10 @@ class TestList:
 
     async def test_list_no_exist(self, files_api: FilesApi):
         with pytest.raises(NextcloudNotFoundError):
-            await files_api.list(f"{REMOTE_TEST_DIR}/.noexist")
+            await files_api.get_all(f"{REMOTE_TEST_DIR}/.noexist")
 
     async def test_list_directory_only(self, files_api: FilesApi):
-        root_dir_only = await files_api.list(REMOTE_TEST_DIR, directory_only=True)
+        root_dir_only = await files_api.get_all(REMOTE_TEST_DIR, directory_only=True)
 
         assert root_dir_only.is_dir
         assert not root_dir_only.is_file
@@ -164,7 +165,7 @@ class TestList:
     async def test_list_directory_with_files(
         self, files_api: FilesApi, test_directory: str, remote_test_files: list[str]
     ):
-        test_dir_with_files = await files_api.list(test_directory)
+        test_dir_with_files = await files_api.get_all(test_directory)
         assert len(test_dir_with_files) == len(remote_test_files)
         assert test_dir_with_files._dir.path.rstrip("/") == test_directory.rstrip("/")
         for file in remote_test_files:
@@ -212,13 +213,13 @@ class TestCopy:
         self, files_api: FilesApi, test_directory: str, remote_test_files: list[str]
     ):
         # Test fresh copy
-        src_file = await files_api.list(remote_test_files[0])
+        src_file = await files_api.get_all(remote_test_files[0])
         await src_file.copy(f"{test_directory}/copy_test_success")
 
     async def test_copy_exists_no_overwrite(
         self, files_api: FilesApi, remote_test_files: list[str]
     ):
-        src_file = await files_api.list(remote_test_files[0])
+        src_file = await files_api.get_all(remote_test_files[0])
         dest_file = remote_test_files[1]
         with pytest.raises(NextcloudPreconditionError):
             await src_file.copy(dest_file)
@@ -226,7 +227,7 @@ class TestCopy:
     async def test_copy_exists_with_overwrite(
         self, files_api: FilesApi, remote_test_files: str
     ):
-        src_file = await files_api.list(remote_test_files[0])
+        src_file = await files_api.get_all(remote_test_files[0])
         dest_file = remote_test_files[1]
         await src_file.copy(dest_file, overwrite=True)
 
@@ -264,20 +265,20 @@ class TestMove:
     async def test_move_dest_dir_noexist(
         self, files_api: FilesApi, test_directory: str, remote_test_files: list[str]
     ):
-        src_file = await files_api.list(remote_test_files[0])
+        src_file = await files_api.get_all(remote_test_files[0])
         with pytest.raises(NextcloudConflictError):
             await src_file.move(f"{test_directory}/.noexist/exception_raise")
 
     async def test_move_success(
         self, files_api: FilesApi, test_directory: str, remote_test_files: list[str]
     ):
-        src_file = await files_api.list(remote_test_files[0])
+        src_file = await files_api.get_all(remote_test_files[0])
         await src_file.move(f"{test_directory}/moved_file")
 
     async def test_move_exists_no_overwrite(
         self, files_api: FilesApi, remote_test_files: list[str]
     ):
-        src_file = await files_api.list(remote_test_files[1])
+        src_file = await files_api.get_all(remote_test_files[1])
         dest_file = remote_test_files[2]
         with pytest.raises(NextcloudPreconditionError):
             await src_file.move(dest_file)
@@ -285,7 +286,7 @@ class TestMove:
     async def test_move_exists_with_overwrite(
         self, files_api: FilesApi, remote_test_files: list[str]
     ):
-        src_file = await files_api.list(remote_test_files[3])
+        src_file = await files_api.get_all(remote_test_files[3])
         dest_file = remote_test_files[4]
         await src_file.move(dest_file, overwrite=True)
 
@@ -317,10 +318,10 @@ class TestDelete:
         )
 
     async def test_delete(self, files_api: FilesApi, remote_test_files: str):
-        file = await files_api.list(remote_test_files[0])
+        file = await files_api.get_all(remote_test_files[0])
         await file.delete()
         with pytest.raises(NextcloudNotFoundError):
-            await files_api.list(remote_test_files[0])
+            await files_api.get_all(remote_test_files[0])
 
     async def test_delete_noexist(self, files_api: FilesApi, test_directory: str):
         with pytest.raises(NextcloudNotFoundError):
@@ -371,7 +372,7 @@ class TestFavorites:
         return ret
 
     async def test_set_favorite(self, files_api: FilesApi, remote_test_files: str):
-        file = await files_api.list(remote_test_files[0])
+        file = await files_api.get_all(remote_test_files[0])
         await file.set_favorite()
         favorites = await files_api.get_favorites()
         assert [f for f in favorites if f.path == remote_test_files[0]]
@@ -379,7 +380,7 @@ class TestFavorites:
     async def test_remove_favorite(
         self, files_api: FilesApi, remote_favorited_files: list[str]
     ):
-        file = await files_api.list(remote_favorited_files[0])
+        file = await files_api.get_all(remote_favorited_files[0])
         await file.unset_favorite()
         favorites = await files_api.get_favorites()
         assert not [f for f in favorites if f.path == remote_favorited_files[0]]
@@ -442,7 +443,7 @@ class TestTrashbin:
             if f.trashbin_original_location == deleted_file:
                 await f.restore()
                 with pytest.raises(NextcloudNotFoundError):
-                    await files_api.list(deleted_file)
+                    await files_api.get_all(deleted_file)
 
     async def test_delete_trash_regular_file(
         self, files_api: FilesApi, remote_test_files: list[str]
@@ -453,7 +454,7 @@ class TestTrashbin:
     async def test_delete_trash_file(
         self, files_api: FilesApi, remote_test_files: list[str]
     ):
-        file = await files_api.list(remote_test_files[2])
+        file = await files_api.get_all(remote_test_files[2])
         await file.delete()
         trashbin = await files_api.get_trashbin()
         for trash in trashbin:
@@ -510,7 +511,7 @@ class TestVersions:
         return remote_file
 
     async def test_get_file_versions(self, files_api: FilesApi, versioned_file: str):
-        file = await files_api.list(versioned_file)
+        file = await files_api.get_all(versioned_file)
         versions = await file.get_versions()
         assert isinstance(versions, Versions)
         for version in versions:
@@ -518,7 +519,7 @@ class TestVersions:
             assert len(versions) == 1
 
     async def test_restore_file_version(self, files_api: FilesApi, versioned_file: str):
-        file = await files_api.list(versioned_file)
+        file = await files_api.get_all(versioned_file)
         versions = await file.get_versions()
         version = versions[0]
         await version.restore()

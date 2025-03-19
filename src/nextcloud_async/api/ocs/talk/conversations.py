@@ -25,6 +25,7 @@ if sys.version_info < (3, 11):
 else:
     from typing import NotRequired, TypedDict, Unpack
 
+from nextcloud_async.api.mixins import NextcloudDataObject
 from nextcloud_async.api.modules import NextcloudModule
 from nextcloud_async.driver import NextcloudTalkDriver
 from nextcloud_async.helpers import bool2int
@@ -36,7 +37,6 @@ from .integrations import IntegrationsApi
 from .participants import Participant, ParticipantsApi
 from .polls import Poll, PollsApi
 from .rich_objects import NextcloudTalkRichObject
-from .types import NextcloudTalkDataObject
 
 if TYPE_CHECKING:
     from .breakout_rooms import BreakoutRoom
@@ -64,7 +64,7 @@ from .constants import (
 )
 
 
-class Conversation(NextcloudTalkDataObject):
+class Conversation(NextcloudDataObject):
     self_api: "ConversationsApi"
 
     _participants: list[Participant] = field(init=False, default_factory=list)
@@ -1180,7 +1180,7 @@ class Conversation(NextcloudTalkDataObject):
         response = await self.participants_api.join(
             self.token, password=password, force=force
         )
-        return Conversation(response, self.self_api, self.apis)
+        return Conversation(response, self.self_api)
 
 
 class ConversationsApi(NextcloudModule):
@@ -1225,7 +1225,7 @@ class ConversationsApi(NextcloudModule):
         }
         response, _ = await self._get(path="/room", data=data)
 
-        return [Conversation(data, self, self.apis) for data in response]
+        return [Conversation(data, self) for data in response]
 
     async def create(
         self,
@@ -1277,7 +1277,7 @@ class ConversationsApi(NextcloudModule):
             data.update({"objectId": object_id})
 
         response, _ = await self._post(path="/room", data=data)
-        return Conversation(response, self, self.apis)
+        return Conversation(response, self)
 
     async def get(self, room_token: str) -> Conversation:
         """Get a specific conversation.
@@ -1291,7 +1291,7 @@ class ConversationsApi(NextcloudModule):
 
         """
         data, _ = await self._get(path=f"/room/{room_token}")
-        return Conversation(data, self, self.apis)
+        return Conversation(data, self)
 
     async def get_note_to_self(self) -> Conversation:
         """Get special note-to-self channel.
@@ -1301,7 +1301,7 @@ class ConversationsApi(NextcloudModule):
 
         """
         data, _ = await self._get(path="/room/note-to-self")
-        return Conversation(data, self, self.apis)
+        return Conversation(data, self)
 
     async def list_open(self) -> list[Conversation]:
         """Get list of open joinable rooms.
@@ -1311,7 +1311,7 @@ class ConversationsApi(NextcloudModule):
 
         """
         response, _ = await self._get(path="/listed-room")
-        return [Conversation(data, self, self.apis) for data in response]
+        return [Conversation(data, self) for data in response]
 
     async def list_breakout_rooms(self, room_token: str) -> list["BreakoutRoom"]:
         """List breakout rooms associated with a conversation.
@@ -1324,7 +1324,7 @@ class ConversationsApi(NextcloudModule):
         """
         await self.api.require_feature("breakout-rooms-v1")
         response, _ = await self._get(path=f"/{room_token}/breakout-rooms")
-        return [BreakoutRoom(data, self.api) for data in response]
+        return [BreakoutRoom(data, self) for data in response]
 
     async def rename(self, room_token: str, new_name: str) -> None:
         """Rename a Conversation.
