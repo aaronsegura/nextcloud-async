@@ -7,11 +7,10 @@ API.
 https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/instruction_set_for_groups.html
 """
 
-from nextcloud_async.api import NextcloudModule
 from nextcloud_async.api.mixins import NextcloudDataObject
+from nextcloud_async.api.modules import NextcloudModule, password_confirmation_required
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver import NextcloudOcsDriver
-from nextcloud_async.helpers import password_confirmation_required
 
 
 class Group(NextcloudDataObject):

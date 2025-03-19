@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Any
 
-from nextcloud_async.api import NextcloudModule
 from nextcloud_async.api.mixins import NextcloudDataObject
+from nextcloud_async.api.modules import NextcloudModule
 from nextcloud_async.driver import NextcloudTalkDriver
 
 if TYPE_CHECKING:

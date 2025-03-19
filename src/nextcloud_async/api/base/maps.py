@@ -6,8 +6,8 @@ https://github.com/nextcloud/maps/blob/master/openapi.yml
 
 from typing import NotRequired, TypedDict, Unpack
 
-from nextcloud_async.api import NextcloudModule
 from nextcloud_async.api.mixins import NextcloudDataObject
+from nextcloud_async.api.modules import NextcloudModule
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver import NextcloudBaseDriver
 

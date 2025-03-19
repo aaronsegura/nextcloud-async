@@ -4,10 +4,12 @@ https://nextcloud-talk.readthedocs.io/en/latest/participant/
 
 """
 
+from typing import Any
+
 import httpx
 
-from nextcloud_async.api import NextcloudModule
 from nextcloud_async.api.mixins import NextcloudDataObject
+from nextcloud_async.api.modules import NextcloudModule
 from nextcloud_async.driver import NextcloudTalkDriver
 from nextcloud_async.helpers import phone_number_to_e164
 

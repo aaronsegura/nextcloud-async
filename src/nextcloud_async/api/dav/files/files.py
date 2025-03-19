@@ -16,7 +16,7 @@ import httpx
 import platformdirs as pdir
 from aiofile import async_open
 
-from nextcloud_async.api import NextcloudModule
+from nextcloud_async.api.modules import NextcloudModule
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver import NextcloudDavDriver
 from nextcloud_async.exceptions import (

@@ -10,7 +10,7 @@ import logging
 
 import httpx
 
-from nextcloud_async.api import NextcloudModule
+from nextcloud_async.api.modules import NextcloudModule
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver import NextcloudBaseDriver
 

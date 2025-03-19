@@ -1,12 +1,9 @@
 """Helper functions for NextcloudAsync."""
 
-from typing import Any, Awaitable, Callable, Dict, List
+from typing import Any, Dict, List
 from urllib.parse import quote
 
 import httpx
-
-from nextcloud_async.api import NextcloudModule
-from nextcloud_async.exceptions import NextcloudForbiddenError
 
 
 def recursive_urlencode(d: Dict[str, Any]) -> str:
@@ -106,43 +103,3 @@ def filter_headers(filter: List[str], headers: httpx.Headers) -> httpx.Headers:
     """
     filter = [x.lower() for x in filter]
     return httpx.Headers([x for x in headers.items() if x[0] in filter])
-
-
-def password_confirmation_required(
-    func: Callable[..., Awaitable],
-) -> Callable[..., Awaitable]:
-    """Wrap certain calls because of stupid Nextcloud API shenanigans.
-
-    https://github.com/nextcloud/server/issues/51391
-
-    This is an async decorator and can be used inside of NextcloudModule classes to
-    wrap functions that require periodic password confirmations in the nextcloud API.
-    If the wrapped function raises a 403 error with "confirmation" in the `reason` field,
-    cookies will be cleared and the call will be tried again.  Any further exceptions
-    (or exceptions other than 403/confirmation) are raised to the caller.
-
-    ````
-    @password_confirmation_required
-    async def create(self, ...):
-        ...
-    ````
-
-    Args:
-        func:
-            Function to be wrapped.
-
-    """
-
-    async def _wrapper(
-        self: NextcloudModule, *args: Any, **kwargs: dict[Any, Any]
-    ) -> Any:
-        try:
-            return await func(self, *args, **kwargs)
-        except NextcloudForbiddenError as e:
-            if "confirmation" in str(e):
-                self.api.client.http_client.cookies.delete("oc_sessionPassphrase")
-                return await func(self, *args, **kwargs)
-            else:
-                raise
-
-    return _wrapper

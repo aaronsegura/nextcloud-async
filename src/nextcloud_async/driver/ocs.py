@@ -10,7 +10,7 @@ from typing import Any
 import httpx
 
 from nextcloud_async.client import NextcloudClient
-from nextcloud_async.driver import NextcloudHttpDriver
+from nextcloud_async.driver.http import NextcloudHttpDriver
 from nextcloud_async.exceptions import NextcloudAsyncError, NextcloudRequestTimeoutError
 
 _HTTP_USER_ERROR = 400
@@ -20,7 +20,7 @@ log = logging.getLogger("nextcloud_async.driver")
 
 
 class NextcloudOcsDriver(NextcloudHttpDriver):
-    """Nextcloud OCS API.
+    """Nextcloud OCS Driver.
 
     All OCS queries must have an {'OCS-APIRequest': 'true'} header. Additionally, we
     request all data to be returned to us in json format.

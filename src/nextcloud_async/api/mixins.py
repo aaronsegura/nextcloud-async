@@ -4,7 +4,7 @@ from collections.abc import Awaitable, Coroutine
 from dataclasses import dataclass, field
 from typing import Any
 
-from nextcloud_async.api import NextcloudModule
+from nextcloud_async.api.modules import NextcloudModule
 
 log = logging.getLogger("nextcloud_async.api")
 

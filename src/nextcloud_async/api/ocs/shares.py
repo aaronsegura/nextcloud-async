@@ -16,8 +16,8 @@ from typing import Any, NotRequired, TypedDict, Unpack
 
 from dateutil.tz import tzlocal
 
-from nextcloud_async.api import NextcloudModule
 from nextcloud_async.api.mixins import NextcloudDataObject
+from nextcloud_async.api.modules import NextcloudModule
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver import NextcloudOcsDriver
 from nextcloud_async.exceptions import NextcloudError

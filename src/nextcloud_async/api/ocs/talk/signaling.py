@@ -1,6 +1,6 @@
 from typing import Any
 
-from nextcloud_async.api import NextcloudModule
+from nextcloud_async.api.modules import NextcloudModule
 from nextcloud_async.driver import NextcloudTalkDriver
 
 

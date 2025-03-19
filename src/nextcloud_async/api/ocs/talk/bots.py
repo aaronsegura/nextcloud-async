@@ -6,7 +6,7 @@ https://nextcloud-talk.readthedocs.io/en/latest/bot-management/
 from dataclasses import dataclass
 from typing import Any
 
-from nextcloud_async.api import NextcloudModule
+from nextcloud_async.api.modules import NextcloudModule
 from nextcloud_async.driver import NextcloudTalkDriver
 
 
@@ -56,6 +56,7 @@ class BotsApi(NextcloudModule):
 
         Returns:
             List of Bot objects
+
         """
         await self._validate_capability()
         response, _ = await self._get(path="/admin")
@@ -72,6 +73,7 @@ class BotsApi(NextcloudModule):
 
         Returns:
             List of Bot objects
+
         """
         await self._validate_capability()
         response, _ = await self._get(path=f"/{room_token}")
@@ -86,6 +88,7 @@ class BotsApi(NextcloudModule):
 
             bot_id:
                 Bot ID
+
         """
         await self._validate_capability()
         await self._post(path=f"/{room_token}/{bot_id}")
@@ -99,6 +102,7 @@ class BotsApi(NextcloudModule):
 
             bot_id:
                 _description_
+
         """
         await self._validate_capability()
         await self._delete(path=f"/{room_token}/{bot_id}")

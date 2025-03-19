@@ -10,7 +10,7 @@ from typing import Any
 import httpx
 
 from nextcloud_async.client import NextcloudClient
-from nextcloud_async.driver import NextcloudHttpDriver
+from nextcloud_async.driver.http import NextcloudHttpDriver
 from nextcloud_async.exceptions import NextcloudAsyncError, NextcloudRequestTimeoutError
 
 log = logging.getLogger("nextcloud_async.driver")

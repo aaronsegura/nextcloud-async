@@ -10,13 +10,12 @@ from typing import Awaitable
 
 from semver import Version
 
-from nextcloud_async.api import NextcloudModule
 from nextcloud_async.api.mixins import NextcloudDataObject
+from nextcloud_async.api.modules import NextcloudModule, password_confirmation_required
 from nextcloud_async.api.ocs.groups import Group
 from nextcloud_async.api.ocs.users import User
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver import NextcloudOcsDriver
-from nextcloud_async.helpers import password_confirmation_required
 
 log = logging.getLogger("nextcloud_async.api")
 

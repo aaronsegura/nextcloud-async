@@ -7,8 +7,8 @@ https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/user_au
 from collections.abc import Coroutine
 from typing import Any
 
-from nextcloud_async.api import NextcloudModule
 from nextcloud_async.api.mixins import NextcloudDataObject
+from nextcloud_async.api.modules import NextcloudModule
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver import NextcloudOcsDriver
 from nextcloud_async.helpers import recursive_urlencode

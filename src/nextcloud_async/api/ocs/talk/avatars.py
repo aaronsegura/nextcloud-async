@@ -5,9 +5,7 @@ Requires capability: avatar
 https://nextcloud-talk.readthedocs.io/en/latest/avatar/
 """
 
-from typing import Optional
-
-from nextcloud_async.api import NextcloudModule
+from nextcloud_async.api.modules import NextcloudModule
 from nextcloud_async.driver import NextcloudTalkDriver
 
 
@@ -28,6 +26,7 @@ class ConversationAvatarsApi(NextcloudModule):
 
             image_data:
                 Image data
+
         """
         await self._validate_capability()
         await self._post(path=f"/room/{room_token}/avatar", data={"file": image_data})
@@ -47,6 +46,7 @@ class ConversationAvatarsApi(NextcloudModule):
             color:
                 HEX color code (6 times 0-9A-F) without the leading # character (omit to
                 fallback to the default bright/dark mode icon background color)
+
         """
         await self._validate_capability()
         await self._post(
@@ -63,6 +63,7 @@ class ConversationAvatarsApi(NextcloudModule):
         Args:
             room_token:
                 Token of conversation.
+
         """
         await self._validate_capability()
         await self._delete(path=f"/room/{room_token}/avatar")
@@ -79,6 +80,7 @@ class ConversationAvatarsApi(NextcloudModule):
 
         Returns:
             Image data
+
         """
         await self._validate_capability()
         if dark_mode:
@@ -108,6 +110,7 @@ class ConversationAvatarsApi(NextcloudModule):
 
         Returns:
             Image data
+
         """
         await self.api.require_feature("avatar")
         await self.api.require_feature("federated-v1")

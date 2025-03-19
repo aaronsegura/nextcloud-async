@@ -10,7 +10,7 @@ from typing import Any, Optional
 
 import httpx
 
-from nextcloud_async.api import NextcloudModule
+from nextcloud_async.api.modules import NextcloudModule
 from nextcloud_async.driver import NextcloudTalkDriver
 from nextcloud_async.exceptions import NextcloudBadRequestError
 from nextcloud_async.helpers import bool2int, filter_headers

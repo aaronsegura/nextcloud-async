@@ -25,9 +25,7 @@ if sys.version_info < (3, 11):
 else:
     from typing import NotRequired, TypedDict, Unpack
 
-from nextcloud_async import NextcloudClient
-from nextcloud_async.api import NextcloudModule
-from nextcloud_async.api.mixins import NextcloudDataObject
+from nextcloud_async.api.modules import NextcloudModule
 from nextcloud_async.driver import NextcloudTalkDriver
 from nextcloud_async.helpers import bool2int
 
@@ -38,7 +36,7 @@ from .integrations import IntegrationsApi
 from .participants import Participant, ParticipantsApi
 from .polls import Poll, PollsApi
 from .rich_objects import NextcloudTalkRichObject
-from .types import NextcloudTalkDataObject, TalkApis
+from .types import NextcloudTalkDataObject
 
 if TYPE_CHECKING:
     from .breakout_rooms import BreakoutRoom
