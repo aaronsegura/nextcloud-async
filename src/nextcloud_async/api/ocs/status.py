@@ -6,11 +6,12 @@ https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-st
 import datetime as dt
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
-from nextcloud_async.api.dataobject import NextcloudDataObject
+from nextcloud_async.api import NextcloudModule
+from nextcloud_async.api.mixins import NextcloudDataObject
 from nextcloud_async.client import NextcloudClient
-from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
+from nextcloud_async.driver import NextcloudOcsDriver
 
 
 class StatusType(Enum):
@@ -59,7 +60,7 @@ class MyStatus(NextcloudDataObject):
     async def set_predefined_status(
         self,
         status: PredefinedStatus,
-        clear_at: Optional[dt.datetime] = None,
+        clear_at: dt.datetime | None = None,
     ) -> None:
         """Choose from predefined status messages.
 
@@ -79,8 +80,8 @@ class MyStatus(NextcloudDataObject):
     async def set_message(
         self,
         message: str,
-        status_icon: Optional[str] = None,
-        clear_at: Optional[dt.datetime] = None,
+        status_icon: str | None = None,
+        clear_at: dt.datetime | None = None,
     ) -> None:
         """Set a custom status message.
 
@@ -123,7 +124,7 @@ class UserStatus:
 class StatusApi(NextcloudModule):
     """Manage a user's status on Nextcloud instances."""
 
-    def __init__(self, ocs_api: NextcloudOcsApi, api_version: str = "1") -> None:
+    def __init__(self, ocs_api: NextcloudOcsDriver, api_version: str = "1") -> None:
         self.stub = f"/apps/user_status/api/v{api_version}"
         self.api = ocs_api
 
@@ -163,7 +164,7 @@ class StatusApi(NextcloudModule):
         return [PredefinedStatus(data) for data in response]
 
     async def choose_predefined_status(
-        self, status: PredefinedStatus, clear_at: Optional[dt.datetime] = None
+        self, status: PredefinedStatus, clear_at: dt.datetime | None = None
     ) -> dict[str, Any]:
         """Choose from predefined status messages.
 
@@ -187,8 +188,8 @@ class StatusApi(NextcloudModule):
     async def set_message(
         self,
         message: str,
-        status_icon: Optional[str] = None,
-        clear_at: Optional[dt.datetime] = None,
+        status_icon: str | None = None,
+        clear_at: dt.datetime | None = None,
     ) -> dict[str, Any]:
         """Set a custom status message.
 
@@ -249,5 +250,5 @@ class StatusApi(NextcloudModule):
 
 def status_api(client: NextcloudClient) -> StatusApi:
     """StatusApi Factory."""
-    ocs_api = NextcloudOcsApi(client, version="2")
+    ocs_api = NextcloudOcsDriver(client, version="2")
     return StatusApi(ocs_api)

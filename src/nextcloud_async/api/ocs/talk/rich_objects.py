@@ -47,7 +47,7 @@ class Announcement(NextcloudTalkRichObject):
 
     object_type = "announcement"
 
-    def __init__(self, id: str, name: str, link: Optional[str] = None) -> None:
+    def __init__(self, id: str, name: str, link: str | None = None) -> None:
         super().__init__(id, name)
         self.link = link
 
@@ -63,7 +63,7 @@ class CalendarEvent(NextcloudTalkRichObject):
 
     object_type = "calendar-event"
 
-    def __init__(self, id: str, name: str, link: Optional[str] = None) -> None:
+    def __init__(self, id: str, name: str, link: str | None = None) -> None:
         super().__init__(id, name)
         self.link = link
 
@@ -78,9 +78,9 @@ class Call(NextcloudTalkRichObject):
         id: str,
         name: str,
         call_type: RichObjectCallType,
-        link: Optional[str] = None,
-        icon_url: Optional[str] = None,
-        message_id: Optional[str] = None,
+        link: str | None = None,
+        icon_url: str | None = None,
+        message_id: str | None = None,
     ) -> None:
         super().__init__(id, name)
         self.link = link
@@ -139,16 +139,16 @@ class File(NextcloudTalkRichObject):
         id: str,
         name: str,
         path: str,
-        size: Optional[str] = None,
-        link: Optional[str] = None,
+        size: str | None = None,
+        link: str | None = None,
         mime_type: str = "text/plain",
-        preview_available: Optional[str] = None,
-        mtime: Optional[str] = None,
-        etag: Optional[str] = None,
-        permissions: Optional[str] = None,
-        width: Optional[str] = None,
-        height: Optional[str] = None,
-        blur_hash: Optional[str] = None,
+        preview_available: str | None = None,
+        mtime: str | None = None,
+        etag: str | None = None,
+        permissions: str | None = None,
+        width: str | None = None,
+        height: str | None = None,
+        blur_hash: str | None = None,
     ) -> None:
         super().__init__(id, name)
         self.link = link
@@ -216,10 +216,10 @@ class OpenGraph(NextcloudTalkRichObject):
         self,
         id: str,
         name: str,
-        description: Optional[str],
-        thumb: Optional[str],
-        website: Optional[str],
-        link: Optional[str],
+        description: str | None,
+        thumb: str | None,
+        website: str | None,
+        link: str | None,
     ) -> None:
         super().__init__(id, name)
         if description:
@@ -259,8 +259,8 @@ class TalkAttachment(NextcloudTalkRichObject):
         id: str,
         name: str,
         conversation: str,
-        mime_type: Optional[str] = None,
-        preview_available: Optional[str] = None,
+        mime_type: str | None = None,
+        preview_available: str | None = None,
     ) -> None:
         super().__init__(id, name)
         self.conversation = conversation
@@ -275,7 +275,7 @@ class User(NextcloudTalkRichObject):
 
     object_type = "user"
 
-    def __init__(self, id: str, name: str, server: Optional[str] = None) -> None:
+    def __init__(self, id: str, name: str, server: str | None = None) -> None:
         super().__init__(id, name)
         if server:
             self.server = server

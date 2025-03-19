@@ -5,12 +5,12 @@ https://docs.nextcloud.com/server/latest/developer_manual/client_apis/OCS/ocs-ap
 
 import json
 import logging
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
 from nextcloud_async.client import NextcloudClient
-from nextcloud_async.driver import NextcloudHttpApi
+from nextcloud_async.driver import NextcloudHttpDriver
 from nextcloud_async.exceptions import NextcloudAsyncError, NextcloudRequestTimeoutError
 
 _HTTP_USER_ERROR = 400
@@ -19,7 +19,7 @@ _HTTP_SERVER_ERROR = 500
 log = logging.getLogger("nextcloud_async.driver")
 
 
-class NextcloudOcsApi(NextcloudHttpApi):
+class NextcloudOcsDriver(NextcloudHttpDriver):
     """Nextcloud OCS API.
 
     All OCS queries must have an {'OCS-APIRequest': 'true'} header. Additionally, we
@@ -29,15 +29,15 @@ class NextcloudOcsApi(NextcloudHttpApi):
     def __init__(
         self,
         client: NextcloudClient,
-        version: Optional[str] = "1",
-        stub: Optional[str] = None,
+        version: str | None = "1",
+        stub: str | None = None,
     ) -> None:
         if stub:
             self.stub = stub
         else:
             self.stub = f"/ocs/v{version}.php"
 
-        self.ocs_version = version
+        self.version = version
 
         super().__init__(client)
 
@@ -45,8 +45,8 @@ class NextcloudOcsApi(NextcloudHttpApi):
         self,
         method: str = "GET",
         path: str = "",
-        data: Optional[dict[str, Any]] = None,
-        headers: Optional[dict[str, Any]] = None,
+        data: dict[str, Any] | None = None,
+        headers: dict[str, Any] | None = None,
         raw_response: bool = False,
     ) -> dict[str, Any] | list[dict[str, Any]] | bytes:
         """Submit OCS-type query to cloud endpoint.

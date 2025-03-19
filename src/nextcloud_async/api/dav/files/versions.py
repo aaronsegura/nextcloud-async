@@ -1,8 +1,8 @@
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 from urllib.parse import unquote
 
-from nextcloud_async.driver import NextcloudIterator
+from nextcloud_async.api.mixins import NextcloudIterator
 
 from .base_file import BaseFile
 
@@ -23,6 +23,7 @@ class Version(BaseFile):
 
         Returns:
             File path
+
         """
         return "/{}".format("/".join(self.data["d:href"].split("/")[3:]))
 
@@ -38,23 +39,8 @@ class Versions(NextcloudIterator):
     _files: list[Version]
     files_api: "FilesApi"
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.set_iterator(self._files, starting_index=1)
-
-    # def __iter__(self) -> 'Versions':
-    #     self._index = 1
-    #     self._len = len(self._files)
-    #     return self
-
-    # def __next__(self) -> Version:
-    #     if self._index >= self._len:
-    #         raise StopIteration
-    #     else:
-    #         self._index += 1
-    #         return self._files[self._index - 1]
-
-    # def __len__(self) -> int:
-    #     return len(self._files) - 1
 
     def __getitem__(self, index: int) -> Version:
         return self._files[index + 1]

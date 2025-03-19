@@ -1,10 +1,10 @@
 import datetime as dt
-from typing import Optional
+from typing import Any
 
-from nextcloud_async.driver import NextcloudModule, NextcloudTalkApi
+from nextcloud_async.api import NextcloudModule
+from nextcloud_async.driver import NextcloudTalkDriver
 
 from .constants import SipState, WebinarLobbyState
-from .types import ConversationData
 
 
 class WebinarsApi(NextcloudModule):
@@ -13,16 +13,16 @@ class WebinarsApi(NextcloudModule):
     https://nextcloud-talk.readthedocs.io/en/latest/webinar/
     """
 
-    def __init__(self, api: NextcloudTalkApi, api_version: str = "4") -> None:
+    def __init__(self, api: NextcloudTalkDriver, api_version: str = "4") -> None:
         self.stub = f"/apps/spreed/api/v{api_version}"
-        self.api: NextcloudTalkApi = api
+        self.api: NextcloudTalkDriver = api
 
     async def set_lobby_state(
         self,
         room_token: str,
         lobby_state: WebinarLobbyState,
-        reset_time: Optional[dt.datetime] = None,
-    ) -> ConversationData:
+        reset_time: dt.datetime | None = None,
+    ) -> dict[str, Any]:
         """Set lobby requirement for Conversation.
 
         Args:
@@ -48,7 +48,7 @@ class WebinarsApi(NextcloudModule):
         )
         return response
 
-    async def set_sip_dialin(self, room_token: str, state: SipState) -> ConversationData:
+    async def set_sip_dialin(self, room_token: str, state: SipState) -> dict[str, Any]:
         """Enable or Disable SIP dialin for webinar.
 
         Args:

@@ -1,8 +1,8 @@
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 from urllib.parse import unquote
 
-from nextcloud_async.driver import NextcloudIterator
+from nextcloud_async.api.mixins import NextcloudIterator
 
 from .base_file import BaseFile
 
@@ -23,6 +23,7 @@ class TrashFile(BaseFile):
 
         Returns:
             File path
+
         """
         return "/{}".format("/".join(self.data["d:href"].split("/")[3:]))
 
@@ -51,6 +52,7 @@ class Trashbin(NextcloudIterator):
 
         Returns:
             List of Trash
+
         """
         user = self.files_api.api.client.user
         return [

@@ -4,12 +4,12 @@ https://nextcloud-talk.readthedocs.io/en/latest/global/
 """
 
 import logging
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 import httpx
 
 from nextcloud_async.client import NextcloudClient
-from nextcloud_async.driver import NextcloudOcsApi
+from nextcloud_async.driver import NextcloudOcsDriver
 from nextcloud_async.exceptions import (
     NextcloudNotCapableError,
     NextcloudRequestTimeoutError,
@@ -21,7 +21,7 @@ _HTTP_SERVER_ERROR = 500
 log = logging.getLogger("nextcloud_async.driver")
 
 
-class NextcloudTalkApi(NextcloudOcsApi):
+class NextcloudTalkDriver(NextcloudOcsDriver):
     """Nextcloud Talk OCS API.
 
     All OCS queries must have an {'OCS-APIRequest': 'true'} header. Additionally, we
@@ -31,8 +31,8 @@ class NextcloudTalkApi(NextcloudOcsApi):
     def __init__(
         self,
         client: NextcloudClient,
-        ocs_version: Optional[str] = "2",
-        stub: Optional[str] = None,
+        ocs_version: str | None = "2",
+        stub: str | None = None,
     ) -> None:
         super().__init__(client, ocs_version, stub)
 
@@ -58,12 +58,13 @@ class NextcloudTalkApi(NextcloudOcsApi):
         if not await self.has_feature(feature):
             raise NextcloudNotCapableError()
 
+    # TODO: super()?
     async def request(
         self,
         method: str = "GET",
         path: str = "",
-        data: Optional[dict[str, Any]] = None,
-        headers: Optional[dict[str, Any]] = None,
+        data: dict[str, Any] | None = None,
+        headers: dict[str, Any] | None = None,
     ) -> tuple[dict[str, Any], httpx.Headers]:
         """Submit OCS-type query to cloud endpoint.
 

@@ -16,7 +16,9 @@ from .dav.files import (
     Versions,
     files_api,
 )
+from .modules import NextcloudModule
 from .ocs.apps import App, AppsApi, apps_api
+from .ocs.capabilities import NextcloudCapabilities
 from .ocs.groupfolders import (
     AclManagerType,
     GroupFolder,
@@ -84,6 +86,8 @@ from .ocs.talk import (
 from .ocs.users import User, UsersApi, users_api
 
 __all__ = [
+    "NextcloudCapabilities",
+    "NextcloudModule",
     "users_api",
     "shares_api",
     "ldap_api",

@@ -9,15 +9,16 @@ import os
 import re
 import uuid
 import xml.etree.ElementTree as ET
-from typing import Any, List
+from typing import Any
 from urllib.parse import quote
 
 import httpx
 import platformdirs as pdir
 from aiofile import async_open
 
+from nextcloud_async.api import NextcloudModule
 from nextcloud_async.client import NextcloudClient
-from nextcloud_async.driver import NextcloudDavApi, NextcloudModule
+from nextcloud_async.driver import NextcloudDavDriver
 from nextcloud_async.exceptions import (
     NextcloudBadRequestError,
     NextcloudChunkedUploadError,
@@ -32,7 +33,7 @@ from .versions import Version, Versions
 class FilesApi(NextcloudModule):
     """Interact with Nextcloud DAV Files Endpoint."""
 
-    def __init__(self, dav_api: NextcloudDavApi) -> None:
+    def __init__(self, dav_api: NextcloudDavDriver) -> None:
         self.api = dav_api
         self.stub = ""
 
@@ -96,7 +97,7 @@ class FilesApi(NextcloudModule):
 
         return data
 
-    async def list(
+    async def get_all(
         self, path: str, properties: list[str] = [], directory_only: bool = False
     ) -> UserPath:
         """Return a list of files at `path`.
@@ -114,6 +115,7 @@ class FilesApi(NextcloudModule):
                 Return properties of a folder, not the contents
         Returns:
             list[File]
+
         """
         data = self._namespace_properties(properties)
         response: list[dict[str, Any]] | dict[str, Any] = await self._propfind(
@@ -135,6 +137,7 @@ class FilesApi(NextcloudModule):
 
         Returns:
             str: File content
+
         """
         return await self._get_raw(path=f"/files/{self.api.client.user}/{path}")
 
@@ -145,6 +148,7 @@ class FilesApi(NextcloudModule):
             local_path (str): Local path
 
             remote_path (str): Desination path
+
         """
         async with async_open(local_path, "rb") as fp:
             await self._put(
@@ -158,6 +162,7 @@ class FilesApi(NextcloudModule):
             path (str): Filesystem path
 
             create_parents (bool): Create directory parents (mkdir -p)
+
         """
         if create_parents:
             await self.mkdir_with_parents(path)
@@ -171,6 +176,7 @@ class FilesApi(NextcloudModule):
         Args:
             path: Filesystem path
             trash:
+
         """
         _path: str = f"/files/{self.api.client.user}/{path}"
         await self._delete(path=_path)
@@ -185,6 +191,7 @@ class FilesApi(NextcloudModule):
 
             overwrite (bool, optional): Overwrite destination if exists.
             Defaults to False.
+
         """
         await self._move(
             path=f"/files/{self.api.client.user}/{source}",
@@ -207,6 +214,7 @@ class FilesApi(NextcloudModule):
 
             overwrite (bool, optional): Overwrite destination if exists.
             Defaults to False.
+
         """
         await self._copy(
             path=f"/files/{self.api.client.user}/{source}",
@@ -229,6 +237,7 @@ class FilesApi(NextcloudModule):
 
         Returns:
             dict: file info
+
         """
         data = f"""<?xml version="1.0"?>
                 <d:propertyupdate
@@ -251,6 +260,7 @@ class FilesApi(NextcloudModule):
 
         Returns:
             dict: File info
+
         """
         response = await self._favorite(path, True)
         return UserFile(response, self.api)
@@ -263,6 +273,7 @@ class FilesApi(NextcloudModule):
 
         Returns:
             dict: File info
+
         """
         response = await self._favorite(path, False)
         return UserFile(response, self.api)
@@ -278,6 +289,7 @@ class FilesApi(NextcloudModule):
 
         Returns:
             list: list of favorites
+
         """
         data = self._namespace_favorites_properties(properties)
         response = await self._report(
@@ -295,6 +307,7 @@ class FilesApi(NextcloudModule):
 
         Returns:
             files.Path
+
         """
         _properties = [
             "nc:trashbin-filename",
@@ -319,6 +332,7 @@ class FilesApi(NextcloudModule):
 
         Args:
             path (str): Trash path (without `/remote.php/dav/`)
+
         """
         if not path.startswith(f"/trashbin/{self.api.client.user}/trash"):
             raise NextcloudBadRequestError(f"Path is not a trashfile: {path}")
@@ -329,6 +343,7 @@ class FilesApi(NextcloudModule):
 
         Args:
             path (str): Trash path
+
         """
         await self._move(
             path=path,
@@ -352,6 +367,7 @@ class FilesApi(NextcloudModule):
 
         Returns:
             list: File versions
+
         """
         response = await self._propfind(
             path=f"/versions/{self.api.client.user}/versions/{file_id}"
@@ -363,6 +379,7 @@ class FilesApi(NextcloudModule):
 
         Args:
             path (str): File version path
+
         """
         await self._move(
             path=path,
@@ -386,6 +403,7 @@ class FilesApi(NextcloudModule):
 
         Raises:
             NextcloudException: Errors from self.create_folder()
+
         """
         path_chunks = path.strip("/").split("/")
         for count in range(1, len(path_chunks) + 1):
@@ -428,6 +446,7 @@ class FilesApi(NextcloudModule):
 
         Raises:
             NextcloudChunkedCacheExists: When previous failed attempt is detected.
+
         """
         file_position = 0
         padding = len(str(os.stat(local_path).st_size))
@@ -506,6 +525,7 @@ class FilesApi(NextcloudModule):
 
         Returns:
             list: ACL rules
+
         """
         data = None
         ruleprop = "nc:acl-list"
@@ -552,6 +572,7 @@ class FilesApi(NextcloudModule):
         Args:
             path (str): Filesystem path
             acls (list[dict[str, Any]]): List of ACL rule dicts
+
         """
         data = None
 
@@ -587,6 +608,6 @@ class FilesApi(NextcloudModule):
 
 
 def files_api(client: NextcloudClient) -> FilesApi:
-    """Factory for FilesApi."""
-    dav_api = NextcloudDavApi(client)
+    """FilesApi Factory."""
+    dav_api = NextcloudDavDriver(client)
     return FilesApi(dav_api)

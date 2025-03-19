@@ -3,24 +3,24 @@
 https://nextcloud-talk.readthedocs.io/en/latest/call/
 """
 
-from typing import List
+from typing import Any
 
-from nextcloud_async.driver import NextcloudModule, NextcloudTalkApi
+from nextcloud_async.api import NextcloudModule
+from nextcloud_async.driver import NextcloudTalkDriver
 
 from .constants import ParticipantInCallFlags
-from .types import ParticipantData
 
 
 class CallsApi(NextcloudModule):
     """Interact with Nextcloud Talk API."""
 
-    api: NextcloudTalkApi
+    api: NextcloudTalkDriver
 
-    def __init__(self, api: NextcloudTalkApi, api_version: str = "4") -> None:
+    def __init__(self, api: NextcloudTalkDriver, api_version: str = "4") -> None:
         self.stub = f"/apps/spreed/api/v{api_version}/call"
         self.api = api
 
-    async def get_connected_participants(self, room_token: str) -> list[ParticipantData]:
+    async def get_connected_participants(self, room_token: str) -> list[dict[str, Any]]:
         """Get list of connected participants.
 
         Args:
@@ -29,6 +29,7 @@ class CallsApi(NextcloudModule):
 
         Returns:
             List of ParticipantData
+
         """
         response = await self._get(path=f"/{room_token}")
         return response
@@ -57,6 +58,7 @@ class CallsApi(NextcloudModule):
                 needed when the config => call => recording-consent capability is set
                 to 1 or the capability is 2 and the conversation recordingConsent value
                 is 1)
+
         """
         await self._post(
             path=f"/{room_token}",
@@ -78,6 +80,7 @@ class CallsApi(NextcloudModule):
 
             user_id:
                 Participant to notify.
+
         """
         await self.api.require_feature("send-call-notification")
         await self._post(
@@ -95,6 +98,7 @@ class CallsApi(NextcloudModule):
 
             user_id:
                 The participant to call
+
         """
         await self.api.require_feature("sip-support-dialout")
         await self._post(
@@ -110,6 +114,7 @@ class CallsApi(NextcloudModule):
 
             flags:
                 ParticipantInCallFlags
+
         """
         await self._put(path=f"/{room_token}", data={"flags": flags.value})
 
@@ -123,5 +128,6 @@ class CallsApi(NextcloudModule):
             end_for_all:
                 If sent as a moderator, end the meeting and all participants leave the
                 call.
+
         """
         await self._delete(path=f"/{room_token}", data={"all": end_for_all})

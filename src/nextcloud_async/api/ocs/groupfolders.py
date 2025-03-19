@@ -10,11 +10,12 @@ from typing import Awaitable
 
 from semver import Version
 
-from nextcloud_async.api.dataobject import NextcloudDataObject
+from nextcloud_async.api import NextcloudModule
+from nextcloud_async.api.mixins import NextcloudDataObject
 from nextcloud_async.api.ocs.groups import Group
 from nextcloud_async.api.ocs.users import User
 from nextcloud_async.client import NextcloudClient
-from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
+from nextcloud_async.driver import NextcloudOcsDriver
 from nextcloud_async.helpers import password_confirmation_required
 
 log = logging.getLogger("nextcloud_async.api")
@@ -191,9 +192,9 @@ class GroupFoldersApi(NextcloudModule):
     Requires capability: groupfolders
     """
 
-    api: NextcloudOcsApi
+    api: NextcloudOcsDriver
 
-    def __init__(self, ocs_api: NextcloudOcsApi) -> None:
+    def __init__(self, ocs_api: NextcloudOcsDriver) -> None:
         self.stub = "/apps/groupfolders/folders"
         self.api = ocs_api
 
@@ -421,5 +422,5 @@ class GroupFoldersApi(NextcloudModule):
 
 def groupfolders_api(client: NextcloudClient) -> GroupFoldersApi:
     """GroupFoldersApi Factory."""
-    ocs_api = NextcloudOcsApi(client, stub="/index.php")
+    ocs_api = NextcloudOcsDriver(client, stub="/index.php")
     return GroupFoldersApi(ocs_api)

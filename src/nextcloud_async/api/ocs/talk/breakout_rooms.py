@@ -1,35 +1,21 @@
-from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Dict, List, Tuple
+from typing import TYPE_CHECKING, Any
 
-from nextcloud_async.driver import NextcloudModule, NextcloudTalkApi
+from nextcloud_async.api import NextcloudModule
+from nextcloud_async.api.mixins import NextcloudDataObject
+from nextcloud_async.driver import NextcloudTalkDriver
 
 if TYPE_CHECKING:
     from .conversations import Conversation
 
 from .constants import BreakoutRoomAssignmentMode, BreakoutRoomStatus
-from .types import BreakoutRoomData, ConversationData
+from .types import NextcloudTalkDataObject
 
 
-@dataclass
-class BreakoutRoom:
-    data: BreakoutRoomData
-    talk_api: NextcloudTalkApi
-
-    def __post_init__(self) -> None:
-        """Set up required external APIs."""
-        from .conversations import ConversationsApi
-
-        self.api = BreakoutRoomsApi(self.talk_api)
-        self.conversations_api = ConversationsApi(self.talk_api.client)
-
-    def __getattr__(self, k: str) -> Any:
-        return self.data[k]
+class BreakoutRoom(NextcloudTalkDataObject):
+    self_api: NextcloudTalkDriver
 
     def __str__(self) -> str:
         return f'<Talk BreakoutRoom token={self.token}, "{self.name}"">'
-
-    def __repr__(self) -> str:
-        return str(self.data)
 
     @property
     def status(self) -> BreakoutRoomStatus:
@@ -39,6 +25,7 @@ class BreakoutRoom:
 
         Returns:
             Status of breakout room
+
         """
         return BreakoutRoomStatus(self.breakoutRoomStatus)
 
@@ -50,6 +37,7 @@ class BreakoutRoom:
 
         Returns:
             BreakoutRoom mode.
+
         """
         return BreakoutRoomAssignmentMode(self.breakoutRoomMode)
 
@@ -61,12 +49,13 @@ class BreakoutRoom:
 
         Returns:
             True
+
         """
         return True
 
     async def delete(self) -> None:
         """Delete this breakout room."""
-        await self.conversations_api.delete(self.token)
+        await self.apis.conversations_api.delete(self.token)
 
     async def request_assistance(self) -> None:
         """Request moderator assistance to this breakout room."""
@@ -103,19 +92,19 @@ class BreakoutRoomsApi(NextcloudModule):
         * .remove()
     """
 
-    def __init__(self, api: NextcloudTalkApi, api_version: str = "1") -> None:
+    def __init__(self, api: NextcloudTalkDriver, api_version: str = "1") -> None:
         self.stub = f"/apps/spreed/api/v{api_version}/breakout-rooms"
-        self.api: NextcloudTalkApi = api
+        self.api: NextcloudTalkDriver = api
 
     async def _validate_capability(self) -> None:
         await self.api.require_feature("breakout-rooms-v1")
 
     def _create_rooms_by_type(
-        self, rooms: list[ConversationData]
+        self, rooms: list[dict[str, Any]]
     ) -> tuple["Conversation", list[BreakoutRoom]]:
         from .conversations import Conversation
 
-        parent_room: Conversation = Conversation(rooms[0], self.api)
+        parent_room: Conversation = Conversation(rooms[0], self.self_api)
         breakout_rooms: list[BreakoutRoom] = []
 
         for room in rooms:
@@ -151,6 +140,7 @@ class BreakoutRoomsApi(NextcloudModule):
 
         Returns:
             Parent room and all breakout rooms.
+
         """
         await self._validate_capability()
         response, _ = await self._post(
@@ -178,6 +168,7 @@ class BreakoutRoomsApi(NextcloudModule):
 
         Returns:
             Parent Conversation object
+
         """
         await self._validate_capability()
         return await self._delete(path=f"/{room_token}")
@@ -191,6 +182,7 @@ class BreakoutRoomsApi(NextcloudModule):
 
         Returns:
             Parent room and all breakout rooms.
+
         """
         await self._validate_capability()
         response = await self._post(path=f"/{room_token}/rooms")
@@ -205,6 +197,7 @@ class BreakoutRoomsApi(NextcloudModule):
 
         Returns:
             Parent conversation and all breakout rooms.
+
         """
         await self._validate_capability()
         response = await self._delete(path=f"/{room_token}/rooms")
@@ -221,6 +214,7 @@ class BreakoutRoomsApi(NextcloudModule):
 
             message:
                 Message to broadcast
+
         """
         await self._validate_capability()
         await self._post(
@@ -242,6 +236,7 @@ class BreakoutRoomsApi(NextcloudModule):
 
         Returns:
             Parent conversation and all breakout rooms.
+
         """
         await self._validate_capability()
         response = await self._post(
@@ -255,6 +250,7 @@ class BreakoutRoomsApi(NextcloudModule):
         Args:
             room_token:
                 Token of breakout room
+
         """
         await self._validate_capability()
         await self._post(path=f"/{room_token}/request-assistance")
@@ -265,6 +261,7 @@ class BreakoutRoomsApi(NextcloudModule):
         Args:
             room_token:
                 Token of breakout room
+
         """
         await self._validate_capability()
         await self._delete(path=f"/{room_token}/request_assistance")
@@ -285,6 +282,7 @@ class BreakoutRoomsApi(NextcloudModule):
 
         Returns:
             New breakout room.
+
         """
         await self._validate_capability()
         response = await self._post(path=f"/{room_token}/switch", data={"target": target})

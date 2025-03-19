@@ -4,14 +4,14 @@ https://docs.nextcloud.com/server/latest/developer_manual/client_apis/WebDAV/ind
 """
 
 import logging
-from typing import Any, Dict, Optional
+from typing import Any
 from xml.parsers.expat import ExpatError
 
 import httpx
 import xmltodict
 
 from nextcloud_async.client import NextcloudClient
-from nextcloud_async.driver import NextcloudHttpApi
+from nextcloud_async.driver import NextcloudHttpDriver
 from nextcloud_async.exceptions import NextcloudAsyncError, NextcloudRequestTimeoutError
 
 log = logging.getLogger("nextcloud_async.driver")
@@ -19,10 +19,10 @@ log = logging.getLogger("nextcloud_async.driver")
 _HTTP_USER_ERROR = 400
 
 
-class NextcloudDavApi(NextcloudHttpApi):
+class NextcloudDavDriver(NextcloudHttpDriver):
     """Interace with Nextcloud DAV interface for file operations."""
 
-    def __init__(self, client: NextcloudClient, api_stub: Optional[str] = None) -> None:
+    def __init__(self, client: NextcloudClient, api_stub: str | None = None) -> None:
         super().__init__(client)
         if api_stub:
             self.stub = api_stub
@@ -35,7 +35,7 @@ class NextcloudDavApi(NextcloudHttpApi):
         method: str = "GET",
         path: str = "",
         data: Any = {},
-        headers: Optional[dict[str, Any]] = None,
+        headers: dict[str, Any] | None = None,
         content: bytes | None = None,
         raw_response: bool = False,
     ) -> dict[str, Any] | bytes:
@@ -67,6 +67,7 @@ class NextcloudDavApi(NextcloudHttpApi):
         Returns:
             Dict: Response content
             Bytstring: Raw response content if raw_response=True
+
         """
         headers = self._munge_headers(headers)
         if method.lower() == "get":
@@ -106,11 +107,12 @@ class NextcloudDavApi(NextcloudHttpApi):
             return {}
 
     async def raise_response_exception(self, response: httpx.Response) -> None:
-        """Parses response and raises exception, if necessary.
+        """Parse response and raises exception, if necessary.
 
         Args:
             response:
                 Response from server
+
         """
         if response.status_code >= _HTTP_USER_ERROR:
             exception_data = xmltodict.parse(response.content)

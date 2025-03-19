@@ -4,15 +4,16 @@ https://nextcloud-talk.readthedocs.io/en/latest/bot-management/
 """
 
 from dataclasses import dataclass
-from typing import Any, Dict, List
+from typing import Any
 
-from nextcloud_async.driver import NextcloudModule, NextcloudTalkApi
+from nextcloud_async.api import NextcloudModule
+from nextcloud_async.driver import NextcloudTalkDriver
 
 
 @dataclass
 class Bot:
     data: dict[str, Any]
-    talk_api: NextcloudTalkApi
+    talk_api: NextcloudTalkDriver
 
     def __post_init__(self) -> None:
         self.api = BotsApi(self.talk_api)
@@ -41,9 +42,9 @@ class BotsApi(NextcloudModule):
     Requires capability: bots-v1
     """
 
-    def __init__(self, api: NextcloudTalkApi, api_version: str = "1") -> None:
+    def __init__(self, api: NextcloudTalkDriver, api_version: str = "1") -> None:
         self.stub = f"/apps/spreed/api/v{api_version}/bot"
-        self.api: NextcloudTalkApi = api
+        self.api: NextcloudTalkDriver = api
 
     async def _validate_capability(self) -> None:
         await self.api.require_feature("bots-v1")

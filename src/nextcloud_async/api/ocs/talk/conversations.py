@@ -26,8 +26,9 @@ else:
     from typing import NotRequired, TypedDict, Unpack
 
 from nextcloud_async import NextcloudClient
-from nextcloud_async.api.dataobject import NextcloudDataObject
-from nextcloud_async.driver import NextcloudModule, NextcloudTalkApi
+from nextcloud_async.api import NextcloudModule
+from nextcloud_async.api.mixins import NextcloudDataObject
+from nextcloud_async.driver import NextcloudTalkDriver
 from nextcloud_async.helpers import bool2int
 
 from .avatars import ConversationAvatarsApi
@@ -37,7 +38,7 @@ from .integrations import IntegrationsApi
 from .participants import Participant, ParticipantsApi
 from .polls import Poll, PollsApi
 from .rich_objects import NextcloudTalkRichObject
-from .types import TalkApis
+from .types import NextcloudTalkDataObject, TalkApis
 
 if TYPE_CHECKING:
     from .breakout_rooms import BreakoutRoom
@@ -65,19 +66,19 @@ from .constants import (
 )
 
 
-class Conversation(NextcloudDataObject):
+class Conversation(NextcloudTalkDataObject):
     self_api: "ConversationsApi"
 
     _participants: list[Participant] = field(init=False, default_factory=list)
 
-    def __init__(
-        self,
-        data: dict[str, Any],
-        self_api: "ConversationsApi",
-        talk_apis: TalkApis,
-    ) -> None:
-        super().__init__(data, self_api)
-        self.apis = talk_apis
+    # def __init__(
+    #     self,
+    #     data: dict[str, Any],
+    #     self_api: "ConversationsApi",
+    #     talk_apis: TalkApis,
+    # ) -> None:
+    #     super().__init__(data, self_api)
+    #     self.apis = talk_apis
 
     def __post_init__(self) -> None:
         """Set up all of the APIs needed by this class."""
@@ -300,7 +301,7 @@ class Conversation(NextcloudDataObject):
                 chat-read-status capability and when last_common_read_id was sent)
 
         """
-        return await self.chat_api.get_messages(room_token=self.token, **kwargs)
+        return await self.apis.chat.get_messages(room_token=self.token, **kwargs)
 
     class _MessageContextArgs(TypedDict):
         message_id: int
@@ -325,7 +326,7 @@ class Conversation(NextcloudDataObject):
             Messages
 
         """
-        return await self.chat_api.get_context(room_token=self.token, **kwargs)
+        return await self.apis.chat.get_context(room_token=self.token, **kwargs)
 
     class _SendArgs(TypedDict):
         message: str
@@ -372,7 +373,7 @@ class Conversation(NextcloudDataObject):
                 chat-read-status capability and when last_common_read_id was sent)
 
         """
-        return await self.chat_api.send(room_token=self.token, **kwargs)
+        return await self.apis.chat.send(room_token=self.token, **kwargs)
 
     class _SendRichObjectArgs(TypedDict):
         rich_object: NextcloudTalkRichObject
@@ -411,7 +412,7 @@ class Conversation(NextcloudDataObject):
                 chat-read-status capability and when last_common_read_id was sent)
 
         """
-        return await self.chat_api.send_rich_object(room_token=self.token, **kwargs)
+        return await self.apis.chat.send_rich_object(room_token=self.token, **kwargs)
 
     class _ShareFileArgs(TypedDict):
         path: str
@@ -444,7 +445,7 @@ class Conversation(NextcloudDataObject):
             Integer ID of new share.
 
         """
-        return await self.chat_api.share_file(room_token=self.token, **kwargs)
+        return await self.apis.chat.share_file(room_token=self.token, **kwargs)
 
     async def list_shared_items(self, limit: int) -> list[Message]:
         """List overview of items shared into this chat.
@@ -457,7 +458,7 @@ class Conversation(NextcloudDataObject):
             List of Messages with shares.
 
         """
-        return await self.chat_api.list_shared_items(room_token=self.token, limit=limit)
+        return await self.apis.chat.list_shared_items(room_token=self.token, limit=limit)
 
     class _SharedItemsByTypeArgs(TypedDict):
         object_type: SharedItemType
@@ -487,7 +488,7 @@ class Conversation(NextcloudDataObject):
                 X-Chat-Last-Given [int] Offset for the next page.
 
         """
-        return await self.chat_api.list_shared_items_by_type(
+        return await self.apis.chat.list_shared_items_by_type(
             room_token=self.token, **kwargs
         )
 
@@ -498,7 +499,7 @@ class Conversation(NextcloudDataObject):
             Message to display in empty channel.
 
         """
-        return await self.chat_api.clear_history(room_token=self.token)
+        return await self.apis.chat.clear_history(room_token=self.token)
 
     async def delete_message(self, message_id: int) -> tuple[Message, httpx.Headers]:
         """Delete a message in a conversation.
@@ -520,7 +521,7 @@ class Conversation(NextcloudDataObject):
                 chat-read-status capability)
 
         """
-        return await self.chat_api.delete(room_token=self.token, message_id=message_id)
+        return await self.apis.chat.delete(room_token=self.token, message_id=message_id)
 
     class _EditMessageArgs(TypedDict):
         message_id: int
@@ -548,7 +549,7 @@ class Conversation(NextcloudDataObject):
                 chat-read-status capability)
 
         """
-        return await self.chat_api.edit(room_token=self.token, **kwargs)
+        return await self.apis.chat.edit(room_token=self.token, **kwargs)
 
     async def set_message_reminder(
         self, message_id: int, timestamp: dt.datetime
@@ -568,7 +569,7 @@ class Conversation(NextcloudDataObject):
             MessageReminder
 
         """
-        return await self.chat_api.set_reminder(
+        return await self.apis.chat.set_reminder(
             room_token=self.token, message_id=message_id, timestamp=timestamp
         )
 
@@ -585,7 +586,7 @@ class Conversation(NextcloudDataObject):
             MessageReminder
 
         """
-        return await self.chat_api.get_reminder(
+        return await self.apis.chat.get_reminder(
             room_token=self.token, message_id=message_id
         )
 
@@ -599,7 +600,7 @@ class Conversation(NextcloudDataObject):
                 ID of message
 
         """
-        return await self.chat_api.delete_reminder(
+        return await self.apis.chat.delete_reminder(
             room_token=self.token, message_id=message_id
         )
 
@@ -619,7 +620,7 @@ class Conversation(NextcloudDataObject):
                 chat-read-status capability)
 
         """
-        await self.chat_api.mark_as_read(
+        await self.apis.chat.mark_as_read(
             room_token=self.token, last_read_message_id=last_read_message_id
         )
 
@@ -636,7 +637,7 @@ class Conversation(NextcloudDataObject):
                 chat-read-status capability)
 
         """
-        await self.chat_api.mark_as_unread(room_token=self.token)
+        await self.apis.chat.mark_as_unread(room_token=self.token)
 
     class _SuggestAutocompletesArgs(TypedDict):
         search: str
@@ -662,7 +663,7 @@ class Conversation(NextcloudDataObject):
             List of Suggestions
 
         """
-        return await self.chat_api.suggest_autocompletes(room_token=self.token, **kwargs)
+        return await self.apis.chat.suggest_autocompletes(room_token=self.token, **kwargs)
 
     async def set_name_as_guest(self, name: str) -> None:
         """Set display name as a guest.
@@ -791,7 +792,7 @@ class Conversation(NextcloudDataObject):
                 Image data
 
         """
-        await self.avatar_api.set_image(self.token, image_data=image_data)
+        await self.api.avatars.set_image(self.token, image_data=image_data)
 
     async def set_avatar_emoji(self, emoji: str, color: str) -> None:
         """Set emoji as avatar.
@@ -805,7 +806,7 @@ class Conversation(NextcloudDataObject):
                 fallback to the default bright/dark mode icon background color)
 
         """
-        await self.avatar_api.set_emoji(room_token=self.token, emoji=emoji, color=color)
+        await self.api.avatars.set_emoji(room_token=self.token, emoji=emoji, color=color)
 
     async def delete_avatar(self) -> None:
         """Delete conversation avatar.
@@ -813,7 +814,7 @@ class Conversation(NextcloudDataObject):
         To determine if the delete option should be presented to the user, it's
         recommended to check the isCustomAvatar property of Conversation object.
         """
-        await self.avatar_api.delete(room_token=self.token)
+        await self.api.avatars.delete(room_token=self.token)
 
     async def get_avatar(self, dark_mode: bool) -> bytes:
         """Get conversations avatar (binary).
@@ -826,7 +827,7 @@ class Conversation(NextcloudDataObject):
             Image data
 
         """
-        return await self.avatar_api.get(room_token=self.token, dark_mode=dark_mode)
+        return await self.api.avatars.get(room_token=self.token, dark_mode=dark_mode)
 
     class _GetFederatedAvatarArgs(TypedDict):
         cloud_id: str
@@ -852,7 +853,7 @@ class Conversation(NextcloudDataObject):
             Image data
 
         """
-        return await self.avatar_api.get_federated(room_token=self.token, **kwargs)
+        return await self.api.avatars.get_federated(room_token=self.token, **kwargs)
 
     class _CreatePollArgs(TypedDict):
         question: str
@@ -1049,7 +1050,7 @@ class Conversation(NextcloudDataObject):
 
         """
         response = await self.api.create(object_id=self.token, **kwargs)
-        return BreakoutRoom(response.data, self.self_api.api)
+        return BreakoutRoom(response.data, self.apis)
 
     async def remove_breakout_rooms(self) -> "Conversation":
         """Remove breakout rooms from conversation.
@@ -1192,18 +1193,12 @@ class ConversationsApi(NextcloudModule):
     This is your entry-point into the Talk/Spreed back-end.
     """
 
-    api: NextcloudTalkApi
+    api: NextcloudTalkDriver
 
-    def __init__(
-        self, talk_api: NextcloudTalkApi, talk_apis: TalkApis, version: str = "4"
-    ) -> None:
+    def __init__(self, talk_api: NextcloudTalkDriver, version: str = "4") -> None:
         self.stub = f"/apps/spreed/api/v{version}"
         self.api = talk_api
-        self.apis = talk_apis
-        self.avatar_api = ConversationAvatarsApi(self.api)
-        self.participants_api = ParticipantsApi(self.api)
-        self.chat_api = ChatApi(self.api)
-        self.integrations_api = IntegrationsApi(self.api)
+        self.apis = talk_api
 
     async def get_all(
         self, status_update: bool = False, include_status: bool = False
@@ -1614,7 +1609,7 @@ class ConversationsApi(NextcloudModule):
             Conversation token
 
         """
-        return await self.integrations_api.get_interal_file_chat(file_id)
+        return await self.apis.integrations.get_interal_file_chat(file_id)
 
     async def get_token_for_shared_file(self, share_token: str) -> Conversation:
         """Return conversationtoken for discussion of shared file.
@@ -1627,7 +1622,7 @@ class ConversationsApi(NextcloudModule):
             Conversation token
 
         """
-        return await self.integrations_api.get_public_file_share_chat(share_token)
+        return await self.apis.integrations.get_public_file_share_chat(share_token)
 
     async def create_password_request(self, share_token: str) -> dict[str, str]:
         """Create a conversation to request the password for a public share.
@@ -1643,7 +1638,7 @@ class ConversationsApi(NextcloudModule):
                 displayName: The visual name of the conversation
 
         """
-        return await self.integrations_api.create_password_request_conversation(
+        return await self.apis.integrations.create_password_request_conversation(
             share_token
         )
 
@@ -1668,25 +1663,5 @@ class ConversationsApi(NextcloudModule):
             Conversation
 
         """
-        response = await self.participants_api.join(**kwargs)
+        response = await self.apis.participants.join(**kwargs)
         return Conversation(response, self, self.apis)
-
-
-def talk_api(client: NextcloudClient) -> ConversationsApi:
-    """Your interface to the Talk API."""
-    from .breakout_rooms import BreakoutRoomsApi
-
-    talk_api = NextcloudTalkApi(client)
-    talk_apis: TalkApis = {
-        "chat": ChatApi(talk_api),
-        "calls": CallsApi(talk_api),
-        "bots": BotsApi(talk_api),
-        "avatars": ConversationAvatarsApi(talk_api),
-        "participants": ParticipantsApi(talk_api),
-        "integrations": IntegrationsApi(talk_api),
-        "polls": PollsApi(talk_api),
-        "breakoutrooms": BreakoutRoomsApi(talk_api),
-        "webinars": WebinarsApi(talk_api),
-        "signaling": InternalSignalingApi(talk_api),
-    }
-    return ConversationsApi(talk_api, talk_apis)

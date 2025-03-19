@@ -3,9 +3,10 @@
 https://github.com/nextcloud/notifications/blob/master/docs/ocs-endpoint-v2.md
 """
 
-from nextcloud_async.api.dataobject import NextcloudDataObject
+from nextcloud_async.api import NextcloudModule
+from nextcloud_async.api.mixins import NextcloudDataObject
 from nextcloud_async.client import NextcloudClient
-from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
+from nextcloud_async.driver import NextcloudOcsDriver
 
 
 class Notification(NextcloudDataObject):
@@ -30,7 +31,7 @@ class Notification(NextcloudDataObject):
 class NotificationsApi(NextcloudModule):
     """Manage user notifications on Nextcloud instance."""
 
-    def __init__(self, ocs_api: NextcloudOcsApi) -> None:
+    def __init__(self, ocs_api: NextcloudOcsDriver) -> None:
         self.api = ocs_api
         self.stub = "/apps/notifications/api/v2/notifications"
 
@@ -73,5 +74,5 @@ class NotificationsApi(NextcloudModule):
 
 def notifications_api(client: NextcloudClient) -> NotificationsApi:
     """NotificationsApi Factory."""
-    ocs_api = NextcloudOcsApi(client, version="2")
+    ocs_api = NextcloudOcsDriver(client, version="2")
     return NotificationsApi(ocs_api)

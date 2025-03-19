@@ -4,7 +4,7 @@ from collections.abc import Awaitable, Coroutine
 from dataclasses import dataclass, field
 from typing import Any
 
-from nextcloud_async.driver import NextcloudModule
+from nextcloud_async.api import NextcloudModule
 
 log = logging.getLogger("nextcloud_async.api")
 
@@ -56,3 +56,43 @@ class NextcloudDataObject(ABC):
         new_object = await self.refresh_function()
         log.debug(f"Setting new data {new_object.data}")
         self.data = new_object.data
+
+
+class NextcloudIterator:
+    """Turn an object into an iterator.
+
+    Inherit this object then use set_iterator to point to an internal list used for
+    iteration.
+    """
+
+    def set_iterator(self, target: list, starting_index: int = 0) -> None:
+        """Define the list over which this object will iterate.
+
+        Args:
+            target:
+                local list
+
+            starting_index:
+                list index for first value.
+
+        """
+        self._iterator = target
+        self._starting_index = starting_index
+
+    def __iter__(self) -> Any:
+        self._index = self._starting_index
+        self._end = len(self._iterator)
+        return self
+
+    def __next__(self) -> Any:
+        if self._index >= self._end:
+            raise StopIteration
+        else:
+            self._index += 1
+            return self._iterator[self._index - 1]
+
+    def __len__(self) -> int:
+        return len(self._iterator) - self._starting_index
+
+
+class NextcloudIteratorModule(NextcloudModule): ...

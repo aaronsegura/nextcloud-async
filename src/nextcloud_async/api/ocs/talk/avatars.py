@@ -7,13 +7,14 @@ https://nextcloud-talk.readthedocs.io/en/latest/avatar/
 
 from typing import Optional
 
-from nextcloud_async.driver import NextcloudModule, NextcloudTalkApi
+from nextcloud_async.api import NextcloudModule
+from nextcloud_async.driver import NextcloudTalkDriver
 
 
 class ConversationAvatarsApi(NextcloudModule):
-    def __init__(self, api: NextcloudTalkApi, api_version: str = "1") -> None:
+    def __init__(self, api: NextcloudTalkDriver, api_version: str = "1") -> None:
         self.stub = f"/apps/spreed/api/v{api_version}"
-        self.api: NextcloudTalkApi = api
+        self.api: NextcloudTalkDriver = api
 
     async def _validate_capability(self) -> None:
         await self.api.require_feature("avatar")
@@ -32,7 +33,7 @@ class ConversationAvatarsApi(NextcloudModule):
         await self._post(path=f"/room/{room_token}/avatar", data={"file": image_data})
 
     async def set_emoji(
-        self, room_token: str, emoji: str, color: Optional[str] = None
+        self, room_token: str, emoji: str, color: str | None = None
     ) -> None:
         """Set emoji as avatar.
 

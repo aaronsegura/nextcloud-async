@@ -4,11 +4,10 @@ Reference:
     https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/instruction_set_for_apps.html
 """
 
-from typing import Dict, List, Optional
-
-from nextcloud_async.api.dataobject import NextcloudDataObject
+from nextcloud_async.api import NextcloudModule
+from nextcloud_async.api.mixins import NextcloudDataObject
 from nextcloud_async.client import NextcloudClient
-from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
+from nextcloud_async.driver import NextcloudOcsDriver
 from nextcloud_async.helpers import password_confirmation_required
 
 
@@ -33,7 +32,7 @@ class App(NextcloudDataObject):
 class AppsApi(NextcloudModule):
     """Manage applications on a Nextcloud instance."""
 
-    def __init__(self, ocs_api: NextcloudOcsApi) -> None:
+    def __init__(self, ocs_api: NextcloudOcsDriver) -> None:
         self.api = ocs_api
         self.stub = "/cloud/apps"
 
@@ -50,7 +49,7 @@ class AppsApi(NextcloudModule):
         response = await self._get(path=f"/{app_id}")
         return App(response, self)
 
-    async def list(self, filter: Optional[str] = None) -> list[str]:
+    async def get_all(self, filter: str | None = None) -> list[str]:
         """Get list of applications.
 
         Args:
@@ -69,13 +68,13 @@ class AppsApi(NextcloudModule):
 
     async def list_enabled(self) -> list[str]:
         """Get list of enabled applications."""
-        return await self.list("enabled")
+        return await self.get_all("enabled")
 
     async def list_disabled(self) -> list[str]:
         """Get list of disabled applications."""
         # Prior to Nextcloud 31, using filter=disabled on this call returns a dictionary
         # instead of a list.  This is fixed in commit 77114fb3...
-        response = await self.list("disabled")
+        response = await self.get_all("disabled")
         if isinstance(response, dict):
             return list(response.values())
         else:
@@ -108,5 +107,5 @@ class AppsApi(NextcloudModule):
 
 def apps_api(client: NextcloudClient) -> AppsApi:
     """AppsApi Factory."""
-    ocs_api = NextcloudOcsApi(client, version="1")
+    ocs_api = NextcloudOcsDriver(client, version="1")
     return AppsApi(ocs_api)

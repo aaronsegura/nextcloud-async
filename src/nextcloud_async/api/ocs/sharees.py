@@ -6,22 +6,23 @@ Not Implemented:
     Federated share management
 """
 
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
+from nextcloud_async.api import NextcloudModule
 from nextcloud_async.client import NextcloudClient
-from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
+from nextcloud_async.driver import NextcloudOcsDriver
 
 
 class ShareesApi(NextcloudModule):
     """Sharees interface."""
 
-    def __init__(self, ocs_api: NextcloudOcsApi, api_version: str = "1") -> None:
+    def __init__(self, ocs_api: NextcloudOcsDriver, api_version: str = "1") -> None:
         self.stub = f"/apps/files_sharing/api/v{api_version}"
         self.api = ocs_api
 
     async def search_sharees(
         self,
-        search: Optional[str] = None,
+        search: str | None = None,
         item_type: str = "file",
         lookup: bool = False,
         limit: int = 20,
@@ -47,6 +48,7 @@ class ShareesApi(NextcloudModule):
 
         Returns:
             Dictionary of exact and potential matches.
+
         """
         data: dict[str, Any] = {
             "search": search,
@@ -66,11 +68,12 @@ class ShareesApi(NextcloudModule):
 
         Returns:
             Recommended sharees.
+
         """
         return await self._get(path="/sharees_recommended", data={"itemType": item_type})
 
 
 def sharees_api(client: NextcloudClient) -> ShareesApi:
-    """Factory for ShareesApi."""
-    ocs_api = NextcloudOcsApi(client)
+    """ShareesApi Factory."""
+    ocs_api = NextcloudOcsDriver(client)
     return ShareesApi(ocs_api)

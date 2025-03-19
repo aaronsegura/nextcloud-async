@@ -4,11 +4,12 @@ https://github.com/nextcloud/maps/blob/master/openapi.yml
 
 """
 
-from typing import NotRequired, Optional, TypedDict, Unpack
+from typing import NotRequired, TypedDict, Unpack
 
-from nextcloud_async.api.dataobject import NextcloudDataObject
+from nextcloud_async.api import NextcloudModule
+from nextcloud_async.api.mixins import NextcloudDataObject
 from nextcloud_async.client import NextcloudClient
-from nextcloud_async.driver import NextcloudBaseApi, NextcloudModule
+from nextcloud_async.driver import NextcloudBaseDriver
 
 
 class MapFavorite(NextcloudDataObject):
@@ -78,7 +79,7 @@ class MapsApi(NextcloudModule):
 
     def __init__(
         self,
-        base_api: NextcloudBaseApi,
+        base_api: NextcloudBaseDriver,
         api_version: str = "1.0",
     ) -> None:
         self.stub = f"/apps/maps/api/{api_version}"
@@ -110,9 +111,9 @@ class MapsApi(NextcloudModule):
         name: str,
         lat: float,
         lng: float,
-        category: Optional[str] = None,
-        comment: Optional[str] = None,
-        extensions: Optional[str] = None,
+        category: str | None = None,
+        comment: str | None = None,
+        extensions: str | None = None,
     ) -> MapFavorite:
         """Update an existing map favorite.
 
@@ -159,9 +160,9 @@ class MapsApi(NextcloudModule):
         name: str,
         lat: float,
         lng: float,
-        category: Optional[str] = None,
-        comment: Optional[str] = None,
-        extensions: Optional[str] = None,
+        category: str | None = None,
+        comment: str | None = None,
+        extensions: str | None = None,
     ) -> MapFavorite:
         """Add a new map favorite.
 
@@ -202,5 +203,5 @@ class MapsApi(NextcloudModule):
 
 def maps_api(client: NextcloudClient) -> MapsApi:
     """MapsApi factory."""
-    base_api = NextcloudBaseApi(client)
+    base_api = NextcloudBaseDriver(client)
     return MapsApi(base_api)

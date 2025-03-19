@@ -5,11 +5,12 @@ https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/user_au
 """
 
 from collections.abc import Coroutine
-from typing import Any, Dict
+from typing import Any
 
-from nextcloud_async.api.dataobject import NextcloudDataObject
+from nextcloud_async.api import NextcloudModule
+from nextcloud_async.api.mixins import NextcloudDataObject
 from nextcloud_async.client import NextcloudClient
-from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
+from nextcloud_async.driver import NextcloudOcsDriver
 from nextcloud_async.helpers import recursive_urlencode
 
 
@@ -52,7 +53,7 @@ class LdapApi(NextcloudModule):
     Server must have LDAP user and group back-end enabled.
     """
 
-    def __init__(self, ocs_api: NextcloudOcsApi, api_version: str = "1") -> None:
+    def __init__(self, ocs_api: NextcloudOcsDriver, api_version: str = "1") -> None:
         self.api = ocs_api
         self.stub = f"/apps/user_ldap/api/v{api_version}"
 
@@ -107,5 +108,5 @@ class LdapApi(NextcloudModule):
 
 def ldap_api(client: NextcloudClient) -> LdapApi:
     """LdapApi Factory."""
-    ocs_api = NextcloudOcsApi(client, version="2")
+    ocs_api = NextcloudOcsDriver(client, version="2")
     return LdapApi(ocs_api)

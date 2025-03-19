@@ -12,13 +12,14 @@ import datetime as dt
 import json
 from collections.abc import Awaitable
 from enum import Enum, IntFlag
-from typing import Any, Dict, List, NotRequired, Optional, TypedDict, Unpack
+from typing import Any, NotRequired, TypedDict, Unpack
 
 from dateutil.tz import tzlocal
 
-from nextcloud_async.api.dataobject import NextcloudDataObject
+from nextcloud_async.api import NextcloudModule
+from nextcloud_async.api.mixins import NextcloudDataObject
 from nextcloud_async.client import NextcloudClient
-from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
+from nextcloud_async.driver import NextcloudOcsDriver
 from nextcloud_async.exceptions import NextcloudError
 from nextcloud_async.helpers import bool2str
 
@@ -115,7 +116,7 @@ class Share(NextcloudDataObject):
         await self.self_api.update(share_id=self.id, **kwargs)
         await self._refresh()
 
-    async def send_email(self, password: Optional[str] = None) -> None:
+    async def send_email(self, password: str | None = None) -> None:
         """Re-send share e-mail to recipients.
 
         Args:
@@ -129,13 +130,13 @@ class Share(NextcloudDataObject):
 class SharesApi(NextcloudModule):
     """Manage local shares on Nextcloud instances."""
 
-    def __init__(self, ocs_api: NextcloudOcsApi, api_version: str = "1") -> None:
+    def __init__(self, ocs_api: NextcloudOcsDriver, api_version: str = "1") -> None:
         self.stub = f"/apps/files_sharing/api/v{api_version}/shares"
         self.api = ocs_api
 
     async def get_file_shares(
         self,
-        path: Optional[str] = "",
+        path: str | None = "",
         reshares: bool = False,
         subfiles: bool = False,
         shared_with_me: bool = False,
@@ -192,13 +193,13 @@ class SharesApi(NextcloudModule):
         path: str,
         permissions: SharePermission,
         share_type: ShareType,
-        share_with: Optional[dict[str, Any]] = None,
+        share_with: dict[str, Any] | None = None,
         allow_public_upload: bool = False,
-        password: Optional[str] = None,
+        password: str | None = None,
         send_password_by_talk: bool = False,
-        expire_date: Optional[dt.date] = None,
-        note: Optional[str] = None,
-        label: Optional[str] = None,
+        expire_date: dt.date | None = None,
+        note: str | None = None,
+        label: str | None = None,
         send_mail: bool = False,
     ) -> Share:
         """Create a new share.
@@ -291,13 +292,13 @@ class SharesApi(NextcloudModule):
     async def update(
         self,
         share_id: int,
-        permissions: Optional[SharePermission] = None,  # noqa: ARG002
-        password: Optional[str] = None,  # noqa: ARG002
-        allow_public_upload: Optional[bool] = None,  # noqa: ARG002
-        expire_date: Optional[dt.date] = None,  # noqa: ARG002
-        attributes: Optional[str] = None,  # noqa: ARG002
-        send_mail: Optional[bool] = None,  # noqa: ARG002
-        note: Optional[str] = None,  # noqa: ARG002
+        permissions: SharePermission | None = None,  # noqa: ARG002
+        password: str | None = None,  # noqa: ARG002
+        allow_public_upload: bool | None = None,  # noqa: ARG002
+        expire_date: dt.date | None = None,  # noqa: ARG002
+        attributes: str | None = None,  # noqa: ARG002
+        send_mail: bool | None = None,  # noqa: ARG002
+        note: str | None = None,  # noqa: ARG002
     ) -> None:
         """Update properties of an existing share.
 
@@ -360,7 +361,7 @@ class SharesApi(NextcloudModule):
     async def __update_share(self, share_id: int, key: str, value: Any) -> dict[str, Any]:
         return await self._put(path=f"/{share_id}", data={key: value})
 
-    async def send_email(self, share_id: int, password: Optional[str] = None) -> None:
+    async def send_email(self, share_id: int, password: str | None = None) -> None:
         """Send an email to the recipients of a share.
 
         Args:
@@ -381,5 +382,5 @@ class SharesApi(NextcloudModule):
 
 def shares_api(client: NextcloudClient) -> SharesApi:
     """SharesApi Factory."""
-    ocs_api = NextcloudOcsApi(client, version="2")
+    ocs_api = NextcloudOcsDriver(client, version="2")
     return SharesApi(ocs_api)

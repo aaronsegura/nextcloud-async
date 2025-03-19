@@ -6,8 +6,9 @@ https://nextcloud-talk.readthedocs.io/en/latest/participant/
 
 import httpx
 
-from nextcloud_async.api.dataobject import NextcloudDataObject
-from nextcloud_async.driver import NextcloudModule, NextcloudTalkApi
+from nextcloud_async.api import NextcloudModule
+from nextcloud_async.api.mixins import NextcloudDataObject
+from nextcloud_async.driver import NextcloudTalkDriver
 from nextcloud_async.helpers import phone_number_to_e164
 
 from .constants import (
@@ -16,11 +17,10 @@ from .constants import (
     PermissionAction,
     SessionState,
 )
-from .types import ConversationData
 
 
 class Participant(NextcloudDataObject):
-    self_api: NextcloudTalkApi
+    self_api: NextcloudTalkDriver
 
     def __post_init__(self) -> None:
         self.participants_api = ParticipantsApi(self.api)
@@ -69,9 +69,9 @@ class Participant(NextcloudDataObject):
 class ParticipantsApi(NextcloudModule):
     """Interact with Nextcloud Talk API."""
 
-    def __init__(self, api: NextcloudTalkApi, api_version: str = "4") -> None:
+    def __init__(self, api: NextcloudTalkDriver, api_version: str = "4") -> None:
         self.stub = f"/apps/spreed/api/v{api_version}"
-        self.api: NextcloudTalkApi = api
+        self.api: NextcloudTalkDriver = api
 
     async def list(
         self,
@@ -163,7 +163,7 @@ class ParticipantsApi(NextcloudModule):
 
     async def join(
         self, room_token: str, password: str | None = None, force: bool = True
-    ) -> ConversationData:
+    ) -> dict[str, Any]:
         """Join a conversation.
 
         Args:

@@ -1,23 +1,15 @@
-from .api import (
-    NextcloudHttpApi,
-    NextcloudModule,
-    NextcloudCapabilities,
-    NextcloudIterator,
-    NextcloudIteratorModule,
+from .base import NextcloudBaseDriver
+from .dav import NextcloudDavDriver
+from .http import (
+    NextcloudHttpDriver,
 )
-
-from .base import NextcloudBaseApi
-from .ocs import NextcloudOcsApi
-from .dav import NextcloudDavApi
-from .talk import NextcloudTalkApi
+from .ocs import NextcloudOcsDriver
+from .talk import NextcloudTalkDriver
 
 __all__ = [
-    "NextcloudHttpApi",
-    "NextcloudModule",
-    "NextcloudCapabilities",
-    "NextcloudIterator",
-    "NextcloudBaseApi",
-    "NextcloudOcsApi",
-    "NextcloudDavApi",
-    "NextcloudTalkApi",
+    "NextcloudHttpDriver",
+    "NextcloudBaseDriver",
+    "NextcloudOcsDriver",
+    "NextcloudDavDriver",
+    "NextcloudTalkDriver",
 ]

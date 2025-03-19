@@ -10,11 +10,9 @@ import logging
 
 import httpx
 
+from nextcloud_async.api import NextcloudModule
 from nextcloud_async.client import NextcloudClient
-from nextcloud_async.driver import NextcloudBaseApi, NextcloudModule
-from nextcloud_async.exceptions import (
-    NextcloudMethodNotAllowedError,
-)
+from nextcloud_async.driver import NextcloudBaseDriver
 
 log = logging.getLogger("nextcloud_async.wipe")
 
@@ -36,15 +34,16 @@ class WipeApi(NextcloudModule):
 
     """
 
-    def __init__(self, base_api: NextcloudBaseApi) -> None:
+    def __init__(self, base_api: NextcloudBaseDriver) -> None:
         self.api = base_api
-        self.stub = "/index.php/core/wipe"
+        self.stub = "/core/wipe"
 
     async def check(self) -> bool:
         """Check for remote wipe flag.
 
         Returns:
             bool: Whether user has flagged this device for remote wiping.
+
         """
         if not self.api.client.app_token:
             return False
@@ -65,6 +64,7 @@ class WipeApi(NextcloudModule):
 
         Returns:
             Empty 200 Response
+
         """
         return await self.api.client.http_client.post(
             url=f"{self.api.client.endpoint}{self.stub}/success",
@@ -73,6 +73,6 @@ class WipeApi(NextcloudModule):
 
 
 def wipe_api(client: NextcloudClient) -> WipeApi:
-    """Factory for WipeApi."""
-    base_api = NextcloudBaseApi(client)
+    """WipeApi Factory."""
+    base_api = NextcloudBaseDriver(client)
     return WipeApi(base_api)

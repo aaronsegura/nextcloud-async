@@ -1,9 +1,10 @@
-from typing import TYPE_CHECKING, Any, Dict
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from .conversations import Conversation
 
-from nextcloud_async.driver import NextcloudModule, NextcloudTalkApi
+from nextcloud_async.api import NextcloudModule
+from nextcloud_async.driver import NextcloudTalkDriver
 
 
 class IntegrationsApi(NextcloudModule):
@@ -12,9 +13,9 @@ class IntegrationsApi(NextcloudModule):
     https://nextcloud-talk.readthedocs.io/en/latest/integration/
     """
 
-    def __init__(self, api: NextcloudTalkApi, api_version: str = "1") -> None:
+    def __init__(self, api: NextcloudTalkDriver, api_version: str = "1") -> None:
         self.stub = f"/apps/spreed/api/v{api_version}"
-        self.api: NextcloudTalkApi = api
+        self.api: NextcloudTalkDriver = api
 
     async def get_interal_file_chat(self, file_id: int) -> "Conversation":
         """Return conversation token for discussion of internal file.

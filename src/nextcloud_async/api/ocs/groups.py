@@ -7,11 +7,10 @@ API.
 https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/instruction_set_for_groups.html
 """
 
-from typing import List
-
-from nextcloud_async.api.dataobject import NextcloudDataObject
+from nextcloud_async.api import NextcloudModule
+from nextcloud_async.api.mixins import NextcloudDataObject
 from nextcloud_async.client import NextcloudClient
-from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
+from nextcloud_async.driver import NextcloudOcsDriver
 from nextcloud_async.helpers import password_confirmation_required
 
 
@@ -59,7 +58,7 @@ class Group(NextcloudDataObject):
 class GroupsApi(NextcloudModule):
     """Manage groups on a Nextcloud instance."""
 
-    def __init__(self, ocs_api: NextcloudOcsApi) -> None:
+    def __init__(self, ocs_api: NextcloudOcsDriver) -> None:
         self.api = ocs_api
         self.stub = "/cloud/groups"
 
@@ -142,5 +141,5 @@ class GroupsApi(NextcloudModule):
 
 def groups_api(client: NextcloudClient) -> GroupsApi:
     """GroupsApi Factory."""
-    ocs_api = NextcloudOcsApi(client)
+    ocs_api = NextcloudOcsDriver(client)
     return GroupsApi(ocs_api)

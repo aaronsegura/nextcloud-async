@@ -1,8 +1,8 @@
 from dataclasses import dataclass
-from typing import Any, List, Optional
+from typing import Any, Optional
 from urllib.parse import unquote
 
-from nextcloud_async.driver import NextcloudIterator
+from nextcloud_async.api.mixins import NextcloudIterator
 
 from .base_file import BaseFile
 from .versions import Versions
@@ -21,6 +21,7 @@ class UserFile(BaseFile):
 
         Returns:
             File path
+
         """
         return "/{}".format("/".join(self.data["d:href"].split("/")[5:]))
 
@@ -41,6 +42,7 @@ class UserFile(BaseFile):
 
             overwrite:
                 Overwrite destination if it exists
+
         """
         return await self.files_api.move(source=self.path, dest=dest, overwrite=overwrite)
 
@@ -53,6 +55,7 @@ class UserFile(BaseFile):
 
             overwrite:
                 Overwrite destination if it exists
+
         """
         await self.files_api.copy(source=self.path, dest=dest, overwrite=overwrite)
 
@@ -89,7 +92,7 @@ class UserPath(NextcloudIterator):
     _path: str
     _files: list[UserFile]
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.set_iterator(self._files, starting_index=1)
 
     def __len__(self) -> int:
@@ -125,6 +128,7 @@ class UserPath(NextcloudIterator):
 
         Returns:
             Property value
+
         """
         translated_key = k.replace("_", "-")
 
@@ -158,7 +162,7 @@ class UserPath(NextcloudIterator):
 
         raise KeyError
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: int):
         return self._files[index]
 
     @property
@@ -183,10 +187,10 @@ class UserPath(NextcloudIterator):
         return not self.is_dir
 
     @property
-    def _file(self) -> Optional[UserFile]:
+    def _file(self) -> UserFile | None:
         return self._self
 
     @property
-    def _dir(self) -> Optional[UserFile]:
+    def _dir(self) -> UserFile | None:
         if self.is_dir:
             return self._self

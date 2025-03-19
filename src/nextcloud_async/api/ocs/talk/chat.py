@@ -6,11 +6,12 @@ https://nextcloud-talk.readthedocs.io/en/latest/conversation/
 import datetime as dt
 import json
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Optional
 
 import httpx
 
-from nextcloud_async.driver import NextcloudModule, NextcloudTalkApi
+from nextcloud_async.api import NextcloudModule
+from nextcloud_async.driver import NextcloudTalkDriver
 from nextcloud_async.exceptions import NextcloudBadRequestError
 from nextcloud_async.helpers import bool2int, filter_headers
 
@@ -25,14 +26,14 @@ _HASH_LENGTH = 64
 class ChatFileShareMetadata:
     message_type: SharedItemType
     caption: str
-    reply_to: Optional[int] = field(default=None)
+    reply_to: int | None = field(default=None)
     silent: bool = field(default=False)
 
 
 @dataclass
 class Message:
     data: dict[str, Any]
-    talk_api: NextcloudTalkApi
+    talk_api: NextcloudTalkDriver
 
     def __post_init__(self) -> None:
         self._reactions: list[Reaction] = []
@@ -135,7 +136,7 @@ class Message:
         self.data = message.data
         return headers
 
-    async def get_reactions(self, reaction: Optional[str] = None) -> list[Reaction]:
+    async def get_reactions(self, reaction: str | None = None) -> list[Reaction]:
         """Retrieve reactions of a message by type.
 
         Args:
@@ -232,9 +233,9 @@ class Suggestion:
 class ChatApi(NextcloudModule):
     """Interact with Nextcloud Talk Chat API."""
 
-    def __init__(self, api: NextcloudTalkApi, version: str = "1") -> None:
+    def __init__(self, api: NextcloudTalkDriver, version: str = "1") -> None:
         self.stub = f"/apps/spreed/api/v{version}"
-        self.api: NextcloudTalkApi = api
+        self.api: NextcloudTalkDriver = api
 
     async def get_messages(
         self,
@@ -242,8 +243,8 @@ class ChatApi(NextcloudModule):
         look_into_future: bool = False,
         limit: int = 100,
         timeout: int = 30,
-        last_known_message_id: Optional[int] = None,
-        last_common_read_id: Optional[int] = None,
+        last_known_message_id: int | None = None,
+        last_common_read_id: int | None = None,
         set_read_marker: bool = True,
         include_last_known: bool = False,
         no_status_update: bool = False,
@@ -363,8 +364,8 @@ class ChatApi(NextcloudModule):
         room_token: str,
         message: str,
         reply_to: int = 0,
-        display_name: Optional[str] = None,
-        reference_id: Optional[str] = None,
+        display_name: str | None = None,
+        reference_id: str | None = None,
         silent: bool = False,
     ) -> tuple[Message, httpx.Headers]:
         """Send message to a conversation.
@@ -433,8 +434,8 @@ class ChatApi(NextcloudModule):
         self,
         room_token: str,
         rich_object: NextcloudTalkRichObject,
-        reference_id: Optional[str] = None,
-        actor_display_name: Optional[str] = None,
+        reference_id: str | None = None,
+        actor_display_name: str | None = None,
     ) -> tuple[Message, httpx.Headers]:
         """Share a rich object to the conversation.
 
@@ -491,7 +492,7 @@ class ChatApi(NextcloudModule):
         room_token: str,
         path: str,
         metadata: ChatFileShareMetadata,
-        reference_id: Optional[str] = None,
+        reference_id: str | None = None,
     ) -> int:
         """Share a file to the conversation.
 
@@ -750,7 +751,7 @@ class ChatApi(NextcloudModule):
         await self._delete(path=f"/chat/{room_token}/{message_id}/reminder")
 
     async def mark_as_read(
-        self, room_token: str, last_read_message_id: Optional[int] = None
+        self, room_token: str, last_read_message_id: int | None = None
     ) -> httpx.Headers:
         """Mark conversation as read.
 

@@ -7,11 +7,12 @@ https://nextcloud-talk.readthedocs.io/en/latest/reaction/
 
 import datetime as dt
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from dateutil.tz import tzlocal
 
-from nextcloud_async.driver import NextcloudModule, NextcloudTalkApi
+from nextcloud_async.api import NextcloudModule
+from nextcloud_async.driver import NextcloudTalkDriver
 
 
 @dataclass
@@ -61,9 +62,9 @@ class Reaction:
 class Reactions(NextcloudModule):
     """Interact with Nextcloud Talk API."""
 
-    def __init__(self, api: NextcloudTalkApi, api_version: str = "1") -> None:
+    def __init__(self, api: NextcloudTalkDriver, api_version: str = "1") -> None:
         self.stub = f"/apps/spreed/api/v{api_version}/reaction"
-        self.api: NextcloudTalkApi = api
+        self.api: NextcloudTalkDriver = api
 
     async def add(
         self, room_token: str, message_id: int, reaction: str
@@ -114,7 +115,7 @@ class Reactions(NextcloudModule):
         return [Reaction(data) for data in response]
 
     async def list(
-        self, room_token: str, message_id: int, reaction: Optional[str] = None
+        self, room_token: str, message_id: int, reaction: str | None = None
     ) -> list[Reaction]:
         """Retrieve reactions of a message by type.
 

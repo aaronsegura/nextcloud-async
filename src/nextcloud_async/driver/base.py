@@ -5,12 +5,12 @@ https://docs.nextcloud.com/server/latest/developer_manual/client_apis/
 
 import json
 import logging
-from typing import Any, Dict, Optional
+from typing import Any
 
 import httpx
 
 from nextcloud_async.client import NextcloudClient
-from nextcloud_async.driver import NextcloudHttpApi
+from nextcloud_async.driver import NextcloudHttpDriver
 from nextcloud_async.exceptions import NextcloudAsyncError, NextcloudRequestTimeoutError
 
 log = logging.getLogger("nextcloud_async.driver")
@@ -19,10 +19,10 @@ _HTTP_SERVER_ERROR = 500
 _HTTP_USER_ERROR = 400
 
 
-class NextcloudBaseApi(NextcloudHttpApi):
+class NextcloudBaseDriver(NextcloudHttpDriver):
     """The Base API interface."""
 
-    def __init__(self, client: NextcloudClient, api_stub: Optional[str] = None) -> None:
+    def __init__(self, client: NextcloudClient, api_stub: str | None = None) -> None:
         super().__init__(client)
         if api_stub:
             self.stub = api_stub
@@ -38,6 +38,7 @@ class NextcloudBaseApi(NextcloudHttpApi):
 
         Raises:
             NextcloudAsyncError: When content is unintepretable.
+
         """
         if response.content:
             try:
@@ -51,8 +52,8 @@ class NextcloudBaseApi(NextcloudHttpApi):
         self,
         method: str = "GET",
         path: str = "",
-        data: Optional[dict[str, Any]] = None,
-        headers: Optional[dict[str, Any]] = None,
+        data: dict[str, Any] | None = None,
+        headers: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """Send a request to the Nextcloud endpoint.
 
@@ -67,6 +68,7 @@ class NextcloudBaseApi(NextcloudHttpApi):
 
         Returns:
             dict[str, Any]: Dictionary of reponse data
+
         """
         if method.lower() == "get":
             path = self._path_args(data, path)

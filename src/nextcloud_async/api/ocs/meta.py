@@ -28,11 +28,11 @@
 # # TODO: Move this to another module
 # async def get_activity(
 #         self,
-#         since: Optional[int] = 0,
-#         object_id: Optional[str] = None,
-#         object_type: Optional[str] = None,
-#         sort: Optional[str] = 'desc',
-#         limit: Optional[int] = 50) -> dict[str, Any]:
+#         since: int | None = 0,
+#         object_id: str | None = None,
+#         object_type: str | None = None,
+#         sort: str | None = 'desc',
+#         limit: int | None = 50) -> dict[str, Any]:
 #     """Get Recent activity for the current user.
 
 #     Args

@@ -5,7 +5,7 @@ from urllib.parse import quote
 
 import httpx
 
-from nextcloud_async.driver import NextcloudModule
+from nextcloud_async.api import NextcloudModule
 from nextcloud_async.exceptions import NextcloudForbiddenError
 
 
@@ -49,6 +49,7 @@ def bool2int(b: bool) -> int:
 
     Returns:
         0 if False, 1 if True
+
     """
     if not isinstance(b, bool):
         raise TypeError("Given value is not a boolean.")
@@ -71,6 +72,7 @@ def phone_number_to_e164(phone_number: str | int) -> str:
 
     Returns:
         E164 phone number
+
     """
     if not any([isinstance(phone_number, int), isinstance(phone_number, str)]):
         raise TypeError("Phone number must be string or integer.")
@@ -100,6 +102,7 @@ def filter_headers(filter: List[str], headers: httpx.Headers) -> httpx.Headers:
 
     Returns:
         List of filtered headers
+
     """
     filter = [x.lower() for x in filter]
     return httpx.Headers([x for x in headers.items() if x[0] in filter])
@@ -127,6 +130,7 @@ def password_confirmation_required(
     Args:
         func:
             Function to be wrapped.
+
     """
 
     async def _wrapper(

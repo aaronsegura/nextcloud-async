@@ -9,10 +9,11 @@ import logging
 from collections.abc import Awaitable
 from typing import Any
 
-from nextcloud_async.api.dataobject import NextcloudDataObject
+from nextcloud_async.api import NextcloudModule
+from nextcloud_async.api.mixins import NextcloudDataObject
 from nextcloud_async.api.ocs.groups import Group, GroupsApi
 from nextcloud_async.client import NextcloudClient
-from nextcloud_async.driver import NextcloudModule, NextcloudOcsApi
+from nextcloud_async.driver import NextcloudOcsDriver
 from nextcloud_async.helpers import password_confirmation_required
 
 log = logging.getLogger("nextcloud_async.api")
@@ -119,7 +120,7 @@ class User(NextcloudDataObject):
 class UsersApi(NextcloudModule):
     """Manage users on a Nextcloud instance."""
 
-    def __init__(self, ocs_api: NextcloudOcsApi) -> None:
+    def __init__(self, ocs_api: NextcloudOcsDriver) -> None:
         self.stub = "/cloud"
         self.api = ocs_api
 
@@ -447,5 +448,5 @@ class UsersApi(NextcloudModule):
 
 def users_api(client: NextcloudClient) -> UsersApi:
     """UsersApi Factory."""
-    ocs_api = NextcloudOcsApi(client)
+    ocs_api = NextcloudOcsDriver(client)
     return UsersApi(ocs_api)

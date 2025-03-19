@@ -1,6 +1,7 @@
-from typing import Any, Dict
+from typing import Any
 
-from nextcloud_async.driver import NextcloudModule, NextcloudTalkApi
+from nextcloud_async.api import NextcloudModule
+from nextcloud_async.driver import NextcloudTalkDriver
 
 
 class InternalSignalingApi(NextcloudModule):
@@ -9,9 +10,9 @@ class InternalSignalingApi(NextcloudModule):
     https://nextcloud-talk.readthedocs.io/en/latest/internal-signaling/
     """
 
-    def __init__(self, api: NextcloudTalkApi, api_version: str = "3") -> None:
+    def __init__(self, api: NextcloudTalkDriver, api_version: str = "3") -> None:
         self.stub = f"/apps/spreed/api/v{api_version}/signaling"
-        self.api: NextcloudTalkApi = api
+        self.api: NextcloudTalkDriver = api
 
     async def get_settings(self, room_token: str) -> dict[str, Any]:
         """Get signaling settings."""
