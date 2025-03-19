@@ -38,7 +38,7 @@ class TalkApi(NextcloudModule):
     def __init__(
         self, talk_api: NextcloudTalkDriver, apis: TalkApis, version: str = "2"
     ) -> None:
-        self.api = talk_api
+        self.driver = talk_api
         self.stub = f"/apps/spreed/api/v{version}"
 
         self.bots = apis.bots

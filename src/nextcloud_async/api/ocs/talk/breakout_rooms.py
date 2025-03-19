@@ -96,10 +96,10 @@ class BreakoutRoomsApi(NextcloudModule):
 
     def __init__(self, api: NextcloudTalkDriver, api_version: str = "1") -> None:
         self.stub = f"/apps/spreed/api/v{api_version}/breakout-rooms"
-        self.api = api
+        self.driver = api
 
     async def _validate_capability(self) -> None:
-        await self.api.require_feature("breakout-rooms-v1")
+        await self.driver.require_feature("breakout-rooms-v1")
 
     def _create_rooms_by_type(
         self, rooms: list[dict[str, Any]]
@@ -276,4 +276,4 @@ class BreakoutRoomsApi(NextcloudModule):
         """
         await self._validate_capability()
         response = await self._post(path=f"/{room_token}/switch", data={"target": target})
-        return BreakoutRoom(response, self.api)
+        return BreakoutRoom(response, self.driver)

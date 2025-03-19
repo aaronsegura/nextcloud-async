@@ -32,14 +32,14 @@ class NextcloudOcsDriver(NextcloudHttpDriver):
         version: str | None = "1",
         stub: str | None = None,
     ) -> None:
+        super().__init__(client)
+
         if stub:
             self.stub = stub
         else:
             self.stub = f"/ocs/v{version}.php"
 
         self.version = version
-
-        super().__init__(client)
 
     async def request(
         self,
