@@ -48,6 +48,12 @@ log = logging.getLogger("nextcloud_async.driver")
 
 
 class NextcloudCapabilities:
+    """Inspect Nextcloud Server Capabilities.
+
+    This is a singleton so as to save time having to pull capabilities every time
+    it is used by a different driver.
+    """
+
     _instance: Optional["NextcloudCapabilities"] = None
     _capabilities: dict[str, Any] = {}
     _version: dict[str, Any] = {}
