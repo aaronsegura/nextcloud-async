@@ -55,6 +55,7 @@ class Message:
 
         Returns:
             List of reactions to message
+
         """
         if not self._reactions:
             self._pop_reactions
@@ -69,6 +70,7 @@ class Message:
         Args:
             reaction:
                 Reaction emoji to add
+
         """
         response = await self.reaction_api.add(
             room_token=self.token, message_id=self.id, reaction=reaction
@@ -81,6 +83,7 @@ class Message:
         Args:
             reaction:
                 Reaction emoji to remove
+
         """
         response = await self.reaction_api.delete(
             room_token=self.token, message_id=self.id, reaction=reaction
@@ -98,6 +101,7 @@ class Message:
 
         Returns:
             MessageReminder
+
         """
         reminder = await self.chat_api.set_reminder(
             self.token, self.message_id, timestamp
@@ -112,6 +116,7 @@ class Message:
 
         Returns:
             MessageReminder
+
         """
         if not self._reminder:
             return await self.chat_api.get_reminder(self.token, self.message_id)
@@ -129,6 +134,7 @@ class Message:
 
         Returns:
             Header: 'X-Chat-Last-Common-Read'
+
         """
         message, headers = await self.chat_api.delete(
             room_token=self.token, message_id=self.id
@@ -151,6 +157,7 @@ class Message:
 
         Returns:
             List of Reaction
+
         """
         response = await self.reaction_api.list(self.token, self.id, reaction)
         self._reactions = response
@@ -176,6 +183,7 @@ class MessageReminder:
 
         Returns:
             self.userId
+
         """
         return self.userId
 
@@ -185,6 +193,7 @@ class MessageReminder:
 
         Returns:
             self.messageId
+
         """
         return self.messageId
 
@@ -208,6 +217,7 @@ class Suggestion:
 
         Returns:
             self.mentionId
+
         """
         return self.mentionId
 
@@ -217,6 +227,7 @@ class Suggestion:
 
         Returns:
             self.statusIcon
+
         """
         return self.statusIcon
 
@@ -226,6 +237,7 @@ class Suggestion:
 
         Returns:
             self.statusMessage
+
         """
         return self.statusMessage
 
@@ -306,6 +318,7 @@ class ChatApi(NextcloudModule):
                 that has read privacy set to public. When the user themself has it set to
                 private the value the header is not set (only available with
                 chat-read-status capability and when last_common_read_id was sent)
+
         """
         return_headers: list[str] = ["x-chat-last-given", "x-chat-last-common-read"]
         data = {
@@ -349,6 +362,7 @@ class ChatApi(NextcloudModule):
 
         Returns:
             Messages
+
         """
         await self.api.require_feature("chat-get-context")
         response, headers = await self._get(
@@ -406,6 +420,7 @@ class ChatApi(NextcloudModule):
                 that has read privacy set to public. When the user themself has it set to
                 private the value the header is not set (only available with
                 chat-read-status capability and when last_common_read_id was sent)
+
         """
         return_headers: list[str] = ["x-chat-last-common-read"]
 
@@ -467,6 +482,7 @@ class ChatApi(NextcloudModule):
                 that has read privacy set to public. When the user themself has it set to
                 private the value the header is not set (only available with
                 chat-read-status capability and when last_common_read_id was sent)
+
         """
         await self.api.require_feature("rich-object-sharing")
         return_headers = ["x-chat-last-common-read"]
@@ -520,6 +536,7 @@ class ChatApi(NextcloudModule):
 
         Returns:
             Integer ID of new share.
+
         """
         if metadata.silent:
             await self.api.require_feature("silent-send")
@@ -560,6 +577,7 @@ class ChatApi(NextcloudModule):
 
         Returns:
             List of Messages with shares.
+
         """
         await self.api.require_feature("rich-object-list-media")
         response, _ = await self._get(
@@ -596,6 +614,7 @@ class ChatApi(NextcloudModule):
 
             Headers:
                 X-Chat-Last-Given [int] Offset for the next page.
+
         """
         return_headers = ["x-chat-last-given"]
 
@@ -619,6 +638,7 @@ class ChatApi(NextcloudModule):
 
         Returns:
             Message to display in empty channel.
+
         """
         await self.api.require_feature("clear-history")
         response = await self._delete(path=f"/chat/{room_token}")
@@ -647,6 +667,7 @@ class ChatApi(NextcloudModule):
                 that has read privacy set to public. When the user themself has it set to
                 private the value the header is not set (only available with
                 chat-read-status capability)
+
         """
         return_headers = ["x-chat-last-common-read"]
 
@@ -677,6 +698,7 @@ class ChatApi(NextcloudModule):
                 that has read privacy set to public. When the user themself has it set to
                 private the value the header is not set (only available with
                 chat-read-status capability)
+
         """
         return_headers = ["x-chat-last-common-read"]
 
@@ -706,6 +728,7 @@ class ChatApi(NextcloudModule):
 
         Returns:
             MessageReminder
+
         """
         await self.api.require_feature("remind-me-later")
         response, _ = await self._post(
@@ -729,6 +752,7 @@ class ChatApi(NextcloudModule):
 
         Returns:
             MessageReminder
+
         """
         await self.api.require_feature("remind-me-later")
         response, _ = await self._get(path=f"/chat/{room_token}/{message_id}/reminder")
@@ -746,6 +770,7 @@ class ChatApi(NextcloudModule):
 
             message_id:
                 ID of message
+
         """
         await self.api.require_feature("remind-me-later")
         await self._delete(path=f"/chat/{room_token}/{message_id}/reminder")
@@ -769,6 +794,7 @@ class ChatApi(NextcloudModule):
                 that has read privacy set to public. When the user themself has it set to
                 private the value the header is not set (only available with
                 chat-read-status capability)
+
         """
         return_headers = ["x-chat-last-common-read"]
         await self.api.require_feature("chat-read-marker")
@@ -795,6 +821,7 @@ class ChatApi(NextcloudModule):
                 that has read privacy set to public. When the user themself has it set to
                 private the value the header is not set (only available with
                 chat-read-status capability)
+
         """
         return_headers = ["x-chat-last-common-read"]
         await self.api.require_feature("chat-unread")
@@ -825,6 +852,7 @@ class ChatApi(NextcloudModule):
 
         Returns:
             List of Suggestions
+
         """
         data: dict[str, Any] = {
             "search": search,

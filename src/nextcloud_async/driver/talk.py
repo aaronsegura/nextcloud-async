@@ -4,16 +4,14 @@ https://nextcloud-talk.readthedocs.io/en/latest/global/
 """
 
 import logging
-from typing import Any
-
-import httpx
+from typing import TYPE_CHECKING, Any, cast
 
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver import NextcloudOcsDriver
-from nextcloud_async.exceptions import (
-    NextcloudNotCapableError,
-    NextcloudRequestTimeoutError,
-)
+from nextcloud_async.exceptions import NextcloudNotCapableError
+
+if TYPE_CHECKING:
+    from nextcloud_async.provider import HttpClientResponse
 
 _HTTP_USER_ERROR = 400
 _HTTP_SERVER_ERROR = 500
@@ -58,14 +56,13 @@ class NextcloudTalkDriver(NextcloudOcsDriver):
         if not await self.has_feature(feature):
             raise NextcloudNotCapableError()
 
-    # TODO: super()?
     async def request(
         self,
         method: str = "GET",
         path: str = "",
         data: dict[str, Any] | None = None,
         headers: dict[str, Any] | None = None,
-    ) -> tuple[dict[str, Any], httpx.Headers]:
+    ) -> tuple[dict[str, Any], dict[str, Any]]:
         """Submit OCS-type query to cloud endpoint.
 
         Args:
@@ -92,26 +89,9 @@ class NextcloudTalkDriver(NextcloudOcsDriver):
             NextcloudException - when invalid response from server
 
         """
-        headers = self._munge_headers(headers)
-        data = self._format_json(data)
-
-        if method.lower() == "get":
-            path = self._path_args(data, path)
-            data = None
-
-        try:
-            log.debug(f"{method} {self.client.endpoint}{self.stub}{path} {data}")
-            response = await self.client.http_client.request(
-                method,
-                auth=self.client.auth,
-                url=f"{self.client.endpoint}{self.stub}{path}",
-                json=data,
-                headers=headers,
-            )
-            log.debug(f"Response: [{response.status_code}] {response.text}")
-        except httpx.ReadTimeout:
-            log.warning("Request timed out.")
-            raise NextcloudRequestTimeoutError()
-
+        response = cast(
+            "HttpClientResponse",
+            await super().request(method, path, data, headers, raw_response=True),
+        )
         await self.raise_response_exception(response)
         return response.json()["ocs"]["data"], response.headers

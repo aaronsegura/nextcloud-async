@@ -7,12 +7,12 @@ import logging
 from typing import Any
 from xml.parsers.expat import ExpatError
 
-import httpx
 import xmltodict
 
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver.http import NextcloudHttpDriver
-from nextcloud_async.exceptions import NextcloudAsyncError, NextcloudRequestTimeoutError
+from nextcloud_async.exceptions import NextcloudAsyncError
+from nextcloud_async.provider import HttpClientException, HttpClientResponse
 
 log = logging.getLogger("nextcloud_async.driver")
 
@@ -38,7 +38,7 @@ class NextcloudDavDriver(NextcloudHttpDriver):
         headers: dict[str, Any] | None = None,
         content: bytes | None = None,
         raw_response: bool = False,
-    ) -> dict[str, Any] | bytes:
+    ) -> dict[str, Any] | bytes | HttpClientResponse:
         """Send a query to the Nextcloud DAV Endpoint.
 
         Args:
@@ -58,8 +58,7 @@ class NextcloudDavDriver(NextcloudHttpDriver):
                 Content to submit.  Use this when data is binary.
 
             raw_response:
-                Do no xml -> json manipulation on returned data.  Return exactly what
-                    is sent.
+                Return HttpClientResponse object.
 
         Raises:
             NextcloudRequestTimeoutError: Request timeout
@@ -86,14 +85,13 @@ class NextcloudDavDriver(NextcloudHttpDriver):
             )
             log.debug(f"Response: [{response.status_code}] {response.content}")
 
-        except httpx.ReadTimeout:
-            log.warning("Request timed out.")
-            raise NextcloudRequestTimeoutError()
+        except HttpClientException as e:
+            log.critical(str(e))
 
         await self.raise_response_exception(response)
 
         if raw_response:
-            return response.content
+            return response
 
         if response.content:
             try:
@@ -106,7 +104,7 @@ class NextcloudDavDriver(NextcloudHttpDriver):
         else:
             return {}
 
-    async def raise_response_exception(self, response: httpx.Response) -> None:
+    async def raise_response_exception(self, response: HttpClientResponse) -> None:
         """Parse response and raises exception, if necessary.
 
         Args:

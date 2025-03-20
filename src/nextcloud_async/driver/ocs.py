@@ -7,11 +7,10 @@ import json
 import logging
 from typing import Any
 
-import httpx
-
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver.http import NextcloudHttpDriver
-from nextcloud_async.exceptions import NextcloudAsyncError, NextcloudRequestTimeoutError
+from nextcloud_async.exceptions import NextcloudAsyncError
+from nextcloud_async.provider import HttpClientException, HttpClientResponse
 
 _HTTP_USER_ERROR = 400
 _HTTP_SERVER_ERROR = 500
@@ -48,7 +47,7 @@ class NextcloudOcsDriver(NextcloudHttpDriver):
         data: dict[str, Any] | None = None,
         headers: dict[str, Any] | None = None,
         raw_response: bool = False,
-    ) -> dict[str, Any] | list[dict[str, Any]] | bytes:
+    ) -> dict[str, Any] | list[dict[str, Any]] | bytes | HttpClientResponse:
         """Submit OCS-type query to cloud endpoint.
 
         Args:
@@ -70,7 +69,7 @@ class NextcloudOcsDriver(NextcloudHttpDriver):
                 Headers for submission. Defaults to {}.
 
             raw_response:
-                Return entire OCS response, including metadata
+                Return entire response object.
 
         Returns:
             Dict|List: Response Data
@@ -99,17 +98,17 @@ class NextcloudOcsDriver(NextcloudHttpDriver):
                 json=data,
                 headers=headers,
             )
-            log.debug(f"Response: [{response.status_code}] {response.text}")
-        except httpx.ReadTimeout:
-            log.warning("Request timed out.")
-            raise NextcloudRequestTimeoutError("Request timed out.")
+            log.debug(f"Response: [{response.status_code}] {response.content}")
+        except HttpClientException as e:
+            log.critical(str(e))
 
         if raw_response:
-            return response.content
+            return response
+
         await self.raise_response_exception(response)
         return response.json()["ocs"]["data"]
 
-    async def raise_response_exception(self, response: httpx.Response) -> None:
+    async def raise_response_exception(self, response: HttpClientResponse) -> None:
         """Raise an exception, if necessary.
 
         Args:
@@ -125,8 +124,10 @@ class NextcloudOcsDriver(NextcloudHttpDriver):
         except json.JSONDecodeError as e:
             raise NextcloudAsyncError(reason=str(e))
 
+        log.debug(f"Response Data = {response_data}")
         if response.status_code >= _HTTP_SERVER_ERROR:
             await self._raise_response_exception(response.status_code, response.text)
+
         ocs_meta = response_data["ocs"]["meta"]
         if ocs_meta["status"] != "ok" or ocs_meta["statuscode"] >= _HTTP_USER_ERROR:
             await self._raise_response_exception(

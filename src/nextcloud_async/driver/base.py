@@ -7,11 +7,10 @@ import json
 import logging
 from typing import Any
 
-import httpx
-
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver.http import NextcloudHttpDriver
-from nextcloud_async.exceptions import NextcloudAsyncError, NextcloudRequestTimeoutError
+from nextcloud_async.exceptions import NextcloudAsyncError
+from nextcloud_async.provider import HttpClientException, HttpClientResponse
 
 log = logging.getLogger("nextcloud_async.driver")
 
@@ -29,7 +28,7 @@ class NextcloudBaseDriver(NextcloudHttpDriver):
         else:
             self.stub = "/index.php"
 
-    async def raise_response_exception(self, response: httpx.Response) -> None:
+    async def raise_response_exception(self, response: HttpClientResponse) -> None:
         """Raise an exception, if necessary.
 
         Args:
@@ -54,18 +53,25 @@ class NextcloudBaseDriver(NextcloudHttpDriver):
         path: str = "",
         data: dict[str, Any] | None = None,
         headers: dict[str, Any] | None = None,
-    ) -> dict[str, Any]:
+        raw_response: bool = False,
+    ) -> dict[str, Any] | HttpClientResponse:
         """Send a request to the Nextcloud endpoint.
 
         Args:
-            method (str, optional): HTTP Method. Defaults to 'GET'.
+            method:
+                HTTP Method. Defaults to 'GET'.
 
-            path (str, optional): The part after the host. Defaults to ''.
+            path:
+                The part after the host. Defaults to ''.
 
-            data (dict, optional): Data for submission. Defaults to {}.
+            data:
+                Data for submission. Defaults to {}.
 
-            headers (dict, optional): Headers for submission. Defaults to {}.
+            headers:
+                Headers for submission. Defaults to {}.
 
+            raw_response:
+                Return the HttpClientResponse object
         Returns:
             dict[str, Any]: Dictionary of reponse data
 
@@ -87,10 +93,13 @@ class NextcloudBaseDriver(NextcloudHttpDriver):
             )
             log.debug(f"Response: [{response.status_code}] {response.content}")
 
-        except httpx.ReadTimeout:
-            log.warning("Request timed out.")
-            raise NextcloudRequestTimeoutError()
+        except HttpClientException as e:
+            log.critical(str(e))
+            raise
 
         await self.raise_response_exception(response)
 
-        return response.json()
+        if raw_response:
+            return response
+        else:
+            return response.json()

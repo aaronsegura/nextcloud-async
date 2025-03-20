@@ -8,11 +8,10 @@ See api.loginflow.LoginFlowV2.
 
 import logging
 
-import httpx
-
 from nextcloud_async.api.modules import NextcloudModule
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver import NextcloudBaseDriver
+from nextcloud_async.provider import HttpClientResponse
 
 log = logging.getLogger("nextcloud_async.wipe")
 
@@ -57,16 +56,17 @@ class WipeApi(NextcloudModule):
             return response["wipe"]
         return False
 
-    async def notify_wiped(self) -> httpx.Response:
+    async def notify_wiped(self) -> HttpClientResponse:
         """Notify server that device has been wiped.
 
-        Here we must use the direct httpx.post method without authentication.
+        Here we must use the direct client post method without authentication.
 
         Returns:
             Empty 200 Response
 
         """
-        return await self.driver.client.http_client.post(
+        return await self.driver.client.http_client.request(
+            method="POST",
             url=f"{self.driver.client.endpoint}{self.stub}/success",
             data={"token": self.driver.client.app_token},
         )

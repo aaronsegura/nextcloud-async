@@ -23,6 +23,7 @@ from nextcloud_async.exceptions import (
     NextcloudUnsupportedMediaTypeError,
     NextcloudUpgradeRequiredError,
 )
+from nextcloud_async.provider import HttpClientResponse
 
 _EXCEPTIONS = [
     NextcloudBadRequestError,
@@ -356,7 +357,7 @@ class NextcloudHttpDriver(ABC):
         path: str = "",
         data: Any | None = None,
         headers: dict[str, Any] | None = None,
-    ) -> Any:
+    ) -> HttpClientResponse:
         """Passthrough to self.request() with method="GET" and raw_response=True."""
         return await self.request(
             method="GET", path=path, data=data, headers=headers, raw_response=True

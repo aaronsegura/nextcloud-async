@@ -12,7 +12,6 @@ import xml.etree.ElementTree as ET
 from typing import Any
 from urllib.parse import quote
 
-import httpx
 import platformdirs as pdir
 from aiofile import async_open
 
@@ -24,6 +23,7 @@ from nextcloud_async.exceptions import (
     NextcloudChunkedUploadError,
     NextcloudError,
 )
+from nextcloud_async.provider import HttpClientResponse
 
 from .trashbin import Trashbin, TrashFile
 from .user_files import UserFile, UserPath
@@ -139,7 +139,8 @@ class FilesApi(NextcloudModule):
             str: File content
 
         """
-        return await self._get_raw(path=f"/files/{self.driver.client.user}/{path}")
+        response = await self._get_raw(path=f"/files/{self.driver.client.user}/{path}")
+        return response.content
 
     async def upload(self, local_path: str, remote_path: str) -> None:
         """Upload a file.
@@ -414,14 +415,18 @@ class FilesApi(NextcloudModule):
                 if "already exists" not in str(e):
                     raise
 
-    async def __upload_file_chunk(self, local_path: str, uuid_dir: str) -> httpx.Response:
+    async def __upload_file_chunk(
+        self, local_path: str, uuid_dir: str
+    ) -> HttpClientResponse:
         async with async_open(local_path, "rb") as fp:
             return await self._put(
                 path=f"/uploads/{self.driver.client.user}/{uuid_dir}/{os.path.basename(local_path)}",
                 data=await fp.read(),
             )
 
-    async def __assemble_chunks(self, uuid_dir: str, remote_path: str) -> httpx.Response:
+    async def __assemble_chunks(
+        self, uuid_dir: str, remote_path: str
+    ) -> HttpClientResponse:
         return await self._move(
             path=f"/uploads/{self.driver.client.user}/{uuid_dir}/.file",
             headers={

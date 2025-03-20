@@ -16,7 +16,7 @@ class IntegrationsApi(NextcloudModule):
         api_version: str = "1",
     ) -> None:
         self.stub = f"/apps/spreed/api/v{api_version}"
-        self.api: NextcloudTalkDriver = api
+        self.driver: NextcloudTalkDriver = api
 
     async def get_internal_file_chat(self, file_id: int) -> str:
         """Return conversation token for discussion of internal file.
