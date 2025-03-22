@@ -6,8 +6,6 @@ https://nextcloud-talk.readthedocs.io/en/latest/participant/
 
 from typing import Any
 
-import httpx
-
 from nextcloud_async.api.mixins import NextcloudDataObject
 from nextcloud_async.api.modules import NextcloudModule
 from nextcloud_async.driver import NextcloudTalkDriver
@@ -73,18 +71,18 @@ class ParticipantsApi(NextcloudModule):
 
     def __init__(self, api: NextcloudTalkDriver, api_version: str = "4") -> None:
         self.stub = f"/apps/spreed/api/v{api_version}"
-        self.api: NextcloudTalkDriver = api
+        self.driver: NextcloudTalkDriver = api
 
     async def get_all(
         self,
         room_token: str,
         include_status: bool = False,
         include_breakout_rooms: bool = False,
-    ) -> tuple[list[Participant], httpx.Headers]:
+    ) -> tuple[list[Participant], dict[str, Any]]:
         """Return list of participants."""
         path = f"/room/{room_token}/participants"
         if include_breakout_rooms:
-            await self.api.require_feature("breakout-rooms-v1")
+            await self.driver.require_feature("breakout-rooms-v1")
             path = f"/room/{room_token}/breakout-rooms/participants"
 
         response, headers = await self._get(
@@ -148,7 +146,7 @@ class ParticipantsApi(NextcloudModule):
                 SessionState
 
         """
-        await self.api.require_feature("session-state")
+        await self.driver.require_feature("session-state")
         await self._put(
             path=f"/room/{room_token}/participants/state", data={"state": state.value}
         )
@@ -206,7 +204,7 @@ class ParticipantsApi(NextcloudModule):
                 all invitations
 
         """
-        await self.api.require_feature("sip-support")
+        await self.driver.require_feature("sip-support")
         await self._post(
             path=f"/room/{room_token}/participants/resend-invitations",
             data={"attendeeId": participant_id or "none"},
@@ -295,7 +293,7 @@ class ParticipantsApi(NextcloudModule):
             Participant
 
         """
-        await self.api.require_feature("sip-support-dialout")
+        await self.driver.require_feature("sip-support-dialout")
         response, _ = await self._post(
             path=f"/room/{room_token}/verify-dialin", data={"pin": pin}
         )
@@ -333,7 +331,7 @@ class ParticipantsApi(NextcloudModule):
             Participant
 
         """
-        await self.api.require_feature("sip-support-dialout")
+        await self.driver.require_feature("sip-support-dialout")
         response, _ = await self._post(
             path=f"/room/{room_token}/verify-dialout",
             data={
@@ -363,7 +361,7 @@ class ParticipantsApi(NextcloudModule):
                 The options as received in the dialout request.
 
         """
-        await self.api.require_feature("sip-support-dialout")
+        await self.driver.require_feature("sip-support-dialout")
         await self._delete(
             path=f"/room/{room_token}/rejected-dialout",
             data={"options": options, "callId": call_id},
@@ -380,6 +378,6 @@ class ParticipantsApi(NextcloudModule):
                 Your new name
 
         """
-        await self.api.request(
+        await self.driver.request(
             path=f'/guest/{room_token}/name"', data={"displayName": name}
         )

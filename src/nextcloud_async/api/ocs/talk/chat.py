@@ -8,8 +8,6 @@ import json
 from dataclasses import dataclass, field
 from typing import Any
 
-import httpx
-
 from nextcloud_async.api.modules import NextcloudModule
 from nextcloud_async.driver import NextcloudTalkDriver
 from nextcloud_async.exceptions import NextcloudBadRequestError
@@ -129,7 +127,7 @@ class Message:
         """
         await self.chat_api.delete_reminder(self.token, self.message_id)
 
-    async def delete(self) -> httpx.Headers:
+    async def delete(self) -> dict[str, Any]:
         """Delete this message.
 
         Returns:
@@ -261,7 +259,7 @@ class ChatApi(NextcloudModule):
         include_last_known: bool = False,
         no_status_update: bool = False,
         mark_notifications_as_read: bool = True,
-    ) -> tuple[list[Message], httpx.Headers]:
+    ) -> tuple[list[Message], tuple[str, Any]]:
         """Receive messages from a conversation.
 
         https://nextcloud-talk.readthedocs.io/en/latest/chat/#receive-chat-messages-of-a-conversation
@@ -344,7 +342,7 @@ class ChatApi(NextcloudModule):
 
     async def get_context(
         self, room_token: str, message_id: int, limit: int = 50
-    ) -> tuple[list[Message], httpx.Headers]:
+    ) -> tuple[list[Message], dict[str, Any]]:
         """Get context around a message.
 
         Requires Capability: chat-get-context
@@ -381,7 +379,7 @@ class ChatApi(NextcloudModule):
         display_name: str | None = None,
         reference_id: str | None = None,
         silent: bool = False,
-    ) -> tuple[Message, httpx.Headers]:
+    ) -> tuple[Message, dict[str, Any]]:
         """Send message to a conversation.
 
         Args:
@@ -451,7 +449,7 @@ class ChatApi(NextcloudModule):
         rich_object: NextcloudTalkRichObject,
         reference_id: str | None = None,
         actor_display_name: str | None = None,
-    ) -> tuple[Message, httpx.Headers]:
+    ) -> tuple[Message, dict[str, Any]]:
         """Share a rich object to the conversation.
 
         https://github.com/nextcloud/server/blob/master/lib/public/RichObjectStrings/Definitions.php
@@ -592,7 +590,7 @@ class ChatApi(NextcloudModule):
         object_type: SharedItemType,
         last_known_message_id: int,
         limit: int = 7,
-    ) -> tuple[list[Message], httpx.Headers]:
+    ) -> tuple[list[Message], dict[str, Any]]:
         """List items of type shared in a chat.
 
         Args:
@@ -646,7 +644,7 @@ class ChatApi(NextcloudModule):
 
     async def delete(
         self, room_token: str, message_id: int
-    ) -> tuple[Message, httpx.Headers]:
+    ) -> tuple[Message, dict[str, Any]]:
         """Delete a message in a conversation.
 
         https://nextcloud-talk.readthedocs.io/en/latest/chat/#deleting-a-chat-message
@@ -677,7 +675,7 @@ class ChatApi(NextcloudModule):
 
     async def edit(
         self, room_token: str, message_id: int, message: str
-    ) -> tuple[Message, httpx.Headers]:
+    ) -> tuple[Message, dict[str, Any]]:
         """Edit an existing message in a conversation.
 
         Args:
@@ -777,7 +775,7 @@ class ChatApi(NextcloudModule):
 
     async def mark_as_read(
         self, room_token: str, last_read_message_id: int | None = None
-    ) -> httpx.Headers:
+    ) -> dict[str, Any]:
         """Mark conversation as read.
 
         Args:
@@ -806,7 +804,7 @@ class ChatApi(NextcloudModule):
         _, headers = await self._post(path=f"/chat/{room_token}/read", data=data)
         return filter_headers(return_headers, headers)
 
-    async def mark_as_unread(self, room_token: str) -> httpx.Headers:
+    async def mark_as_unread(self, room_token: str) -> dict[str, Any]:
         """Mark conversation as unread.
 
         Requires capability: chat-unread

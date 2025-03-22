@@ -1,0 +1,146 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      host:
+      - localhost:8181
+      user-agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: MKCOL
+    uri: http://localhost:8181/remote.php/dav/files/admin//.nextcloud-async-pytest/test_files-test_download_file_noexist-httpx_basic
+  response:
+    body:
+      string: ''
+    headers:
+      Connection:
+      - Keep-Alive
+      Content-Length:
+      - '0'
+      Content-Security-Policy:
+      - default-src 'none';
+      Content-Type:
+      - text/html; charset=UTF-8
+      Date:
+      - Sat, 22 Mar 2025 00:34:39 GMT
+      Keep-Alive:
+      - timeout=5, max=100
+      OC-FileId:
+      - 00032755ocoguk96ketf
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      Set-Cookie:
+      - ocoguk96ketf=acf4255f0de4d1aef21f5107c27818a1; path=/; HttpOnly; SameSite=Lax
+      - oc_sessionPassphrase=0BHxKe%2FIn2OoHWJ6SuyyJRncbAU0xQCcEKsdmbI61Zi26idRTOjbzkV%2FwYUhblPhKJwI6wiA8J0eg7I%2FfOFJuL330S7MvqTdHZikiD2OGMpkd%2B0dCGWV6tRr%2BQT8CckT;
+        path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=acf4255f0de4d1aef21f5107c27818a1; path=/; HttpOnly; SameSite=Lax
+      - nc_sameSiteCookielax=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
+        GMT; SameSite=lax
+      - nc_sameSiteCookiestrict=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
+        GMT; SameSite=strict
+      - ocoguk96ketf=acf4255f0de4d1aef21f5107c27818a1; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=acf4255f0de4d1aef21f5107c27818a1; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=eab952e677b9170da50f741426de5c2b; path=/; HttpOnly; SameSite=Lax
+      - cookie_test=test; expires=Sat, 22 Mar 2025 01:34:39 GMT; Max-Age=3600
+      X-Content-Type-Options:
+      - nosniff
+      X-Debug-Token:
+      - SMW2edCC2IMzvb3vAcxj
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.27
+      X-Request-Id:
+      - SMW2edCC2IMzvb3vAcxj
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+    status:
+      code: 201
+      message: Created
+- request:
+    body: ''
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      host:
+      - localhost:8181
+      user-agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: GET
+    uri: http://localhost:8181/remote.php/dav/files/admin//.nextcloud-async-pytest/test_files-test_download_file_noexist-httpx_basic/.noexist
+  response:
+    body:
+      string: "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<d:error xmlns:d=\"DAV:\"
+        xmlns:s=\"http://sabredav.org/ns\">\n\t<s:exception>Internal Server Error</s:exception>\n\t<s:message>\n\t\tThe
+        server was unable to complete your request.\t\tIf this happens again, please
+        send the technical details below to the server administrator.\t\tMore details
+        can be found in the server log.\t\t\t</s:message>\n\n\t<s:technical-details>\n\t\t<s:remote-address>172.19.0.1</s:remote-address>\n\t\t<s:request-id>A0cRxoxDf3TAqC1L8q61</s:request-id>\n\n\t\t</s:technical-details>\n</d:error>\n"
+    headers:
+      Connection:
+      - Keep-Alive
+      Content-Length:
+      - '527'
+      Content-Security-Policy:
+      - 'default-src ''none'';base-uri ''none'';manifest-src ''self'';script-src ''self'';style-src
+        ''self'' ''unsafe-inline'';img-src ''self'' data: blob:;font-src ''self''
+        data:;connect-src ''self'';media-src ''self'';frame-ancestors ''self'';form-action
+        ''self'''
+      Content-Type:
+      - application/xml; charset=utf-8
+      Date:
+      - Sat, 22 Mar 2025 00:34:40 GMT
+      Keep-Alive:
+      - timeout=5, max=99
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      Set-Cookie:
+      - ocoguk96ketf=eab952e677b9170da50f741426de5c2b; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=eab952e677b9170da50f741426de5c2b; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=eab952e677b9170da50f741426de5c2b; path=/; HttpOnly; SameSite=Lax
+      - nc_username=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
+      - nc_token=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
+      - nc_session_id=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
+      - nc_username=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; path=/;
+        HttpOnly
+      - nc_token=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; path=/;
+        HttpOnly
+      - nc_session_id=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; path=/;
+        HttpOnly
+      - ocoguk96ketf=eab952e677b9170da50f741426de5c2b; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=506590d58580199594f4630bfe3c2a8b; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=506590d58580199594f4630bfe3c2a8b; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=506590d58580199594f4630bfe3c2a8b; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=fa8a71f5af7a6e7974a5bfc4e204e299; path=/; HttpOnly; SameSite=Lax
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.27
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+    status:
+      code: 404
+      message: Not Found
+version: 1

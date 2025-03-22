@@ -1,0 +1,285 @@
+interactions:
+- request:
+    body: '{"userid":"pytest_user","displayName":"Pytest User Guy","email":"pytest@example.com","groups":[],"subadmin":[],"language":"en","quota":"none","password":"MyCoolPassword","format":"json"}'
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '186'
+      content-type:
+      - application/json
+      host:
+      - localhost:8181
+      ocs-apirequest:
+      - 'true'
+      user-agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: POST
+    uri: http://localhost:8181/ocs/v1.php/cloud/users
+  response:
+    body:
+      string: '{"ocs":{"meta":{"status":"ok","statuscode":100,"message":"OK","totalitems":"","itemsperpage":""},"data":{"id":"pytest_user"}}}'
+    headers:
+      Cache-Control:
+      - no-cache, no-store, must-revalidate
+      Connection:
+      - Keep-Alive
+      Content-Security-Policy:
+      - default-src 'none';base-uri 'none';manifest-src 'self';frame-ancestors 'none'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Sat, 22 Mar 2025 00:56:23 GMT
+      Feature-Policy:
+      - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
+        'none';payment 'none'
+      Keep-Alive:
+      - timeout=5, max=100
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      Set-Cookie:
+      - ocoguk96ketf=e1bd30295f702670172f5937d6a2e5f9; path=/; HttpOnly; SameSite=Lax
+      - oc_sessionPassphrase=bSeMXDVnwgw4kPLklHeJXYUYADdhB4fW5gfEpCOgfLO38bD7qAKjjATMlRrObuLym%2BEwBz7LWuc9IPwOozpfG6D%2B2RDuhTJaDwEcBJIuAMl0vUC3rgreDRL%2B%2FFnf5H9A;
+        path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=e1bd30295f702670172f5937d6a2e5f9; path=/; HttpOnly; SameSite=Lax
+      - nc_sameSiteCookielax=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
+        GMT; SameSite=lax
+      - nc_sameSiteCookiestrict=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
+        GMT; SameSite=strict
+      - ocoguk96ketf=e1bd30295f702670172f5937d6a2e5f9; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=e1bd30295f702670172f5937d6a2e5f9; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=8f5e16a12c80f2976843e846928cd795; path=/; HttpOnly; SameSite=Lax
+      - cookie_test=test; expires=Sat, 22 Mar 2025 01:56:23 GMT; Max-Age=3600
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.27
+      X-Request-Id:
+      - gVc1iu67PpqshXtkjyc0
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+      content-length:
+      - '126'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: ''
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      host:
+      - localhost:8181
+      ocs-apirequest:
+      - 'true'
+      user-agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: GET
+    uri: http://localhost:8181/ocs/v1.php/cloud/users/pytest_user?format=json
+  response:
+    body:
+      string: '{"ocs":{"meta":{"status":"ok","statuscode":100,"message":"OK","totalitems":"","itemsperpage":""},"data":{"enabled":true,"storageLocation":"\/var\/www\/html\/data\/pytest_user","id":"pytest_user","lastLogin":0,"backend":"Database","subadmin":[],"quota":{"quota":"none","used":0},"manager":"","email":"pytest@example.com","additional_mail":[],"displayname":"Pytest
+        User Guy","display-name":"Pytest User Guy","phone":"","address":"","website":"","twitter":"","fediverse":"","organisation":"","role":"","headline":"","biography":"","profile_enabled":"1","groups":[],"language":"en","locale":"","notify_email":null,"backendCapabilities":{"setDisplayName":true,"setPassword":true}}}}'
+    headers:
+      Cache-Control:
+      - no-cache, no-store, must-revalidate
+      Connection:
+      - Keep-Alive
+      Content-Security-Policy:
+      - default-src 'none';base-uri 'none';manifest-src 'self';frame-ancestors 'none'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Sat, 22 Mar 2025 00:56:26 GMT
+      Feature-Policy:
+      - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
+        'none';payment 'none'
+      Keep-Alive:
+      - timeout=5, max=99
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      Set-Cookie:
+      - ocoguk96ketf=8f5e16a12c80f2976843e846928cd795; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=8f5e16a12c80f2976843e846928cd795; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=8f5e16a12c80f2976843e846928cd795; path=/; HttpOnly; SameSite=Lax
+      - nc_username=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
+      - nc_token=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
+      - nc_session_id=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
+      - nc_username=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; path=/;
+        HttpOnly
+      - nc_token=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; path=/;
+        HttpOnly
+      - nc_session_id=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; path=/;
+        HttpOnly
+      - ocoguk96ketf=8f5e16a12c80f2976843e846928cd795; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=dad3d2021a86c915294ff77b026f5fa6; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=dad3d2021a86c915294ff77b026f5fa6; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=dad3d2021a86c915294ff77b026f5fa6; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=4564d9ab9729d74c776041ee2bf72ff1; path=/; HttpOnly; SameSite=Lax
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.27
+      X-Request-Id:
+      - zGNs0vR7qXgpLXzjdpxK
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+      content-length:
+      - '677'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: ''
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      host:
+      - localhost:8181
+      ocs-apirequest:
+      - 'true'
+      user-agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: GET
+    uri: http://localhost:8181/ocs/v1.php/apps/files_sharing/api/v1/sharees?search=pytest_user&itemType=file&perPage=20&page=1&lookup=false&format=json
+  response:
+    body:
+      string: '{"ocs":{"meta":{"status":"ok","statuscode":100,"message":"OK","totalitems":"","itemsperpage":""},"data":{"exact":{"users":[{"label":"Pytest
+        User Guy","subline":"","icon":"icon-user","value":{"shareType":0,"shareWith":"pytest_user"},"shareWithDisplayNameUnique":"pytest@example.com","status":[]}],"groups":[],"remotes":[],"remote_groups":[],"emails":[],"circles":[],"rooms":[]},"users":[],"groups":[],"remotes":[],"remote_groups":[],"emails":[],"lookup":[],"circles":[],"rooms":[],"lookupEnabled":true}}}'
+    headers:
+      Cache-Control:
+      - no-cache, no-store, must-revalidate
+      Connection:
+      - Keep-Alive
+      Content-Security-Policy:
+      - default-src 'none';base-uri 'none';manifest-src 'self';frame-ancestors 'none'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Sat, 22 Mar 2025 00:56:27 GMT
+      Feature-Policy:
+      - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
+        'none';payment 'none'
+      Keep-Alive:
+      - timeout=5, max=98
+      Link:
+      - <http://localhost:8181/ocs/v1.php/apps/files_sharing/api/v1/sharees?search=pytest_user&itemType=file&shareType%5B0%5D=0&shareType%5B1%5D=1&shareType%5B2%5D=4&shareType%5B3%5D=6&shareType%5B4%5D=7&shareType%5B5%5D=10&perPage=20&page=2>;
+        rel="next"
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      Set-Cookie:
+      - ocoguk96ketf=4564d9ab9729d74c776041ee2bf72ff1; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=4564d9ab9729d74c776041ee2bf72ff1; path=/; HttpOnly; SameSite=Lax
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.27
+      X-Request-Id:
+      - ObjAbIdLQxO40UeElNv3
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+      content-length:
+      - '503'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"format":"json"}'
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '17'
+      content-type:
+      - application/json
+      host:
+      - localhost:8181
+      ocs-apirequest:
+      - 'true'
+      user-agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: DELETE
+    uri: http://localhost:8181/ocs/v1.php/cloud/users/pytest_user
+  response:
+    body:
+      string: '{"ocs":{"meta":{"status":"ok","statuscode":100,"message":"OK","totalitems":"","itemsperpage":""},"data":[]}}'
+    headers:
+      Cache-Control:
+      - no-cache, no-store, must-revalidate
+      Connection:
+      - Keep-Alive
+      Content-Security-Policy:
+      - default-src 'none';base-uri 'none';manifest-src 'self';frame-ancestors 'none'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Sat, 22 Mar 2025 00:56:27 GMT
+      Feature-Policy:
+      - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
+        'none';payment 'none'
+      Keep-Alive:
+      - timeout=5, max=97
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.27
+      X-Request-Id:
+      - 4LtorMP0vFMaP7bghmCf
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+      content-length:
+      - '108'
+    status:
+      code: 200
+      message: OK
+version: 1

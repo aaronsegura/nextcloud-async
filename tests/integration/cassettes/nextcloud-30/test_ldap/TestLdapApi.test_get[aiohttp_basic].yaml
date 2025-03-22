@@ -1,0 +1,246 @@
+interactions:
+- request:
+    body: null
+    headers:
+      OCS-APIRequest:
+      - 'true'
+      User-Agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: GET
+    uri: http://localhost:8181/ocs/v1.php/cloud/apps?filter=enabled&format=json
+  response:
+    body:
+      string: '{"ocs":{"meta":{"status":"ok","statuscode":100,"message":"OK","totalitems":"","itemsperpage":""},"data":{"apps":["files","activity","app_api","bruteforcesettings","circles","cloud_federation_api","comments","contactsinteraction","dashboard","dav","federatedfilesharing","federation","files_downloadlimit","files_pdfviewer","files_reminders","files_sharing","files_trashbin","files_versions","firstrunwizard","groupfolders","logreader","lookup_server_connector","maps","nextcloud_announcements","notifications","oauth2","password_policy","photos","privacy","provisioning_api","recommendations","related_resources","serverinfo","settings","sharebymail","spreed","support","survey_client","systemtags","text","theming","twofactor_backupcodes","updatenotification","user_ldap","user_status","viewer","weather_status","webhook_listeners","workflowengine"]}}}'
+    headers:
+      Cache-Control:
+      - no-cache, no-store, must-revalidate
+      Content-Security-Policy:
+      - default-src 'none';base-uri 'none';manifest-src 'self';frame-ancestors 'none'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Sat, 22 Mar 2025 13:23:46 GMT
+      Feature-Policy:
+      - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
+        'none';payment 'none'
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      Set-Cookie:
+      - ocoguk96ketf=377c68518d4bfc9b3cdb072438f2e06f; path=/; HttpOnly; SameSite=Lax
+      - oc_sessionPassphrase=alqBC6y8XktVgMHDZqV8HpiCRDMX59co1IzfTb74CZ8e09fVqjPBCwe4B8D54VmTlnnGbJHSGTL%2Fw93wulGzsQIGTmnOevc%2F5FWyNN4dbiCIrJC9H8QZ%2FFA9EX4yOdst;
+        path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=377c68518d4bfc9b3cdb072438f2e06f; path=/; HttpOnly; SameSite=Lax
+      - nc_sameSiteCookielax=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
+        GMT; SameSite=lax
+      - nc_sameSiteCookiestrict=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
+        GMT; SameSite=strict
+      - ocoguk96ketf=377c68518d4bfc9b3cdb072438f2e06f; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=377c68518d4bfc9b3cdb072438f2e06f; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=1666dbf63f3bd5263835c9d29afe7acc; path=/; HttpOnly; SameSite=Lax
+      - cookie_test=test; expires=Sat, 22 Mar 2025 14:23:47 GMT; Max-Age=3600
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.27
+      X-Request-Id:
+      - XwcRSLjM4kK5x6Z0vMBM
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+      content-length:
+      - '853'
+    status:
+      code: 200
+      message: OK
+- request:
+    body:
+      format: json
+    headers:
+      OCS-APIRequest:
+      - 'true'
+      User-Agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: POST
+    uri: http://localhost:8181/ocs/v2.php/apps/user_ldap/api/v1/config
+  response:
+    body:
+      string: '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},"data":{"configID":"s09"}}}'
+    headers:
+      Cache-Control:
+      - no-cache, no-store, must-revalidate
+      Content-Security-Policy:
+      - default-src 'none';base-uri 'none';manifest-src 'self';frame-ancestors 'none'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Sat, 22 Mar 2025 13:23:47 GMT
+      Feature-Policy:
+      - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
+        'none';payment 'none'
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      Set-Cookie:
+      - ocoguk96ketf=1666dbf63f3bd5263835c9d29afe7acc; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=1666dbf63f3bd5263835c9d29afe7acc; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=1666dbf63f3bd5263835c9d29afe7acc; path=/; HttpOnly; SameSite=Lax
+      - nc_username=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
+      - nc_token=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
+      - nc_session_id=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
+      - nc_username=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; path=/;
+        HttpOnly
+      - nc_token=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; path=/;
+        HttpOnly
+      - nc_session_id=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; path=/;
+        HttpOnly
+      - ocoguk96ketf=1666dbf63f3bd5263835c9d29afe7acc; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=509d3218c19fdc6f743f189244da7b22; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=509d3218c19fdc6f743f189244da7b22; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=509d3218c19fdc6f743f189244da7b22; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=138f70ce2069ee58c60d259411aba0e4; path=/; HttpOnly; SameSite=Lax
+      - cookie_test=test; expires=Sat, 22 Mar 2025 14:23:47 GMT; Max-Age=3600
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.27
+      X-Request-Id:
+      - wwrZQNBwVDcLd49bCHJA
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+      content-length:
+      - '90'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      OCS-APIRequest:
+      - 'true'
+      User-Agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: GET
+    uri: http://localhost:8181/ocs/v2.php/apps/user_ldap/api/v1/config/s09?showPassword=0&format=json
+  response:
+    body:
+      string: '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},"data":{"ldapHost":"","ldapPort":"","ldapBackupHost":"","ldapBackupPort":"","ldapBackgroundHost":"","ldapBackgroundPort":"","ldapBase":"","ldapBaseUsers":"","ldapBaseGroups":"","ldapAgentName":"","ldapAgentPassword":"***","ldapTLS":"0","turnOffCertCheck":"0","ldapIgnoreNamingRules":"","ldapUserDisplayName":"displayName","ldapUserDisplayName2":"","ldapUserAvatarRule":"default","ldapGidNumber":"gidNumber","ldapUserFilterObjectclass":"","ldapUserFilterGroups":"","ldapUserFilter":"","ldapUserFilterMode":"0","ldapGroupFilter":"","ldapGroupFilterMode":"0","ldapGroupFilterObjectclass":"","ldapGroupFilterGroups":"","ldapGroupDisplayName":"cn","ldapGroupMemberAssocAttr":"","ldapLoginFilter":"","ldapLoginFilterMode":"0","ldapLoginFilterEmail":"0","ldapLoginFilterUsername":"1","ldapLoginFilterAttributes":"","ldapQuotaAttribute":"","ldapQuotaDefault":"","ldapEmailAttribute":"","ldapCacheTTL":"600","ldapUuidUserAttribute":"auto","ldapUuidGroupAttribute":"auto","ldapOverrideMainServer":"","ldapConfigurationActive":"","ldapAttributesForUserSearch":"","ldapAttributesForGroupSearch":"","ldapExperiencedAdmin":"0","homeFolderNamingRule":"","hasMemberOfFilterSupport":"0","useMemberOfToDetectMembership":"1","ldapExpertUsernameAttr":"","ldapExpertUUIDUserAttr":"","ldapExpertUUIDGroupAttr":"","markRemnantsAsDisabled":"0","lastJpegPhotoLookup":"0","ldapNestedGroups":"0","ldapPagingSize":"500","turnOnPasswordChange":"0","ldapDynamicGroupMemberURL":"","ldapDefaultPPolicyDN":"","ldapExtStorageHomeAttribute":"","ldapMatchingRuleInChainState":"unknown","ldapConnectionTimeout":"15","ldapAttributePhone":"","ldapAttributeWebsite":"","ldapAttributeAddress":"","ldapAttributeTwitter":"","ldapAttributeFediverse":"","ldapAttributeOrganisation":"","ldapAttributeRole":"","ldapAttributeHeadline":"","ldapAttributeBiography":"","ldapAdminGroup":"","ldapAttributeBirthDate":"","ldapAttributeAnniversaryDate":""}}}'
+    headers:
+      Cache-Control:
+      - no-cache, no-store, must-revalidate
+      Content-Security-Policy:
+      - default-src 'none';base-uri 'none';manifest-src 'self';frame-ancestors 'none'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Sat, 22 Mar 2025 13:23:47 GMT
+      Feature-Policy:
+      - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
+        'none';payment 'none'
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      Set-Cookie:
+      - ocoguk96ketf=138f70ce2069ee58c60d259411aba0e4; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=138f70ce2069ee58c60d259411aba0e4; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=138f70ce2069ee58c60d259411aba0e4; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=138f70ce2069ee58c60d259411aba0e4; path=/; HttpOnly; SameSite=Lax
+      - nc_username=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
+      - nc_token=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
+      - nc_session_id=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
+      - nc_username=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; path=/;
+        HttpOnly
+      - nc_token=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; path=/;
+        HttpOnly
+      - nc_session_id=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; path=/;
+        HttpOnly
+      - ocoguk96ketf=138f70ce2069ee58c60d259411aba0e4; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=188fece3a8445abf488083b2d2865224; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=188fece3a8445abf488083b2d2865224; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=188fece3a8445abf488083b2d2865224; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=091ef9fb677bf64f9634f5133c0efe07; path=/; HttpOnly; SameSite=Lax
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.27
+      X-Request-Id:
+      - 0bLpLo7nHwGVeeyXRe6h
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+      content-length:
+      - '1965'
+    status:
+      code: 200
+      message: OK
+- request:
+    body:
+      format: json
+    headers:
+      OCS-APIRequest:
+      - 'true'
+      User-Agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: DELETE
+    uri: http://localhost:8181/ocs/v2.php/apps/user_ldap/api/v1/config/s09
+  response:
+    body:
+      string: '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},"data":[]}}'
+    headers:
+      Cache-Control:
+      - no-cache, no-store, must-revalidate
+      Content-Security-Policy:
+      - default-src 'none';base-uri 'none';manifest-src 'self';frame-ancestors 'none'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Sat, 22 Mar 2025 13:23:49 GMT
+      Feature-Policy:
+      - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
+        'none';payment 'none'
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      Set-Cookie:
+      - ocoguk96ketf=091ef9fb677bf64f9634f5133c0efe07; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=091ef9fb677bf64f9634f5133c0efe07; path=/; HttpOnly; SameSite=Lax
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.27
+      X-Request-Id:
+      - X1TzSF1oQrr6EoyLCQNY
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+      content-length:
+      - '74'
+    status:
+      code: 200
+      message: OK
+version: 1

@@ -1,0 +1,370 @@
+interactions:
+- request:
+    body: null
+    headers:
+      OCS-APIRequest:
+      - 'true'
+      User-Agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: GET
+    uri: http://localhost:8181/ocs/v1.php/cloud/apps?filter=enabled&format=json
+  response:
+    body:
+      string: '{"ocs":{"meta":{"status":"ok","statuscode":100,"message":"OK","totalitems":"","itemsperpage":""},"data":{"apps":["files","activity","app_api","bruteforcesettings","circles","cloud_federation_api","comments","contactsinteraction","dashboard","dav","federatedfilesharing","federation","files_downloadlimit","files_pdfviewer","files_reminders","files_sharing","files_trashbin","files_versions","firstrunwizard","groupfolders","logreader","lookup_server_connector","maps","nextcloud_announcements","notifications","oauth2","password_policy","photos","privacy","provisioning_api","recommendations","related_resources","serverinfo","settings","sharebymail","spreed","support","survey_client","systemtags","text","theming","twofactor_backupcodes","updatenotification","user_ldap","user_status","viewer","weather_status","webhook_listeners","workflowengine"]}}}'
+    headers:
+      Cache-Control:
+      - no-cache, no-store, must-revalidate
+      Content-Security-Policy:
+      - default-src 'none';base-uri 'none';manifest-src 'self';frame-ancestors 'none'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Sat, 22 Mar 2025 12:37:07 GMT
+      Feature-Policy:
+      - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
+        'none';payment 'none'
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      Set-Cookie:
+      - ocoguk96ketf=b5a55cf86ea40ab22990e182bf843d0c; path=/; HttpOnly; SameSite=Lax
+      - oc_sessionPassphrase=J9qMvM66852dBCSGHiH%2ByZct3isN7r7wTQc95syRH5Z1cqFdxe9NodEUAe7UDco4d8ldrHnGHSYFEZwVIDOX5fDy04ZC9FKjxym%2BLekyFvXqg5N4pS1O%2FRhrNW%2FLoeRH;
+        path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=b5a55cf86ea40ab22990e182bf843d0c; path=/; HttpOnly; SameSite=Lax
+      - nc_sameSiteCookielax=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
+        GMT; SameSite=lax
+      - nc_sameSiteCookiestrict=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
+        GMT; SameSite=strict
+      - ocoguk96ketf=b5a55cf86ea40ab22990e182bf843d0c; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=b5a55cf86ea40ab22990e182bf843d0c; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=72b5a6da6e3d2465e7453af99cc6308c; path=/; HttpOnly; SameSite=Lax
+      - cookie_test=test; expires=Sat, 22 Mar 2025 13:37:08 GMT; Max-Age=3600
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.27
+      X-Request-Id:
+      - KUrv5hzNFvXiwSXpHK0Q
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+      content-length:
+      - '853'
+    status:
+      code: 200
+      message: OK
+- request:
+    body:
+      category: Camping
+      comment: ALL THE BLUEBERRIES
+      extensions: null
+      format: json
+      lat: 48.785526
+      lng: -95.035892
+      name: Blueberry Hill Campground
+    headers:
+      User-Agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: POST
+    uri: http://localhost:8181/index.php/apps/maps/api/1.0/favorites
+  response:
+    body:
+      string: '{"id":166,"name":"Blueberry Hill Campground","date_modified":1742647029,"date_created":1742647029,"lat":48.785526,"lng":-95.035892,"category":"Camping","comment":"ALL
+        THE BLUEBERRIES","extensions":"None","isDeletable":true,"isUpdateable":true,"isShareable":true}'
+    headers:
+      Cache-Control:
+      - no-cache, no-store, must-revalidate
+      Content-Security-Policy:
+      - default-src 'none';base-uri 'none';manifest-src 'self';frame-ancestors 'none'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Sat, 22 Mar 2025 12:37:08 GMT
+      Feature-Policy:
+      - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
+        'none';payment 'none'
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      Set-Cookie:
+      - ocoguk96ketf=72b5a6da6e3d2465e7453af99cc6308c; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=72b5a6da6e3d2465e7453af99cc6308c; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=72b5a6da6e3d2465e7453af99cc6308c; path=/; HttpOnly; SameSite=Lax
+      - nc_username=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
+      - nc_token=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
+      - nc_session_id=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
+      - nc_username=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; path=/;
+        HttpOnly
+      - nc_token=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; path=/;
+        HttpOnly
+      - nc_session_id=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; path=/;
+        HttpOnly
+      - ocoguk96ketf=72b5a6da6e3d2465e7453af99cc6308c; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=ac756face2a94a1343a1c69ecbda1cb7; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=ac756face2a94a1343a1c69ecbda1cb7; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=ac756face2a94a1343a1c69ecbda1cb7; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=418d61a0a01a8aac43abefb337417270; path=/; HttpOnly; SameSite=Lax
+      - cookie_test=test; expires=Sat, 22 Mar 2025 13:37:08 GMT; Max-Age=3600
+      - nc_username=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
+      - nc_token=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
+      - nc_session_id=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
+      - nc_username=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; path=/;
+        HttpOnly
+      - nc_token=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; path=/;
+        HttpOnly
+      - nc_session_id=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; path=/;
+        HttpOnly
+      - ocoguk96ketf=418a8478373834e8b44821f26f8177c2; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=418a8478373834e8b44821f26f8177c2; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=079979769564e9246726584dc240f429; path=/; HttpOnly; SameSite=Lax
+      - cookie_test=test; expires=Sat, 22 Mar 2025 13:37:09 GMT; Max-Age=3600
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.27
+      X-Request-Id:
+      - MJkBtztLA70B3eXH9fkx
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+      content-length:
+      - '262'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      User-Agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: GET
+    uri: http://localhost:8181/index.php/apps/maps/api/1.0/favorites?format=json
+  response:
+    body:
+      string: '[{"id":1,"name":"test","date_modified":1741189745,"date_created":1741189745,"lat":0,"lng":0,"category":null,"comment":null,"extensions":null,"isDeletable":true,"isUpdateable":true,"isShareable":true},{"id":2,"name":"test","date_modified":1741189904,"date_created":1741189904,"lat":0,"lng":0,"category":null,"comment":null,"extensions":null,"isDeletable":true,"isUpdateable":true,"isShareable":true},{"id":3,"name":"test","date_modified":1741190183,"date_created":1741190183,"lat":0,"lng":0,"category":null,"comment":null,"extensions":null,"isDeletable":true,"isUpdateable":true,"isShareable":true},{"id":40,"name":"Palisades
+        Reservoir","date_modified":1742134290,"date_created":1742134283,"lat":43.250235495324,"lng":-111.10126018524,"category":"Boondocking","comment":"Good
+        t-mobile, no verizon.  Lake access.  Beautiful","extensions":null,"isDeletable":true,"isUpdateable":true,"isShareable":true},{"id":166,"name":"Blueberry
+        Hill Campground","date_modified":1742647029,"date_created":1742647029,"lat":48.785526,"lng":-95.035892,"category":"Camping","comment":"ALL
+        THE BLUEBERRIES","extensions":"None","isDeletable":true,"isUpdateable":true,"isShareable":true}]'
+    headers:
+      Cache-Control:
+      - no-cache, no-store, must-revalidate
+      Content-Security-Policy:
+      - default-src 'none';base-uri 'none';manifest-src 'self';frame-ancestors 'none'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Sat, 22 Mar 2025 12:37:09 GMT
+      Etag:
+      - '"92861f5acb3097288db440e921b3091a"'
+      Feature-Policy:
+      - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
+        'none';payment 'none'
+      Last-Modified:
+      - Sat, 22 Mar 2025 12:37:12 +0000
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      Set-Cookie:
+      - ocoguk96ketf=079979769564e9246726584dc240f429; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=079979769564e9246726584dc240f429; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=079979769564e9246726584dc240f429; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=079979769564e9246726584dc240f429; path=/; HttpOnly; SameSite=Lax
+      - nc_username=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
+      - nc_token=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
+      - nc_session_id=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
+      - nc_username=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; path=/;
+        HttpOnly
+      - nc_token=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; path=/;
+        HttpOnly
+      - nc_session_id=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; path=/;
+        HttpOnly
+      - ocoguk96ketf=079979769564e9246726584dc240f429; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=ea0dba431f0434066947c3427580664e; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=ea0dba431f0434066947c3427580664e; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=ea0dba431f0434066947c3427580664e; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=8653d7dece182b9f5474512897246852; path=/; HttpOnly; SameSite=Lax
+      - nc_username=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
+      - nc_token=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
+      - nc_session_id=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
+      - nc_username=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; path=/;
+        HttpOnly
+      - nc_token=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; path=/;
+        HttpOnly
+      - nc_session_id=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; path=/;
+        HttpOnly
+      - ocoguk96ketf=28ed20c978892e19c486713f86ec8638; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=28ed20c978892e19c486713f86ec8638; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=7e974331263e2b3a31379b126b091c2e; path=/; HttpOnly; SameSite=Lax
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.27
+      X-Request-Id:
+      - 2M6DERSqYK61gdsHwfyY
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+      content-length:
+      - '1163'
+    status:
+      code: 200
+      message: OK
+- request:
+    body:
+      category: Boondocking
+      comment: Good t-mobile, no verizon.  Lake access.  Beautiful
+      extensions: null
+      format: json
+      lat: 43.250235495324
+      lng: -111.10126018524
+      name: Palisades Reservoir
+    headers:
+      User-Agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: PUT
+    uri: http://localhost:8181/index.php/apps/maps/api/1.0/favorites/166
+  response:
+    body:
+      string: '{"id":166,"name":"Palisades Reservoir","date_modified":1742647034,"date_created":1742647029,"lat":43.250235495324,"lng":-111.10126018524,"category":"Boondocking","comment":"Good
+        t-mobile, no verizon.  Lake access.  Beautiful","extensions":"None","isDeletable":true,"isUpdateable":true,"isShareable":true}'
+    headers:
+      Cache-Control:
+      - no-cache, no-store, must-revalidate
+      Content-Security-Policy:
+      - default-src 'none';base-uri 'none';manifest-src 'self';frame-ancestors 'none'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Sat, 22 Mar 2025 12:37:12 GMT
+      Feature-Policy:
+      - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
+        'none';payment 'none'
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      Set-Cookie:
+      - ocoguk96ketf=7e974331263e2b3a31379b126b091c2e; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=7e974331263e2b3a31379b126b091c2e; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=7e974331263e2b3a31379b126b091c2e; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=7e974331263e2b3a31379b126b091c2e; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=7e974331263e2b3a31379b126b091c2e; path=/; HttpOnly; SameSite=Lax
+      - nc_username=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
+      - nc_token=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
+      - nc_session_id=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
+      - nc_username=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; path=/;
+        HttpOnly
+      - nc_token=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; path=/;
+        HttpOnly
+      - nc_session_id=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; path=/;
+        HttpOnly
+      - ocoguk96ketf=7e974331263e2b3a31379b126b091c2e; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=e56d145e4c9459c7bf9ff68d52faec7a; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=e56d145e4c9459c7bf9ff68d52faec7a; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=e56d145e4c9459c7bf9ff68d52faec7a; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=cba9ed60789ed7b6f2fd5518473e4d50; path=/; HttpOnly; SameSite=Lax
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.27
+      X-Request-Id:
+      - MP7YCxQJKJojRfooKuD2
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+      content-length:
+      - '304'
+    status:
+      code: 200
+      message: OK
+- request:
+    body:
+      format: json
+    headers:
+      User-Agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: DELETE
+    uri: http://localhost:8181/index.php/apps/maps/api/1.0/favorites/166
+  response:
+    body:
+      string: '"DELETED"'
+    headers:
+      Cache-Control:
+      - no-cache, no-store, must-revalidate
+      Content-Security-Policy:
+      - default-src 'none';base-uri 'none';manifest-src 'self';frame-ancestors 'none'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Sat, 22 Mar 2025 12:37:14 GMT
+      Feature-Policy:
+      - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
+        'none';payment 'none'
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      Set-Cookie:
+      - ocoguk96ketf=cba9ed60789ed7b6f2fd5518473e4d50; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=cba9ed60789ed7b6f2fd5518473e4d50; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=cba9ed60789ed7b6f2fd5518473e4d50; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=cba9ed60789ed7b6f2fd5518473e4d50; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=cba9ed60789ed7b6f2fd5518473e4d50; path=/; HttpOnly; SameSite=Lax
+      - nc_username=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
+      - nc_token=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
+      - nc_session_id=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
+      - nc_username=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; path=/;
+        HttpOnly
+      - nc_token=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; path=/;
+        HttpOnly
+      - nc_session_id=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; path=/;
+        HttpOnly
+      - ocoguk96ketf=cba9ed60789ed7b6f2fd5518473e4d50; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=b64cbad2df6c9879d574d42843e0156e; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=b64cbad2df6c9879d574d42843e0156e; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=b64cbad2df6c9879d574d42843e0156e; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=605d15cc663b06efa49fbb79f1fe8ee3; path=/; HttpOnly; SameSite=Lax
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.27
+      X-Request-Id:
+      - jQ8z8KjbmyZOIYyMWa8W
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+      content-length:
+      - '9'
+    status:
+      code: 200
+      message: OK
+version: 1

@@ -4,14 +4,13 @@
 https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/user_auth_ldap_api.html
 """
 
-from collections.abc import Coroutine
-from typing import Any
+from typing import Any, Awaitable
 
 from nextcloud_async.api.mixins import NextcloudDataObject
 from nextcloud_async.api.modules import NextcloudModule
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver import NextcloudOcsDriver
-from nextcloud_async.helpers import recursive_urlencode
+from nextcloud_async.helpers import bool2int, recursive_urlencode
 
 
 class LdapConfiguration(NextcloudDataObject):
@@ -28,13 +27,14 @@ class LdapConfiguration(NextcloudDataObject):
         """Alias for self.data['configID]."""
         return self.configID
 
-    async def refresh_function(self) -> Coroutine[None, None, "LdapConfiguration"]:
+    def refresh_function(self) -> Awaitable:
         """Set up object refresh."""
         return self._api.get(self.id)
 
     async def delete(self) -> None:
         """Delete this configuration."""
-        await self._api.delete(self.id)
+        await self._api.delete(self.configID)
+        self.data["configID"] = "**deleted**"
 
     async def update(self, config_data: dict[str, Any]) -> None:
         """Update/set the properties of this LDAP configuration.
@@ -76,17 +76,25 @@ class LdapApi(NextcloudModule):
         """
         await self._delete(path=f"/config/{id}")
 
-    async def get(self, id: str) -> LdapConfiguration:
+    async def get(self, id: str, show_password: bool = False) -> LdapConfiguration:
         """Get an LDAP configuration.
 
         Args:
-            id (str): LDAP Configuration ID
+            id:
+                LDAP Configuration ID
+
+            show_password:
+                Whether to include the ldapAgentPassword in results.
 
         Returns:
             dict: LDAP configuration description
 
         """
-        response = await self._get(path=f"/config/{id}")
+        response = await self._get(
+            path=f"/config/{id}", json={"showPassword": bool2int(show_password)}
+        )
+        # Endpoint does not return configID in results.
+        response["configID"] = id
         return LdapConfiguration(response, self)
 
     async def update(self, id: str, config_data: dict[str, Any]) -> None:

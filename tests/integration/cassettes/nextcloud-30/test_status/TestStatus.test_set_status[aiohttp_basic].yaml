@@ -1,0 +1,232 @@
+interactions:
+- request:
+    body: null
+    headers:
+      OCS-APIRequest:
+      - 'true'
+      User-Agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: GET
+    uri: http://localhost:8181/ocs/v2.php/apps/user_status/api/v1/user_status?format=json
+  response:
+    body:
+      string: '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},"data":{"userId":"admin","message":"Pytesting","messageId":null,"messageIsPredefined":false,"icon":"\u231b","clearAt":1742605514,"status":"online","statusIsUserDefined":true}}}'
+    headers:
+      Cache-Control:
+      - no-cache, no-store, must-revalidate
+      Content-Security-Policy:
+      - default-src 'none';base-uri 'none';manifest-src 'self';frame-ancestors 'none'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Sat, 22 Mar 2025 01:00:20 GMT
+      Feature-Policy:
+      - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
+        'none';payment 'none'
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      Set-Cookie:
+      - ocoguk96ketf=5b087e7443298de39916df5392b089b6; path=/; HttpOnly; SameSite=Lax
+      - oc_sessionPassphrase=cFk%2FXZciym9jsmthxvH77eGSOramlTXvmBFfGqES8HKZCmm7JLslEMgm8V8k5asPLg7z9ShQDjO88ye2DclzagIofq1LHQYfa24DHCrFNk0AHGLOJCVuNjGKeucL%2Fpk5;
+        path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=5b087e7443298de39916df5392b089b6; path=/; HttpOnly; SameSite=Lax
+      - nc_sameSiteCookielax=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
+        GMT; SameSite=lax
+      - nc_sameSiteCookiestrict=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
+        GMT; SameSite=strict
+      - ocoguk96ketf=5b087e7443298de39916df5392b089b6; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=5b087e7443298de39916df5392b089b6; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=31d77e9e70a0dbd725a054ae32ee21c2; path=/; HttpOnly; SameSite=Lax
+      - cookie_test=test; expires=Sat, 22 Mar 2025 02:00:22 GMT; Max-Age=3600
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.27
+      X-Request-Id:
+      - xb8xd985LuI6uJBPxYMy
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+      content-length:
+      - '239'
+    status:
+      code: 200
+      message: OK
+- request:
+    body:
+      format: json
+      statusType: online
+    headers:
+      OCS-APIRequest:
+      - 'true'
+      User-Agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: PUT
+    uri: http://localhost:8181/ocs/v2.php/apps/user_status/api/v1/user_status/status
+  response:
+    body:
+      string: '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},"data":{"userId":"admin","message":"Pytesting","messageId":null,"messageIsPredefined":false,"icon":"\u231b","clearAt":1742605514,"status":"online","statusIsUserDefined":true}}}'
+    headers:
+      Cache-Control:
+      - no-cache, no-store, must-revalidate
+      Content-Security-Policy:
+      - default-src 'none';base-uri 'none';manifest-src 'self';frame-ancestors 'none'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Sat, 22 Mar 2025 01:00:22 GMT
+      Feature-Policy:
+      - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
+        'none';payment 'none'
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      Set-Cookie:
+      - ocoguk96ketf=31d77e9e70a0dbd725a054ae32ee21c2; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=31d77e9e70a0dbd725a054ae32ee21c2; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=31d77e9e70a0dbd725a054ae32ee21c2; path=/; HttpOnly; SameSite=Lax
+      - nc_username=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
+      - nc_token=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
+      - nc_session_id=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
+      - nc_username=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; path=/;
+        HttpOnly
+      - nc_token=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; path=/;
+        HttpOnly
+      - nc_session_id=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; path=/;
+        HttpOnly
+      - ocoguk96ketf=31d77e9e70a0dbd725a054ae32ee21c2; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=b17986e3a8d4a0b301c60f687c8e1cbc; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=b17986e3a8d4a0b301c60f687c8e1cbc; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=b17986e3a8d4a0b301c60f687c8e1cbc; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=d5163d459bfd06b4cb1bed340a784d79; path=/; HttpOnly; SameSite=Lax
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.27
+      X-Request-Id:
+      - NBztmXGPewNYKHUogb93
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+      content-length:
+      - '239'
+    status:
+      code: 200
+      message: OK
+- request:
+    body:
+      clearAt: '1742605514'
+      format: json
+      message: Pytesting
+      statusIcon: "\u231B"
+    headers:
+      OCS-APIRequest:
+      - 'true'
+      User-Agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: PUT
+    uri: http://localhost:8181/ocs/v2.php/apps/user_status/api/v1/user_status/message/custom
+  response:
+    body:
+      string: '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},"data":{"userId":"admin","message":"Pytesting","messageId":null,"messageIsPredefined":false,"icon":"\u231b","clearAt":1742605514,"status":"online","statusIsUserDefined":true}}}'
+    headers:
+      Cache-Control:
+      - no-cache, no-store, must-revalidate
+      Content-Security-Policy:
+      - default-src 'none';base-uri 'none';manifest-src 'self';frame-ancestors 'none'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Sat, 22 Mar 2025 01:00:23 GMT
+      Feature-Policy:
+      - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
+        'none';payment 'none'
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      Set-Cookie:
+      - ocoguk96ketf=d5163d459bfd06b4cb1bed340a784d79; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=d5163d459bfd06b4cb1bed340a784d79; path=/; HttpOnly; SameSite=Lax
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.27
+      X-Request-Id:
+      - feKm7M1KJsD5xRPEwzvs
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+      content-length:
+      - '239'
+    status:
+      code: 200
+      message: OK
+- request:
+    body:
+      format: json
+      statusType: away
+    headers:
+      OCS-APIRequest:
+      - 'true'
+      User-Agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: PUT
+    uri: http://localhost:8181/ocs/v2.php/apps/user_status/api/v1/user_status/status
+  response:
+    body:
+      string: '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},"data":{"userId":"admin","message":"Pytesting","messageId":null,"messageIsPredefined":false,"icon":"\u231b","clearAt":1742605514,"status":"away","statusIsUserDefined":true}}}'
+    headers:
+      Cache-Control:
+      - no-cache, no-store, must-revalidate
+      Content-Security-Policy:
+      - default-src 'none';base-uri 'none';manifest-src 'self';frame-ancestors 'none'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Sat, 22 Mar 2025 01:00:23 GMT
+      Feature-Policy:
+      - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
+        'none';payment 'none'
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.27
+      X-Request-Id:
+      - EijUK7CaGGvlHeW9zARu
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+      content-length:
+      - '237'
+    status:
+      code: 200
+      message: OK
+version: 1

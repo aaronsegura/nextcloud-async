@@ -1,0 +1,74 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      host:
+      - localhost:8181
+      ocs-apirequest:
+      - 'true'
+      user-agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: GET
+    uri: http://localhost:8181/ocs/v1.php/cloud/apps?filter=disabled&format=json
+  response:
+    body:
+      string: '{"ocs":{"meta":{"status":"ok","statuscode":100,"message":"OK","totalitems":"","itemsperpage":""},"data":{"apps":{"0":"user_ldap","4":"twofactor_totp","12":"encryption","15":"files_external","30":"admin_audit","35":"twofactor_nextcloud_notification","36":"suspicious_login"}}}}'
+    headers:
+      Cache-Control:
+      - no-cache, no-store, must-revalidate
+      Connection:
+      - Keep-Alive
+      Content-Security-Policy:
+      - default-src 'none';base-uri 'none';manifest-src 'self';frame-ancestors 'none'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Sat, 22 Mar 2025 00:34:19 GMT
+      Feature-Policy:
+      - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
+        'none';payment 'none'
+      Keep-Alive:
+      - timeout=5, max=100
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      Set-Cookie:
+      - ocoguk96ketf=21df631e256f2aa60f124ab575a61ded; path=/; HttpOnly; SameSite=Lax
+      - oc_sessionPassphrase=%2Bjq%2Fqd2c%2FYjotVJz9aGfMfz8yu3vNi7isLcxKZjh4pRVwf3B3MiSSoJdS%2BAw1g7ppPsSJa8REtBMajB268FObl29GgiiP%2Fuv1sez50wEL7%2BJ3%2Fq64XtwlgSYD8S9yXbC;
+        path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=21df631e256f2aa60f124ab575a61ded; path=/; HttpOnly; SameSite=Lax
+      - nc_sameSiteCookielax=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
+        GMT; SameSite=lax
+      - nc_sameSiteCookiestrict=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
+        GMT; SameSite=strict
+      - ocoguk96ketf=21df631e256f2aa60f124ab575a61ded; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=21df631e256f2aa60f124ab575a61ded; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=9ea28d9b4b148ff7659821801a4a9d4e; path=/; HttpOnly; SameSite=Lax
+      - cookie_test=test; expires=Sat, 22 Mar 2025 01:34:20 GMT; Max-Age=3600
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.27
+      X-Request-Id:
+      - IdhIMmyo5B7UDWWrNrs3
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+      content-length:
+      - '276'
+    status:
+      code: 200
+      message: OK
+version: 1

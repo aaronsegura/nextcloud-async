@@ -1,7 +1,7 @@
 import pytest
 import pytest_asyncio
 
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
 
 from nextcloud_async.api import App, AppsApi
 
@@ -9,7 +9,7 @@ _test_app = "files_external"
 
 
 @pytest_asyncio.fixture(scope="module", loop_scope="session")
-async def test_app(apps_api: AppsApi) -> AsyncGenerator[App]:
+async def test_app(apps_api: AppsApi) -> AsyncGenerator[App, None]:
     yield await apps_api.get(_test_app)
 
 

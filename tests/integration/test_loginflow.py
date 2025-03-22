@@ -6,8 +6,7 @@ from nextcloud_async.api import LoginFlowV2Api
 from nextcloud_async.exceptions import (
     NextcloudLoginFlowTimeoutError,
 )
-from nextcloud_async.provider.aiohttp import AioHttpResponseMock
-from nextcloud_async.provider.httpx import HttpXResponseMock
+from nextcloud_async.provider import HttpResponseMock
 
 from .constants import APP_TOKEN, ENDPOINT, USER, USER_AGENT
 
@@ -18,7 +17,7 @@ class TestLoginFlowV2:
 
     async def test_login_flow_initiate(
         self,
-        loginflowv2_api: tuple[LoginFlowV2Api, HttpXResponseMock | AioHttpResponseMock],
+        loginflowv2_api: tuple[LoginFlowV2Api, HttpResponseMock],
     ):
         api, response_mock = loginflowv2_api
 
@@ -38,7 +37,7 @@ class TestLoginFlowV2:
 
     async def test_login_flow_confirm_success(
         self,
-        loginflowv2_api: tuple[LoginFlowV2Api, HttpXResponseMock | AioHttpResponseMock],
+        loginflowv2_api: tuple[LoginFlowV2Api, HttpResponseMock],
     ):
         api, response_mock = loginflowv2_api
 
@@ -75,7 +74,7 @@ class TestLoginFlowV2:
 
     async def test_login_flow_timeout(
         self,
-        loginflowv2_api: tuple[LoginFlowV2Api, HttpXResponseMock | AioHttpResponseMock],
+        loginflowv2_api: tuple[LoginFlowV2Api, HttpResponseMock],
     ):
         api, response_mock = loginflowv2_api
 

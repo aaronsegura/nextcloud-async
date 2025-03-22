@@ -3,6 +3,10 @@
 
 This module provides an asyncio-friendly interface to Nextcloud.
 
+### `v0.1.0` is not backwards compatible with `v0.0.10`.
+
+There are a lot of changes to how things work.  Please see the documentation. #TODO: Link
+
 ### Covered APIs
 * App Management
 * File Management

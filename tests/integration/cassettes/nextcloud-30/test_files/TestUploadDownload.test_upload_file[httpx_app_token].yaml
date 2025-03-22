@@ -1,0 +1,136 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      host:
+      - localhost:8181
+      user-agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: MKCOL
+    uri: http://localhost:8181/remote.php/dav/files/admin//.nextcloud-async-pytest/test_files-test_upload_file-httpx_app_token
+  response:
+    body:
+      string: ''
+    headers:
+      Connection:
+      - Keep-Alive
+      Content-Length:
+      - '0'
+      Content-Security-Policy:
+      - default-src 'none';
+      Content-Type:
+      - text/html; charset=UTF-8
+      Date:
+      - Sat, 22 Mar 2025 00:34:27 GMT
+      Keep-Alive:
+      - timeout=5, max=100
+      OC-FileId:
+      - 00032702ocoguk96ketf
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      Set-Cookie:
+      - ocoguk96ketf=4a3e2236c8a922c19bc27c8db977ae51; path=/; HttpOnly; SameSite=Lax
+      - oc_sessionPassphrase=lJ%2FHh8D6y9MUSGAppnpF7Ew9HWbQxezOsjJD%2FeKLpSv7qH%2BaA%2Bg%2BiAGh8B5AjDjT0EFOH0fyAWBClItzvn6YoyeVt7snpfdQ3s1Ye%2B0Ymq0Cx1VIq8iC3bYXPn856xej;
+        path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=4a3e2236c8a922c19bc27c8db977ae51; path=/; HttpOnly; SameSite=Lax
+      - nc_sameSiteCookielax=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
+        GMT; SameSite=lax
+      - nc_sameSiteCookiestrict=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
+        GMT; SameSite=strict
+      - ocoguk96ketf=4a3e2236c8a922c19bc27c8db977ae51; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=4a3e2236c8a922c19bc27c8db977ae51; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=4a3e2236c8a922c19bc27c8db977ae51; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=4a3e2236c8a922c19bc27c8db977ae51; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=4a3e2236c8a922c19bc27c8db977ae51; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=4a3e2236c8a922c19bc27c8db977ae51; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=4a3e2236c8a922c19bc27c8db977ae51; path=/; HttpOnly; SameSite=Lax
+      X-Content-Type-Options:
+      - nosniff
+      X-Debug-Token:
+      - jgcsFFIB1CwTn60ufU3W
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.27
+      X-Request-Id:
+      - jgcsFFIB1CwTn60ufU3W
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+    status:
+      code: 201
+      message: Created
+- request:
+    body: '[File Contents]'
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '15'
+      host:
+      - localhost:8181
+      user-agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: PUT
+    uri: http://localhost:8181/remote.php/dav/files/admin//.nextcloud-async-pytest/test_files-test_upload_file-httpx_app_token/uploaded_file
+  response:
+    body:
+      string: ''
+    headers:
+      Connection:
+      - Keep-Alive
+      Content-Length:
+      - '0'
+      Content-Security-Policy:
+      - default-src 'none';
+      Content-Type:
+      - text/html; charset=UTF-8
+      Date:
+      - Sat, 22 Mar 2025 00:34:28 GMT
+      ETag:
+      - '"b36cd9debc11b535a9f8d6618a2ae7af"'
+      Keep-Alive:
+      - timeout=5, max=99
+      OC-ETag:
+      - '"b36cd9debc11b535a9f8d6618a2ae7af"'
+      OC-FileId:
+      - 00032703ocoguk96ketf
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      X-Content-Type-Options:
+      - nosniff
+      X-Debug-Token:
+      - pQtVpz1m9NOASIhQo6ag
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.27
+      X-Request-Id:
+      - pQtVpz1m9NOASIhQo6ag
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+    status:
+      code: 201
+      message: Created
+version: 1

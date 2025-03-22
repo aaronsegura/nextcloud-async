@@ -1,0 +1,196 @@
+interactions:
+- request:
+    body: null
+    headers:
+      OCS-APIRequest:
+      - 'true'
+      User-Agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: GET
+    uri: http://localhost:8181/ocs/v1.php/cloud/apps/files_external?format=json
+  response:
+    body:
+      string: '{"ocs":{"meta":{"status":"ok","statuscode":100,"message":"OK","totalitems":"","itemsperpage":""},"data":{"id":"files_external","name":"External
+        storage support","summary":"Adds basic external storage support","description":"This
+        application enables administrators to configure connections to external storage
+        providers, such as FTP servers, S3 or SWIFT object stores, other Nextcloud
+        servers, WebDAV servers, and more. Administration can choose which types of
+        storage to enable and can mount these storage locations for an account, a
+        group, or the entire system. Users will see a new folder appear in their root
+        Nextcloud directory, which they can access and use like any other Nextcloud
+        folder. External storage also allows people to share files stored in these
+        external locations. In these cases, the credentials for the owner of the file
+        are used when the recipient requests the file from external storage, thereby
+        ensuring that the recipient can access the shared file.\n\nExternal storage
+        can be configured using the GUI or at the command line. This second option
+        provides the administration with more flexibility for configuring bulk external
+        storage mounts and setting mount priorities. More information is available
+        in the external storage GUI documentation and the external storage Configuration
+        File documentation.","version":"1.22.0","licence":"agpl","author":["Robin
+        Appelman","Michael Gapczynski","Vincent Petry"],"namespace":"Files_External","types":["filesystem"],"documentation":{"admin":"admin-external-storage"},"category":["files","integration"],"bugs":"https:\/\/github.com\/nextcloud\/server\/issues","dependencies":{"nextcloud":{"@attributes":{"min-version":"30","max-version":"30"}},"backend":[]},"background-jobs":{"job":"OCA\\Files_External\\BackgroundJob\\CredentialsCleanup"},"commands":["OCA\\Files_External\\Command\\ListCommand","OCA\\Files_External\\Command\\Config","OCA\\Files_External\\Command\\Option","OCA\\Files_External\\Command\\Applicable","OCA\\Files_External\\Command\\Import","OCA\\Files_External\\Command\\Export","OCA\\Files_External\\Command\\Delete","OCA\\Files_External\\Command\\Create","OCA\\Files_External\\Command\\Backends","OCA\\Files_External\\Command\\Verify","OCA\\Files_External\\Command\\Notify","OCA\\Files_External\\Command\\Scan"],"settings":{"admin":["OCA\\Files_External\\Settings\\Admin"],"admin-section":["OCA\\Files_External\\Settings\\Section"],"personal":["OCA\\Files_External\\Settings\\Personal"],"personal-section":["OCA\\Files_External\\Settings\\PersonalSection"]},"info":[],"remote":[],"public":[],"repair-steps":{"install":[],"pre-migration":[],"post-migration":[],"live-migration":[],"uninstall":[]},"two-factor-providers":[],"activity":{"filters":[],"settings":[],"providers":[]}}}}'
+    headers:
+      Cache-Control:
+      - no-cache, no-store, must-revalidate
+      Content-Security-Policy:
+      - default-src 'none';base-uri 'none';manifest-src 'self';frame-ancestors 'none'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Sat, 22 Mar 2025 00:34:08 GMT
+      Feature-Policy:
+      - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
+        'none';payment 'none'
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      Set-Cookie:
+      - ocoguk96ketf=523a3d6810ad4f9262838463318a8008; path=/; HttpOnly; SameSite=Lax
+      - oc_sessionPassphrase=gDTao5jJ3CKLDu5fo0In3NwNuYW83pnWDLtun13ALUYbSQbqAP19mNv1JsizszozgLvidSVFAUomZnL9N5Y96vmklSfXuK73jHjiFdHczdyeK8K2TqZxVDqpeZeqqDJ3;
+        path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=523a3d6810ad4f9262838463318a8008; path=/; HttpOnly; SameSite=Lax
+      - nc_sameSiteCookielax=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
+        GMT; SameSite=lax
+      - nc_sameSiteCookiestrict=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
+        GMT; SameSite=strict
+      - ocoguk96ketf=523a3d6810ad4f9262838463318a8008; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=523a3d6810ad4f9262838463318a8008; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=a948849225395371c396c63073f1b923; path=/; HttpOnly; SameSite=Lax
+      - cookie_test=test; expires=Sat, 22 Mar 2025 01:34:09 GMT; Max-Age=3600
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.27
+      X-Request-Id:
+      - 0cnIRFg45HelbqkhsCFq
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+      content-length:
+      - '2760'
+    status:
+      code: 200
+      message: OK
+- request:
+    body:
+      format: json
+    headers:
+      OCS-APIRequest:
+      - 'true'
+      User-Agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: POST
+    uri: http://localhost:8181/ocs/v1.php/cloud/apps/files_external
+  response:
+    body:
+      string: '{"ocs":{"meta":{"status":"ok","statuscode":100,"message":"OK","totalitems":"","itemsperpage":""},"data":[]}}'
+    headers:
+      Cache-Control:
+      - no-cache, no-store, must-revalidate
+      Content-Security-Policy:
+      - default-src 'none';base-uri 'none';manifest-src 'self';frame-ancestors 'none'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Sat, 22 Mar 2025 00:34:09 GMT
+      Feature-Policy:
+      - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
+        'none';payment 'none'
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      Set-Cookie:
+      - ocoguk96ketf=a948849225395371c396c63073f1b923; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=a948849225395371c396c63073f1b923; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=a948849225395371c396c63073f1b923; path=/; HttpOnly; SameSite=Lax
+      - nc_username=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
+      - nc_token=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
+      - nc_session_id=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
+      - nc_username=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; path=/;
+        HttpOnly
+      - nc_token=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; path=/;
+        HttpOnly
+      - nc_session_id=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; path=/;
+        HttpOnly
+      - ocoguk96ketf=a948849225395371c396c63073f1b923; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=fc40c408865a90197251f803cc0b5236; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=fc40c408865a90197251f803cc0b5236; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=fc40c408865a90197251f803cc0b5236; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=6b0c4b99d01a89f357dcec23da31e86b; path=/; HttpOnly; SameSite=Lax
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.27
+      X-Request-Id:
+      - awoPXMJzkxvaOjEslEQT
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+      content-length:
+      - '108'
+    status:
+      code: 200
+      message: OK
+- request:
+    body:
+      format: json
+    headers:
+      OCS-APIRequest:
+      - 'true'
+      User-Agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: DELETE
+    uri: http://localhost:8181/ocs/v1.php/cloud/apps/files_external
+  response:
+    body:
+      string: '{"ocs":{"meta":{"status":"ok","statuscode":100,"message":"OK","totalitems":"","itemsperpage":""},"data":[]}}'
+    headers:
+      Cache-Control:
+      - no-cache, no-store, must-revalidate
+      Content-Security-Policy:
+      - default-src 'none';base-uri 'none';manifest-src 'self';frame-ancestors 'none'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Sat, 22 Mar 2025 00:34:11 GMT
+      Feature-Policy:
+      - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
+        'none';payment 'none'
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      Set-Cookie:
+      - ocoguk96ketf=6b0c4b99d01a89f357dcec23da31e86b; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=6b0c4b99d01a89f357dcec23da31e86b; path=/; HttpOnly; SameSite=Lax
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.27
+      X-Request-Id:
+      - ac3UY2briuMdq1SEcKKP
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+      content-length:
+      - '108'
+    status:
+      code: 200
+      message: OK
+version: 1

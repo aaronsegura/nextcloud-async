@@ -1,6 +1,6 @@
-from unittest.mock import AsyncMock, call
-
 import pytest
+
+from unittest.mock import AsyncMock, call
 
 from nextcloud_async.api import MapFavorite, MapsApi
 
@@ -45,7 +45,7 @@ class TestMapFavorites:
         expected = [
             call.delete(path="/apps/maps/api/1.0/favorites/1", data=None, headers=None)
         ]
-        map_favorite.self_api.api.assert_has_calls(expected)
+        map_favorite._api.driver.assert_has_calls(expected)
 
     async def test_map_favorite_update(self, map_favorite: MapFavorite):
         await map_favorite.update(**_UPDATED_DATA)
@@ -86,7 +86,7 @@ class TestMapsApi:
                 headers=None,
             )
         ]
-        maps.api.assert_has_calls(expected)
+        maps.driver.assert_has_calls(expected)
 
     async def test_list_favorites(self, maps: MapsApi):
         await maps.list_favorites()
@@ -94,4 +94,4 @@ class TestMapsApi:
             call.get(path="/apps/maps/api/1.0/favorites", data=None, headers=None),
             call.get().__iter__(),
         ]
-        maps.api.assert_has_calls(expected)
+        maps.driver.assert_has_calls(expected)

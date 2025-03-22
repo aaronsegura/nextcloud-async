@@ -8,15 +8,19 @@ from . import (
     HttpClientException,
     HttpClientProvider,
     HttpClientResponse,
+    HttpResponseMock,
 )
 
 
-class HttpXResponseMock(HttpClientResponse):
+class HttpXResponseMock(HttpResponseMock):
+    _status_code: int
+    _response: bytes
+
     def __init__(
         self,
         status_code: int,
         response: bytes | None = None,
-        json: Any | None = None,
+        json: Any = None,
         headers: Any | None = None,
     ) -> None:
         self._response = response if response else bytes(_json.dumps(json), "utf-8")

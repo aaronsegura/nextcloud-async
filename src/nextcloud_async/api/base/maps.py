@@ -4,7 +4,13 @@ https://github.com/nextcloud/maps/blob/master/openapi.yml
 
 """
 
-from typing import NotRequired, TypedDict, Unpack
+import sys
+
+if sys.version_info < (3, 11):
+    from typing_extensions import NotRequired, TypedDict, Unpack
+else:
+    from typing import NotRequired, TypedDict, Unpack
+
 
 from nextcloud_async.api.mixins import NextcloudDataObject
 from nextcloud_async.api.modules import NextcloudModule

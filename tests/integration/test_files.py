@@ -427,11 +427,13 @@ class TestVersions:
         files_api: FilesApi,
         remote_test_files: list[str],
         class_tmp_path: Path,
+        pytestconfig: pytest.Config,
     ) -> str:
         # File timestamps and version timestamps are only granular to the second.
         # If a file is created/updated in less than 1 second a version is not generated.
         # We sleep a little to help out the nextcloud.
-        await asyncio.sleep(1)
+        if not pytestconfig.getoption("--block-network"):
+            await asyncio.sleep(1)
         updated_file = class_tmp_path / "updated_file"
         async with aiofile.async_open(updated_file, "wb") as fp:
             await fp.write(FILE_CONTENTS_NEW)

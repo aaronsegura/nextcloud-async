@@ -1,0 +1,59 @@
+interactions:
+- request:
+    body: null
+    headers:
+      User-Agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: MKCOL
+    uri: http://localhost:8181/remote.php/dav/files/admin//.nextcloud-async-pytest/created_folder_%3CCoroutine%20test_create_folder%5Baiohttp_basic%5D%3E
+  response:
+    body:
+      string: ''
+    headers:
+      Content-Length:
+      - '0'
+      Content-Security-Policy:
+      - default-src 'none';
+      Content-Type:
+      - text/html; charset=UTF-8
+      Date:
+      - Sat, 22 Mar 2025 00:38:46 GMT
+      OC-FileId:
+      - 00033408ocoguk96ketf
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      Set-Cookie:
+      - ocoguk96ketf=2db20beab4ce05555edf47b53b398ba9; path=/; HttpOnly; SameSite=Lax
+      - oc_sessionPassphrase=wPqY%2FPCYWYvmZK3v%2FYsRRNMGTvn0%2BjX9yHr5XiOUW6h3LskxKBOFhzO0oaLBppU6iFv7UYyU68BFfzL2ID1O%2FbKWGw%2FnUxiJ9AAOMjH9I7CpW217%2Bpju02ZUHTiE2xbv;
+        path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=2db20beab4ce05555edf47b53b398ba9; path=/; HttpOnly; SameSite=Lax
+      - nc_sameSiteCookielax=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
+        GMT; SameSite=lax
+      - nc_sameSiteCookiestrict=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
+        GMT; SameSite=strict
+      - ocoguk96ketf=2db20beab4ce05555edf47b53b398ba9; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=2db20beab4ce05555edf47b53b398ba9; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=ad37e47ea641ba043b37a2005be8e376; path=/; HttpOnly; SameSite=Lax
+      - cookie_test=test; expires=Sat, 22 Mar 2025 01:38:47 GMT; Max-Age=3600
+      X-Content-Type-Options:
+      - nosniff
+      X-Debug-Token:
+      - w6okPhEuNCJQzVToMNu6
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.27
+      X-Request-Id:
+      - w6okPhEuNCJQzVToMNu6
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+    status:
+      code: 201
+      message: Created
+version: 1

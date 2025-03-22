@@ -1,10 +1,9 @@
 import pytest
 import pytest_asyncio
 
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
 
 from nextcloud_async.api import Group, GroupsApi, User, UsersApi
-from nextcloud_async.exceptions import NextcloudForbiddenError
 
 _TEST_GROUP_NAME = "pytest_group"
 _TEST_USER = {
@@ -18,7 +17,7 @@ _TEST_USER = {
 
 
 @pytest_asyncio.fixture(scope="function", loop_scope="session")
-async def test_groups(groups_api: GroupsApi) -> AsyncGenerator[list[Group]]:
+async def test_groups(groups_api: GroupsApi) -> AsyncGenerator[list[Group], None]:
     ret: list[Group] = []
 
     for i in range(0, 2):

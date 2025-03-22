@@ -1,0 +1,399 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      host:
+      - localhost:8181
+      user-agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: MKCOL
+    uri: http://localhost:8181/remote.php/dav/files/admin//.nextcloud-async-pytest/test_files-test_get_multiple_favorites-httpx_app_token
+  response:
+    body:
+      string: ''
+    headers:
+      Connection:
+      - Keep-Alive
+      Content-Length:
+      - '0'
+      Content-Security-Policy:
+      - default-src 'none';
+      Content-Type:
+      - text/html; charset=UTF-8
+      Date:
+      - Sat, 22 Mar 2025 00:37:41 GMT
+      Keep-Alive:
+      - timeout=5, max=100
+      OC-FileId:
+      - 00033312ocoguk96ketf
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      Set-Cookie:
+      - ocoguk96ketf=22a84a67bdb6174a3f7c5865d2b784ef; path=/; HttpOnly; SameSite=Lax
+      - oc_sessionPassphrase=2z1Ff0SWCYykbekBxAstOIbyVrt0Ju%2FAiowBXjijNlozN15Injc8IDH8mcAxtEJ2I7QriT%2BImvtsz23FhVl5fIg2SaZDROaCs6WjfzAgF1d2081hWQTlAFskpAznnzWh;
+        path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=22a84a67bdb6174a3f7c5865d2b784ef; path=/; HttpOnly; SameSite=Lax
+      - nc_sameSiteCookielax=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
+        GMT; SameSite=lax
+      - nc_sameSiteCookiestrict=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
+        GMT; SameSite=strict
+      - ocoguk96ketf=22a84a67bdb6174a3f7c5865d2b784ef; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=22a84a67bdb6174a3f7c5865d2b784ef; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=22a84a67bdb6174a3f7c5865d2b784ef; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=22a84a67bdb6174a3f7c5865d2b784ef; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=22a84a67bdb6174a3f7c5865d2b784ef; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=22a84a67bdb6174a3f7c5865d2b784ef; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=22a84a67bdb6174a3f7c5865d2b784ef; path=/; HttpOnly; SameSite=Lax
+      X-Content-Type-Options:
+      - nosniff
+      X-Debug-Token:
+      - 2FTjwb8yhYBQObnKEebe
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.27
+      X-Request-Id:
+      - 2FTjwb8yhYBQObnKEebe
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+    status:
+      code: 201
+      message: Created
+- request:
+    body: '[File Contents]'
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '15'
+      host:
+      - localhost:8181
+      user-agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: PUT
+    uri: http://localhost:8181/remote.php/dav/files/admin//.nextcloud-async-pytest/test_files-test_get_multiple_favorites-httpx_app_token/favorited0.md
+  response:
+    body:
+      string: ''
+    headers:
+      Connection:
+      - Keep-Alive
+      Content-Length:
+      - '0'
+      Content-Security-Policy:
+      - default-src 'none';
+      Content-Type:
+      - text/html; charset=UTF-8
+      Date:
+      - Sat, 22 Mar 2025 00:37:41 GMT
+      ETag:
+      - '"371907d4fec055dee3d03d84c2611d4a"'
+      Keep-Alive:
+      - timeout=5, max=99
+      OC-ETag:
+      - '"371907d4fec055dee3d03d84c2611d4a"'
+      OC-FileId:
+      - 00033313ocoguk96ketf
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      X-Content-Type-Options:
+      - nosniff
+      X-Debug-Token:
+      - JTVllUt3SXpUFUSIKNJN
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.27
+      X-Request-Id:
+      - JTVllUt3SXpUFUSIKNJN
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+    status:
+      code: 201
+      message: Created
+- request:
+    body: "<?xml version=\"1.0\"?>\n                <d:propertyupdate\n                    xmlns:d=\"DAV:\"\n
+      \                   xmlns:oc=\"http://owncloud.org/ns\">\n                <d:set><d:prop>\n
+      \               <oc:favorite>1</oc:favorite>\n                </d:prop></d:set></d:propertyupdate>\n
+      \       "
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '284'
+      host:
+      - localhost:8181
+      user-agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: PROPPATCH
+    uri: http://localhost:8181/remote.php/dav/files/admin//.nextcloud-async-pytest/test_files-test_get_multiple_favorites-httpx_app_token/favorited0.md
+  response:
+    body:
+      string: '<?xml version="1.0"?>
+
+        <d:multistatus xmlns:d="DAV:" xmlns:s="http://sabredav.org/ns" xmlns:oc="http://owncloud.org/ns"
+        xmlns:nc="http://nextcloud.org/ns"><d:response><d:href>/remote.php/dav/files/admin/.nextcloud-async-pytest/test_files-test_get_multiple_favorites-httpx_app_token/favorited0.md</d:href><d:propstat><d:prop><oc:favorite/></d:prop><d:status>HTTP/1.1
+        200 OK</d:status></d:propstat></d:response></d:multistatus>
+
+        '
+    headers:
+      Connection:
+      - Keep-Alive
+      Content-Length:
+      - '425'
+      Content-Security-Policy:
+      - default-src 'none';
+      Content-Type:
+      - application/xml; charset=utf-8
+      Date:
+      - Sat, 22 Mar 2025 00:37:42 GMT
+      Keep-Alive:
+      - timeout=5, max=98
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      Vary:
+      - Brief,Prefer
+      X-Content-Type-Options:
+      - nosniff
+      X-Debug-Token:
+      - G8e4bXtI1woANTIAaTQ7
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.27
+      X-Request-Id:
+      - G8e4bXtI1woANTIAaTQ7
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+    status:
+      code: 207
+      message: Multi-Status
+- request:
+    body: '[File Contents]'
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '15'
+      host:
+      - localhost:8181
+      user-agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: PUT
+    uri: http://localhost:8181/remote.php/dav/files/admin//.nextcloud-async-pytest/test_files-test_get_multiple_favorites-httpx_app_token/favorited1.md
+  response:
+    body:
+      string: ''
+    headers:
+      Connection:
+      - Keep-Alive
+      Content-Length:
+      - '0'
+      Content-Security-Policy:
+      - default-src 'none';
+      Content-Type:
+      - text/html; charset=UTF-8
+      Date:
+      - Sat, 22 Mar 2025 00:37:42 GMT
+      ETag:
+      - '"2838b23b11e25f09cf3192af96534009"'
+      Keep-Alive:
+      - timeout=5, max=97
+      OC-ETag:
+      - '"2838b23b11e25f09cf3192af96534009"'
+      OC-FileId:
+      - 00033314ocoguk96ketf
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      X-Content-Type-Options:
+      - nosniff
+      X-Debug-Token:
+      - klOdRkV1am5L8Kpk8qwn
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.27
+      X-Request-Id:
+      - klOdRkV1am5L8Kpk8qwn
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+    status:
+      code: 201
+      message: Created
+- request:
+    body: "<?xml version=\"1.0\"?>\n                <d:propertyupdate\n                    xmlns:d=\"DAV:\"\n
+      \                   xmlns:oc=\"http://owncloud.org/ns\">\n                <d:set><d:prop>\n
+      \               <oc:favorite>1</oc:favorite>\n                </d:prop></d:set></d:propertyupdate>\n
+      \       "
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '284'
+      host:
+      - localhost:8181
+      user-agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: PROPPATCH
+    uri: http://localhost:8181/remote.php/dav/files/admin//.nextcloud-async-pytest/test_files-test_get_multiple_favorites-httpx_app_token/favorited1.md
+  response:
+    body:
+      string: '<?xml version="1.0"?>
+
+        <d:multistatus xmlns:d="DAV:" xmlns:s="http://sabredav.org/ns" xmlns:oc="http://owncloud.org/ns"
+        xmlns:nc="http://nextcloud.org/ns"><d:response><d:href>/remote.php/dav/files/admin/.nextcloud-async-pytest/test_files-test_get_multiple_favorites-httpx_app_token/favorited1.md</d:href><d:propstat><d:prop><oc:favorite/></d:prop><d:status>HTTP/1.1
+        200 OK</d:status></d:propstat></d:response></d:multistatus>
+
+        '
+    headers:
+      Connection:
+      - Keep-Alive
+      Content-Length:
+      - '425'
+      Content-Security-Policy:
+      - default-src 'none';
+      Content-Type:
+      - application/xml; charset=utf-8
+      Date:
+      - Sat, 22 Mar 2025 00:37:42 GMT
+      Keep-Alive:
+      - timeout=5, max=96
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      Vary:
+      - Brief,Prefer
+      X-Content-Type-Options:
+      - nosniff
+      X-Debug-Token:
+      - uZwqNJ0BvNVRJXohwNBf
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.27
+      X-Request-Id:
+      - uZwqNJ0BvNVRJXohwNBf
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+    status:
+      code: 207
+      message: Multi-Status
+- request:
+    body: '<?xml version=''1.0'' encoding=''us-ascii''?>
+
+      <oc:filter-files xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns" xmlns:nc="http://nextcloud.org/ns"><oc:filter-rules><oc:favorite>1</oc:favorite></oc:filter-rules><d:prop><oc:fileid
+      /><d:resourcetype /><oc:favorite /></d:prop></oc:filter-files>'
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '287'
+      host:
+      - localhost:8181
+      user-agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: REPORT
+    uri: http://localhost:8181/remote.php/dav/files/admin//.nextcloud-async-pytest/test_files-test_get_multiple_favorites-httpx_app_token
+  response:
+    body:
+      string: "<?xml version=\"1.0\"?>\n<d:multistatus xmlns:d=\"DAV:\" xmlns:s=\"http://sabredav.org/ns\"
+        xmlns:oc=\"http://owncloud.org/ns\" xmlns:nc=\"http://nextcloud.org/ns\">\n
+        <d:response>\n  <d:href>/remote.php/dav/files/admin/.nextcloud-async-pytest/test_files-test_get_multiple_favorites-httpx_app_token/favorited0.md</d:href>\n
+        \ <d:propstat>\n   <d:prop>\n    <oc:fileid>33313</oc:fileid>\n    <d:resourcetype/>\n
+        \   <oc:favorite>1</oc:favorite>\n   </d:prop>\n   <d:status>HTTP/1.1 200
+        OK</d:status>\n  </d:propstat>\n </d:response>\n <d:response>\n  <d:href>/remote.php/dav/files/admin/.nextcloud-async-pytest/test_files-test_get_multiple_favorites-httpx_app_token/favorited1.md</d:href>\n
+        \ <d:propstat>\n   <d:prop>\n    <oc:fileid>33314</oc:fileid>\n    <d:resourcetype/>\n
+        \   <oc:favorite>1</oc:favorite>\n   </d:prop>\n   <d:status>HTTP/1.1 200
+        OK</d:status>\n  </d:propstat>\n </d:response>\n</d:multistatus>\n"
+    headers:
+      Connection:
+      - Keep-Alive
+      Content-Length:
+      - '878'
+      Content-Security-Policy:
+      - default-src 'none';
+      Content-Type:
+      - application/xml; charset=utf-8
+      Date:
+      - Sat, 22 Mar 2025 00:37:42 GMT
+      Keep-Alive:
+      - timeout=5, max=95
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      X-Content-Type-Options:
+      - nosniff
+      X-Debug-Token:
+      - bqsYZxyYMIUlJd7iRebO
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.27
+      X-Request-Id:
+      - bqsYZxyYMIUlJd7iRebO
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+    status:
+      code: 207
+      message: Multi-Status
+version: 1

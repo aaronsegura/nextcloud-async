@@ -1,0 +1,90 @@
+interactions:
+- request:
+    body: '<?xml version=''1.0'' encoding=''us-ascii''?>
+
+      <d:propfind xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns" xmlns:nc="http://nextcloud.org/ns"><d:prop><oc:fileid
+      /><d:resourcetype /></d:prop></d:propfind>'
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '199'
+      depth:
+      - '0'
+      host:
+      - localhost:8181
+      user-agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: PROPFIND
+    uri: http://localhost:8181/remote.php/dav/files/admin//.nextcloud-async-pytest
+  response:
+    body:
+      string: '<?xml version="1.0"?>
+
+        <d:multistatus xmlns:d="DAV:" xmlns:s="http://sabredav.org/ns" xmlns:oc="http://owncloud.org/ns"
+        xmlns:nc="http://nextcloud.org/ns"><d:response><d:href>/remote.php/dav/files/admin/.nextcloud-async-pytest/</d:href><d:propstat><d:prop><oc:fileid>32640</oc:fileid><d:resourcetype><d:collection/></d:resourcetype></d:prop><d:status>HTTP/1.1
+        200 OK</d:status></d:propstat></d:response></d:multistatus>
+
+        '
+    headers:
+      Connection:
+      - Keep-Alive
+      Content-Security-Policy:
+      - default-src 'none';
+      Content-Type:
+      - application/xml; charset=utf-8
+      DAV:
+      - 1, 3, extended-mkcol, access-control, calendarserver-principal-property-search,
+        nextcloud-checksum-update, nc-calendar-search, nc-enable-birthday-calendar
+      Date:
+      - Sat, 22 Mar 2025 00:34:54 GMT
+      Keep-Alive:
+      - timeout=5, max=100
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      Set-Cookie:
+      - ocoguk96ketf=81bad2d83e10b0a5b3d702d054252d6d; path=/; HttpOnly; SameSite=Lax
+      - oc_sessionPassphrase=2t0Cer%2F7w2oSC1PKM3tzZ1xeEejemHoNsKhdGob2OjQ%2BOPCMLY3FFstqsss8P%2BtlXDlbQuWpdq8lrc4e5LE2t3VQd9H9a%2B3IH%2B21oXjSf4%2BiedMmmRvx4dWmeHlpW5F4;
+        path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=81bad2d83e10b0a5b3d702d054252d6d; path=/; HttpOnly; SameSite=Lax
+      - nc_sameSiteCookielax=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
+        GMT; SameSite=lax
+      - nc_sameSiteCookiestrict=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
+        GMT; SameSite=strict
+      - ocoguk96ketf=81bad2d83e10b0a5b3d702d054252d6d; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=81bad2d83e10b0a5b3d702d054252d6d; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=81bad2d83e10b0a5b3d702d054252d6d; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=81bad2d83e10b0a5b3d702d054252d6d; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=81bad2d83e10b0a5b3d702d054252d6d; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=81bad2d83e10b0a5b3d702d054252d6d; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=81bad2d83e10b0a5b3d702d054252d6d; path=/; HttpOnly; SameSite=Lax
+      Vary:
+      - Brief,Prefer
+      X-Content-Type-Options:
+      - nosniff
+      X-Debug-Token:
+      - 0d1dYPD036oRS0pKQF9Y
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.27
+      X-Request-Id:
+      - 0d1dYPD036oRS0pKQF9Y
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+      content-length:
+      - '419'
+    status:
+      code: 207
+      message: Multi-Status
+version: 1

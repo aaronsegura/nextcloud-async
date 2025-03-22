@@ -17,12 +17,13 @@ from . import (
     HttpClientException,
     HttpClientProvider,
     HttpClientResponse,
+    HttpResponseMock,
 )
 
 log = logging.getLogger("nextcloud_async.provider")
 
 
-class AioHttpResponseMock(HttpClientResponse):
+class AioHttpResponseMock(HttpResponseMock):
     _response: bytes
     _status_code: int
 

@@ -4,8 +4,7 @@ import json
 from unittest.mock import AsyncMock
 
 from nextcloud_async.api import Notification, NotificationsApi
-from nextcloud_async.provider.aiohttp import AioHttpResponseMock
-from nextcloud_async.provider.httpx import HttpXResponseMock
+from nextcloud_async.provider import HttpResponseMock
 
 
 @pytest.mark.asyncio(loop_scope="session")
@@ -45,18 +44,14 @@ class TestNotifications:
     @pytest.fixture
     def notification(
         self,
-        notifications_api: tuple[
-            NotificationsApi, HttpXResponseMock | AioHttpResponseMock
-        ],
+        notifications_api: tuple[NotificationsApi, HttpResponseMock],
     ) -> Notification:
         data = json.loads(self._single_response)
         return Notification(data["ocs"]["data"], notifications_api[0])
 
     async def test_get_notifications(
         self,
-        notifications_api: tuple[
-            NotificationsApi, HttpXResponseMock | AioHttpResponseMock
-        ],
+        notifications_api: tuple[NotificationsApi, HttpResponseMock],
     ):
         api, mock_response = notifications_api
         _response = mock_response(200, response=self._multi_response)  # type: ignore
@@ -68,9 +63,7 @@ class TestNotifications:
 
     async def test_get_notification(
         self,
-        notifications_api: tuple[
-            NotificationsApi, HttpXResponseMock | AioHttpResponseMock
-        ],
+        notifications_api: tuple[NotificationsApi, HttpResponseMock],
     ):
         api, mock_response = notifications_api
         _response = mock_response(200, response=self._single_response)  # type: ignore
@@ -83,9 +76,7 @@ class TestNotifications:
 
     async def test_clear_notifications(
         self,
-        notifications_api: tuple[
-            NotificationsApi, HttpXResponseMock | AioHttpResponseMock
-        ],
+        notifications_api: tuple[NotificationsApi, HttpResponseMock],
     ):
         api, mock_response = notifications_api
         _response = mock_response(200, response=self._empty_response)  # type: ignore
@@ -94,9 +85,7 @@ class TestNotifications:
 
     async def test_remove_notification(
         self,
-        notifications_api: tuple[
-            NotificationsApi, HttpXResponseMock | AioHttpResponseMock
-        ],
+        notifications_api: tuple[NotificationsApi, HttpResponseMock],
         notification: Notification,
     ):
         api, mock_response = notifications_api

@@ -4,7 +4,7 @@ from vcr.cassette import Cassette
 
 import datetime as dt
 import json
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
 
 from dateutil.tz import tzlocal
 
@@ -59,7 +59,7 @@ async def predefined_statuses(status_api: StatusApi) -> list[PredefinedStatus]:
 
 
 @pytest_asyncio.fixture(loop_scope="session")
-async def test_user(users_api: UsersApi) -> AsyncGenerator[User]:
+async def test_user(users_api: UsersApi) -> AsyncGenerator[User, None]:
     _test_user = {
         "user_id": "pytest_user",
         "display_name": "Pytest User Guy",

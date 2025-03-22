@@ -1,0 +1,62 @@
+interactions:
+- request:
+    body: null
+    headers:
+      OCS-APIRequest:
+      - 'true'
+      User-Agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: GET
+    uri: http://localhost:8181/ocs/v2.php/apps/user_status/api/v1/statuses?limit=100&offset=0&format=json
+  response:
+    body:
+      string: '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},"data":[{"userId":"admin","message":null,"icon":null,"clearAt":null,"status":"online"}]}}'
+    headers:
+      Cache-Control:
+      - no-cache, no-store, must-revalidate
+      Content-Security-Policy:
+      - default-src 'none';base-uri 'none';manifest-src 'self';frame-ancestors 'none'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Sat, 22 Mar 2025 01:00:48 GMT
+      Feature-Policy:
+      - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
+        'none';payment 'none'
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      Set-Cookie:
+      - ocoguk96ketf=14a06e0f25d26afa20057eb28bbdee8e; path=/; HttpOnly; SameSite=Lax
+      - oc_sessionPassphrase=0IdpSkRo1%2FRk2GKUH3dKAyealm68NPfU1%2FuPi%2FssOTmJVWBsdcvGa9CdyaPmboKDDOsmOWHDg84jKFnUAGKcGPbBu8xkkYM1EDVTGCGVpaOl6hSBjT82sGv9ic0OESdx;
+        path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=14a06e0f25d26afa20057eb28bbdee8e; path=/; HttpOnly; SameSite=Lax
+      - nc_sameSiteCookielax=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
+        GMT; SameSite=lax
+      - nc_sameSiteCookiestrict=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
+        GMT; SameSite=strict
+      - ocoguk96ketf=14a06e0f25d26afa20057eb28bbdee8e; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=14a06e0f25d26afa20057eb28bbdee8e; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=8fcb27a224388682633198747a2d3c42; path=/; HttpOnly; SameSite=Lax
+      - cookie_test=test; expires=Sat, 22 Mar 2025 02:00:49 GMT; Max-Age=3600
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.27
+      X-Request-Id:
+      - ueg6EKUf0KzsRIbYVgfs
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+      content-length:
+      - '152'
+    status:
+      code: 200
+      message: OK
+version: 1

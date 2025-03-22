@@ -1,0 +1,74 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      host:
+      - localhost:8181
+      ocs-apirequest:
+      - 'true'
+      user-agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: GET
+    uri: http://localhost:8181/ocs/v1.php/cloud/user/fields?format=json
+  response:
+    body:
+      string: '{"ocs":{"meta":{"status":"ok","statuscode":100,"message":"OK","totalitems":"","itemsperpage":""},"data":["displayname","email","additional_mail","phone","address","website","twitter","fediverse","organisation","role","headline","biography","profile_enabled"]}}'
+    headers:
+      Cache-Control:
+      - no-cache, no-store, must-revalidate
+      Connection:
+      - Keep-Alive
+      Content-Security-Policy:
+      - default-src 'none';base-uri 'none';manifest-src 'self';frame-ancestors 'none'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Sat, 22 Mar 2025 00:47:00 GMT
+      Feature-Policy:
+      - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
+        'none';payment 'none'
+      Keep-Alive:
+      - timeout=5, max=100
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      Set-Cookie:
+      - ocoguk96ketf=d9cebbcbe74767736e23bc0617c36473; path=/; HttpOnly; SameSite=Lax
+      - oc_sessionPassphrase=fwMwW%2BOmmU7%2FW4HCvyfBCZaFhwZiFzZzLtG57i2Ig3GWiK8GYklu7H8A8uSSivZP1d4ssFdn96PORMeYr2oI0Pt%2F%2B8alJkDN2u6dp8R3b%2FXwncGG81LBqp0UoT9JBMXl;
+        path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=d9cebbcbe74767736e23bc0617c36473; path=/; HttpOnly; SameSite=Lax
+      - nc_sameSiteCookielax=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
+        GMT; SameSite=lax
+      - nc_sameSiteCookiestrict=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
+        GMT; SameSite=strict
+      - ocoguk96ketf=d9cebbcbe74767736e23bc0617c36473; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=d9cebbcbe74767736e23bc0617c36473; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=1a2d713b5d23f6e728cc86492dae6635; path=/; HttpOnly; SameSite=Lax
+      - cookie_test=test; expires=Sat, 22 Mar 2025 01:47:01 GMT; Max-Age=3600
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.27
+      X-Request-Id:
+      - ruFlQWfLYHjCY6EaxGqi
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+      content-length:
+      - '260'
+    status:
+      code: 200
+      message: OK
+version: 1

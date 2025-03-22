@@ -1,0 +1,76 @@
+interactions:
+- request:
+    body: '<?xml version=''1.0'' encoding=''us-ascii''?>
+
+      <d:propfind xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns" xmlns:nc="http://nextcloud.org/ns"><d:prop><oc:fileid
+      /><d:resourcetype /></d:prop></d:propfind>'
+    headers:
+      Depth:
+      - '0'
+      User-Agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: PROPFIND
+    uri: http://localhost:8181/remote.php/dav/files/admin//.nextcloud-async-pytest
+  response:
+    body:
+      string: '<?xml version="1.0"?>
+
+        <d:multistatus xmlns:d="DAV:" xmlns:s="http://sabredav.org/ns" xmlns:oc="http://owncloud.org/ns"
+        xmlns:nc="http://nextcloud.org/ns"><d:response><d:href>/remote.php/dav/files/admin/.nextcloud-async-pytest/</d:href><d:propstat><d:prop><oc:fileid>32640</oc:fileid><d:resourcetype><d:collection/></d:resourcetype></d:prop><d:status>HTTP/1.1
+        200 OK</d:status></d:propstat></d:response></d:multistatus>
+
+        '
+    headers:
+      Content-Security-Policy:
+      - default-src 'none';
+      Content-Type:
+      - application/xml; charset=utf-8
+      DAV:
+      - 1, 3, extended-mkcol, access-control, calendarserver-principal-property-search,
+        nextcloud-checksum-update, nc-calendar-search, nc-enable-birthday-calendar
+      Date:
+      - Sat, 22 Mar 2025 00:34:53 GMT
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      Set-Cookie:
+      - ocoguk96ketf=8786efe037794736c3be687125103da0; path=/; HttpOnly; SameSite=Lax
+      - oc_sessionPassphrase=jVOYwcgZ%2F1aBdVbwf1YLM3Sy9rLJd%2Bo6IryZYx0Fpre1yb0MgsOXvgortRqWNDNsZV%2FWRs4W5nQgfMhG5yvaRMlndtxghLE3ovGNX68sqjHmdIl5u36vHFmL1zU4NG8R;
+        path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=8786efe037794736c3be687125103da0; path=/; HttpOnly; SameSite=Lax
+      - nc_sameSiteCookielax=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
+        GMT; SameSite=lax
+      - nc_sameSiteCookiestrict=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
+        GMT; SameSite=strict
+      - ocoguk96ketf=8786efe037794736c3be687125103da0; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=8786efe037794736c3be687125103da0; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=8786efe037794736c3be687125103da0; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=8786efe037794736c3be687125103da0; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=8786efe037794736c3be687125103da0; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=8786efe037794736c3be687125103da0; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=8786efe037794736c3be687125103da0; path=/; HttpOnly; SameSite=Lax
+      Vary:
+      - Brief,Prefer
+      X-Content-Type-Options:
+      - nosniff
+      X-Debug-Token:
+      - fOb4phD37HlXDYrOVAwr
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.27
+      X-Request-Id:
+      - fOb4phD37HlXDYrOVAwr
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+      content-length:
+      - '419'
+    status:
+      code: 207
+      message: Multi-Status
+version: 1

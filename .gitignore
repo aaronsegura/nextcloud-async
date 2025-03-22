@@ -3,9 +3,6 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Sublime Text project
-*.sublime-*
-
 # C extensions
 *.so
 
@@ -13,6 +10,7 @@ __pycache__/
 *.tmp
 temp.*
 capabilities.json
+.python-version
 
 # Distribution / packaging
 .Python

@@ -1,0 +1,135 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      host:
+      - localhost:8181
+      user-agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: MKCOL
+    uri: http://localhost:8181/remote.php/dav/files/admin//.nextcloud-async-pytest/test_files-test_copy_src_noexist-httpx_app_token
+  response:
+    body:
+      string: ''
+    headers:
+      Connection:
+      - Keep-Alive
+      Content-Length:
+      - '0'
+      Content-Security-Policy:
+      - default-src 'none';
+      Content-Type:
+      - text/html; charset=UTF-8
+      Date:
+      - Sat, 22 Mar 2025 00:35:11 GMT
+      Keep-Alive:
+      - timeout=5, max=100
+      OC-FileId:
+      - 00032862ocoguk96ketf
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      Set-Cookie:
+      - ocoguk96ketf=223843aaee3a83e0135f9cdbe6470610; path=/; HttpOnly; SameSite=Lax
+      - oc_sessionPassphrase=lYMGP%2BykoEpo8Con40iYb4ph1RAmd2X0LFo%2Bph162vIZkJrmyGpPjZ3iEnn7hVsbfrUsz8tMZbJTEVZH46tAKHJWH%2BAuZn5ysT6QLLvFhf9eHgpkGVU%2FApUQsz0QFHZI;
+        path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=223843aaee3a83e0135f9cdbe6470610; path=/; HttpOnly; SameSite=Lax
+      - nc_sameSiteCookielax=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
+        GMT; SameSite=lax
+      - nc_sameSiteCookiestrict=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
+        GMT; SameSite=strict
+      - ocoguk96ketf=223843aaee3a83e0135f9cdbe6470610; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=223843aaee3a83e0135f9cdbe6470610; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=223843aaee3a83e0135f9cdbe6470610; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=223843aaee3a83e0135f9cdbe6470610; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=223843aaee3a83e0135f9cdbe6470610; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=223843aaee3a83e0135f9cdbe6470610; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=223843aaee3a83e0135f9cdbe6470610; path=/; HttpOnly; SameSite=Lax
+      X-Content-Type-Options:
+      - nosniff
+      X-Debug-Token:
+      - YMHGcn6PQStwIQDHeDyy
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.27
+      X-Request-Id:
+      - YMHGcn6PQStwIQDHeDyy
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+    status:
+      code: 201
+      message: Created
+- request:
+    body: ''
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      destination:
+      - http://localhost:8181/remote.php/dav/files/admin//.nextcloud-async-pytest/test_files-test_copy_src_noexist-httpx_app_token
+      host:
+      - localhost:8181
+      overwrite:
+      - F
+      user-agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: COPY
+    uri: http://localhost:8181/remote.php/dav/files/admin//.nextcloud-async-pytest/test_files-test_copy_src_noexist-httpx_app_token/.noexist
+  response:
+    body:
+      string: "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<d:error xmlns:d=\"DAV:\"
+        xmlns:s=\"http://sabredav.org/ns\">\n\t<s:exception>Internal Server Error</s:exception>\n\t<s:message>\n\t\tThe
+        server was unable to complete your request.\t\tIf this happens again, please
+        send the technical details below to the server administrator.\t\tMore details
+        can be found in the server log.\t\t\t</s:message>\n\n\t<s:technical-details>\n\t\t<s:remote-address>172.19.0.1</s:remote-address>\n\t\t<s:request-id>yKmuKvxE1KhobLndA64r</s:request-id>\n\n\t\t</s:technical-details>\n</d:error>\n"
+    headers:
+      Connection:
+      - Keep-Alive
+      Content-Length:
+      - '527'
+      Content-Security-Policy:
+      - 'default-src ''none'';base-uri ''none'';manifest-src ''self'';script-src ''self'';style-src
+        ''self'' ''unsafe-inline'';img-src ''self'' data: blob:;font-src ''self''
+        data:;connect-src ''self'';media-src ''self'';frame-ancestors ''self'';form-action
+        ''self'''
+      Content-Type:
+      - application/xml; charset=utf-8
+      Date:
+      - Sat, 22 Mar 2025 00:35:11 GMT
+      Keep-Alive:
+      - timeout=5, max=99
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.27
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+    status:
+      code: 412
+      message: Precondition failed
+version: 1

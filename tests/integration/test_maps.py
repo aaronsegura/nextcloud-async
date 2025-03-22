@@ -1,10 +1,18 @@
 import pytest
 import pytest_asyncio
 
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
 
-from nextcloud_async.api import MapFavorite, MapsApi
+from nextcloud_async.api import AppsApi, MapFavorite, MapsApi
 from nextcloud_async.exceptions import NextcloudBadRequestError
+
+
+@pytest_asyncio.fixture(autouse=True, loop_scope="session")
+async def require_maps_enabled(apps_api: AppsApi):
+    app_list = await apps_api.get_all("enabled")
+    if "maps" not in app_list:
+        pytest.skip("Maps app is not enabled.  Skipping.", allow_module_level=True)
+
 
 DATA = {
     "name": "Blueberry Hill Campground",
@@ -16,7 +24,7 @@ DATA = {
 
 
 @pytest_asyncio.fixture(scope="function", loop_scope="session", autouse=True)
-async def map_favorite(maps_api: MapsApi) -> AsyncGenerator[MapFavorite]:
+async def map_favorite(maps_api: MapsApi) -> AsyncGenerator[MapFavorite, None]:
     favorite = await maps_api.add(**DATA)
     yield favorite
     try:

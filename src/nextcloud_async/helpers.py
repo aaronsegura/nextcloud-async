@@ -3,8 +3,6 @@
 from typing import Any, Dict, List
 from urllib.parse import quote
 
-import httpx
-
 
 def recursive_urlencode(d: Dict[str, Any]) -> str:
     """URL-encode a multidimensional dictionary PHP-style.
@@ -87,7 +85,7 @@ def phone_number_to_e164(phone_number: str | int) -> str:
     return f"{'.'.join(new_format)}.e164.arpa"
 
 
-def filter_headers(filter: List[str], headers: httpx.Headers) -> httpx.Headers:
+def filter_headers(filter: List[str], headers: tuple[str, Any]) -> dict[str, Any]:
     """Filter result headers down to just the ones we want.
 
     Args:
@@ -102,4 +100,4 @@ def filter_headers(filter: List[str], headers: httpx.Headers) -> httpx.Headers:
 
     """
     filter = [x.lower() for x in filter]
-    return httpx.Headers([x for x in headers.items() if x[0] in filter])
+    return {x: y for x, y in headers if x[0] in filter}
