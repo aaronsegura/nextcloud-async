@@ -14,8 +14,6 @@ import sys
 from dataclasses import field
 from typing import Any
 
-import httpx
-
 if sys.version_info < (3, 11):
     from typing_extensions import NotRequired, TypedDict, Unpack
 else:
@@ -61,9 +59,6 @@ class Conversation(NextcloudDataObject):
     _api: "ConversationsApi"
 
     _participants: list[Participant] = field(init=False, default_factory=list)
-
-    def __post_init__(self) -> None:
-        """Set up all of the APIs needed by this class."""
 
     def __str__(self) -> str:
         return f'<Conversation("{self.data["token"]}") "{self.data["displayName"]}">'
@@ -141,6 +136,33 @@ class Conversation(NextcloudDataObject):
         await self._api.rename(room_token=self.token, new_name=new_name)
         # TODO: Make this object _refresh()
         self._display_name = new_name
+
+    async def leave(self) -> None:
+        """Leave this conversation."""
+        await self._api.participants.leave(self.token)
+
+    async def join(
+        self, password: str | None = None, force: bool = True
+    ) -> "Conversation":
+        """Join a conversation.
+
+        Args:
+            password:
+                Optional: Password is only required for users which are self joined or
+                guests and only when the conversation has hasPassword set to true.
+
+            force:
+                If set to false and the user has an active session already a 409 Conflict
+                will be returned (Default: true - to keep the old behaviour)
+
+        Returns:
+            Conversation object
+
+        """
+        response = await self._api.participants.join(
+            self.token, password=password, force=force
+        )
+        return Conversation(response, self.self_api)
 
     async def delete(self) -> None:
         """Delete this conversation."""
@@ -225,7 +247,7 @@ class Conversation(NextcloudDataObject):
 
     async def get_messages(  # noqa: D417
         self, **kwargs: Unpack[_GetMessagesArgs]
-    ) -> tuple[list[Message], httpx.Headers]:
+    ) -> tuple[list[Message], dict[str, Any]]:
         """Receive messages from a conversation.
 
         https://nextcloud-talk.readthedocs.io/en/latest/chat/#receive-chat-messages-of-a-conversation
@@ -289,7 +311,7 @@ class Conversation(NextcloudDataObject):
 
     async def message_context(  # noqa: D417
         self, **kwargs: Unpack[_MessageContextArgs]
-    ) -> tuple[list[Message], httpx.Headers]:
+    ) -> tuple[list[Message], dict[str, Any]]:
         """Get context around a message.
 
         Requires Capability: chat-get-context
@@ -315,7 +337,7 @@ class Conversation(NextcloudDataObject):
         reference_id: NotRequired[str]
         silent: bool
 
-    async def send(self, **kwargs: Unpack[_SendArgs]) -> tuple[Message, httpx.Headers]:  # noqa: D417
+    async def send(self, **kwargs: Unpack[_SendArgs]) -> tuple[Message, dict[str, Any]]:  # noqa: D417
         """Send message to the conversation.
 
         Args:
@@ -362,7 +384,7 @@ class Conversation(NextcloudDataObject):
 
     async def send_rich_object(  # noqa: D417
         self, **kwargs: Unpack[_SendRichObjectArgs]
-    ) -> tuple[Message, httpx.Headers]:
+    ) -> tuple[Message, dict[str, Any]]:
         """Share a rich object to the conversation.
 
         https://github.com/nextcloud/server/blob/master/lib/public/RichObjectStrings/Definitions.php
@@ -447,7 +469,7 @@ class Conversation(NextcloudDataObject):
 
     async def list_shared_items_by_type(  # noqa: D417
         self, **kwargs: Unpack[_SharedItemsByTypeArgs]
-    ) -> tuple[list[Message], httpx.Headers]:
+    ) -> tuple[list[Message], dict[str, Any]]:
         """List items of type shared in the chat.
 
         Args:
@@ -481,7 +503,7 @@ class Conversation(NextcloudDataObject):
         """
         return await self._api.chat.clear_history(room_token=self.token)
 
-    async def delete_message(self, message_id: int) -> tuple[Message, httpx.Headers]:
+    async def delete_message(self, message_id: int) -> tuple[Message, dict[str, Any]]:
         """Delete a message in a conversation.
 
         https://nextcloud-talk.readthedocs.io/en/latest/chat/#deleting-a-chat-message
@@ -509,7 +531,7 @@ class Conversation(NextcloudDataObject):
 
     async def edit_message(  # noqa: D417
         self, **kwargs: Unpack[_EditMessageArgs]
-    ) -> tuple[Message, httpx.Headers]:
+    ) -> tuple[Message, dict[str, Any]]:
         """Edit an existing message in a conversation.
 
         Args:
@@ -1140,29 +1162,6 @@ class Conversation(NextcloudDataObject):
     async def get_signaling_settings(self) -> dict[str, Any]:
         """Get signaling settings."""
         return await self._api.signaling.get_settings(self.token)
-
-    async def join(
-        self, password: str | None = None, force: bool = True
-    ) -> "Conversation":
-        """Join a conversation.
-
-        Args:
-            password:
-                Optional: Password is only required for users which are self joined or
-                guests and only when the conversation has hasPassword set to true.
-
-            force:
-                If set to false and the user has an active session already a 409 Conflict
-                will be returned (Default: true - to keep the old behaviour)
-
-        Returns:
-            Conversation object
-
-        """
-        response = await self._api.participants.join(
-            self.token, password=password, force=force
-        )
-        return Conversation(response, self.self_api)
 
 
 class ConversationsApi(NextcloudModule):

@@ -68,6 +68,7 @@ from .ocs.talk import (
     SignalingMode,
     SipState,
     Suggestion,
+    TalkApi,
     WebinarLobbyState,
     talk_api,
 )
@@ -146,6 +147,7 @@ __all__ = [
     "StatusType",
     "Suggestion",
     "Suggestion",
+    "TalkApi",
     "talk_api",
     "Trashbin",
     "TrashFile",

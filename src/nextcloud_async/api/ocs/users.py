@@ -29,7 +29,6 @@ class User(NextcloudDataObject):
 
     def refresh_function(self) -> Awaitable:
         """Define how to refresh this object."""
-        log.debug("Refreshing User.")
         return self._api.get(self.id)
 
     async def update(self, new_data: dict[str, Any]) -> None:

@@ -3,8 +3,8 @@ import pytest_asyncio
 
 import datetime as dt
 import os
+from collections.abc import AsyncGenerator
 from pathlib import Path
-from typing import AsyncGenerator
 
 import aiofile
 from dateutil.tz import tzlocal
@@ -28,7 +28,7 @@ _EXPIRATION = (dt.datetime.now(tz=tzlocal()) + dt.timedelta(days=1)).date()
 
 
 @pytest_asyncio.fixture(scope="function", loop_scope="session")
-async def target_user(users_api: UsersApi) -> AsyncGenerator[User]:
+async def target_user(users_api: UsersApi) -> AsyncGenerator[User, None]:
     _test_user = {
         "user_id": "pytest_user",
         "display_name": "Pytest User Guy",
@@ -53,7 +53,7 @@ def class_tmp_path(tmp_path_factory: pytest.TempdirFactory) -> Path:
 @pytest_asyncio.fixture(scope="module", loop_scope="session")
 async def local_test_file(
     class_tmp_path: Path, content=_FILE_CONTENTS
-) -> AsyncGenerator[str]:
+) -> AsyncGenerator[str, None]:
     file = f"{class_tmp_path}/file"
     async with aiofile.async_open(file, "wb") as fp:
         await fp.write(content)

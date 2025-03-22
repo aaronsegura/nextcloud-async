@@ -10,9 +10,15 @@ Not Implemented:
 import asyncio
 import datetime as dt
 import json
+import sys
 from collections.abc import Awaitable
 from enum import Enum, IntFlag
-from typing import Any, NotRequired, TypedDict, Unpack
+from typing import Any
+
+if sys.version_info < (3, 11):
+    from typing_extensions import NotRequired, TypedDict, Unpack
+else:
+    from typing import NotRequired, TypedDict, Unpack
 
 from dateutil.tz import tzlocal
 
@@ -357,7 +363,9 @@ class SharesApi(NextcloudModule):
         ]
 
         # Send requests as a batch
-        updates = [(k[1], locals()[k[0]]) for k in name_translations if locals()[k[0]]]
+        updates = [
+            (k[1], locals()[k[0]]) for k in name_translations if hasattr(locals, k[0])
+        ]
         reqs = [self.__update_share(share_id, k, v) for k, v in updates]
         await asyncio.gather(*reqs)
 

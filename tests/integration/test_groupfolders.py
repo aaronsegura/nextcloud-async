@@ -2,7 +2,7 @@ import pytest
 import pytest_asyncio
 
 import logging
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
 
 from nextcloud_async.api import (
     Group,
@@ -31,7 +31,7 @@ async def group_folders(
     gf_api: GroupFoldersApi,
     remote_test_dir: str,
     test_id: str,
-) -> AsyncGenerator[list[GroupFolder]]:
+) -> AsyncGenerator[list[GroupFolder], None]:
     ret: list[GroupFolder] = []
 
     for i in range(0, 3):
@@ -48,7 +48,7 @@ async def group_folders(
 
 
 @pytest_asyncio.fixture(scope="function", loop_scope="session")
-async def test_group(groups_api: GroupsApi, test_id: str) -> AsyncGenerator[Group]:
+async def test_group(groups_api: GroupsApi, test_id: str) -> AsyncGenerator[Group, None]:
     group_id = f"groupfolders_test_{test_id}"
     group = await groups_api.create(group_id)
 

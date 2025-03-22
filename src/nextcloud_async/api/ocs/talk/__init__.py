@@ -34,7 +34,7 @@ from .conversations import Conversation
 from .participants import Participant
 from .polls import Poll
 from .reactions import Reactions
-from .talk import talk_api
+from .talk import TalkApi, talk_api
 
 __all__ = [
     "Bot",
@@ -68,5 +68,6 @@ __all__ = [
     "SipState",
     "Suggestion",
     "talk_api",
+    "TalkApi",
     "WebinarLobbyState",
 ]

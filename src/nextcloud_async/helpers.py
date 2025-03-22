@@ -3,8 +3,6 @@
 from typing import Any, Dict, List
 from urllib.parse import quote
 
-import httpx
-
 
 def recursive_urlencode(d: Dict[str, Any]) -> str:
     """URL-encode a multidimensional dictionary PHP-style.
