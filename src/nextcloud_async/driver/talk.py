@@ -61,9 +61,13 @@ class NextcloudTalkDriver(NextcloudOcsDriver):
         method: str = "GET",
         path: str = "",
         data: dict[str, Any] | None = None,
+        content: bytes | None = None,
+        json: Any | None = None,
         headers: dict[str, Any] | None = None,
     ) -> tuple[dict[str, Any], dict[str, Any]]:
         """Submit OCS-type query to cloud endpoint.
+
+        Only one of json/content/data may be used.
 
         Args:
             method:
@@ -79,6 +83,12 @@ class NextcloudTalkDriver(NextcloudOcsDriver):
                 Data for submission.  Data for GET requests is translated by
                 urlencode and tacked on to the end of the URL as arguments.
 
+            content:
+                Bytes data to pass as body.
+
+            json:
+                JSON-serializable data for submission.
+
             headers:
                 Headers for submission. Defaults to {}.
 
@@ -91,7 +101,9 @@ class NextcloudTalkDriver(NextcloudOcsDriver):
         """
         response = cast(
             "HttpClientResponse",
-            await super().request(method, path, data, headers, raw_response=True),
+            await super().request(
+                method, path, data, content, json, headers, raw_response=True
+            ),
         )
         await self.raise_response_exception(response)
         return response.json()["ocs"]["data"], response.headers

@@ -206,6 +206,7 @@ class NextcloudHttpDriver(ABC):
         data: Any = None,
         headers: dict[str, Any] | None = None,
         content: bytes | None = None,
+        json: Any | None = None,
         raw_response: bool = False,
     ) -> Any:
         """Define how to make a request."""
@@ -240,6 +241,18 @@ class NextcloudHttpDriver(ABC):
             headers.update(self.client.request_headers)
 
         return headers
+
+    def _munge_json_data(
+        self, data: dict[str, Any] | None, json: dict[str, Any] | None
+    ) -> tuple[dict[str, Any] | None, dict[str, Any] | None]:
+        if data:
+            data = self._format_json(data)
+        elif json:
+            json = self._format_json(json)
+        else:
+            data = self._format_json(data)
+
+        return data, json
 
     def _format_json(self, data: dict[str, Any] | None) -> dict[str, Any]:
         if data:
@@ -347,103 +360,197 @@ class NextcloudHttpDriver(ABC):
         self,
         path: str = "",
         data: Any | None = None,
+        content: bytes | None = None,
+        json: Any | None = None,
         headers: dict[str, Any] | None = None,
     ) -> Any:
         """Passthrough to self.request() with method="GET"."""
-        return await self.request(method="GET", path=path, data=data, headers=headers)
+        return await self.request(
+            method="GET",
+            path=path,
+            data=data,
+            headers=headers,
+            content=content,
+            json=json,
+        )
 
     async def get_raw(
         self,
         path: str = "",
         data: Any | None = None,
+        content: bytes | None = None,
+        json: Any | None = None,
         headers: dict[str, Any] | None = None,
     ) -> HttpClientResponse:
         """Passthrough to self.request() with method="GET" and raw_response=True."""
         return await self.request(
-            method="GET", path=path, data=data, headers=headers, raw_response=True
+            method="GET",
+            path=path,
+            data=data,
+            headers=headers,
+            raw_response=True,
+            content=content,
+            json=json,
         )
 
     async def post(
         self,
         path: str = "",
         data: Any | None = None,
+        content: bytes | None = None,
+        json: Any | None = None,
         headers: dict[str, Any] | None = None,
     ) -> Any:
         """Passthrough to self.request() with method="POST"."""
-        return await self.request(method="POST", path=path, data=data, headers=headers)
+        return await self.request(
+            method="POST",
+            path=path,
+            data=data,
+            headers=headers,
+            content=content,
+            json=json,
+        )
 
     async def put(
         self,
         path: str = "",
         data: Any | None = None,
+        content: bytes | None = None,
+        json: Any | None = None,
         headers: dict[str, Any] | None = None,
     ) -> Any:
         """Passthrough to self.request() with method="PUT"."""
-        return await self.request(method="PUT", path=path, data=data, headers=headers)
+        return await self.request(
+            method="PUT",
+            path=path,
+            data=data,
+            headers=headers,
+            content=content,
+            json=json,
+        )
 
     async def delete(
         self,
         path: str = "",
         data: Any | None = None,
+        content: bytes | None = None,
+        json: Any | None = None,
         headers: dict[str, Any] | None = None,
     ) -> Any:
         """Passthrough to self.request() with method="DELETE"."""
-        return await self.request(method="DELETE", path=path, data=data, headers=headers)
+        return await self.request(
+            method="DELETE",
+            path=path,
+            data=data,
+            headers=headers,
+            content=content,
+            json=json,
+        )
 
     async def propfind(
         self,
         path: str = "",
         data: Any | None = None,
+        content: bytes | None = None,
+        json: Any | None = None,
         headers: dict[str, Any] | None = None,
     ) -> Any:
         """Passthrough to self.request() with method="PROPFIND"."""
         return await self.request(
-            method="PROPFIND", path=path, data=data, headers=headers
+            method="PROPFIND",
+            path=path,
+            data=data,
+            headers=headers,
+            content=content,
+            json=json,
         )
 
     async def mkcol(
         self,
         path: str = "",
         data: Any | None = None,
+        content: bytes | None = None,
+        json: Any | None = None,
         headers: dict[str, Any] | None = None,
     ) -> Any:
         """Passthrough to self.request() with method="MKCOL"."""
-        return await self.request(method="MKCOL", path=path, data=data, headers=headers)
+        return await self.request(
+            method="MKCOL",
+            path=path,
+            data=data,
+            headers=headers,
+            content=content,
+            json=json,
+        )
 
     async def move(
         self,
         path: str = "",
         data: Any | None = None,
+        content: bytes | None = None,
+        json: Any | None = None,
         headers: dict[str, Any] | None = None,
     ) -> Any:
         """Passthrough to self.request() with method="MOVE"."""
-        return await self.request(method="MOVE", path=path, data=data, headers=headers)
+        return await self.request(
+            method="MOVE",
+            path=path,
+            data=data,
+            headers=headers,
+            content=content,
+            json=json,
+        )
 
     async def copy(
         self,
         path: str = "",
         data: Any | None = None,
+        content: bytes | None = None,
+        json: Any | None = None,
         headers: dict[str, Any] | None = None,
     ) -> Any:
         """Passthrough to self.request() with method="COPY"."""
-        return await self.request(method="COPY", path=path, data=data, headers=headers)
+        return await self.request(
+            method="COPY",
+            path=path,
+            data=data,
+            headers=headers,
+            content=content,
+            json=json,
+        )
 
     async def proppatch(
         self,
         path: str = "",
         data: Any | None = None,
+        content: bytes | None = None,
+        json: Any | None = None,
         headers: dict[str, Any] | None = None,
     ) -> Any:
         """Passthrough to self.request() with method="PROPPATCH"."""
         return await self.request(
-            method="PROPPATCH", path=path, data=data, headers=headers
+            method="PROPPATCH",
+            path=path,
+            data=data,
+            headers=headers,
+            content=content,
+            json=json,
         )
 
     async def report(
         self,
         path: str = "",
         data: Any | None = None,
+        content: bytes | None = None,
+        json: Any | None = None,
         headers: dict[str, Any] | None = None,
     ) -> Any:
         """Passthrough to self.request() with method="REPORT"."""
-        return await self.request(method="REPORT", path=path, data=data, headers=headers)
+        return await self.request(
+            method="REPORT",
+            path=path,
+            data=data,
+            headers=headers,
+            content=content,
+            json=json,
+        )

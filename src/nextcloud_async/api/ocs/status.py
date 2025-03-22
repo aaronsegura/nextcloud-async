@@ -149,9 +149,10 @@ class StatusApi(NextcloudModule):
             New status data
 
         """
-        return await self._put(
+        response = await self._put(
             path="/user_status/status", data={"statusType": status_type.value}
         )
+        return response
 
     async def get_predefined_statuses(self) -> list[PredefinedStatus]:
         """Get list of predefined statuses.

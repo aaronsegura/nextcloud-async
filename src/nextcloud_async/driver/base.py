@@ -52,10 +52,14 @@ class NextcloudBaseDriver(NextcloudHttpDriver):
         method: str = "GET",
         path: str = "",
         data: dict[str, Any] | None = None,
+        content: bytes | None = None,
         headers: dict[str, Any] | None = None,
+        json: Any | None = None,
         raw_response: bool = False,
     ) -> dict[str, Any] | HttpClientResponse:
         """Send a request to the Nextcloud endpoint.
+
+        Only one of json/data/content may be used.
 
         Args:
             method:
@@ -70,8 +74,15 @@ class NextcloudBaseDriver(NextcloudHttpDriver):
             headers:
                 Headers for submission. Defaults to {}.
 
+            json:
+                Json data passthrough.
+
+            content:
+                Raw bytes to pass through
+
             raw_response:
                 Return the HttpClientResponse object
+
         Returns:
             dict[str, Any]: Dictionary of reponse data
 
@@ -81,15 +92,26 @@ class NextcloudBaseDriver(NextcloudHttpDriver):
             data = None
 
         headers = self._munge_headers(headers)
+        json, data = self._munge_json_data(json, data)
+
+        if json and method.lower() == "get":
+            path = self._path_args(json, path)
+            json = None
+
+        if data and method.lower() == "get":
+            path = self._path_args(data, path)
+            data = None
 
         try:
             log.debug(f"{method} {self.client.endpoint}{self.stub}{path} {data}")
             response = await self.client.http_client.request(
                 method=method,
-                auth=self.client.auth,
+                auth=self.client.auth if self.client.auth else None,
                 url=f"{self.client.endpoint}{self.stub}{path}",
-                json=data,
                 headers=headers,
+                data=data,
+                content=content,
+                json=json,
             )
             log.debug(f"Response: [{response.status_code}] {response.content}")
 

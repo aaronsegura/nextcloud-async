@@ -1,7 +1,10 @@
+import logging
 from abc import ABC
 from typing import Any, Awaitable, Callable
 
 from nextcloud_async.exceptions import NextcloudForbiddenError
+
+log = logging.getLogger("nextcloud_async.api")
 
 
 class NextcloudModule(ABC):
@@ -12,112 +15,176 @@ class NextcloudModule(ABC):
         self,
         path: str = "",
         data: Any | None = None,
+        content: bytes | None = None,
+        json: Any | None = None,
         headers: dict[str, Any] | None = None,
     ) -> Any:
         return await self.driver.get(
-            path=f"{self.stub}{path}", data=data, headers=headers
+            path=f"{self.stub}{path}",
+            data=data,
+            headers=headers,
+            content=content,
+            json=json,
         )
 
     async def _get_raw(
         self,
         path: str = "",
         data: Any | None = None,
+        content: bytes | None = None,
+        json: Any | None = None,
         headers: dict[str, Any] | None = None,
     ) -> Any:
         return await self.driver.get_raw(
             path=f"{self.stub}{path}",
             data=data,
             headers=headers,
+            content=content,
+            json=json,
         )
 
     async def _post(
         self,
         data: Any | None = None,
+        content: bytes | None = None,
+        json: Any | None = None,
         path: str = "",
         headers: dict[str, Any] | None = None,
     ) -> Any:
         return await self.driver.post(
-            path=f"{self.stub}{path}", data=data, headers=headers
+            path=f"{self.stub}{path}",
+            data=data,
+            headers=headers,
+            content=content,
+            json=json,
         )
 
     async def _put(
         self,
         data: Any | None = None,
+        content: bytes | None = None,
+        json: Any | None = None,
         path: str = "",
         headers: dict[str, Any] | None = None,
     ) -> Any:
         return await self.driver.put(
-            path=f"{self.stub}{path}", data=data, headers=headers
+            path=f"{self.stub}{path}",
+            data=data,
+            headers=headers,
+            content=content,
+            json=json,
         )
 
     async def _delete(
         self,
         data: Any | None = None,
+        content: bytes | None = None,
+        json: Any | None = None,
         path: str = "",
         headers: dict[str, Any] | None = None,
     ) -> Any:
         return await self.driver.delete(
-            path=f"{self.stub}{path}", data=data, headers=headers
+            path=f"{self.stub}{path}",
+            data=data,
+            headers=headers,
+            content=content,
+            json=json,
         )
 
     async def _propfind(
         self,
         path: str = "",
         data: Any | None = None,
+        content: bytes | None = None,
+        json: Any | None = None,
         headers: dict[str, Any] | None = None,
     ) -> Any:
         return await self.driver.propfind(
-            path=f"{self.stub}{path}", data=data, headers=headers
+            path=f"{self.stub}{path}",
+            data=data,
+            headers=headers,
+            content=content,
+            json=json,
         )
 
     async def _mkcol(
         self,
         path: str = "",
         data: Any | None = None,
+        content: bytes | None = None,
+        json: Any | None = None,
         headers: dict[str, Any] | None = None,
     ) -> Any:
         return await self.driver.mkcol(
-            path=f"{self.stub}{path}", data=data, headers=headers
+            path=f"{self.stub}{path}",
+            data=data,
+            headers=headers,
+            content=content,
+            json=json,
         )
 
     async def _move(
         self,
         path: str = "",
         data: Any | None = None,
+        content: bytes | None = None,
+        json: Any | None = None,
         headers: dict[str, Any] | None = None,
     ) -> Any:
         return await self.driver.move(
-            path=f"{self.stub}{path}", data=data, headers=headers
+            path=f"{self.stub}{path}",
+            data=data,
+            headers=headers,
+            content=content,
+            json=json,
         )
 
     async def _copy(
         self,
         path: str = "",
         data: Any | None = None,
+        content: bytes | None = None,
+        json: Any | None = None,
         headers: dict[str, Any] | None = None,
     ) -> Any:
         return await self.driver.copy(
-            path=f"{self.stub}{path}", data=data, headers=headers
+            path=f"{self.stub}{path}",
+            data=data,
+            headers=headers,
+            content=content,
+            json=json,
         )
 
     async def _proppatch(
         self,
         path: str = "",
         data: Any | None = None,
+        content: bytes | None = None,
+        json: Any | None = None,
         headers: dict[str, Any] | None = None,
     ) -> Any:
         return await self.driver.proppatch(
-            path=f"{self.stub}{path}", data=data, headers=headers
+            path=f"{self.stub}{path}",
+            data=data,
+            headers=headers,
+            content=content,
+            json=json,
         )
 
     async def _report(
         self,
         path: str = "",
         data: Any | None = None,
+        content: bytes | None = None,
+        json: Any | None = None,
         headers: dict[str, Any] | None = None,
     ) -> Any:
         return await self.driver.report(
-            path=f"{self.stub}{path}", data=data, headers=headers
+            path=f"{self.stub}{path}",
+            data=data,
+            headers=headers,
+            content=content,
+            json=json,
         )
 
 
@@ -153,7 +220,10 @@ def password_confirmation_required(
             return await func(self, *args, **kwargs)
         except NextcloudForbiddenError as e:
             if "confirmation" in str(e):
-                self.driver.client.http_client.cookies.delete("oc_sessionPassphrase")
+                log.debug("'Password confirmation required' received.  Retrying...")
+                self.driver.client.http_client.delete_cookie(
+                    self.driver.client.endpoint, "oc_sessionPassphrase"
+                )
                 return await func(self, *args, **kwargs)
             else:
                 raise

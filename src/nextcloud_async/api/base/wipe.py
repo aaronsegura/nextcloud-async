@@ -11,6 +11,7 @@ import logging
 from nextcloud_async.api.modules import NextcloudModule
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver import NextcloudBaseDriver
+from nextcloud_async.exceptions import NextcloudNotFoundError
 from nextcloud_async.provider import HttpClientResponse
 
 log = logging.getLogger("nextcloud_async.wipe")
@@ -47,10 +48,13 @@ class WipeApi(NextcloudModule):
         if not self.driver.client.app_token:
             return False
 
-        response = await self._post(
-            path="/check",
-            data={"token": self.driver.client.app_token},
-        )
+        try:
+            response = await self._post(
+                path="/check",
+                data={"token": self.driver.client.app_token},
+            )
+        except NextcloudNotFoundError:
+            return False
 
         if "wipe" in response:
             return response["wipe"]

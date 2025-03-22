@@ -22,16 +22,17 @@ from nextcloud_async.exceptions import NextcloudBadRequestError
 _CLEAR_AT_DT = dt.datetime.now(tz=tzlocal()) + dt.timedelta(seconds=300)
 
 
-@pytest_asyncio.fixture(scope="function", loop_scope="session")
+@pytest_asyncio.fixture(loop_scope="session")
 async def my_status(
-    status_api: StatusApi, vcr: Cassette, network_blocked: bool
+    status_api: StatusApi,
+    vcr: Cassette,
 ) -> MyStatus:
-    if network_blocked:
+    if False:
         # Since we are sending/checking expiration time, which changes on every run
         # we pull the original request/response from the cassette and create a
         # MyStatus object with the response data.
         url = (
-            f"{status_api.api.client.endpoint}{status_api.api.stub}{status_api.stub}"
+            f"{status_api.driver.client.endpoint}{status_api.driver.stub}{status_api.stub}"
             "/user_status/message/custom"
         )
         requests = [x for x in vcr.requests if x.uri == url and x.method == "PUT"]
@@ -52,13 +53,13 @@ async def my_status(
     return status
 
 
-@pytest_asyncio.fixture(scope="function", loop_scope="session")
+@pytest_asyncio.fixture(loop_scope="session")
 async def predefined_statuses(status_api: StatusApi) -> list[PredefinedStatus]:
     return await status_api.get_predefined_statuses()
 
 
-@pytest_asyncio.fixture(scope="function", loop_scope="session")
-async def test_user(network_blocked: bool, users_api: UsersApi) -> AsyncGenerator[User]:
+@pytest_asyncio.fixture(loop_scope="session")
+async def test_user(users_api: UsersApi) -> AsyncGenerator[User]:
     _test_user = {
         "user_id": "pytest_user",
         "display_name": "Pytest User Guy",
@@ -68,15 +69,10 @@ async def test_user(network_blocked: bool, users_api: UsersApi) -> AsyncGenerato
         "language": "en",
     }
 
-    if network_blocked:
-        _test_user.update({"id": _test_user["user_id"]})
-        test_user = User(_test_user, users_api)
-    else:
-        test_user = await users_api.create(**_test_user)
+    test_user = await users_api.create(**_test_user)
 
     yield test_user
-    if not network_blocked:
-        await test_user.delete()
+    await test_user.delete()
 
 
 @pytest.mark.vcr
@@ -90,14 +86,14 @@ class TestStatus:
         assert my_status.status == StatusType.away.value
 
     async def test_set_message(self, my_status: MyStatus):
-        await my_status.set_message("Pytesting", status_icon="⌛", clear_at=_CLEAR_AT_DT)
-        assert my_status.message == "Pytesting"
+        await my_status.set_message("In Testing", status_icon="⌛", clear_at=_CLEAR_AT_DT)
+        assert my_status.message == "In Testing"
         assert my_status.icon == "⌛"
 
     async def test_set_message_expired(self, my_status: MyStatus):
         _clear_at = dt.datetime.now(tz=tzlocal()) - dt.timedelta(hours=1)
         with pytest.raises(NextcloudBadRequestError):
-            await my_status.set_message("Pytesting", clear_at=_clear_at)
+            await my_status.set_message("In Testing", clear_at=_clear_at)
 
     async def test_get_predefined_statuses(self, status_api: StatusApi):
         statuses = await status_api.get_predefined_statuses()
@@ -120,5 +116,5 @@ class TestStatus:
         await status_api.get_all_user_statuses()
 
     async def test_get_user_status(self, status_api: StatusApi):
-        user_status = await status_api.get_user_status(status_api.api.client.user)
+        user_status = await status_api.get_user_status(status_api.driver.client.user)
         assert isinstance(user_status, UserStatus)

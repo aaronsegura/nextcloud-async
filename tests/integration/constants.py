@@ -4,7 +4,7 @@ from ..constants import (
     NEXTCLOUD_VERSION,
     OCS_EMPTY_200,
     PASSWORD,
-    REMOTE_TEST_DIR,
+    REMOTE_BASE_DIR,
     REQUEST_HEADERS,
     USER,
     USER_AGENT,

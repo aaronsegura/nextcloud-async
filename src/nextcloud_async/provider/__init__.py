@@ -11,7 +11,7 @@ class HttpClientBasicAuth(Protocol):
 
 
 class HttpClientResponse(Protocol):
-    def __init__(self, response: Any) -> None: ...
+    def __init__(self, status_code: int, response: Any) -> None: ...
 
     @property
     def status_code(self) -> int:
@@ -48,13 +48,17 @@ class HttpClientProvider(Protocol):
         auth: HttpClientBasicAuth | None = None,
         headers: dict[str, Any] | None = None,
         data: dict[str, Any] | None = None,
-        json: dict[str, Any] | None = None,
         content: bytes | None = None,
+        json: Any | None = None,
     ) -> Any:
         """Make an HTTP Request."""
 
-    async def delete_cookie(self, cookie: str) -> None:
+    def delete_cookie(self, endpoint: str, cookie: str) -> None:
         """Delete a cookie."""
+
+    @property
+    def cookie_jar(self) -> Any:
+        """Return the cookies."""
 
 
 class HttpClientException(BaseException): ...

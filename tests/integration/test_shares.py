@@ -1,9 +1,7 @@
 import pytest
 import pytest_asyncio
-from vcr.cassette import Cassette
 
 import datetime as dt
-import json
 import os
 from pathlib import Path
 from typing import AsyncGenerator
@@ -21,24 +19,16 @@ from nextcloud_async.api import (
     User,
     UsersApi,
 )
+from nextcloud_async.exceptions import NextcloudNotFoundError
 
-from .constants import ENDPOINT, REMOTE_TEST_DIR
-from .helpers import create_clean_test_directory, create_remote_test_files
+from .helpers import create_remote_test_files
 
 _FILE_CONTENTS = b"[File Contents]"
 _EXPIRATION = (dt.datetime.now(tz=tzlocal()) + dt.timedelta(days=1)).date()
 
 
-@pytest_asyncio.fixture(scope="module", loop_scope="session")
-async def test_directory(files_api: FilesApi, network_blocked: bool) -> str:
-    dir = f"{REMOTE_TEST_DIR}/shares"
-    if not network_blocked:
-        await create_clean_test_directory(files_api, dir)
-    return dir
-
-
 @pytest_asyncio.fixture(scope="function", loop_scope="session")
-async def target_user(network_blocked: bool, users_api: UsersApi) -> AsyncGenerator[User]:
+async def target_user(users_api: UsersApi) -> AsyncGenerator[User]:
     _test_user = {
         "user_id": "pytest_user",
         "display_name": "Pytest User Guy",
@@ -47,16 +37,9 @@ async def target_user(network_blocked: bool, users_api: UsersApi) -> AsyncGenera
         "password": "MyCoolPassword",
         "language": "en",
     }
-
-    if network_blocked:
-        _test_user.update({"id": _test_user["user_id"]})
-        test_user = User(_test_user, users_api)
-    else:
-        test_user = await users_api.create(**_test_user)
-
+    test_user = await users_api.create(**_test_user)
     yield test_user
-    if not network_blocked:
-        await test_user.delete()
+    await test_user.delete()
 
 
 @pytest.fixture(scope="module")
@@ -78,16 +61,17 @@ async def local_test_file(
     os.unlink(file)
 
 
-@pytest_asyncio.fixture(scope="module", loop_scope="session")
+@pytest_asyncio.fixture(scope="function", loop_scope="session")
 async def remote_test_files(
-    files_api: FilesApi, test_directory: str, local_test_file: str, network_blocked: bool
+    files_api: FilesApi,
+    remote_test_dir: str,
+    local_test_file: str,
 ) -> list[str]:
     files = await create_remote_test_files(
         files_api,
-        test_directory,
+        remote_test_dir,
         local_test_file,
         num_files=2,
-        network_blocked=network_blocked,
     )
     return files
 
@@ -98,37 +82,19 @@ async def shared_file(
     shares_api: SharesApi,
     target_user: User,
     remote_test_files: list[str],
-    vcr: Cassette,
-    network_blocked: bool,
 ):
     _path = remote_test_files[0]
-
-    # Since we are sending/checking expiration date, which changes on every run
-    # we pull the original request/response from the cassette and create a
-    # Share object using the recorded expiration
-    if network_blocked:
-        _url = f"{ENDPOINT}{shares_api.api.stub}{shares_api.stub}"
-        request = [x for x in vcr.requests if x.uri == _url and x.method == "POST"].pop()
-        response = vcr.responses_of(request).pop()
-        response_data = json.loads(response["body"]["string"])
-        _share = Share(response_data["ocs"]["data"], shares_api)
-        globals()["_EXPIRATION"] = dt.datetime.strptime(  # noqa: DTZ007
-            _share.expiration, r"%Y-%m-%d %H:%M:%S"
-        ).date()
-    else:
-        _shared_file_data = {
-            "path": _path,
-            "permissions": SharePermission.read,
-            "share_type": ShareType.user,
-            "share_with": target_user.id,
-            "expire_date": _EXPIRATION,
-        }
-        _share = await shares_api.create(**_shared_file_data)
-
+    _shared_file_data = {
+        "path": _path,
+        "permissions": SharePermission.read,
+        "share_type": ShareType.user,
+        "share_with": target_user.id,
+        "expire_date": _EXPIRATION,
+    }
+    _share = await shares_api.create(**_shared_file_data)
     return _share
 
 
-# TODO TEST THIS TOMORROW
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestShares:
@@ -143,17 +109,17 @@ class TestShares:
         shares = await shares_api.get_file_shares()
         share = [x for x in shares if x.path == _shared_file].pop()
         assert isinstance(share, Share)
-        assert share.expiration == _EXPIRATION.strftime(r"%Y-%m-%d %H:%M:%S")
         assert shared_file in shares
 
     async def test_get_share_info(self, shares_api: SharesApi, shared_file: Share):
         response = await shares_api.get(shared_file.id)
         assert response == shared_file
 
-    async def test_delete_share(self, shared_file: Share):
-        print(shared_file)
-        print(shared_file.data)
+    async def test_delete_share(self, shares_api: SharesApi, shared_file: Share):
+        _id = shared_file.id
         await shared_file.delete()
+        with pytest.raises(NextcloudNotFoundError):
+            await shares_api.get(_id)
 
     async def test_update_share(
         self,

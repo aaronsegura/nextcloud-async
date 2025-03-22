@@ -1,4 +1,4 @@
-import json
+import json as _json
 import logging
 from typing import Any
 
@@ -8,6 +8,7 @@ from aiohttp import (
     ClientConnectionError,
     ClientResponse,
     ClientSession,
+    ClientTimeout,
     ServerConnectionError,
 )
 
@@ -19,6 +20,45 @@ from . import (
 )
 
 log = logging.getLogger("nextcloud_async.provider")
+
+
+class AioHttpResponseMock(HttpClientResponse):
+    _response: bytes
+    _status_code: int
+
+    def __init__(
+        self,
+        status_code: int,
+        response: bytes | None = None,
+        json: Any = None,
+        headers: Any | None = None,
+    ) -> None:
+        self._response = response if response else bytes(_json.dumps(json), "utf-8")
+        self._status_code = status_code
+        self._headers = headers
+
+    @property
+    def status_code(self) -> int:
+        """Mock status code."""
+        return self._status_code
+
+    @property
+    def content(self) -> bytes:
+        """Mock content."""
+        return self._response
+
+    @property
+    def text(self) -> str:
+        """Mock text."""
+        return self._response.decode()
+
+    def json(self) -> Any:
+        """Mock json."""
+        return _json.loads(self._response.decode())
+
+    def headers(self) -> Any:
+        """Return mock headers."""
+        return self._headers
 
 
 class AioHttpResponse(HttpClientResponse):
@@ -53,7 +93,7 @@ class AioHttpResponse(HttpClientResponse):
 
     def json(self) -> Any:
         """Return the json response content."""
-        return json.loads(self.text)
+        return _json.loads(self.text)
 
     @property
     def headers(self) -> Any:
@@ -77,8 +117,14 @@ class AioHttpClientProvider(HttpClientProvider):
     _client: ClientSession
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
+        if "timeout" in kwargs:
+            timeout = ClientTimeout(total=kwargs["timeout"])
+            kwargs.pop("timeout")
+        else:
+            timeout = ClientTimeout(total=30)
+
         log.debug("Starting aiohttp session.")
-        self._client = ClientSession(*args, **kwargs)
+        self._client = ClientSession(*args, timeout=timeout or None, **kwargs)
         asyncio_atexit.register(self.close_session)
 
     async def close_session(self) -> None:
@@ -93,19 +139,35 @@ class AioHttpClientProvider(HttpClientProvider):
         headers: dict[str, Any] | None = None,
         auth: AioHttpBasicAuth | None = None,
         data: dict[str, Any] | None = None,
+        json: Any | None = None,
         content: bytes | None = None,
-        json: dict[str, Any] | None = None,
     ) -> Any:
         """Make an HTTP Request."""
         try:
-            _r = await self._client.request(
-                method,
-                url=url,
-                auth=auth._auth,
-                data=data or content,
-                headers=headers,
-                json=json,
-            )
+            if content:
+                _r = await self._client.request(
+                    method,
+                    url=url,
+                    auth=auth._auth if auth else None,
+                    data=content,
+                    headers=headers,
+                )
+            elif json:
+                _r = await self._client.request(
+                    method,
+                    url=url,
+                    auth=auth._auth if auth else None,
+                    json=json,
+                    headers=headers,
+                )
+            else:
+                _r = await self._client.request(
+                    method,
+                    url=url,
+                    auth=auth._auth if auth else None,
+                    data=data,
+                    headers=headers,
+                )
         except (ClientConnectionError, ServerConnectionError) as e:
             raise HttpClientException(str(e))
         else:
@@ -113,6 +175,14 @@ class AioHttpClientProvider(HttpClientProvider):
             await response.pop_fields()
             return response
 
-    async def delete_cookie(self, _: str) -> None:
+    @property
+    def cookie_jar(self) -> Any:
+        """Return cookies."""
+        return self._client.cookie_jar
+
+    def delete_cookie(self, endpoint: str, cookie: str) -> None:
         """Delete a cookie from the session."""
-        self._client.cookie_jar.update_cookies({"oc_sessionPassphrase": ""})
+        from yarl import URL
+
+        log.debug(f"Deleting cookie '{cookie}'")
+        self.cookie_jar.update_cookies({cookie: ""}, response_url=URL(endpoint))

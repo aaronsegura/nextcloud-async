@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Any
 from urllib.parse import unquote
 
 from nextcloud_async.api.mixins import NextcloudIterator
@@ -162,15 +162,13 @@ class UserPath(NextcloudIterator):
 
         raise KeyError
 
-    def __getitem__(self, index: int):
+    def __getitem__(self, index: int) -> Any:
         return self._files[index]
 
     @property
     def _self(self) -> UserFile:
         return [
-            file
-            for file in self._files
-            if self._path.rstrip("/") == file.path.rstrip("/")
+            file for file in self._files if self._path.strip("/") == file.path.strip("/")
         ].pop()
 
     @property

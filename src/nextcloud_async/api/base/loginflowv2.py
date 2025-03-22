@@ -62,7 +62,9 @@ class LoginFlowV2Api(NextcloudModule):
         response = await self._post()
         return response
 
-    async def wait_confirm(self, token: str, timeout: int = 60) -> dict[str, Any]:
+    async def wait_confirm(
+        self, token: str, timeout: int = 60, interval: int = 5
+    ) -> dict[str, Any]:
         """Wait for user to confirm application authorization.
 
         This function may be called repeatedly until the user accepts.
@@ -72,6 +74,8 @@ class LoginFlowV2Api(NextcloudModule):
 
             timeout (int, optional): How long to wait for user authorization. Defaults to
             60 seconds.
+
+            interval: Seconds between retries.
 
         Raises:
             NextcloudLoginFlowTimeout: When the user hasn't logged in by the given
@@ -85,14 +89,15 @@ class LoginFlowV2Api(NextcloudModule):
         running_time = 0
         response = None
 
-        while not response and running_time < timeout:
+        while not response and running_time <= timeout:
             try:
                 response = await self._post(path="/poll", data={"token": token})
             except NextcloudNotFoundError:
                 pass
 
             running_time = (dt.datetime.now() - start_dt).seconds  # noqa: DTZ005
-            await asyncio.sleep(1)
+            if not response:
+                await asyncio.sleep(interval)
 
         if not response:
             raise NextcloudLoginFlowTimeoutError()

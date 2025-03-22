@@ -18,40 +18,25 @@ _TEST_USER = {
 
 
 @pytest_asyncio.fixture(scope="function", loop_scope="session")
-async def test_groups(
-    network_blocked: bool, groups_api: GroupsApi
-) -> AsyncGenerator[list[Group]]:
+async def test_groups(groups_api: GroupsApi) -> AsyncGenerator[list[Group]]:
     ret: list[Group] = []
 
     for i in range(0, 2):
         group_name = f"{_TEST_GROUP_NAME}_{i}"
-        if network_blocked:
-            test_group = Group({"id": group_name}, groups_api)
-        else:
-            test_group = await groups_api.create(group_name)
+        test_group = await groups_api.create(group_name)
         ret.append(test_group)
 
     yield ret
 
     for i in range(0, 2):
-        if not network_blocked:
-            try:
-                test_group = await groups_api.delete(f"{_TEST_GROUP_NAME}_{i}")
-            except NextcloudForbiddenError:
-                pass
+        test_group = await groups_api.delete(f"{_TEST_GROUP_NAME}_{i}")
 
 
 @pytest_asyncio.fixture(scope="function", loop_scope="session")
-async def test_user(network_blocked: bool, users_api: UsersApi) -> AsyncGenerator[User]:
-    if network_blocked:
-        _TEST_USER.update({"id": _TEST_USER["user_id"]})
-        test_user = User(_TEST_USER, users_api)
-    else:
-        test_user = await users_api.create(**_TEST_USER)
-
+async def test_user(users_api: UsersApi) -> AsyncGenerator[User]:
+    test_user = await users_api.create(**_TEST_USER)
     yield test_user
-    if not network_blocked:
-        await test_user.delete()
+    await test_user.delete()
 
 
 @pytest.mark.vcr

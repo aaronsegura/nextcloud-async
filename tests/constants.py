@@ -6,9 +6,9 @@ NEXTCLOUD_VERSION = os.environ.get("PYTEST_NEXTCLOUD_VERSION", "30")
 USER = os.environ.get("PYTEST_NEXTCLOUD_USER", "admin")
 PASSWORD = os.environ.get("PYTEST_NEXTCLOUD_PASSWORD", "admin")
 ENDPOINT = os.environ.get("PYTEST_NEXTCLOUD_ENDPOINT", "http://localhost:8181")
-APP_TOKEN = os.environ.get("PYTEST_NEXTCLOUD_APP_TOKEN", "[app token]")
+APP_TOKEN = os.environ.get("PYTEST_NEXTCLOUD_APP_TOKEN", "EMEW6-EBQ2J-ptjzN-Fxcsp-PJpDA")
 
-REMOTE_TEST_DIR = "/.nextcloud-async-pytest"
+REMOTE_BASE_DIR = "/.nextcloud-async-pytest"
 USER_AGENT = f"nextcloud-async-pytest/{VERSION}"
 REQUEST_HEADERS = {
     "accept": "*/*",

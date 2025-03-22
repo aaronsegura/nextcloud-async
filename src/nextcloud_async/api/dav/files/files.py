@@ -118,7 +118,7 @@ class FilesApi(NextcloudModule):
 
         """
         data = self._namespace_properties(properties)
-        response: list[dict[str, Any]] | dict[str, Any] = await self._propfind(
+        response = await self._propfind(
             path=f"/files/{self.driver.client.user}/{path}",
             headers={"Depth": "0" if directory_only else ""},
             data=data,
@@ -154,7 +154,7 @@ class FilesApi(NextcloudModule):
         async with async_open(local_path, "rb") as fp:
             await self._put(
                 path=f"/files/{self.driver.client.user}/{remote_path}",
-                data=await fp.read(),
+                content=await fp.read(),
             )
 
     async def mkdir(self, path: str, create_parents: bool = False) -> None:

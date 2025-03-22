@@ -1,3 +1,4 @@
+import json as _json
 from typing import Any
 
 from httpx import AsyncClient, BasicAuth, RequestError, Response
@@ -8,6 +9,42 @@ from . import (
     HttpClientProvider,
     HttpClientResponse,
 )
+
+
+class HttpXResponseMock(HttpClientResponse):
+    def __init__(
+        self,
+        status_code: int,
+        response: bytes | None = None,
+        json: Any | None = None,
+        headers: Any | None = None,
+    ) -> None:
+        self._response = response if response else bytes(_json.dumps(json), "utf-8")
+        self._status_code = status_code
+        self._headers = headers
+
+    @property
+    def status_code(self) -> int:
+        """Mock status code."""
+        return self._status_code
+
+    @property
+    def content(self) -> bytes:
+        """Mock content."""
+        return self._response
+
+    @property
+    def text(self) -> str:
+        """Mock text."""
+        return self._response.decode()
+
+    def json(self) -> dict[str, Any]:
+        """Mock json."""
+        return _json.loads(self._response.decode())
+
+    def headers(self) -> Any:
+        """Mock headers."""
+        return self._headers
 
 
 class HttpXResponse(HttpClientResponse):
@@ -35,7 +72,7 @@ class HttpXResponse(HttpClientResponse):
 
     @property
     def headers(self) -> Any:
-        """Return respons headers."""
+        """Return response headers."""
         return self._response.headers
 
 
@@ -69,24 +106,44 @@ class HttpXClientProvider(HttpClientProvider):
         auth: HttpXBasicAuth | None = None,
         data: dict[str, Any] | None = None,
         content: bytes | None = None,
-        json: dict[str, Any] | None = None,
+        json: Any | None = None,
     ) -> Any:
         """Make an HTTP Request."""
         try:
-            _r = await self._client.request(
-                method,
-                url=url,
-                auth=auth._auth,
-                data=data,
-                headers=headers,
-                content=content,
-                json=json,
-            )
+            if content:
+                _r = await self._client.request(
+                    method,
+                    url=url,
+                    auth=auth._auth if auth else None,
+                    headers=headers,
+                    content=content,
+                )
+            elif json:
+                _r = await self._client.request(
+                    method,
+                    url=url,
+                    auth=auth._auth if auth else None,
+                    headers=headers,
+                    json=json,
+                )
+            else:
+                _r = await self._client.request(
+                    method,
+                    url=url,
+                    auth=auth._auth if auth else None,
+                    headers=headers,
+                    data=data,
+                )
         except RequestError as e:
             raise HttpClientException(str(e))
         else:
             return HttpXResponse(_r)
 
-    async def delete_cookie(self, cookie: str) -> None:
+    @property
+    def cookie_jar(self) -> Any:
+        """Return cookies."""
+        self._client.cookies
+
+    def delete_cookie(self, _: str, cookie: str) -> None:
         """Delete a cookie from the session."""
         self._client.cookies.delete(cookie)

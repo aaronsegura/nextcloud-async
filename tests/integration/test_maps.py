@@ -4,7 +4,7 @@ import pytest_asyncio
 from typing import AsyncGenerator
 
 from nextcloud_async.api import MapFavorite, MapsApi
-from nextcloud_async.exceptions import NextcloudNotFoundError
+from nextcloud_async.exceptions import NextcloudBadRequestError
 
 DATA = {
     "name": "Blueberry Hill Campground",
@@ -15,17 +15,15 @@ DATA = {
 }
 
 
-@pytest_asyncio.fixture(scope="function", loop_scope="session")
-async def map_favorite(
-    maps_api: MapsApi, network_blocked: bool
-) -> AsyncGenerator[MapFavorite]:
+@pytest_asyncio.fixture(scope="function", loop_scope="session", autouse=True)
+async def map_favorite(maps_api: MapsApi) -> AsyncGenerator[MapFavorite]:
     favorite = await maps_api.add(**DATA)
     yield favorite
-    if not network_blocked:
-        try:
-            await favorite.delete()
-        except NextcloudNotFoundError:
-            pass
+    try:
+        await favorite.delete()
+    except NextcloudBadRequestError:
+        # This one was already deleted.
+        pass
 
 
 @pytest.mark.vcr
@@ -43,7 +41,7 @@ class TestMaps:
     # Fixture map_favorite isn't directly accessed in this test, but it it required
     # to guarantee a favorite is in the system before running maps_api.list_favorites()
     #
-    async def test_list_favorites(self, maps_api: MapsApi, map_favorite: MapFavorite):  # noqa: ARG002
+    async def test_list_favorites(self, maps_api: MapsApi):  # noqa: ARG002
         favorites = await maps_api.list_favorites()
         for fav in favorites:
             assert isinstance(fav, MapFavorite)

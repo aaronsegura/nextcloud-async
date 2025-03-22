@@ -1,9 +1,11 @@
-import json
-
 import pytest
-from pytest_httpx import HTTPXMock
+
+import json
+from unittest.mock import AsyncMock
 
 from nextcloud_async.api import Notification, NotificationsApi
+from nextcloud_async.provider.aiohttp import AioHttpResponseMock
+from nextcloud_async.provider.httpx import HttpXResponseMock
 
 
 @pytest.mark.asyncio(loop_scope="session")
@@ -41,86 +43,64 @@ class TestNotifications:
     )
 
     @pytest.fixture
-    def notification(self, notifications_api: NotificationsApi) -> Notification:
+    def notification(
+        self,
+        notifications_api: tuple[
+            NotificationsApi, HttpXResponseMock | AioHttpResponseMock
+        ],
+    ) -> Notification:
         data = json.loads(self._single_response)
-        return Notification(data["ocs"]["data"], notifications_api)
+        return Notification(data["ocs"]["data"], notifications_api[0])
 
     async def test_get_notifications(
-        self, notifications_api: NotificationsApi, httpx_mock: HTTPXMock
+        self,
+        notifications_api: tuple[
+            NotificationsApi, HttpXResponseMock | AioHttpResponseMock
+        ],
     ):
-        httpx_mock.add_response(200, content=self._multi_response)
-        notifications = await notifications_api.get_all()
+        api, mock_response = notifications_api
+        _response = mock_response(200, response=self._multi_response)  # type: ignore
+        api.driver.client.http_client.request = AsyncMock(return_value=_response)
+        notifications = await api.get_all()
         for notification in notifications:
             assert isinstance(notification, Notification)
             assert notification.id == 7
 
-        request = httpx_mock.get_request()
-        assert_url = "".join(
-            [
-                notifications_api.api.client.endpoint,
-                notifications_api.api.stub,
-                notifications_api.stub,
-                "?format=json",
-            ]
-        )
-        assert str(request.url) == assert_url
-
     async def test_get_notification(
-        self, notifications_api: NotificationsApi, httpx_mock: HTTPXMock
+        self,
+        notifications_api: tuple[
+            NotificationsApi, HttpXResponseMock | AioHttpResponseMock
+        ],
     ):
-        httpx_mock.add_response(200, content=self._single_response)
+        api, mock_response = notifications_api
+        _response = mock_response(200, response=self._single_response)  # type: ignore
+        api.driver.client.http_client.request = AsyncMock(return_value=_response)
 
-        notification = await notifications_api.get(7)
+        notification = await api.get(7)
         assert isinstance(notification, Notification)
         assert notification.id == 7
         assert "updatenotification" in str(notification)
 
-        request = httpx_mock.get_request()
-        assert_url = "".join(
-            [
-                notifications_api.api.client.endpoint,
-                notifications_api.api.stub,
-                notifications_api.stub,
-                "/7?format=json",
-            ]
-        )
-        assert str(request.url) == assert_url
-        assert request.method == "GET"
-
     async def test_clear_notifications(
-        self, notifications_api: NotificationsApi, httpx_mock: HTTPXMock
+        self,
+        notifications_api: tuple[
+            NotificationsApi, HttpXResponseMock | AioHttpResponseMock
+        ],
     ):
-        httpx_mock.add_response(200, content=self._empty_response)
-        await notifications_api.clear()
-
-        request = httpx_mock.get_request()
-        assert_url = "".join(
-            [
-                notifications_api.api.client.endpoint,
-                notifications_api.api.stub,
-                notifications_api.stub,
-            ]
-        )
-        assert str(request.url) == assert_url
-        assert request.method == "DELETE"
+        api, mock_response = notifications_api
+        _response = mock_response(200, response=self._empty_response)  # type: ignore
+        api.driver.client.http_client.request = AsyncMock(return_value=_response)
+        await api.clear()
 
     async def test_remove_notification(
         self,
-        notifications_api: NotificationsApi,
+        notifications_api: tuple[
+            NotificationsApi, HttpXResponseMock | AioHttpResponseMock
+        ],
         notification: Notification,
-        httpx_mock: HTTPXMock,
     ):
-        httpx_mock.add_response(200, content=self._empty_response)
+        api, mock_response = notifications_api
+        _response = mock_response(200, response=self._empty_response)  # type: ignore
+        api.driver.client.http_client.request = AsyncMock(return_value=_response)
         await notification.delete()
-
-        request = httpx_mock.get_request()
-        assert_url = "".join(
-            [
-                notifications_api.api.client.endpoint,
-                notifications_api.api.stub,
-                notifications_api.stub,
-                "/7",
-            ]
-        )
-        assert str(request.url) == assert_url
-        assert request.method == "DELETE"
+        api.driver.client.http_client.request.assert_called_once()

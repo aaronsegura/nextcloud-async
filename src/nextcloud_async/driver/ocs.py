@@ -45,10 +45,14 @@ class NextcloudOcsDriver(NextcloudHttpDriver):
         method: str = "GET",
         path: str = "",
         data: dict[str, Any] | None = None,
+        content: bytes | None = None,
+        json: dict[str, Any] | None = None,
         headers: dict[str, Any] | None = None,
         raw_response: bool = False,
     ) -> dict[str, Any] | list[dict[str, Any]] | bytes | HttpClientResponse:
         """Submit OCS-type query to cloud endpoint.
+
+        Only one of json/data/content may be used.
 
         Args:
             method:
@@ -64,6 +68,12 @@ class NextcloudOcsDriver(NextcloudHttpDriver):
                 Data for submission.  Data for GET requests is
                 translated by urlencode and tacked on to the end of the URL as arguments.
                 Defaults to {}.
+
+            content:
+                Bytes to pass through as data.
+
+            json:
+                JSON-Serializabl data passthrough.
 
             headers:
                 Headers for submission. Defaults to {}.
@@ -83,19 +93,26 @@ class NextcloudOcsDriver(NextcloudHttpDriver):
 
         """
         headers = self._munge_headers(headers, extra={"OCS-APIRequest": "true"})
-        data = self._format_json(data)
+        json, data = self._munge_json_data(json, data)
 
-        if method.lower() == "get":
+        if json and method.lower() == "get":
+            path = self._path_args(json, path)
+            json = None
+
+        if data and method.lower() == "get":
             path = self._path_args(data, path)
             data = None
 
         try:
             log.debug(f"{method} {self.client.endpoint}{self.stub}{path} {data}")
+
             response = await self.client.http_client.request(
                 method,
                 auth=self.client.auth,
                 url=f"{self.client.endpoint}{self.stub}{path}",
-                json=data,
+                json=json,
+                data=data,
+                content=content,
                 headers=headers,
             )
             log.debug(f"Response: [{response.status_code}] {response.content}")

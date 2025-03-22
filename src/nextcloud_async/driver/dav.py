@@ -37,9 +37,12 @@ class NextcloudDavDriver(NextcloudHttpDriver):
         data: Any = {},
         headers: dict[str, Any] | None = None,
         content: bytes | None = None,
+        json: Any | None = None,
         raw_response: bool = False,
     ) -> dict[str, Any] | bytes | HttpClientResponse:
         """Send a query to the Nextcloud DAV Endpoint.
+
+        Only one of json/data/content may be used.
 
         Args:
             method:
@@ -56,6 +59,9 @@ class NextcloudDavDriver(NextcloudHttpDriver):
 
             content:
                 Content to submit.  Use this when data is binary.
+
+            json:
+                Json-serializable data passthrough.
 
             raw_response:
                 Return HttpClientResponse object.
@@ -79,9 +85,10 @@ class NextcloudDavDriver(NextcloudHttpDriver):
                 method,
                 auth=self.client.auth,
                 url=f"{self.client.endpoint}{self.stub}{path}",
-                data=data,
                 headers=headers,
                 content=content,
+                data=data,
+                json=json,
             )
             log.debug(f"Response: [{response.status_code}] {response.content}")
 

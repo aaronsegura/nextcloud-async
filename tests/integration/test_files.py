@@ -1,6 +1,7 @@
 import pytest
 import pytest_asyncio
 
+import asyncio
 import os
 from pathlib import Path
 
@@ -24,14 +25,11 @@ from nextcloud_async.exceptions import (
     NextcloudUnsupportedMediaTypeError,
 )
 
-from .constants import REMOTE_TEST_DIR
-from .helpers import create_clean_test_directory, create_remote_test_files
+from .constants import REMOTE_BASE_DIR
+from .helpers import create_remote_test_files
 
 FILE_CONTENTS_ORIG = b"[File Contents]"
 FILE_CONTENTS_NEW = b"[Updated File Contents]"
-REMOTE_TEST_FILE = f"{REMOTE_TEST_DIR}/Somefile.md"
-REMOTE_TEST_FILE_DEST = f"{REMOTE_TEST_DIR}/Someotherfile.md"
-REMOTE_TEST_COPY_DEST = f"{REMOTE_TEST_DIR}/copied_file"
 
 
 @pytest.fixture(scope="module")
@@ -54,65 +52,47 @@ async def local_test_file(class_tmp_path: Path, content=FILE_CONTENTS_ORIG):
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestUploadDownload:
-    @pytest_asyncio.fixture(scope="class", loop_scope="session")
-    async def test_directory(self, files_api: FilesApi, network_blocked: bool) -> str:
-        dir = f"{REMOTE_TEST_DIR}/upload"
-        if not network_blocked:
-            await create_clean_test_directory(files_api, dir)
-        return dir
-
-    @pytest_asyncio.fixture(scope="class", loop_scope="session")
+    @pytest_asyncio.fixture(scope="function", loop_scope="session")
     async def remote_download_file(
         self,
         files_api: FilesApi,
         local_test_file: str,
-        test_directory: str,
-        network_blocked: bool,
+        remote_test_dir: str,
     ) -> str:
-        file = f"{test_directory}/download.md"
-        if not network_blocked:
-            await files_api.upload(local_test_file, file)
+        file = f"{remote_test_dir}/download.md"
+        await files_api.upload(local_test_file, file)
         return file
 
     async def test_upload_file(
-        self, files_api: FilesApi, test_directory: str, local_test_file: str
+        self, files_api: FilesApi, remote_test_dir: str, local_test_file: str
     ):
-        await files_api.upload(local_test_file, f"{test_directory}/uploaded_file")
+        await files_api.upload(local_test_file, f"{remote_test_dir}/uploaded_file")
 
     async def test_download_file(self, files_api: FilesApi, remote_download_file: str):
         file = await files_api.get_all(remote_download_file)
         contents = await file.download()
         assert contents == FILE_CONTENTS_ORIG
 
-    async def test_download_file_noexist(self, files_api: FilesApi, test_directory: str):
+    async def test_download_file_noexist(self, files_api: FilesApi, remote_test_dir: str):
         with pytest.raises(NextcloudNotFoundError):
-            await files_api.download(f"{test_directory}/.noexist")
+            await files_api.download(f"{remote_test_dir}/.noexist")
 
 
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestList:
-    @pytest_asyncio.fixture(scope="class", loop_scope="session")
-    async def test_directory(self, files_api: FilesApi, network_blocked: bool) -> str:
-        dir = f"{REMOTE_TEST_DIR}/list"
-        if not network_blocked:
-            await create_clean_test_directory(files_api, dir)
-        return dir
-
-    @pytest_asyncio.fixture(scope="class", loop_scope="session")
+    @pytest_asyncio.fixture(scope="function", loop_scope="session")
     async def remote_test_files(
         self,
         files_api: FilesApi,
         local_test_file: str,
-        test_directory: str,
-        network_blocked,
+        remote_test_dir: str,
     ) -> list[str]:
         return await create_remote_test_files(
             files_api,
-            test_directory,
+            remote_test_dir,
             local_test_file,
             num_files=2,
-            network_blocked=network_blocked,
         )
 
     async def test_list_single_file(
@@ -152,22 +132,22 @@ class TestList:
 
     async def test_list_no_exist(self, files_api: FilesApi):
         with pytest.raises(NextcloudNotFoundError):
-            await files_api.get_all(f"{REMOTE_TEST_DIR}/.noexist")
+            await files_api.get_all(f"{REMOTE_BASE_DIR}/.noexist")
 
     async def test_list_directory_only(self, files_api: FilesApi):
-        root_dir_only = await files_api.get_all(REMOTE_TEST_DIR, directory_only=True)
+        root_dir_only = await files_api.get_all(REMOTE_BASE_DIR, directory_only=True)
 
         assert root_dir_only.is_dir
         assert not root_dir_only.is_file
         this_path = root_dir_only._dir.path.rstrip("/")
-        assert this_path == REMOTE_TEST_DIR.rstrip("/")
+        assert this_path == REMOTE_BASE_DIR.rstrip("/")
 
     async def test_list_directory_with_files(
-        self, files_api: FilesApi, test_directory: str, remote_test_files: list[str]
+        self, files_api: FilesApi, remote_test_dir: str, remote_test_files: list[str]
     ):
-        test_dir_with_files = await files_api.get_all(test_directory)
+        test_dir_with_files = await files_api.get_all(remote_test_dir)
         assert len(test_dir_with_files) == len(remote_test_files)
-        assert test_dir_with_files._dir.path.rstrip("/") == test_directory.rstrip("/")
+        assert test_dir_with_files._dir.path.rstrip("/") == remote_test_dir.rstrip("/")
         for file in remote_test_files:
             assert file in [f.path for f in test_dir_with_files]
 
@@ -175,46 +155,37 @@ class TestList:
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestCopy:
-    @pytest_asyncio.fixture(scope="class", loop_scope="session")
-    async def test_directory(self, files_api: FilesApi, network_blocked: bool) -> str:
-        dir = f"{REMOTE_TEST_DIR}/copy"
-        if not network_blocked:
-            await create_clean_test_directory(files_api, dir)
-        return dir
-
-    @pytest_asyncio.fixture(scope="class", loop_scope="session")
+    @pytest_asyncio.fixture(scope="function", loop_scope="session")
     async def remote_test_files(
         self,
         files_api: FilesApi,
         local_test_file: str,
-        test_directory: str,
-        network_blocked: bool,
+        remote_test_dir: str,
     ) -> list[str]:
         return await create_remote_test_files(
             files_api,
-            test_directory,
+            remote_test_dir,
             local_test_file,
             num_files=2,
-            network_blocked=network_blocked,
         )
 
-    async def test_copy_src_noexist(self, files_api: FilesApi, test_directory: str):
+    async def test_copy_src_noexist(self, files_api: FilesApi, remote_test_dir: str):
         with pytest.raises(NextcloudPreconditionError):
-            await files_api.copy(f"{test_directory}/.noexist", test_directory)
+            await files_api.copy(f"{remote_test_dir}/.noexist", remote_test_dir)
 
     async def test_copy_dest_dir_noexist(
-        self, files_api: FilesApi, test_directory: str, remote_test_files: str
+        self, files_api: FilesApi, remote_test_dir: str, remote_test_files: str
     ):
         src_file = remote_test_files[0]
         with pytest.raises(NextcloudConflictError):
-            await files_api.copy(src_file, f"{test_directory}/.noexist/exception_raise")
+            await files_api.copy(src_file, f"{remote_test_dir}/.noexist/exception_raise")
 
     async def test_copy_success(
-        self, files_api: FilesApi, test_directory: str, remote_test_files: list[str]
+        self, files_api: FilesApi, remote_test_dir: str, remote_test_files: list[str]
     ):
         # Test fresh copy
         src_file = await files_api.get_all(remote_test_files[0])
-        await src_file.copy(f"{test_directory}/copy_test_success")
+        await src_file.copy(f"{remote_test_dir}/copy_test_success")
 
     async def test_copy_exists_no_overwrite(
         self, files_api: FilesApi, remote_test_files: list[str]
@@ -235,45 +206,36 @@ class TestCopy:
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestMove:
-    @pytest_asyncio.fixture(scope="class", loop_scope="session")
-    async def test_directory(self, files_api: FilesApi, network_blocked: bool) -> str:
-        dir = f"{REMOTE_TEST_DIR}/move"
-        if not network_blocked:
-            await create_clean_test_directory(files_api, dir)
-        return dir
-
-    @pytest_asyncio.fixture(scope="class", loop_scope="session")
+    @pytest_asyncio.fixture(scope="function", loop_scope="session")
     async def remote_test_files(
         self,
         files_api: FilesApi,
         local_test_file: str,
-        test_directory: str,
-        network_blocked: bool,
+        remote_test_dir: str,
     ) -> list[str]:
         return await create_remote_test_files(
             files_api,
-            test_directory,
+            remote_test_dir,
             local_test_file,
             num_files=5,
-            network_blocked=network_blocked,
         )
 
-    async def test_move_src_noexist(self, files_api: FilesApi, test_directory: str):
+    async def test_move_src_noexist(self, files_api: FilesApi, remote_test_dir: str):
         with pytest.raises(NextcloudPreconditionError):
-            await files_api.move(f"{test_directory}/.noexist", test_directory)
+            await files_api.move(f"{remote_test_dir}/.noexist", remote_test_dir)
 
     async def test_move_dest_dir_noexist(
-        self, files_api: FilesApi, test_directory: str, remote_test_files: list[str]
+        self, files_api: FilesApi, remote_test_dir: str, remote_test_files: list[str]
     ):
         src_file = await files_api.get_all(remote_test_files[0])
         with pytest.raises(NextcloudConflictError):
-            await src_file.move(f"{test_directory}/.noexist/exception_raise")
+            await src_file.move(f"{remote_test_dir}/.noexist/exception_raise")
 
     async def test_move_success(
-        self, files_api: FilesApi, test_directory: str, remote_test_files: list[str]
+        self, files_api: FilesApi, remote_test_dir: str, remote_test_files: list[str]
     ):
         src_file = await files_api.get_all(remote_test_files[0])
-        await src_file.move(f"{test_directory}/moved_file")
+        await src_file.move(f"{remote_test_dir}/moved_file")
 
     async def test_move_exists_no_overwrite(
         self, files_api: FilesApi, remote_test_files: list[str]
@@ -294,27 +256,18 @@ class TestMove:
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestDelete:
-    @pytest_asyncio.fixture(scope="class", loop_scope="session")
-    async def test_directory(self, files_api: FilesApi, network_blocked: bool) -> str:
-        dir = f"{REMOTE_TEST_DIR}/delete"
-        if not network_blocked:
-            await create_clean_test_directory(files_api, dir)
-        return dir
-
-    @pytest_asyncio.fixture(scope="class", loop_scope="session")
+    @pytest_asyncio.fixture(scope="function", loop_scope="session")
     async def remote_test_files(
         self,
         files_api: FilesApi,
         local_test_file: str,
-        test_directory: str,
-        network_blocked: bool,
+        remote_test_dir: str,
     ) -> list[str]:
         return await create_remote_test_files(
             files_api,
-            test_directory,
+            remote_test_dir,
             local_test_file,
             num_files=1,
-            network_blocked=network_blocked,
         )
 
     async def test_delete(self, files_api: FilesApi, remote_test_files: str):
@@ -323,51 +276,40 @@ class TestDelete:
         with pytest.raises(NextcloudNotFoundError):
             await files_api.get_all(remote_test_files[0])
 
-    async def test_delete_noexist(self, files_api: FilesApi, test_directory: str):
+    async def test_delete_noexist(self, files_api: FilesApi, remote_test_dir: str):
         with pytest.raises(NextcloudNotFoundError):
-            await files_api.delete(f"{test_directory}/.noexist")
+            await files_api.delete(f"{remote_test_dir}/.noexist")
 
 
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestFavorites:
-    @pytest_asyncio.fixture(scope="class", loop_scope="session")
-    async def test_directory(self, files_api: FilesApi, network_blocked: bool) -> str:
-        dir = f"{REMOTE_TEST_DIR}/favorites"
-        if not network_blocked:
-            await create_clean_test_directory(files_api, dir)
-        return dir
-
-    @pytest_asyncio.fixture(scope="class", loop_scope="session")
+    @pytest_asyncio.fixture(scope="function", loop_scope="session")
     async def remote_test_files(
         self,
         files_api: FilesApi,
         local_test_file: str,
-        test_directory: str,
-        network_blocked: bool,
+        remote_test_dir: str,
     ) -> list[str]:
         return await create_remote_test_files(
             files_api,
-            test_directory,
+            remote_test_dir,
             local_test_file,
             num_files=1,
-            network_blocked=network_blocked,
         )
 
-    @pytest_asyncio.fixture(scope="class", loop_scope="session")
+    @pytest_asyncio.fixture(scope="function", loop_scope="session")
     async def remote_favorited_files(
         self,
         files_api: FilesApi,
         local_test_file: str,
-        test_directory: str,
-        network_blocked: bool,
+        remote_test_dir: str,
     ) -> list[str]:
         ret = []
         for filenum in range(0, 2):
-            filename = f"{test_directory}/favorited{filenum}.md"
-            if not network_blocked:
-                await files_api.upload(local_test_file, filename)
-                await files_api.set_favorite(filename)
+            filename = f"{remote_test_dir}/favorited{filenum}.md"
+            await files_api.upload(local_test_file, filename)
+            await files_api.set_favorite(filename)
             ret.append(filename)
         return ret
 
@@ -390,45 +332,37 @@ class TestFavorites:
             await files_api.get_favorites(remote_favorited_files[1])
 
     async def test_get_multiple_favorites(
-        self, files_api: FilesApi, test_directory: str, remote_favorited_files: list[str]
+        self, files_api: FilesApi, remote_test_dir: str, remote_favorited_files: list[str]
     ):
-        results = await files_api.get_favorites(test_directory)
+        results = await files_api.get_favorites(remote_test_dir)
         assert len(results) == len(remote_favorited_files)
 
 
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestTrashbin:
-    @pytest_asyncio.fixture(scope="class", loop_scope="session")
-    async def test_directory(self, files_api: FilesApi, network_blocked: bool) -> str:
-        dir = f"{REMOTE_TEST_DIR}/trashbin"
-        if not network_blocked:
-            await create_clean_test_directory(files_api, dir)
-        return dir
-
-    @pytest_asyncio.fixture(scope="class", loop_scope="session")
+    @pytest_asyncio.fixture(scope="function", loop_scope="session")
     async def remote_test_files(
         self,
         files_api: FilesApi,
         local_test_file: str,
-        test_directory: str,
-        network_blocked: bool,
+        remote_test_dir: str,
     ) -> list[str]:
         return await create_remote_test_files(
             files_api,
-            test_directory,
+            remote_test_dir,
             local_test_file,
             num_files=3,
-            network_blocked=network_blocked,
         )
 
-    @pytest_asyncio.fixture(scope="class", loop_scope="session")
+    @pytest_asyncio.fixture(scope="function", loop_scope="session")
     async def deleted_file(
-        self, files_api: FilesApi, remote_test_files: list[str], network_blocked: bool
+        self,
+        files_api: FilesApi,
+        remote_test_files: list[str],
     ):
         file = remote_test_files[0]
-        if not network_blocked:
-            await files_api.delete(file)
+        await files_api.delete(file)
         return file
 
     async def test_get_trashbin(self, files_api: FilesApi):
@@ -471,43 +405,38 @@ class TestTrashbin:
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestVersions:
-    @pytest_asyncio.fixture(scope="class", loop_scope="session")
-    async def test_directory(self, files_api: FilesApi, network_blocked: bool) -> str:
-        dir = f"{REMOTE_TEST_DIR}/versions"
-        if not network_blocked:
-            await create_clean_test_directory(files_api, dir)
-        return dir
-
-    @pytest_asyncio.fixture(scope="class", loop_scope="session")
+    @pytest_asyncio.fixture(scope="function", loop_scope="session")
     async def remote_test_files(
         self,
         files_api: FilesApi,
         local_test_file: str,
-        test_directory: str,
-        network_blocked: bool,
+        remote_test_dir: str,
+        request: pytest.FixtureRequest,
     ) -> list[str]:
         return await create_remote_test_files(
             files_api,
-            test_directory,
+            remote_test_dir,
             local_test_file,
+            name_base=".".join([request.cls.__name__]),
             num_files=1,
-            network_blocked=network_blocked,
         )
 
-    @pytest_asyncio.fixture(scope="class", loop_scope="session")
+    @pytest_asyncio.fixture(scope="function", loop_scope="session")
     async def versioned_file(
         self,
         files_api: FilesApi,
         remote_test_files: list[str],
         class_tmp_path: Path,
-        network_blocked: bool,
     ) -> str:
+        # File timestamps and version timestamps are only granular to the second.
+        # If a file is created/updated in less than 1 second a version is not generated.
+        # We sleep a little to help out the nextcloud.
+        await asyncio.sleep(1)
         updated_file = class_tmp_path / "updated_file"
         async with aiofile.async_open(updated_file, "wb") as fp:
             await fp.write(FILE_CONTENTS_NEW)
         remote_file = remote_test_files[0]
-        if not network_blocked:
-            await files_api.upload(str(updated_file), remote_file)
+        await files_api.upload(str(updated_file), remote_file)
         return remote_file
 
     async def test_get_file_versions(self, files_api: FilesApi, versioned_file: str):
@@ -516,7 +445,7 @@ class TestVersions:
         assert isinstance(versions, Versions)
         for version in versions:
             assert isinstance(version, Version)
-            assert len(versions) == 1
+            assert len(versions) == 2
 
     async def test_restore_file_version(self, files_api: FilesApi, versioned_file: str):
         file = await files_api.get_all(versioned_file)
@@ -533,15 +462,17 @@ class TestVersions:
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestCreateFolder:
-    async def test_create_folder(self, files_api: FilesApi):
-        test_folder = f"{REMOTE_TEST_DIR}/created_folder"
+    async def test_create_folder(
+        self, files_api: FilesApi, request: pytest.FixtureRequest
+    ):
+        test_folder = f"{REMOTE_BASE_DIR}/created_folder_{request.node}"
         await files_api.mkdir(test_folder)
 
     async def test_create_folder_no_parent(self, files_api: FilesApi):
-        test_folder = f"{REMOTE_TEST_DIR}/.noexist/created_folder"
+        test_folder = f"{REMOTE_BASE_DIR}/.noexist/created_folder"
         with pytest.raises(NextcloudConflictError):
             await files_api.mkdir(test_folder)
 
     async def test_create_folder_exists(self, files_api: FilesApi):
         with pytest.raises(NextcloudMethodNotAllowedError):
-            await files_api.mkdir(f"{REMOTE_TEST_DIR}")
+            await files_api.mkdir(f"{REMOTE_BASE_DIR}")

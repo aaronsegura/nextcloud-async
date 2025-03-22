@@ -168,7 +168,7 @@ class UsersApi(NextcloudModule):
         """
         await self._post(
             path="/users",
-            data={
+            json={
                 "userid": user_id,
                 "displayName": display_name,
                 "email": email,

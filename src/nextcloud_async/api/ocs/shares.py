@@ -17,7 +17,7 @@ from typing import Any, NotRequired, TypedDict, Unpack
 from dateutil.tz import tzlocal
 
 from nextcloud_async.api.mixins import NextcloudDataObject
-from nextcloud_async.api.modules import NextcloudModule
+from nextcloud_async.api.modules import NextcloudModule, password_confirmation_required
 from nextcloud_async.client import NextcloudClient
 from nextcloud_async.driver import NextcloudOcsDriver
 from nextcloud_async.exceptions import NextcloudError
@@ -134,6 +134,7 @@ class SharesApi(NextcloudModule):
         self.stub = f"/apps/files_sharing/api/v{api_version}/shares"
         self.driver = ocs_driver
 
+    @password_confirmation_required
     async def get_file_shares(
         self,
         path: str | None = "",
@@ -272,6 +273,7 @@ class SharesApi(NextcloudModule):
         )
         return Share(response, self)
 
+    @password_confirmation_required
     async def delete(self, share_id: int) -> None:
         """Delete an existing share.
 
@@ -289,6 +291,7 @@ class SharesApi(NextcloudModule):
     #     We launch one asynchronous request per given parameter and return a
     #     list containing the results of all queries.
 
+    @password_confirmation_required
     async def update(
         self,
         share_id: int,
@@ -361,6 +364,7 @@ class SharesApi(NextcloudModule):
     async def __update_share(self, share_id: int, key: str, value: Any) -> dict[str, Any]:
         return await self._put(path=f"/{share_id}", data={key: value})
 
+    @password_confirmation_required
     async def send_email(self, share_id: int, password: str | None = None) -> None:
         """Send an email to the recipients of a share.
 

@@ -267,7 +267,7 @@ class GroupFoldersApi(NextcloudModule):
 
         """
         await self._validate_capability()
-        await self._post(path=f"/{folder_id}/groups", data={"group": group_id})
+        await self._post(path=f"/{folder_id}/groups", json={"group": group_id})
 
     @password_confirmation_required
     async def deny_group(self, group_id: str, folder_id: int) -> None:
@@ -357,13 +357,14 @@ class GroupFoldersApi(NextcloudModule):
     async def _advanced_permissions_admin(
         self, folder_id: int, object_id: str, object_type: str, manage_acl: bool
     ) -> bool:
+        _json = {
+            "mappingId": object_id,
+            "mappingType": object_type,
+            "manageAcl": manage_acl,
+        }
         response = await self._post(
             path=f"/{folder_id}/manageACL",
-            data={
-                "mappingId": object_id,
-                "mappingType": object_type,
-                "manageAcl": manage_acl,
-            },
+            json=_json,
         )
 
         return response["success"]
