@@ -1,5 +1,8 @@
+import logging
 from abc import ABC
 from typing import Any, Protocol
+
+log = logging.getLogger("nextcloud_async.provider")
 
 
 class HttpResponseMock(ABC):
@@ -98,4 +101,14 @@ class HttpClientProvider(Protocol):
         """Return the cookies."""
 
 
-class HttpClientException(BaseException): ...
+class HttpClientException(BaseException):
+    _reason: str
+
+    def __init__(self, reason: str) -> None:
+        self._reason = reason
+
+    def __str__(self) -> str:
+        return self._reason
+
+    def __repr__(self) -> str:
+        return str(self)

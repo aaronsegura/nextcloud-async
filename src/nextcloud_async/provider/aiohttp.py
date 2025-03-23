@@ -67,7 +67,6 @@ class AioHttpResponse(HttpClientResponse):
     _response: ClientResponse
 
     def __init__(self, response: ClientResponse) -> None:
-        log.debug("Response init")
         self._response = response
 
     async def pop_fields(self) -> None:

@@ -1,9 +1,7 @@
 """Nextcloud Talk Entrypoint.
 
+https://nextcloud-talk.readthedocs.io/en/latest/conversation/
 https://github.com/nextcloud/spreed/blob/b5bed8c1157df02492afb420cfa607e014212575/openapi-full.json
-
-All calls to the API are checked for status codes >=400 and an appropriate exception is
-raised. See .driver.http._raise_response_exception() for more information.
 
 API calls that require a specific capability that is missing on the server will raise a
 NextcloudNotCapable exception.
@@ -11,6 +9,7 @@ NextcloudNotCapable exception.
 
 import datetime as dt
 import sys
+from collections.abc import Coroutine
 from dataclasses import field
 from typing import Any
 
@@ -21,6 +20,7 @@ else:
 
 from nextcloud_async.api.mixins import NextcloudDataObject
 from nextcloud_async.api.modules import NextcloudModule
+from nextcloud_async.api.ocs.groups import Group
 from nextcloud_async.driver import NextcloudTalkDriver
 from nextcloud_async.helpers import bool2int
 
@@ -66,6 +66,10 @@ class Conversation(NextcloudDataObject):
     def __eq__(self, other: "Conversation") -> bool:
         return self.token == other.token
 
+    def refresh_function(self) -> Coroutine[None, None, NextcloudDataObject]:
+        """Define how to refresh this object."""
+        return self._api.get(self.token)
+
     @property
     def display_name(self) -> str:
         """Translate displayName into more python display_name.
@@ -75,17 +79,6 @@ class Conversation(NextcloudDataObject):
 
         """
         return self.data["displayName"]
-
-    @display_name.setter
-    def _display_name(self, v: str) -> None:
-        """Setter for self.display_name.
-
-        Args:
-            v:
-                New display name for this conversation.
-
-        """
-        self.data["displayName"] = v
 
     @property
     def is_breakout_room(self) -> bool:
@@ -98,6 +91,11 @@ class Conversation(NextcloudDataObject):
 
         """
         return False
+
+    @property
+    def is_listable(self) -> bool:
+        """Return True if room is listable."""
+        return self.listable == 1
 
     async def get_participants(self) -> list[Participant]:
         """Return list of Participants in this conversation.
@@ -134,16 +132,60 @@ class Conversation(NextcloudDataObject):
 
         """
         await self._api.rename(room_token=self.token, new_name=new_name)
-        # TODO: Make this object _refresh()
-        self._display_name = new_name
+        self.displayName = new_name
+
+    async def set_description(self, description: str) -> None:
+        """Set a description for this conversation.
+
+        Args:
+            description:
+                Text description
+
+        """
+        await self._api.set_description(self.token, description)
+        self.description = description
+
+    async def allow_guests(self, password: str | None = None) -> None:
+        """Allow guests into this conversation.
+
+        Args:
+            password:
+                If set, guests must supply this password to join.
+
+        """
+        await self._api.allow_guests(self.token, password)
+
+    async def disallow_guests(self) -> None:
+        """Disallow guests from this conversation."""
+        await self._api.disallow_guests(self.token)
+
+    async def set_read_only(self) -> None:
+        """Set conversation to read-only."""
+        if self.readOnly == 0:
+            await self._api.read_only(self.token, ConversationReadOnlyState.read_only)
+        self.readOnly = 1
+
+    async def set_read_write(self) -> None:
+        """Disable read-only for this conversation."""
+        if self.readOnly == 1:
+            await self._api.read_only(self.token, ConversationReadOnlyState.read_write)
+        self.readOnly = 0
+
+    async def set_password(self, password: str | None = None) -> None:
+        """Set conversation password.
+
+        Args:
+            password:
+                New password. None to remove password.
+
+        """
+        await self._api.set_conversation_password(self.token, password)
 
     async def leave(self) -> None:
         """Leave this conversation."""
         await self._api.participants.leave(self.token)
 
-    async def join(
-        self, password: str | None = None, force: bool = True
-    ) -> "Conversation":
+    async def join(self, password: str | None = None, force: bool = True) -> None:
         """Join a conversation.
 
         Args:
@@ -159,14 +201,12 @@ class Conversation(NextcloudDataObject):
             Conversation object
 
         """
-        response = await self._api.participants.join(
-            self.token, password=password, force=force
-        )
-        return Conversation(response, self.self_api)
+        await self._api.participants.join(self.token, password=password, force=force)
 
     async def delete(self) -> None:
         """Delete this conversation."""
         await self._api.delete(self.token)
+        self.data = {"token": "**deleted**"}
 
     async def add_user(self, name: str) -> None:
         """Add a participant to this conversation.
@@ -179,18 +219,20 @@ class Conversation(NextcloudDataObject):
         await self._api.participants.add_to_conversation(
             room_token=self.token, invitee=name, source=ObjectSources.user
         )
+        await self.refresh_participants()
 
-    async def add_group(self, group_name: str) -> None:
+    async def add_group(self, group: Group) -> None:
         """Add a group to this conversation.
 
         Args:
-            group_name:
-                Group.name or str representing name of group.
+            group:
+                Group object
 
         """
         await self._api.participants.add_to_conversation(
-            room_token=self.token, invitee=group_name, source=ObjectSources.group
+            room_token=self.token, invitee=group.id, source=ObjectSources.group
         )
+        await self.refresh_participants()
 
     async def add_email(self, email: str) -> None:
         """Add user to conversation by e-mail.
@@ -216,6 +258,17 @@ class Conversation(NextcloudDataObject):
         await self._api.participants.add_to_conversation(
             room_token=self.token, invitee=circle_id, source=ObjectSources.circle
         )
+
+    async def set_scope(self, scope: ListableScope) -> None:
+        """Set conversation scope.
+
+        Args:
+            scope:
+                ListableScope
+
+        """
+        await self._api.set_scope(room_token=self.token, scope=scope)
+        await self._refresh()
 
     async def remove_participant(self, participant: Participant) -> None:
         """Remove a Participant from this conversation.
@@ -682,7 +735,7 @@ class Conversation(NextcloudDataObject):
     async def set_default_permissions(
         self,
         permissions: ParticipantPermissions,
-        mode: ConversationPermissionMode = ConversationPermissionMode.default,
+        mode: ConversationPermissionMode | None = ConversationPermissionMode.default,
     ) -> None:
         """Set default permissions for participants of a conversation.
 
@@ -701,6 +754,86 @@ class Conversation(NextcloudDataObject):
         await self._api.set_default_permissions(
             room_token=self.token, permissions=permissions, mode=mode
         )
+
+    async def add_to_favorites(self) -> None:
+        """Add this conversation to favorites."""
+        await self._api.add_to_favorites(self.token)
+        self.isFavorite = True
+
+    async def remove_from_favorites(self) -> None:
+        """Remove conversation from favorites."""
+        await self._api.remove_from_favorites(self.token)
+        self.isFavorite = False
+
+    async def set_notification_level(self, level: ConversationNotificationLevel) -> None:
+        """Set the notification level for this conversation.
+
+        Requires capability: notification-levels
+
+        See ConversationNotificationLevel constants.
+
+        Args:
+            level:
+                ConversationNotificationLevel
+
+        """
+        await self._api.set_notification_level(self.token, level)
+        self.notificationLevel = level.value
+
+    async def set_call_notification_level(self, level: CallNotificationLevel) -> None:
+        """Set the notification level for calls in this conversation.
+
+        Requires capability: notification-calls
+
+        See ConversationNotificationLevel constants.
+
+        Args:
+            level:
+                ConversationNotificationLevel
+
+        """
+        await self._api.set_call_notification_level(self.token, level)
+        self.notificationLevel = level.value
+
+    async def set_message_expiration(self, seconds: int) -> None:
+        """Set automatic message expiration for conversation.
+
+        Requires capability: message-expiration
+
+        Args:
+            seconds:
+                Number of seconds before deleting messages.  If is 0, messages will not
+                be deleted automatically.
+
+        """
+        await self._api.set_message_expiration(self.token, seconds)
+        self.messageExpiration = seconds
+
+    async def set_recording_consent(self, consent_required: bool) -> None:
+        """Set recording-consent requirement on a conversation.
+
+        Requires capability: recording-consent
+
+        Args:
+            consent_required:
+                New consent setting for the conversation
+
+        """
+        await self._api.set_recording_consent(self.token, consent_required)
+        self.recordingConsent = 1 if consent_required else 0
+
+    async def set_mention_permissions(self, permissions: MentionPermissions) -> None:
+        """Set mention permissions for this conversation.
+
+        Requires capability: mention-permissions
+
+        Args:
+            permissions:
+                MentionPermissions
+
+        """
+        await self._api.set_mention_permissions(self.token, permissions)
+        self.mentionPermissions = permissions.value
 
     async def participants_connected_to_call(self) -> list[Participant]:
         """Get list of connected participants.
@@ -1415,7 +1548,7 @@ class ConversationsApi(NextcloudModule):
         await self.driver.require_feature("read-only-rooms")
         await self._put(path=f"/room/{room_token}/read-only", data={"state": state.value})
 
-    async def set_conversation_password(self, token: str, password: str) -> None:
+    async def set_conversation_password(self, token: str, password: str | None) -> None:
         """Set a password on a conversation.
 
         Args:
@@ -1432,7 +1565,7 @@ class ConversationsApi(NextcloudModule):
         self,
         room_token: str,
         permissions: ParticipantPermissions,
-        mode: ConversationPermissionMode = ConversationPermissionMode.default,
+        mode: ConversationPermissionMode | None = ConversationPermissionMode.default,
     ) -> None:
         """Set default permissions for participants of a conversation.
 
@@ -1481,7 +1614,7 @@ class ConversationsApi(NextcloudModule):
         await self._delete(path=f"/room/{room_token}/favorites")
 
     async def set_notification_level(
-        self, token: str, notification_level: ConversationNotificationLevel
+        self, token: str, level: ConversationNotificationLevel
     ) -> None:
         """Set notification level for a conversation.
 
@@ -1491,13 +1624,11 @@ class ConversationsApi(NextcloudModule):
             token:
                 Token of conversation.
 
-            notification_level:
+            level:
                 NotificationLevel
 
         """
-        await self._post(
-            path=f"/room/{token}/notify", data={"level": notification_level.value}
-        )
+        await self._post(path=f"/room/{token}/notify", data={"level": level.value})
 
     async def set_call_notification_level(
         self, room_token: str, notification_level: CallNotificationLevel

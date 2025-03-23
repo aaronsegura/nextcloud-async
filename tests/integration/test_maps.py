@@ -8,7 +8,7 @@ from nextcloud_async.exceptions import NextcloudBadRequestError
 
 
 @pytest_asyncio.fixture(autouse=True, loop_scope="session")
-async def require_maps_enabled(apps_api: AppsApi):
+async def require_app_enabled(apps_api: AppsApi):
     app_list = await apps_api.get_all("enabled")
     if "maps" not in app_list:
         pytest.skip("Maps app is not enabled.  Skipping.", allow_module_level=True)

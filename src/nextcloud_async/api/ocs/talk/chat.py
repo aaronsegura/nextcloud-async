@@ -259,7 +259,7 @@ class ChatApi(NextcloudModule):
         include_last_known: bool = False,
         no_status_update: bool = False,
         mark_notifications_as_read: bool = True,
-    ) -> tuple[list[Message], tuple[str, Any]]:
+    ) -> tuple[list[Message], dict[str, Any]]:
         """Receive messages from a conversation.
 
         https://nextcloud-talk.readthedocs.io/en/latest/chat/#receive-chat-messages-of-a-conversation

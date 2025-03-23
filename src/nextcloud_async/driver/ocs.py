@@ -115,9 +115,11 @@ class NextcloudOcsDriver(NextcloudHttpDriver):
                 content=content,
                 headers=headers,
             )
-            log.debug(f"Response: [{response.status_code}] {response.content}")
         except HttpClientException as e:
-            log.critical(str(e))
+            log.critical(f"Caught Exception: {e}")
+            raise
+        else:
+            log.debug(f"Response: [{response.status_code}] {response.content}")
 
         if raw_response:
             return response

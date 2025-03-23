@@ -1,4 +1,5 @@
 import json as _json
+import logging
 from typing import Any
 
 from httpx import AsyncClient, BasicAuth, RequestError, Response
@@ -10,6 +11,8 @@ from . import (
     HttpClientResponse,
     HttpResponseMock,
 )
+
+log = logging.getLogger("nextcloud_async.provider")
 
 
 class HttpXResponseMock(HttpResponseMock):
@@ -139,7 +142,7 @@ class HttpXClientProvider(HttpClientProvider):
                     data=data,
                 )
         except RequestError as e:
-            raise HttpClientException(str(e))
+            raise HttpClientException(repr(e))
         else:
             return HttpXResponse(_r)
 
