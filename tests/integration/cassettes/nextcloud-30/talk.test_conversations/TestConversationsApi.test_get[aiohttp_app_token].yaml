@@ -1,0 +1,216 @@
+interactions:
+- request:
+    body: null
+    headers:
+      OCS-APIRequest:
+      - 'true'
+      User-Agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: GET
+    uri: http://localhost:8181/ocs/v1.php/cloud/apps?filter=enabled&format=json
+  response:
+    body:
+      string: '{"ocs":{"meta":{"status":"ok","statuscode":100,"message":"OK","totalitems":"","itemsperpage":""},"data":{"apps":["files","activity","app_api","bruteforcesettings","circles","cloud_federation_api","comments","contactsinteraction","dashboard","dav","federatedfilesharing","federation","files_downloadlimit","files_pdfviewer","files_reminders","files_sharing","files_trashbin","files_versions","firstrunwizard","groupfolders","logreader","lookup_server_connector","maps","nextcloud_announcements","notifications","oauth2","password_policy","photos","privacy","provisioning_api","recommendations","related_resources","serverinfo","settings","sharebymail","spreed","support","survey_client","systemtags","text","theming","twofactor_backupcodes","updatenotification","user_ldap","user_status","viewer","weather_status","webhook_listeners","workflowengine"]}}}'
+    headers:
+      Cache-Control:
+      - no-cache, no-store, must-revalidate
+      Content-Security-Policy:
+      - default-src 'none';base-uri 'none';manifest-src 'self';frame-ancestors 'none'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Tue, 25 Mar 2025 12:13:01 GMT
+      Feature-Policy:
+      - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
+        'none';payment 'none'
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      Set-Cookie:
+      - ocoguk96ketf=6a33a0a17708e23e494f13f3352e04c2; path=/; HttpOnly; SameSite=Lax
+      - oc_sessionPassphrase=5bjsuUiA0ZpdH8POm%2F2mmbgQMnVE%2Ftuu4%2BuQMFpNxUNCgrqhXSOIClnL6cSTqWB1rK7pjtjcBrJsOo%2Bii%2BwVxsSWtZr%2FuICpD3JQuYm%2FADfO7hR9buo7H%2FPx8RafT4%2Bp;
+        path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=6a33a0a17708e23e494f13f3352e04c2; path=/; HttpOnly; SameSite=Lax
+      - nc_sameSiteCookielax=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
+        GMT; SameSite=lax
+      - nc_sameSiteCookiestrict=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
+        GMT; SameSite=strict
+      - ocoguk96ketf=6a33a0a17708e23e494f13f3352e04c2; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=6a33a0a17708e23e494f13f3352e04c2; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=6a33a0a17708e23e494f13f3352e04c2; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=6a33a0a17708e23e494f13f3352e04c2; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=6a33a0a17708e23e494f13f3352e04c2; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=6a33a0a17708e23e494f13f3352e04c2; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=6a33a0a17708e23e494f13f3352e04c2; path=/; HttpOnly; SameSite=Lax
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.27
+      X-Request-Id:
+      - IcPbVrGych3rPdYqVB6o
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+      content-length:
+      - '853'
+    status:
+      code: 200
+      message: OK
+- request:
+    body:
+      format: json
+      invite: ''
+      roomName: test_get-aiohttp_app_token
+      roomType: 2
+      source: ''
+    headers:
+      OCS-APIRequest:
+      - 'true'
+      User-Agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: POST
+    uri: http://localhost:8181/ocs/v2.php/apps/spreed/api/v4/room
+  response:
+    body:
+      string: '{"ocs":{"meta":{"status":"ok","statuscode":201,"message":"OK"},"data":{"id":56,"token":"mzahhxqu","type":2,"name":"test_get-aiohttp_app_token","displayName":"test_get-aiohttp_app_token","objectType":"","objectId":"","participantType":1,"participantFlags":0,"readOnly":0,"hasPassword":false,"hasCall":false,"callStartTime":0,"callRecording":0,"canStartCall":true,"lastActivity":1742904781,"lastReadMessage":174,"unreadMessages":0,"unreadMention":false,"unreadMentionDirect":false,"isFavorite":false,"canLeaveConversation":true,"canDeleteConversation":true,"notificationLevel":2,"notificationCalls":1,"lobbyState":0,"lobbyTimer":0,"lastPing":0,"sessionId":"0","lastMessage":{"id":174,"token":"mzahhxqu","actorType":"users","actorId":"admin","actorDisplayName":"admin","timestamp":1742904781,"message":"You
+        created the conversation","messageParameters":{"actor":{"type":"user","id":"admin","name":"admin","mention-id":"admin"}},"systemMessage":"conversation_created","messageType":"system","isReplyable":false,"referenceId":"","reactions":{},"expirationTimestamp":0,"markdown":false},"sipEnabled":0,"actorType":"users","actorId":"admin","attendeeId":56,"permissions":254,"attendeePermissions":0,"callPermissions":0,"defaultPermissions":0,"canEnableSIP":false,"attendeePin":"","description":"","lastCommonReadMessage":174,"listable":0,"callFlag":0,"messageExpiration":0,"avatarVersion":"814471ef","isCustomAvatar":false,"breakoutRoomMode":0,"breakoutRoomStatus":0,"recordingConsent":0,"mentionPermissions":0,"isArchived":false}}}'
+    headers:
+      Cache-Control:
+      - no-cache, no-store, must-revalidate
+      Content-Length:
+      - '1525'
+      Content-Security-Policy:
+      - default-src 'none';base-uri 'none';manifest-src 'self';frame-ancestors 'none'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Tue, 25 Mar 2025 12:13:01 GMT
+      Feature-Policy:
+      - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
+        'none';payment 'none'
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.27
+      X-Request-Id:
+      - 8e5LOIH81bL2yfToJ1hq
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+    status:
+      code: 201
+      message: Created
+- request:
+    body: null
+    headers:
+      OCS-APIRequest:
+      - 'true'
+      User-Agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: GET
+    uri: http://localhost:8181/ocs/v2.php/apps/spreed/api/v4/room/mzahhxqu?format=json
+  response:
+    body:
+      string: '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},"data":{"id":56,"token":"mzahhxqu","type":2,"name":"test_get-aiohttp_app_token","displayName":"test_get-aiohttp_app_token","objectType":"","objectId":"","participantType":1,"participantFlags":0,"readOnly":0,"hasPassword":false,"hasCall":false,"callStartTime":0,"callRecording":0,"canStartCall":true,"lastActivity":1742904781,"lastReadMessage":174,"unreadMessages":0,"unreadMention":false,"unreadMentionDirect":false,"isFavorite":false,"canLeaveConversation":true,"canDeleteConversation":true,"notificationLevel":2,"notificationCalls":1,"lobbyState":0,"lobbyTimer":0,"lastPing":0,"sessionId":"0","lastMessage":{"id":174,"token":"mzahhxqu","actorType":"users","actorId":"admin","actorDisplayName":"admin","timestamp":1742904781,"message":"You
+        created the conversation","messageParameters":{"actor":{"type":"user","id":"admin","name":"admin","mention-id":"admin"}},"systemMessage":"conversation_created","messageType":"system","isReplyable":false,"referenceId":"","reactions":{},"expirationTimestamp":0,"markdown":false},"sipEnabled":0,"actorType":"users","actorId":"admin","attendeeId":56,"permissions":254,"attendeePermissions":0,"callPermissions":0,"defaultPermissions":0,"canEnableSIP":false,"attendeePin":"","description":"","lastCommonReadMessage":174,"listable":0,"callFlag":0,"messageExpiration":0,"avatarVersion":"814471ef","isCustomAvatar":false,"breakoutRoomMode":0,"breakoutRoomStatus":0,"recordingConsent":0,"mentionPermissions":0,"isArchived":false}}}'
+    headers:
+      Cache-Control:
+      - no-cache, no-store, must-revalidate
+      Content-Security-Policy:
+      - default-src 'none';base-uri 'none';manifest-src 'self';frame-ancestors 'none'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Tue, 25 Mar 2025 12:13:01 GMT
+      Feature-Policy:
+      - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
+        'none';payment 'none'
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Nextcloud-Talk-Hash:
+      - 5255dd89f5a723473bebefec3aa3faa049750d15
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.27
+      X-Request-Id:
+      - Onj0okYRs477e9Ll3DSF
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+      content-length:
+      - '1525'
+    status:
+      code: 200
+      message: OK
+- request:
+    body:
+      format: json
+    headers:
+      OCS-APIRequest:
+      - 'true'
+      User-Agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: DELETE
+    uri: http://localhost:8181/ocs/v2.php/apps/spreed/api/v4/room/mzahhxqu
+  response:
+    body:
+      string: '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},"data":[]}}'
+    headers:
+      Cache-Control:
+      - no-cache, no-store, must-revalidate
+      Content-Security-Policy:
+      - default-src 'none';base-uri 'none';manifest-src 'self';frame-ancestors 'none'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Tue, 25 Mar 2025 12:13:01 GMT
+      Feature-Policy:
+      - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
+        'none';payment 'none'
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.27
+      X-Request-Id:
+      - dknUYRw6YU8Uk6kaTY6C
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+      content-length:
+      - '74'
+    status:
+      code: 200
+      message: OK
+version: 1

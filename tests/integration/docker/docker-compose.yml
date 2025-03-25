@@ -3,13 +3,15 @@ services:
     image: mariadb:10.11
     restart: always
     command: --transaction-isolation=READ-COMMITTED
-    env_file: .env_${COMPOSE_PROJECT_NAME}
+    env_file: env_${COMPOSE_PROJECT_NAME}
     volumes:
       - db:/var/lib/mysql
+    networks:
+      - default
 
   app:
     image: "nextcloud:${NEXTCLOUD_VERSION}"
-    env_file: .env_${COMPOSE_PROJECT_NAME}
+    env_file: env_${COMPOSE_PROJECT_NAME}
     environment:
       MYSQL_HOST: ${COMPOSE_PROJECT_NAME}-db-1
     restart: always
@@ -19,6 +21,16 @@ services:
       - db
     volumes:
       - nextcloud:/var/www/html
+    networks:
+      - default
+      - nextcloud_federation
+
+networks:
+  nextcloud_federation:
+    name: nextcloud_federation
+
+  default:
+    name: ${COMPOSE_PROJECT_NAME}_default
 
 volumes:
   nextcloud:
