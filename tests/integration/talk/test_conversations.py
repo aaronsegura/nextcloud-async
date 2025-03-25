@@ -5,7 +5,7 @@ from nextcloud_async.api.ocs.talk.conversations import Conversation, Conversatio
 from nextcloud_async.exceptions import NextcloudNotFoundError
 
 
-# @pytest.mark.vcr
+@pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestConversationsApi:
     async def test_get_all(self, conversations: ConversationsApi):
