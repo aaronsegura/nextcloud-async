@@ -11,7 +11,7 @@ https://github.com/nextcloud/groupfolders/blob/master/openapi.json
 https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/user_auth_ldap_api.html
 https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/instruction_set_for_apps.html
 https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/instruction_set_for_users.html
-qhttps://github.com/nextcloud/notifications/blob/master/docs/ocs-endpoint-v2.md
+https://github.com/nextcloud/notifications/blob/master/docs/ocs-endpoint-v2.md
 https://github.com/nextcloud/activity/blob/master/docs/endpoint-v2.md
 https://nextcloud-talk.readthedocs.io/en/latest/
 https://docs.nextcloud.com/server/latest/developer_manual/client_apis/RemoteWipe/index.html

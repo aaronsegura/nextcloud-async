@@ -5,25 +5,24 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "nextcloud_async"
 version = "0.1.0b0"
-authors = [
-  { name="Aaron Segura" },
-]
+authors = [{ name = "Aaron Segura" }]
 description = "Asynchronous client library for Nextcloud"
 readme = "README.md"
-license = { text="License :: OSI Approved :: GNU General Public License v3 (GPLv3)" }
+license = { text = "License :: OSI Approved :: GNU General Public License v3 (GPLv3)" }
 requires-python = ">=3.10"
 classifiers = [
-    "Development Status :: 4 - Beta",
-    "Intended Audience :: Developers",
-    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
-    "Framework :: Pytest",
-    "Natural Language :: English",
-    "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
-    "Typing :: Typed"]
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+  "Framework :: Pytest",
+  "Natural Language :: English",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Typing :: Typed",
+]
 
 keywords = ["nextcloud", "asynchronous", "spreed"]
 
@@ -40,42 +39,38 @@ dependencies = [
 [project.optional-dependencies]
 httpx = ["httpx>=0.28.1"]
 aiohttp = ["aiohttp>=3.11.14"]
+neovim = ["neovim>=0.3.1", "pynvim>=0.5.2"]
 
 [project.urls]
 "Homepage" = "https://github.com/aaronsegura/nextcloud-async"
 "Bug Tracker" = "https://github.com/aaronsegura/nextcloud-async/issues"
 
-[tool.ruff]  # https://docs.astral.sh/ruff/
-exclude = [
-  "temp.py",
-  "build",
-  "dist",
-  "*.egg-info",
-  ]
+[tool.ruff] # https://docs.astral.sh/ruff/
+exclude = ["temp.py", "build", "dist", "*.egg-info"]
 
 line-length = 90
 
 [tool.ruff.lint]
 select = [
-  "D",      # pydocstyle
-  "E",      # pycodestyle
-  "F",      # pyflakes
-  "N",      # pep8-naming
-  "ANN",    # flake8-annotations
-  "ARG",    # flake8-arguments
-  "ASYNC",  # flake8-async
-  "COM",    # flake8-comma
-  "C4",     # flake8-comprehensions
-  "DTZ",    # flake8-datetimez
-  "ERA",    # flake8-eradicate
-  "FIX",    # flake8-fix
-  "ICN",    # flake8-import-conventions
-  "PL",     # pylint
-  "PT",     # flake8-pytest
-  "SLF",    # flake8-self,
-  "T20",    # flake8-print
-  "TC",     # flake8-type-checking
-  "TD",     # flake8-todos
+  "D",     # pydocstyle
+  "E",     # pycodestyle
+  "F",     # pyflakes
+  "N",     # pep8-naming
+  "ANN",   # flake8-annotations
+  "ARG",   # flake8-arguments
+  "ASYNC", # flake8-async
+  "COM",   # flake8-comma
+  "C4",    # flake8-comprehensions
+  "DTZ",   # flake8-datetimez
+  "ERA",   # flake8-eradicate
+  "FIX",   # flake8-fix
+  "ICN",   # flake8-import-conventions
+  "PL",    # pylint
+  "PT",    # flake8-pytest
+  "SLF",   # flake8-self,
+  "T20",   # flake8-print
+  "TC",    # flake8-type-checking
+  "TD",    # flake8-todos
 ]
 
 ignore = [
@@ -94,19 +89,19 @@ ignore = [
   "SLF001",   # Private member accessed
   "FIX002",   # Line contains TODO
   "ASYNC109", # Async function with Timeout argument
-  ]
+]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = [
   "D",
   "ANN201",
   "ANN001",
-  "PLR2004",  # No Magic Numbers
-  "E501",     # Long lines
-  "ANN202",   # object not accessed
+  "PLR2004", # No Magic Numbers
+  "E501",    # Long lines
+  "ANN202",  # object not accessed
 ]
 "tests/**/constants.py" = [
-  "F401"      # Import not used
+  "F401", # Import not used
 ]
 
 [tool.ruff.format]
@@ -115,11 +110,12 @@ exclude = ["docs/**"]
 
 [tool.ruff.lint.isort.sections]
 testing = [
-    "pytest",
-    "pytest-httpx",
-    "pytest-recording",
-    "vcr",
-    "pytest_asyncio"]
+  "pytest",
+  "pytest-httpx",
+  "pytest-recording",
+  "vcr",
+  "pytest_asyncio",
+]
 
 [tool.ruff.lint.isort]
 section-order = [

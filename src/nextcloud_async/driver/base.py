@@ -14,9 +14,6 @@ from nextcloud_async.provider import HttpClientException, HttpClientResponse
 
 log = logging.getLogger("nextcloud_async.driver")
 
-_HTTP_SERVER_ERROR = 500
-_HTTP_USER_ERROR = 400
-
 
 class NextcloudBaseDriver(NextcloudHttpDriver):
     """The Base API interface."""
