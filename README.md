@@ -1,59 +1,62 @@
 # nextcloud-async
+
 ## Asynchronous Nextcloud Client
 
 This module provides an asyncio-friendly interface to Nextcloud.
 
-### `v0.1.0` is not backwards compatible with `v0.0.10`.
+### `v0.1.0` is not backwards compatible with `v0.0.10`
 
-There are a lot of changes to how things work.  Please see the documentation. #TODO: Link
+There are a lot of changes to how things work. Please see the documentation. # TODO: Link
 
 ### Covered APIs
-* App Management
-* File Management
-* Group Management
-* GroupFolders
-* LDAP Configuration
-* Login Flow v2
-* Maps
-* Notifications
-* Remote Wipe
-* Share (except Federated shares)
-* Sharee
-* Status
-* Talk/spreed
-  * Conversation Avatars
-  * Bots
-  * Calls
-  * Chats
-  * Conversations
-  * Integrations
-  * Participants
-  * Polls
-  * Reactions
-  * Rich Objects
-  * Signaling
-* User Management
 
+- App Management
+- File Management
+- Group Management
+- GroupFolders
+- LDAP Configuration
+- Login Flow v2
+- Maps
+- Notifications
+- Remote Wipe
+- Share (except Federated shares)
+- Sharee
+- Status
+- Talk/spreed
+  - Conversation Avatars
+  - Bots
+  - Calls
+  - Chats
+  - Conversations
+  - Integrations
+  - Participants
+  - Polls
+  - Reactions
+  - Rich Objects
+  - Signaling
+- User Management
 
 ### To Do
-* Activity
-* Circles
-* Comments
-* Cookbook
-* Deck
-* Federated Shares
-* Passwords
-* Phonetrack
-* Notes
-* Tasks
-* User Preferences
+
+- Activity
+- Circles
+- Comments
+- Cookbook
+- Deck
+- Federated Shares
+- Passwords
+- Phonetrack
+- Notes
+- Tasks
+- User Preferences
 
 If you know of any APIs missing from this list, please open an issue at
-https://github.com/aaronsegura/nextcloud-async/issues with a link to
-the documentation so it can be added.  This project aims to eventually
+<https://github.com/aaronsegura/nextcloud-async/issues> with a link to
+the documentation so it can be added. This project aims to eventually
 cover any provided by Nextcloud and commonly used Nextcloud apps.
 
 ### Example Usage
+
     import httpx
     import asyncio
     from nextcloud_async import NextcloudClient
@@ -79,5 +82,6 @@ cover any provided by Nextcloud and commonly used Nextcloud apps.
     if __name__ == "__main__":
         asyncio.run(main())
 
-----
+---
+
 This project is not endorsed or recognized in any way by the Nextcloud project.
