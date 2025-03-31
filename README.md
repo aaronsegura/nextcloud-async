@@ -6,7 +6,9 @@ This module provides an asyncio-friendly interface to Nextcloud.
 
 ### `v0.1.0` is not backwards compatible with `v0.0.10`
 
-There are a lot of changes to how things work. Please see the documentation. # TODO: Link
+There are a lot of changes to how things work. Please see the documentation.
+
+// # TODO: Link to documentation
 
 ### Covered APIs
 
@@ -57,6 +59,7 @@ cover any provided by Nextcloud and commonly used Nextcloud apps.
 
 ### Example Usage
 
+```python
     import httpx
     import asyncio
     from nextcloud_async import NextcloudClient
@@ -81,6 +84,7 @@ cover any provided by Nextcloud and commonly used Nextcloud apps.
 
     if __name__ == "__main__":
         asyncio.run(main())
+```
 
 ---
 
