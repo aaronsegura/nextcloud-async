@@ -23,6 +23,7 @@ async def ldap_config(ldap_api: LdapApi):
         pass
 
 
+@pytest.mark.integration
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestLdapApi:
@@ -41,6 +42,7 @@ class TestLdapApi:
         assert got_config.ldapAgentPassword == "Secrets!"
 
 
+@pytest.mark.integration
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestLdapConfigurationObject:

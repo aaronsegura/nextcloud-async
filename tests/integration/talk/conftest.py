@@ -23,7 +23,7 @@ from .constants import ENDPOINT, USER_AGENT
 async def require_app_enabled(apps_api: AppsApi):
     app_list = await apps_api.get_all("enabled")
     if "spreed" not in app_list:
-        pytest.skip("Maps app is not enabled.  Skipping.", allow_module_level=True)
+        pytest.skip("Talk app is not enabled.  Skipping.", allow_module_level=True)
 
 
 @pytest.fixture

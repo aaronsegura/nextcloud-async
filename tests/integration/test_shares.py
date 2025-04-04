@@ -77,6 +77,7 @@ async def remote_test_files(
 
 
 @pytest_asyncio.fixture(scope="function", loop_scope="session")
+@pytest.mark.integration
 # @pytest.mark.vcr(filter_post_data_parameters={"expire_date": _EXPIRATION})
 async def shared_file(
     shares_api: SharesApi,
@@ -95,6 +96,7 @@ async def shared_file(
     return _share
 
 
+@pytest.mark.integration
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestShares:
@@ -135,6 +137,7 @@ class TestShares:
         await shared_file.send_email()
 
 
+@pytest.mark.integration
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestSharees:

@@ -81,6 +81,7 @@ async def test_user(users_api: UsersApi, test_group: Group):
         pass
 
 
+@pytest.mark.integration
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestUserDataObject:
@@ -136,6 +137,7 @@ class TestUserDataObject:
         assert test_user == test_user  # noqa: PLR0124
 
 
+@pytest.mark.integration
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestUsersApi:

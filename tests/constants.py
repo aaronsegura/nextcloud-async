@@ -5,8 +5,8 @@ from nextcloud_async.version import VERSION
 NEXTCLOUD_VERSION = os.environ.get("PYTEST_NEXTCLOUD_VERSION", "30")
 USER = os.environ.get("PYTEST_NEXTCLOUD_USER", "admin")
 PASSWORD = os.environ.get("PYTEST_NEXTCLOUD_PASSWORD", "admin")
-ENDPOINT = os.environ.get("PYTEST_NEXTCLOUD_ENDPOINT", "http://localhost:8181")
-APP_TOKEN = os.environ.get("PYTEST_NEXTCLOUD_APP_TOKEN", "EMEW6-EBQ2J-ptjzN-Fxcsp-PJpDA")
+ENDPOINT = os.environ.get("PYTEST_NEXTCLOUD_ENDPOINT", "http://localhost")
+APP_TOKEN = os.environ.get("PYTEST_NEXTCLOUD_APP_TOKEN", "[app-token]")
 
 REMOTE_BASE_DIR = "/.nextcloud-async-pytest"
 USER_AGENT = f"nextcloud-async-pytest/{VERSION}"

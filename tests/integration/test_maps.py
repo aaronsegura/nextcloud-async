@@ -34,6 +34,7 @@ async def map_favorite(maps_api: MapsApi) -> AsyncGenerator[MapFavorite, None]:
         pass
 
 
+@pytest.mark.integration
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestMaps:

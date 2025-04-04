@@ -5,6 +5,7 @@ from nextcloud_async.api import AppsApi
 _test_app = "files_external"
 
 
+@pytest.mark.integration
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestAppsApi:

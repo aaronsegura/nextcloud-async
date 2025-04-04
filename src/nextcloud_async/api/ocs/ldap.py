@@ -1,4 +1,3 @@
-# noqa: D400 D415
 """Nextcloud LDAP Interface.
 
 https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/user_auth_ldap_api.html

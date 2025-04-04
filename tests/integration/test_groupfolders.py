@@ -57,6 +57,7 @@ async def test_group(groups_api: GroupsApi, test_id: str) -> AsyncGenerator[Grou
     await group.delete()
 
 
+@pytest.mark.integration
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestGroupFoldersApi:
@@ -90,6 +91,7 @@ class TestGroupFoldersApi:
             await gf_api.get(folder_id)
 
 
+@pytest.mark.integration
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestGroupFolder:

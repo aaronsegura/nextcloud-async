@@ -52,8 +52,6 @@ from .constants import (
 
 log = logging.getLogger("nextcloud_async")
 
-_NETWORK_BLOCKED = False
-
 
 """
     Plugins Configuration
@@ -67,8 +65,6 @@ def vcr_config():
         "match_on": [
             "method",
             "scheme",
-            "host",
-            "port",
             "path",
             "query",
             "headers",
@@ -100,11 +96,6 @@ def network_blocked(pytestconfig: pytest.Config) -> bool:
         return False
 
 
-def pytest_configure(config: pytest.Config):
-    if config.getoption("--block-network"):
-        globals()["_NETWORK_BLOCKED"] = True
-
-
 """
     Session Startup/Teardown
 """
@@ -129,58 +120,10 @@ def nextcloud_client() -> NextcloudClient:
     nc = NextcloudClient(
         ENDPOINT,
         auth=_http_auth_type(USER, PASSWORD),
-        http_client=_http_type(timeout=10),
+        http_client=_http_type(timeout=30),
         user_agent=USER_AGENT,
     )
     return nc
-
-
-@pytest.mark.asyncio(autouse=True)
-async def remote_base_dir(files_api: FilesApi):
-    try:
-        await files_api.mkdir(REMOTE_BASE_DIR)
-    except NextcloudMethodNotAllowedError:
-        await files_api.delete(REMOTE_BASE_DIR)
-        await files_api.mkdir(REMOTE_BASE_DIR)
-    dir = await files_api.get_all(REMOTE_BASE_DIR)
-    yield dir
-    await dir.delete()
-
-
-def pytest_sessionstart(session: pytest.Session):
-    # Prep the test environment
-
-    if not session.config.getoption("--collect-only"):
-        asyncio.run(async_sessionstart())
-
-
-async def async_sessionstart():
-    if _NETWORK_BLOCKED:
-        return
-    nc = nextcloud_client()
-    files = files_api(nc)
-
-    try:
-        await files.mkdir(REMOTE_BASE_DIR)
-    except NextcloudMethodNotAllowedError:
-        await files.delete(REMOTE_BASE_DIR)
-        await files.mkdir(REMOTE_BASE_DIR)
-    log.debug("Session startup complete.")
-
-
-def pytest_sessionfinish(session: pytest.Session, exitstatus: int):
-    asyncio.run(async_sessionfinish(session, exitstatus))
-
-
-async def async_sessionfinish(session: pytest.Session, exitstatus: int):
-    if (
-        exitstatus == 0
-        and not _NETWORK_BLOCKED
-        and "--collect-only" not in session.config.invocation_params.args
-    ):
-        nc = nextcloud_client()
-        files = files_api(nc)
-        await files.delete(REMOTE_BASE_DIR)
 
 
 """
@@ -188,10 +131,30 @@ async def async_sessionfinish(session: pytest.Session, exitstatus: int):
 """
 
 
+@pytest_asyncio.fixture(scope="session", loop_scope="session")
+async def remote_base_dir(pytestconfig: pytest.Config):
+    if pytestconfig.getoption("--block-network"):
+        yield REMOTE_BASE_DIR
+        return
+
+    client = nextcloud_client()
+    _files = files_api(client)
+    try:
+        await _files.mkdir(REMOTE_BASE_DIR)
+    except NextcloudMethodNotAllowedError:
+        await _files.delete(REMOTE_BASE_DIR)
+        await _files.mkdir(REMOTE_BASE_DIR)
+    _dir = await _files.get_all(REMOTE_BASE_DIR)
+    yield REMOTE_BASE_DIR
+    await _dir.delete()
+
+
 @pytest_asyncio.fixture(loop_scope="session")
-async def remote_test_dir(files_api: FilesApi, request: pytest.FixtureRequest):
+async def remote_test_dir(
+    files_api: FilesApi, request: pytest.FixtureRequest, remote_base_dir: str
+):
     dir = (
-        f"{REMOTE_BASE_DIR}"
+        f"{remote_base_dir}"
         f"/{'.'.join(request.module.__name__.split('.')[2:])}"
         f"-{request.function.__name__}-{request.node.callspec.id}"
     )

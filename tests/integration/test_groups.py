@@ -38,6 +38,7 @@ async def test_user(users_api: UsersApi) -> AsyncGenerator[User]:
     await test_user.delete()
 
 
+@pytest.mark.integration
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestGroups:

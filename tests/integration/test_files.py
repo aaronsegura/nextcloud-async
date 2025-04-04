@@ -49,6 +49,7 @@ async def local_test_file(class_tmp_path: Path, content=FILE_CONTENTS_ORIG):
     os.unlink(file)
 
 
+@pytest.mark.integration
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestUploadDownload:
@@ -78,6 +79,7 @@ class TestUploadDownload:
             await files_api.download(f"{remote_test_dir}/.noexist")
 
 
+@pytest.mark.integration
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestList:
@@ -152,6 +154,7 @@ class TestList:
             assert file in [f.path for f in test_dir_with_files]
 
 
+@pytest.mark.integration
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestCopy:
@@ -203,6 +206,7 @@ class TestCopy:
         await src_file.copy(dest_file, overwrite=True)
 
 
+@pytest.mark.integration
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestMove:
@@ -253,6 +257,7 @@ class TestMove:
         await src_file.move(dest_file, overwrite=True)
 
 
+@pytest.mark.integration
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestDelete:
@@ -281,6 +286,7 @@ class TestDelete:
             await files_api.delete(f"{remote_test_dir}/.noexist")
 
 
+@pytest.mark.integration
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestFavorites:
@@ -338,6 +344,7 @@ class TestFavorites:
         assert len(results) == len(remote_favorited_files)
 
 
+@pytest.mark.integration
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestTrashbin:
@@ -402,6 +409,7 @@ class TestTrashbin:
         assert len(trash) == 0
 
 
+@pytest.mark.integration
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestVersions:
@@ -461,6 +469,7 @@ class TestVersions:
 # TODO: Test chunked uploads
 
 
+@pytest.mark.integration
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestCreateFolder:
