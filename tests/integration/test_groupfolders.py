@@ -18,11 +18,11 @@ from nextcloud_async.exceptions import (
 
 from .constants import REMOTE_BASE_DIR
 
-log = logging.getLogger("nextcloud_async")
+log = logging.getLogger("nextcloud_async.tests")
 
 
 @pytest.fixture
-def test_id(request: pytest.FixtureRequest) -> str:
+def node_id(request: pytest.FixtureRequest) -> str:
     return request.node.callspec.id
 
 
@@ -30,12 +30,12 @@ def test_id(request: pytest.FixtureRequest) -> str:
 async def group_folders(
     gf_api: GroupFoldersApi,
     remote_test_dir: str,
-    test_id: str,
+    node_id: str,
 ) -> AsyncGenerator[list[GroupFolder], None]:
     ret: list[GroupFolder] = []
 
     for i in range(0, 3):
-        folder = await gf_api.create(f"{remote_test_dir}/groupfolder_{test_id}_{i}")
+        folder = await gf_api.create(f"{remote_test_dir}/groupfolder_{node_id}_{i}")
         ret.append(folder)
 
     yield ret
@@ -48,12 +48,11 @@ async def group_folders(
 
 
 @pytest_asyncio.fixture(scope="function", loop_scope="session")
-async def test_group(groups_api: GroupsApi, test_id: str) -> AsyncGenerator[Group, None]:
-    group_id = f"groupfolders_test_{test_id}"
+async def nc_group(groups_api: GroupsApi, node_id: str) -> AsyncGenerator[Group, None]:
+    group_id = f"groupfolders_test_{node_id}"
     group = await groups_api.create(group_id)
 
     yield group
-
     await group.delete()
 
 
@@ -96,14 +95,14 @@ class TestGroupFoldersApi:
 @pytest.mark.asyncio(loop_scope="session")
 class TestGroupFolder:
     async def test_toggle_group_member(
-        self, group_folders: list[GroupFolder], test_group: Group
+        self, group_folders: list[GroupFolder], nc_group: Group
     ):
         log.debug(f"FOLDER {group_folders[1]}")
         folder = group_folders[1]
-        await folder.permit_group(test_group)
-        assert test_group.id in folder.group_details
-        await folder.deny_group(test_group)
-        assert test_group.id not in folder.group_details
+        await folder.permit_group(nc_group)
+        assert nc_group.id in folder.group_details
+        await folder.deny_group(nc_group)
+        assert nc_group.id not in folder.group_details
 
     async def test_toggle_advanced_permissions(self, group_folders: list[GroupFolder]):
         folder = group_folders[1]
@@ -113,34 +112,34 @@ class TestGroupFolder:
         assert folder.acl is False
 
     async def test_add_group_folder_advanced_permissions(
-        self, group_folders: list[GroupFolder], test_group: Group
+        self, group_folders: list[GroupFolder], nc_group: Group
     ):
         folder = group_folders[1]
         await folder.enable_advanced_permissions()
-        await folder.add_acl_manager(test_group)
-        manage = {"type": "group", "id": test_group.id, "displayname": test_group.id}
+        await folder.add_acl_manager(nc_group)
+        manage = {"type": "group", "id": nc_group.id, "displayname": nc_group.id}
         assert manage in folder.manage
-        await folder.remove_acl_manager(test_group)
+        await folder.remove_acl_manager(nc_group)
         assert manage not in folder.manage
 
     async def test_set_group_folder_permissions(
-        self, group_folders: list[GroupFolder], test_group: Group
+        self, group_folders: list[GroupFolder], nc_group: Group
     ):
         folder = group_folders[1]
         await folder.enable_advanced_permissions()
-        await folder.permit_group(test_group)
+        await folder.permit_group(nc_group)
         await folder.set_acl(
-            test_group, GroupFoldersPermissions.read | GroupFoldersPermissions.write
+            nc_group, GroupFoldersPermissions.read | GroupFoldersPermissions.write
         )
         acl = {
-            "displayName": test_group.id,
+            "displayName": nc_group.id,
             "permissions": (
                 GroupFoldersPermissions.read | GroupFoldersPermissions.write
             ).value,
             "type": "group",
         }
-        assert test_group.id in folder.group_details
-        assert folder.group_details[test_group.id] == acl
+        assert nc_group.id in folder.group_details
+        assert folder.group_details[nc_group.id] == acl
 
     async def test_set_group_folder_quota(self, group_folders: list[GroupFolder]):
         _some_quota = 5000
