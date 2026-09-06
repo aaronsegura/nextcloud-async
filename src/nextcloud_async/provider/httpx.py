@@ -102,8 +102,28 @@ class HttpXBasicAuth(HttpClientBasicAuth):
 class HttpXClientProvider(HttpClientProvider):
     _client: AsyncClient
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        self._client = AsyncClient(*args, **kwargs)
+    def __init__(
+        self,
+        *args: Any,
+        client: AsyncClient | None = None,
+        **kwargs: Any,
+    ) -> None:
+        """Create a provider, or wrap an existing ``httpx.AsyncClient``.
+
+        Args:
+            *args: Forwarded to ``httpx.AsyncClient`` when ``client`` is omitted.
+            client: Existing AsyncClient to reuse (legacy NextCloudAsync callers).
+            **kwargs: Forwarded to ``httpx.AsyncClient`` when ``client`` is omitted.
+
+        """
+        if client is not None:
+            if args or kwargs:
+                raise TypeError(
+                    "Pass either client=... or AsyncClient constructor arguments, not both."
+                )
+            self._client = client
+        else:
+            self._client = AsyncClient(*args, **kwargs)
 
     async def request(
         self,

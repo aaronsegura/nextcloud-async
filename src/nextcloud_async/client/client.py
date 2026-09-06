@@ -1,6 +1,5 @@
 import logging
 
-from nextcloud_async.client.legacy import NextCloudAsync
 from nextcloud_async.provider import HttpClientBasicAuth, HttpClientProvider
 from nextcloud_async.version import USER_AGENT
 
@@ -46,18 +45,3 @@ class NextcloudClient:
     def user(self) -> str:
         """Return the username."""
         return self._user
-
-    def legacy_client(self) -> NextCloudAsync:
-        """Return the legacy client for backwards compatibility.
-
-        Returns:
-            NextCloudAsync client
-
-        """
-        return NextCloudAsync(
-            self.endpoint,
-            self.http_client,
-            self.auth,
-            self.app_token,
-            self.user_agent,
-        )
