@@ -59,9 +59,9 @@ async def predefined_statuses(status_api: StatusApi) -> list[PredefinedStatus]:
 
 
 @pytest_asyncio.fixture(loop_scope="session")
-async def test_user(users_api: UsersApi) -> AsyncGenerator[User, None]:
-    _test_user = {
-        "user_id": "pytest_user",
+async def nc_user(users_api: UsersApi) -> AsyncGenerator[User, None]:
+    _nc_user = {
+        "user_id": "pync_user",
         "display_name": "Pytest User Guy",
         "email": "pytest@example.com",
         "quota": None,
@@ -69,10 +69,10 @@ async def test_user(users_api: UsersApi) -> AsyncGenerator[User, None]:
         "language": "en",
     }
 
-    test_user = await users_api.create(**_test_user)
+    nc_user = await users_api.create(**_nc_user)
 
-    yield test_user
-    await test_user.delete()
+    yield nc_user
+    await nc_user.delete()
 
 
 @pytest.mark.integration

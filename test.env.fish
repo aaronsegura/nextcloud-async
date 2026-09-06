@@ -1,0 +1,8 @@
+#PYTEST_ADDOPTS="--block-network --continue-on-collection-errors"
+set -x PYTEST_ADDOPTS ""
+set -x PYTEST_NEXTCLOUD_VERSION 30
+set -x PYTEST_NEXTCLOUD_ENDPOINT http://localhost:8181
+set -x PYTEST_NEXTCLOUD_PASSWORD admin
+set -x PYTEST_NEXTCLOUD_USER admin
+# 29 # PYTEST_NEXTCLOUD_APP_TOKEN=sCcxZ-NRGf9-YY4WR-ddE7Y-Cq7Qw
+set -x PYTEST_NEXTCLOUD_APP_TOKEN 9gDwa-LyB38-EWEna-MrTrp-Nyf79

@@ -29,7 +29,7 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sat, 22 Mar 2025 01:00:48 GMT
+      - Fri, 04 Apr 2025 11:14:13 GMT
       Feature-Policy:
       - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
         'none';payment 'none'
@@ -40,21 +40,21 @@ interactions:
       Server:
       - Apache/2.4.62 (Debian)
       Set-Cookie:
-      - ocoguk96ketf=7ea33253b32f7a0a646efe96f2479501; path=/; HttpOnly; SameSite=Lax
-      - oc_sessionPassphrase=gzmbqDK8KPyyzOlhvN3cPsi2l18Pypa28%2BM6HbjBGpTFruBVJpf3g8z69x6n6cY2WtGh90mdpEzMNkxhaFKsGE57HgKyqjHEh0RNij3zbT6a4JuGfVtZv%2BW2ezGDrKMH;
+      - ocdno3jvvu8a=f379cd3e329258c53b33c8140e7943ae; path=/; HttpOnly; SameSite=Lax
+      - oc_sessionPassphrase=66U0fEFexlqn4h75V5RNv7CAk0mDie%2Fqjaq0peDjeexSJSqeNBrPd3naE7Z77c3HxPR0xHJ1XV8sVC3lbQr9VZxg8dJFMaC89LB8ug8NORjzOFOjo9qA3pdC2toufRNZ;
         path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=7ea33253b32f7a0a646efe96f2479501; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=f379cd3e329258c53b33c8140e7943ae; path=/; HttpOnly; SameSite=Lax
       - nc_sameSiteCookielax=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
         GMT; SameSite=lax
       - nc_sameSiteCookiestrict=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
         GMT; SameSite=strict
-      - ocoguk96ketf=7ea33253b32f7a0a646efe96f2479501; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=7ea33253b32f7a0a646efe96f2479501; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=7ea33253b32f7a0a646efe96f2479501; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=7ea33253b32f7a0a646efe96f2479501; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=7ea33253b32f7a0a646efe96f2479501; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=7ea33253b32f7a0a646efe96f2479501; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=7ea33253b32f7a0a646efe96f2479501; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=f379cd3e329258c53b33c8140e7943ae; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=f379cd3e329258c53b33c8140e7943ae; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=f379cd3e329258c53b33c8140e7943ae; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=f379cd3e329258c53b33c8140e7943ae; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=f379cd3e329258c53b33c8140e7943ae; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=f379cd3e329258c53b33c8140e7943ae; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=f379cd3e329258c53b33c8140e7943ae; path=/; HttpOnly; SameSite=Lax
       X-Content-Type-Options:
       - nosniff
       X-Frame-Options:
@@ -62,9 +62,9 @@ interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - luDP9vzLodZXZvWD0UPj
+      - 7XI5jbGByUz4qT9QDImT
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:
@@ -108,7 +108,7 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sat, 22 Mar 2025 01:00:48 GMT
+      - Fri, 04 Apr 2025 11:14:13 GMT
       Feature-Policy:
       - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
         'none';payment 'none'
@@ -125,9 +125,9 @@ interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - 4EKUXR2YIEl1UXXn6wsR
+      - ybHj1fgzf82dAbYa3QR2
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:
@@ -138,7 +138,7 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: message=Pytesting&statusIcon=%E2%8C%9B&clearAt=1742605514&format=json
+    body: message=Pytesting&statusIcon=%E2%8C%9B&clearAt=1743765530&format=json
     headers:
       accept:
       - '*/*'
@@ -160,7 +160,7 @@ interactions:
     uri: http://localhost:8181/ocs/v2.php/apps/user_status/api/v1/user_status/message/custom
   response:
     body:
-      string: '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},"data":{"userId":"admin","message":"Pytesting","messageId":null,"messageIsPredefined":false,"icon":"\u231b","clearAt":1742605514,"status":"online","statusIsUserDefined":true}}}'
+      string: '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},"data":{"userId":"admin","message":"Pytesting","messageId":null,"messageIsPredefined":false,"icon":"\u231b","clearAt":1743765530,"status":"online","statusIsUserDefined":true}}}'
     headers:
       Cache-Control:
       - no-cache, no-store, must-revalidate
@@ -171,7 +171,7 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sat, 22 Mar 2025 01:00:48 GMT
+      - Fri, 04 Apr 2025 11:14:13 GMT
       Feature-Policy:
       - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
         'none';payment 'none'
@@ -188,9 +188,9 @@ interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - 0yIAImBAqjtBbvntktJC
+      - HzlGrR0ggqsVy2xhm6zf
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:
@@ -234,7 +234,7 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sat, 22 Mar 2025 01:00:48 GMT
+      - Fri, 04 Apr 2025 11:14:13 GMT
       Feature-Policy:
       - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
         'none';payment 'none'
@@ -251,9 +251,9 @@ interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - aM7NrPbbiAdQq7jWoNmL
+      - VhEUphVUemtCSswOUDg7
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:

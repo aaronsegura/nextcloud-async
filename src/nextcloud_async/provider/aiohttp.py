@@ -141,6 +141,7 @@ class AioHttpClientProvider(HttpClientProvider):
         data: dict[str, Any] | None = None,
         json: Any | None = None,
         content: bytes | None = None,
+        file: bytes | None = None,
     ) -> Any:
         """Make an HTTP Request."""
         try:
@@ -153,11 +154,22 @@ class AioHttpClientProvider(HttpClientProvider):
                     headers=headers,
                 )
             elif json:
+                log.debug("Sending JSON request.")
                 _r = await self._client.request(
                     method,
                     url=url,
                     auth=auth._auth if auth else None,
                     json=json,
+                    headers=headers,
+                )
+            elif file:
+                log.debug(f"Sending File of length {len(file) if file else 0}")
+
+                _r = await self._client.request(
+                    method,
+                    url=url,
+                    auth=auth._auth if auth else None,
+                    data={"file": file, "format": "json"},
                     headers=headers,
                 )
             else:

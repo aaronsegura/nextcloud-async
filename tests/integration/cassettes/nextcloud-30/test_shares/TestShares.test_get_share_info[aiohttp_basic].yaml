@@ -28,7 +28,7 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sat, 22 Mar 2025 00:54:46 GMT
+      - Fri, 04 Apr 2025 11:11:53 GMT
       Feature-Policy:
       - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
         'none';payment 'none'
@@ -37,18 +37,18 @@ interactions:
       Server:
       - Apache/2.4.62 (Debian)
       Set-Cookie:
-      - ocoguk96ketf=9e28100c82c11f089d6af6be9de7af0f; path=/; HttpOnly; SameSite=Lax
-      - oc_sessionPassphrase=lB5I1t%2BLFzkzO4Vuy7lDSCn3kIxnTvBpAolT5dxal2el9XGR4w2agmC%2FQ4rWirECjJ1K0baq54nZpKGLITpq2OK2Mv8%2BGBZTAOZIdg64N1VsuwmuCKA%2Bjlz912GJ9lIA;
+      - ocdno3jvvu8a=5685d6d8d72e08f7c5eae516e6252e1f; path=/; HttpOnly; SameSite=Lax
+      - oc_sessionPassphrase=DvmkcCNw4Xj%2FzScnbU0Q1AxBLbojbfFDtJptSe4MYGbTUdNxqKdvTZF6%2Baojf%2BoTvzd4TxjHwJ0bEBR11iLMWDHLpjOCz%2BSKLdChQCmLAuq97ekpLfC1oqNyGEmzWtgh;
         path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=9e28100c82c11f089d6af6be9de7af0f; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=5685d6d8d72e08f7c5eae516e6252e1f; path=/; HttpOnly; SameSite=Lax
       - nc_sameSiteCookielax=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
         GMT; SameSite=lax
       - nc_sameSiteCookiestrict=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
         GMT; SameSite=strict
-      - ocoguk96ketf=9e28100c82c11f089d6af6be9de7af0f; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=9e28100c82c11f089d6af6be9de7af0f; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=1202efea88d9cc886d2ffa6a0e6d5b8d; path=/; HttpOnly; SameSite=Lax
-      - cookie_test=test; expires=Sat, 22 Mar 2025 01:54:47 GMT; Max-Age=3600
+      - ocdno3jvvu8a=5685d6d8d72e08f7c5eae516e6252e1f; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=5685d6d8d72e08f7c5eae516e6252e1f; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=1ab77326c16dab22e66383224fb38a35; path=/; HttpOnly; SameSite=Lax
+      - cookie_test=test; expires=Fri, 04 Apr 2025 12:11:53 GMT; Max-Age=3600
       X-Content-Type-Options:
       - nosniff
       X-Frame-Options:
@@ -56,9 +56,9 @@ interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - 4jzMKJKmBhn6aCVmL7aM
+      - M3Eaj0Nh9mT11zxuCOgc
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:
@@ -89,7 +89,7 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sat, 22 Mar 2025 00:54:49 GMT
+      - Fri, 04 Apr 2025 11:11:55 GMT
       Feature-Policy:
       - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
         'none';payment 'none'
@@ -98,9 +98,9 @@ interactions:
       Server:
       - Apache/2.4.62 (Debian)
       Set-Cookie:
-      - ocoguk96ketf=1202efea88d9cc886d2ffa6a0e6d5b8d; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=1202efea88d9cc886d2ffa6a0e6d5b8d; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=1202efea88d9cc886d2ffa6a0e6d5b8d; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=1ab77326c16dab22e66383224fb38a35; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=1ab77326c16dab22e66383224fb38a35; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=1ab77326c16dab22e66383224fb38a35; path=/; HttpOnly; SameSite=Lax
       - nc_username=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
       - nc_token=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
       - nc_session_id=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
@@ -110,11 +110,11 @@ interactions:
         HttpOnly
       - nc_session_id=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; path=/;
         HttpOnly
-      - ocoguk96ketf=1202efea88d9cc886d2ffa6a0e6d5b8d; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=fc15c771efeb9797a5aede12c381eb28; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=fc15c771efeb9797a5aede12c381eb28; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=fc15c771efeb9797a5aede12c381eb28; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=0a19dec2414f6ffd7a26f742f393ecdd; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=1ab77326c16dab22e66383224fb38a35; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=5a6f6e5c75088e81b16137ff2ec88b12; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=5a6f6e5c75088e81b16137ff2ec88b12; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=5a6f6e5c75088e81b16137ff2ec88b12; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=87a2837d60d55eddbce79c86e476c9ab; path=/; HttpOnly; SameSite=Lax
       X-Content-Type-Options:
       - nosniff
       X-Frame-Options:
@@ -122,9 +122,9 @@ interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - 7Xj61ui31I4fcPTLdQbl
+      - 4A24iInI7WUpwYqyMz8t
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:
@@ -152,29 +152,29 @@ interactions:
       Content-Type:
       - text/html; charset=UTF-8
       Date:
-      - Sat, 22 Mar 2025 00:54:51 GMT
+      - Fri, 04 Apr 2025 11:11:57 GMT
       OC-FileId:
-      - 00033951ocoguk96ketf
+      - 00001003ocdno3jvvu8a
       Referrer-Policy:
       - no-referrer
       Server:
       - Apache/2.4.62 (Debian)
       Set-Cookie:
-      - ocoguk96ketf=0a19dec2414f6ffd7a26f742f393ecdd; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=0a19dec2414f6ffd7a26f742f393ecdd; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=0a19dec2414f6ffd7a26f742f393ecdd; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=87a2837d60d55eddbce79c86e476c9ab; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=87a2837d60d55eddbce79c86e476c9ab; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=87a2837d60d55eddbce79c86e476c9ab; path=/; HttpOnly; SameSite=Lax
       X-Content-Type-Options:
       - nosniff
       X-Debug-Token:
-      - 3MkWsy10XJf2cMiCubPC
+      - FA2mmr7F2hWkG2LgbonW
       X-Frame-Options:
       - SAMEORIGIN
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - 3MkWsy10XJf2cMiCubPC
+      - FA2mmr7F2hWkG2LgbonW
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:
@@ -200,13 +200,13 @@ interactions:
       Content-Type:
       - text/html; charset=UTF-8
       Date:
-      - Sat, 22 Mar 2025 00:54:51 GMT
+      - Fri, 04 Apr 2025 11:11:57 GMT
       Etag:
-      - '"1a9f5cb7e00583171d8ccc25f80f40d1"'
+      - '"eede0f874de1eb9a4401d6b1bffbac72"'
       OC-ETag:
-      - '"1a9f5cb7e00583171d8ccc25f80f40d1"'
+      - '"eede0f874de1eb9a4401d6b1bffbac72"'
       OC-FileId:
-      - 00033952ocoguk96ketf
+      - 00001004ocdno3jvvu8a
       Referrer-Policy:
       - no-referrer
       Server:
@@ -214,15 +214,15 @@ interactions:
       X-Content-Type-Options:
       - nosniff
       X-Debug-Token:
-      - x3BkiMW5Rg8WqemCjmW0
+      - bQiPYtO0yhqq7Nlp09g2
       X-Frame-Options:
       - SAMEORIGIN
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - x3BkiMW5Rg8WqemCjmW0
+      - bQiPYtO0yhqq7Nlp09g2
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:
@@ -248,13 +248,13 @@ interactions:
       Content-Type:
       - text/html; charset=UTF-8
       Date:
-      - Sat, 22 Mar 2025 00:54:52 GMT
+      - Fri, 04 Apr 2025 11:11:57 GMT
       Etag:
-      - '"0859d6457771fc26bb774cf200ccca1e"'
+      - '"4af967d5255be1690670393d78fab946"'
       OC-ETag:
-      - '"0859d6457771fc26bb774cf200ccca1e"'
+      - '"4af967d5255be1690670393d78fab946"'
       OC-FileId:
-      - 00033953ocoguk96ketf
+      - 00001005ocdno3jvvu8a
       Referrer-Policy:
       - no-referrer
       Server:
@@ -262,15 +262,15 @@ interactions:
       X-Content-Type-Options:
       - nosniff
       X-Debug-Token:
-      - O5oPw8yGTCzBl4RLqEie
+      - s1fNZbVTFAMrmOB9oj0P
       X-Frame-Options:
       - SAMEORIGIN
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - O5oPw8yGTCzBl4RLqEie
+      - s1fNZbVTFAMrmOB9oj0P
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:
@@ -280,7 +280,7 @@ interactions:
       message: Created
 - request:
     body:
-      expireDate: '2025-03-22'
+      expireDate: '2025-04-05'
       format: json
       label: null
       note: null
@@ -301,8 +301,8 @@ interactions:
     uri: http://localhost:8181/ocs/v2.php/apps/files_sharing/api/v1/shares
   response:
     body:
-      string: '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},"data":{"id":"375","share_type":0,"uid_owner":"admin","displayname_owner":"admin","permissions":1,"can_edit":true,"can_delete":true,"stime":1742604892,"parent":null,"expiration":"2025-03-22
-        00:00:00","token":null,"uid_file_owner":"admin","note":"None","label":"","displayname_file_owner":"admin","path":"\/.nextcloud-async-pytest\/test_shares-test_get_share_info-aiohttp_basic\/file0.md","item_type":"file","item_permissions":27,"is-mount-root":false,"mount-type":"","mimetype":"text\/markdown","has_preview":true,"storage_id":"home::admin","storage":1,"item_source":33952,"file_source":33952,"file_parent":33951,"file_target":"\/file0.md","item_size":15,"item_mtime":1742604891,"share_with":"pytest_user","share_with_displayname":"Pytest
+      string: '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},"data":{"id":"6","share_type":0,"uid_owner":"admin","displayname_owner":"admin","permissions":1,"can_edit":true,"can_delete":true,"stime":1743765118,"parent":null,"expiration":"2025-04-05
+        00:00:00","token":null,"uid_file_owner":"admin","note":"None","label":"","displayname_file_owner":"admin","path":"\/.nextcloud-async-pytest\/test_shares-test_get_share_info-aiohttp_basic\/file0.md","item_type":"file","item_permissions":27,"is-mount-root":false,"mount-type":"","mimetype":"text\/markdown","has_preview":true,"storage_id":"home::admin","storage":1,"item_source":1004,"file_source":1004,"file_parent":1003,"file_target":"\/file0.md","item_size":15,"item_mtime":1743765117,"share_with":"pytest_user","share_with_displayname":"Pytest
         User Guy","share_with_displayname_unique":"pytest@example.com","mail_send":0,"hide_download":0,"attributes":null}}}'
     headers:
       Cache-Control:
@@ -312,7 +312,7 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sat, 22 Mar 2025 00:54:52 GMT
+      - Fri, 04 Apr 2025 11:11:57 GMT
       Feature-Policy:
       - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
         'none';payment 'none'
@@ -327,15 +327,15 @@ interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - Wrs2LFpHPvHRnGKo2pWs
+      - zZHcod6gQKpSPnwW04sX
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:
       - 1; mode=block
       content-length:
-      - '917'
+      - '912'
     status:
       code: 200
       message: OK
@@ -347,11 +347,11 @@ interactions:
       User-Agent:
       - nextcloud-async-pytest/0.1.0b0
     method: GET
-    uri: http://localhost:8181/ocs/v2.php/apps/files_sharing/api/v1/shares/375?share_id=375&format=json
+    uri: http://localhost:8181/ocs/v2.php/apps/files_sharing/api/v1/shares/6?share_id=6&format=json
   response:
     body:
-      string: '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},"data":[{"id":"375","share_type":0,"uid_owner":"admin","displayname_owner":"admin","permissions":1,"can_edit":true,"can_delete":true,"stime":1742604892,"parent":null,"expiration":"2025-03-22
-        00:00:00","token":null,"uid_file_owner":"admin","note":"None","label":"","displayname_file_owner":"admin","path":"\/.nextcloud-async-pytest\/test_shares-test_get_share_info-aiohttp_basic\/file0.md","item_type":"file","item_permissions":27,"is-mount-root":false,"mount-type":"","mimetype":"text\/markdown","has_preview":true,"storage_id":"home::admin","storage":1,"item_source":33952,"file_source":33952,"file_parent":33951,"file_target":"\/file0.md","item_size":15,"item_mtime":1742604891,"share_with":"pytest_user","share_with_displayname":"Pytest
+      string: '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},"data":[{"id":"6","share_type":0,"uid_owner":"admin","displayname_owner":"admin","permissions":1,"can_edit":true,"can_delete":true,"stime":1743765118,"parent":null,"expiration":"2025-04-05
+        00:00:00","token":null,"uid_file_owner":"admin","note":"None","label":"","displayname_file_owner":"admin","path":"\/.nextcloud-async-pytest\/test_shares-test_get_share_info-aiohttp_basic\/file0.md","item_type":"file","item_permissions":27,"is-mount-root":false,"mount-type":"","mimetype":"text\/markdown","has_preview":true,"storage_id":"home::admin","storage":1,"item_source":1004,"file_source":1004,"file_parent":1003,"file_target":"\/file0.md","item_size":15,"item_mtime":1743765117,"share_with":"pytest_user","share_with_displayname":"Pytest
         User Guy","share_with_displayname_unique":"pytest@example.com","mail_send":0,"hide_download":0,"attributes":null}]}}'
     headers:
       Cache-Control:
@@ -361,7 +361,7 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sat, 22 Mar 2025 00:54:52 GMT
+      - Fri, 04 Apr 2025 11:11:58 GMT
       Feature-Policy:
       - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
         'none';payment 'none'
@@ -376,15 +376,15 @@ interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - YXUoy5TbBZ87W1onTvhP
+      - bnDhcDpsHXS3Zol0epQA
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:
       - 1; mode=block
       content-length:
-      - '919'
+      - '914'
     status:
       code: 200
       message: OK
@@ -409,7 +409,7 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sat, 22 Mar 2025 00:54:52 GMT
+      - Fri, 04 Apr 2025 11:11:58 GMT
       Feature-Policy:
       - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
         'none';payment 'none'
@@ -424,9 +424,9 @@ interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - PxMyXZBGCYMXpCrcfD0Y
+      - De81qvC22dx9Z00K3Z6Y
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:

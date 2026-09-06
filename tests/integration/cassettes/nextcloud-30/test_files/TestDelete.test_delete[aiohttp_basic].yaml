@@ -17,38 +17,38 @@ interactions:
       Content-Type:
       - text/html; charset=UTF-8
       Date:
-      - Sat, 22 Mar 2025 00:36:52 GMT
+      - Thu, 03 Apr 2025 21:06:19 GMT
       OC-FileId:
-      - 00033203ocoguk96ketf
+      - 00000391ocdno3jvvu8a
       Referrer-Policy:
       - no-referrer
       Server:
       - Apache/2.4.62 (Debian)
       Set-Cookie:
-      - ocoguk96ketf=45b8f0dd0d71c6f49e5baaa90f50ce9d; path=/; HttpOnly; SameSite=Lax
-      - oc_sessionPassphrase=C50%2F9RsvpoDp17nKgoChM3CQpSpul8PQPxEfL%2F6NKbEbkD%2FiU%2FW9uPF89L71nJR3c%2BO58gO6I67dABLeH2PnWuLrlDw64c2I%2FwUuefMJPB7C5BIQf0gbvKOoG2xltgZh;
+      - ocdno3jvvu8a=9488ed99727066bd84e33b1411904835; path=/; HttpOnly; SameSite=Lax
+      - oc_sessionPassphrase=7EViPYupgsalFG6bo25Pw%2FvFIzkWcKVe4I8TrpIkUOfjyovvN4nR0rB2v1fzf5vCg2bP6qHpQ6mbgEEobddAGmkAWRjL3lX0thELHA7A0xjcTJ%2BelFH%2FyC5j6edrA8Ei;
         path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=45b8f0dd0d71c6f49e5baaa90f50ce9d; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=9488ed99727066bd84e33b1411904835; path=/; HttpOnly; SameSite=Lax
       - nc_sameSiteCookielax=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
         GMT; SameSite=lax
       - nc_sameSiteCookiestrict=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
         GMT; SameSite=strict
-      - ocoguk96ketf=45b8f0dd0d71c6f49e5baaa90f50ce9d; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=45b8f0dd0d71c6f49e5baaa90f50ce9d; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=4d0ce238537a201956a213d9a7533c3d; path=/; HttpOnly; SameSite=Lax
-      - cookie_test=test; expires=Sat, 22 Mar 2025 01:36:52 GMT; Max-Age=3600
+      - ocdno3jvvu8a=9488ed99727066bd84e33b1411904835; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=9488ed99727066bd84e33b1411904835; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=b480456caa8bd1513ec6d15fb68fc8d8; path=/; HttpOnly; SameSite=Lax
+      - cookie_test=test; expires=Thu, 03 Apr 2025 22:06:20 GMT; Max-Age=3600
       X-Content-Type-Options:
       - nosniff
       X-Debug-Token:
-      - EJN22G7vYfaeXhaLNaAG
+      - UGYPSMWlfbfp1rVU3ymS
       X-Frame-Options:
       - SAMEORIGIN
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - EJN22G7vYfaeXhaLNaAG
+      - UGYPSMWlfbfp1rVU3ymS
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:
@@ -74,21 +74,21 @@ interactions:
       Content-Type:
       - text/html; charset=UTF-8
       Date:
-      - Sat, 22 Mar 2025 00:36:52 GMT
+      - Thu, 03 Apr 2025 21:06:20 GMT
       Etag:
-      - '"93f7a3c715306dea49e48a5da6d0ec01"'
+      - '"4bde6b3c2626848adfa77c09f216bfac"'
       OC-ETag:
-      - '"93f7a3c715306dea49e48a5da6d0ec01"'
+      - '"4bde6b3c2626848adfa77c09f216bfac"'
       OC-FileId:
-      - 00033208ocoguk96ketf
+      - 00000392ocdno3jvvu8a
       Referrer-Policy:
       - no-referrer
       Server:
       - Apache/2.4.62 (Debian)
       Set-Cookie:
-      - ocoguk96ketf=4d0ce238537a201956a213d9a7533c3d; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=4d0ce238537a201956a213d9a7533c3d; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=4d0ce238537a201956a213d9a7533c3d; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=b480456caa8bd1513ec6d15fb68fc8d8; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=b480456caa8bd1513ec6d15fb68fc8d8; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=b480456caa8bd1513ec6d15fb68fc8d8; path=/; HttpOnly; SameSite=Lax
       - nc_username=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
       - nc_token=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
       - nc_session_id=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
@@ -98,23 +98,23 @@ interactions:
         HttpOnly
       - nc_session_id=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; path=/;
         HttpOnly
-      - ocoguk96ketf=4d0ce238537a201956a213d9a7533c3d; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=fac13f0b6d55d2ad553759b802d9b47a; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=fac13f0b6d55d2ad553759b802d9b47a; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=fac13f0b6d55d2ad553759b802d9b47a; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=26c84632df7ba4723106e0b32859dd9c; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=b480456caa8bd1513ec6d15fb68fc8d8; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=6ad8d43526efee992a6a9f6b0eb797a1; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=6ad8d43526efee992a6a9f6b0eb797a1; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=6ad8d43526efee992a6a9f6b0eb797a1; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=b6ac4452f9b37eb8f7c8448ca1e92807; path=/; HttpOnly; SameSite=Lax
       X-Content-Type-Options:
       - nosniff
       X-Debug-Token:
-      - xZtlLuUGSLFT8qYREemq
+      - e66VPfxA5oCIxhiIwZjY
       X-Frame-Options:
       - SAMEORIGIN
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - xZtlLuUGSLFT8qYREemq
+      - e66VPfxA5oCIxhiIwZjY
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:
@@ -139,7 +139,7 @@ interactions:
       string: '<?xml version="1.0"?>
 
         <d:multistatus xmlns:d="DAV:" xmlns:s="http://sabredav.org/ns" xmlns:oc="http://owncloud.org/ns"
-        xmlns:nc="http://nextcloud.org/ns"><d:response><d:href>/remote.php/dav/files/admin/.nextcloud-async-pytest/test_files-test_delete-aiohttp_basic/file0.md</d:href><d:propstat><d:prop><oc:fileid>33208</oc:fileid><d:resourcetype/></d:prop><d:status>HTTP/1.1
+        xmlns:nc="http://nextcloud.org/ns"><d:response><d:href>/remote.php/dav/files/admin/.nextcloud-async-pytest/test_files-test_delete-aiohttp_basic/file0.md</d:href><d:propstat><d:prop><oc:fileid>392</oc:fileid><d:resourcetype/></d:prop><d:status>HTTP/1.1
         200 OK</d:status></d:propstat></d:response></d:multistatus>
 
         '
@@ -152,35 +152,35 @@ interactions:
       - 1, 3, extended-mkcol, access-control, calendarserver-principal-property-search,
         nextcloud-checksum-update, nc-calendar-search, nc-enable-birthday-calendar
       Date:
-      - Sat, 22 Mar 2025 00:36:54 GMT
+      - Thu, 03 Apr 2025 21:06:21 GMT
       Referrer-Policy:
       - no-referrer
       Server:
       - Apache/2.4.62 (Debian)
       Set-Cookie:
-      - ocoguk96ketf=26c84632df7ba4723106e0b32859dd9c; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=26c84632df7ba4723106e0b32859dd9c; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=26c84632df7ba4723106e0b32859dd9c; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=b6ac4452f9b37eb8f7c8448ca1e92807; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=b6ac4452f9b37eb8f7c8448ca1e92807; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=b6ac4452f9b37eb8f7c8448ca1e92807; path=/; HttpOnly; SameSite=Lax
       Vary:
       - Brief,Prefer
       X-Content-Type-Options:
       - nosniff
       X-Debug-Token:
-      - gjRUTYikyDhETXwE2x01
+      - Vt1nQE2uESXlI7amdo9A
       X-Frame-Options:
       - SAMEORIGIN
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - gjRUTYikyDhETXwE2x01
+      - Vt1nQE2uESXlI7amdo9A
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:
       - 1; mode=block
       content-length:
-      - '433'
+      - '431'
     status:
       code: 207
       message: Multi-Status
@@ -198,7 +198,7 @@ interactions:
       Content-Security-Policy:
       - default-src 'none';
       Date:
-      - Sat, 22 Mar 2025 00:36:54 GMT
+      - Thu, 03 Apr 2025 21:06:21 GMT
       Referrer-Policy:
       - no-referrer
       Server:
@@ -206,15 +206,15 @@ interactions:
       X-Content-Type-Options:
       - nosniff
       X-Debug-Token:
-      - 8YcC92CD4gxQCOBbNeIS
+      - clhdkuDvL8F0VY9j4kEk
       X-Frame-Options:
       - SAMEORIGIN
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - 8YcC92CD4gxQCOBbNeIS
+      - clhdkuDvL8F0VY9j4kEk
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:
@@ -240,10 +240,10 @@ interactions:
         xmlns:s=\"http://sabredav.org/ns\">\n\t<s:exception>Internal Server Error</s:exception>\n\t<s:message>\n\t\tThe
         server was unable to complete your request.\t\tIf this happens again, please
         send the technical details below to the server administrator.\t\tMore details
-        can be found in the server log.\t\t\t</s:message>\n\n\t<s:technical-details>\n\t\t<s:remote-address>172.19.0.1</s:remote-address>\n\t\t<s:request-id>zLYGL6fo8Mrfazc7JJuc</s:request-id>\n\n\t\t</s:technical-details>\n</d:error>\n"
+        can be found in the server log.\t\t\t</s:message>\n\n\t<s:technical-details>\n\t\t<s:remote-address>127.0.0.1</s:remote-address>\n\t\t<s:request-id>AH3j2LH2Y20lgciFNM3n</s:request-id>\n\n\t\t</s:technical-details>\n</d:error>\n"
     headers:
       Content-Length:
-      - '527'
+      - '526'
       Content-Security-Policy:
       - 'default-src ''none'';base-uri ''none'';manifest-src ''self'';script-src ''self'';style-src
         ''self'' ''unsafe-inline'';img-src ''self'' data: blob:;font-src ''self''
@@ -255,7 +255,7 @@ interactions:
       - 1, 3, extended-mkcol, access-control, calendarserver-principal-property-search,
         nextcloud-checksum-update, nc-calendar-search, nc-enable-birthday-calendar
       Date:
-      - Sat, 22 Mar 2025 00:36:55 GMT
+      - Thu, 03 Apr 2025 21:06:21 GMT
       Referrer-Policy:
       - no-referrer
       Server:
@@ -269,7 +269,7 @@ interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:

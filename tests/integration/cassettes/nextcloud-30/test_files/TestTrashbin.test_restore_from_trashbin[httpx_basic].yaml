@@ -27,40 +27,40 @@ interactions:
       Content-Type:
       - text/html; charset=UTF-8
       Date:
-      - Sat, 22 Mar 2025 00:37:49 GMT
+      - Thu, 03 Apr 2025 21:07:02 GMT
       Keep-Alive:
       - timeout=5, max=100
       OC-FileId:
-      - 00033323ocoguk96ketf
+      - 00000455ocdno3jvvu8a
       Referrer-Policy:
       - no-referrer
       Server:
       - Apache/2.4.62 (Debian)
       Set-Cookie:
-      - ocoguk96ketf=98c4fdaa043ba97e3d5f0c5af88edd73; path=/; HttpOnly; SameSite=Lax
-      - oc_sessionPassphrase=HmTx07g3e5IaJl8GPEm9GTqOfKLifhobf%2BVzEsHwctiPJOUT1UaL%2BwjH2qd%2Bo%2Fi%2BWGg67NH3btMGcbAlwWdibMsg1vUIePs0rwFBoRJfsmV9lm03RwNehmOgAYnoS4gY;
+      - ocdno3jvvu8a=c848cecd4bd0922a74c4cd4420dc14bf; path=/; HttpOnly; SameSite=Lax
+      - oc_sessionPassphrase=7%2FA9EnobByDh8J6aFug7BkzAc2UXL0DW%2BMlMIE0%2FxqQgjQgH%2B77txBIGZLLgdzS%2FfY5ilSe9mJdeBP8Tbwr6B4kJLs8kIUC27HEDr2sdWHdBg836D93%2BoXHHV8bZMrKG;
         path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=98c4fdaa043ba97e3d5f0c5af88edd73; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=c848cecd4bd0922a74c4cd4420dc14bf; path=/; HttpOnly; SameSite=Lax
       - nc_sameSiteCookielax=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
         GMT; SameSite=lax
       - nc_sameSiteCookiestrict=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
         GMT; SameSite=strict
-      - ocoguk96ketf=98c4fdaa043ba97e3d5f0c5af88edd73; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=98c4fdaa043ba97e3d5f0c5af88edd73; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=493369e65f76e0b29c310d8102eebca3; path=/; HttpOnly; SameSite=Lax
-      - cookie_test=test; expires=Sat, 22 Mar 2025 01:37:50 GMT; Max-Age=3600
+      - ocdno3jvvu8a=c848cecd4bd0922a74c4cd4420dc14bf; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=c848cecd4bd0922a74c4cd4420dc14bf; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=9005bd0c2dee2f93823307f44eec6585; path=/; HttpOnly; SameSite=Lax
+      - cookie_test=test; expires=Thu, 03 Apr 2025 22:07:03 GMT; Max-Age=3600
       X-Content-Type-Options:
       - nosniff
       X-Debug-Token:
-      - r3k7Z10JeOiIR9aevC0V
+      - jhuqlanokShsczPKcBOv
       X-Frame-Options:
       - SAMEORIGIN
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - r3k7Z10JeOiIR9aevC0V
+      - jhuqlanokShsczPKcBOv
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:
@@ -98,23 +98,23 @@ interactions:
       Content-Type:
       - text/html; charset=UTF-8
       Date:
-      - Sat, 22 Mar 2025 00:37:50 GMT
+      - Thu, 03 Apr 2025 21:07:03 GMT
       ETag:
-      - '"6e206707f7b26a828b0b1f27039e61c3"'
+      - '"68301001c30712dd2b571b2baff3a833"'
       Keep-Alive:
       - timeout=5, max=99
       OC-ETag:
-      - '"6e206707f7b26a828b0b1f27039e61c3"'
+      - '"68301001c30712dd2b571b2baff3a833"'
       OC-FileId:
-      - 00033324ocoguk96ketf
+      - 00000456ocdno3jvvu8a
       Referrer-Policy:
       - no-referrer
       Server:
       - Apache/2.4.62 (Debian)
       Set-Cookie:
-      - ocoguk96ketf=493369e65f76e0b29c310d8102eebca3; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=493369e65f76e0b29c310d8102eebca3; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=493369e65f76e0b29c310d8102eebca3; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=9005bd0c2dee2f93823307f44eec6585; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=9005bd0c2dee2f93823307f44eec6585; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=9005bd0c2dee2f93823307f44eec6585; path=/; HttpOnly; SameSite=Lax
       - nc_username=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
       - nc_token=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
       - nc_session_id=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
@@ -124,23 +124,23 @@ interactions:
         HttpOnly
       - nc_session_id=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; path=/;
         HttpOnly
-      - ocoguk96ketf=493369e65f76e0b29c310d8102eebca3; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=a250e7a6cde65afe8c16d0e837dc0fec; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=a250e7a6cde65afe8c16d0e837dc0fec; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=a250e7a6cde65afe8c16d0e837dc0fec; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=d9b7f95f69130f236ddf1106e8349713; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=9005bd0c2dee2f93823307f44eec6585; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=93a0589c9c3b7938335e9ed92672c977; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=93a0589c9c3b7938335e9ed92672c977; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=93a0589c9c3b7938335e9ed92672c977; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=6e675d0000056e09480a862fef74dac2; path=/; HttpOnly; SameSite=Lax
       X-Content-Type-Options:
       - nosniff
       X-Debug-Token:
-      - W9iv6HyrVWThMSxARS5O
+      - OWl6WG9A7nwj8ioUp3dg
       X-Frame-Options:
       - SAMEORIGIN
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - W9iv6HyrVWThMSxARS5O
+      - OWl6WG9A7nwj8ioUp3dg
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:
@@ -178,35 +178,35 @@ interactions:
       Content-Type:
       - text/html; charset=UTF-8
       Date:
-      - Sat, 22 Mar 2025 00:37:52 GMT
+      - Thu, 03 Apr 2025 21:07:04 GMT
       ETag:
-      - '"c10330cfaddc08a48f019a9ba8731065"'
+      - '"02032d2f134ecfc6b8a1122efafbb471"'
       Keep-Alive:
       - timeout=5, max=98
       OC-ETag:
-      - '"c10330cfaddc08a48f019a9ba8731065"'
+      - '"02032d2f134ecfc6b8a1122efafbb471"'
       OC-FileId:
-      - 00033325ocoguk96ketf
+      - 00000457ocdno3jvvu8a
       Referrer-Policy:
       - no-referrer
       Server:
       - Apache/2.4.62 (Debian)
       Set-Cookie:
-      - ocoguk96ketf=d9b7f95f69130f236ddf1106e8349713; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=d9b7f95f69130f236ddf1106e8349713; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=d9b7f95f69130f236ddf1106e8349713; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=6e675d0000056e09480a862fef74dac2; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=6e675d0000056e09480a862fef74dac2; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=6e675d0000056e09480a862fef74dac2; path=/; HttpOnly; SameSite=Lax
       X-Content-Type-Options:
       - nosniff
       X-Debug-Token:
-      - Lul62pOLGpuNu7PoWHgm
+      - xCCbXnkNSFszC2APYx64
       X-Frame-Options:
       - SAMEORIGIN
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - Lul62pOLGpuNu7PoWHgm
+      - xCCbXnkNSFszC2APYx64
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:
@@ -244,15 +244,15 @@ interactions:
       Content-Type:
       - text/html; charset=UTF-8
       Date:
-      - Sat, 22 Mar 2025 00:37:52 GMT
+      - Thu, 03 Apr 2025 21:07:05 GMT
       ETag:
-      - '"30e14b389e9104926df6650f28be1952"'
+      - '"5507386f6ae97234a6f1188d9ccf4899"'
       Keep-Alive:
       - timeout=5, max=97
       OC-ETag:
-      - '"30e14b389e9104926df6650f28be1952"'
+      - '"5507386f6ae97234a6f1188d9ccf4899"'
       OC-FileId:
-      - 00033326ocoguk96ketf
+      - 00000458ocdno3jvvu8a
       Referrer-Policy:
       - no-referrer
       Server:
@@ -260,15 +260,15 @@ interactions:
       X-Content-Type-Options:
       - nosniff
       X-Debug-Token:
-      - qqN0mIzWkNyUywzTtlk9
+      - QIGD2vqTR4Yz6GOXi3nG
       X-Frame-Options:
       - SAMEORIGIN
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - qqN0mIzWkNyUywzTtlk9
+      - QIGD2vqTR4Yz6GOXi3nG
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:
@@ -300,7 +300,7 @@ interactions:
       Content-Security-Policy:
       - default-src 'none';
       Date:
-      - Sat, 22 Mar 2025 00:37:53 GMT
+      - Thu, 03 Apr 2025 21:07:05 GMT
       Keep-Alive:
       - timeout=5, max=96
       Referrer-Policy:
@@ -310,15 +310,15 @@ interactions:
       X-Content-Type-Options:
       - nosniff
       X-Debug-Token:
-      - BDlULkGLDIOuUspLCVAA
+      - nHYSsHGyGZ55FpzmrL2X
       X-Frame-Options:
       - SAMEORIGIN
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - BDlULkGLDIOuUspLCVAA
+      - nHYSsHGyGZ55FpzmrL2X
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:
@@ -354,22 +354,23 @@ interactions:
         <d:multistatus xmlns:d="DAV:" xmlns:s="http://sabredav.org/ns" xmlns:oc="http://owncloud.org/ns"
         xmlns:nc="http://nextcloud.org/ns"><d:response><d:href>/remote.php/dav/trashbin/admin/trash/</d:href><d:propstat><d:prop><d:resourcetype><d:collection/></d:resourcetype></d:prop><d:status>HTTP/1.1
         200 OK</d:status></d:propstat><d:propstat><d:prop><oc:fileid/><nc:trashbin-filename/><nc:trashbin-original-location/><nc:trashbin-deletion-time/></d:prop><d:status>HTTP/1.1
-        404 Not Found</d:status></d:propstat></d:response><d:response><d:href>/remote.php/dav/trashbin/admin/trash/file0.md.d1742603873</d:href><d:propstat><d:prop><oc:fileid>33324</oc:fileid><d:resourcetype/><nc:trashbin-filename>file0.md</nc:trashbin-filename><nc:trashbin-original-location>.nextcloud-async-pytest/test_files-test_restore_from_trashbin-httpx_basic/file0.md</nc:trashbin-original-location><nc:trashbin-deletion-time>1742603873</nc:trashbin-deletion-time></d:prop><d:status>HTTP/1.1
-        200 OK</d:status></d:propstat></d:response><d:response><d:href>/remote.php/dav/trashbin/admin/trash/file0.md.d1742603869</d:href><d:propstat><d:prop><oc:fileid>33320</oc:fileid><d:resourcetype/><nc:trashbin-filename>file0.md</nc:trashbin-filename><nc:trashbin-original-location>.nextcloud-async-pytest/test_files-test_restore_from_trashbin-aiohttp_app_token/file0.md</nc:trashbin-original-location><nc:trashbin-deletion-time>1742603869</nc:trashbin-deletion-time></d:prop><d:status>HTTP/1.1
-        200 OK</d:status></d:propstat></d:response><d:response><d:href>/remote.php/dav/trashbin/admin/trash/file0.md.d1742603867</d:href><d:propstat><d:prop><oc:fileid>33316</oc:fileid><d:resourcetype/><nc:trashbin-filename>file0.md</nc:trashbin-filename><nc:trashbin-original-location>.nextcloud-async-pytest/test_files-test_restore_from_trashbin-aiohttp_basic/file0.md</nc:trashbin-original-location><nc:trashbin-deletion-time>1742603867</nc:trashbin-deletion-time></d:prop><d:status>HTTP/1.1
-        200 OK</d:status></d:propstat></d:response><d:response><d:href>/remote.php/dav/trashbin/admin/trash/file0.md.d1742603821</d:href><d:propstat><d:prop><oc:fileid>33219</oc:fileid><d:resourcetype/><nc:trashbin-filename>file0.md</nc:trashbin-filename><nc:trashbin-original-location>.nextcloud-async-pytest/test_files-test_delete-httpx_app_token/file0.md</nc:trashbin-original-location><nc:trashbin-deletion-time>1742603821</nc:trashbin-deletion-time></d:prop><d:status>HTTP/1.1
-        200 OK</d:status></d:propstat></d:response><d:response><d:href>/remote.php/dav/trashbin/admin/trash/file0.md.d1742603820</d:href><d:propstat><d:prop><oc:fileid>33216</oc:fileid><d:resourcetype/><nc:trashbin-filename>file0.md</nc:trashbin-filename><nc:trashbin-original-location>.nextcloud-async-pytest/test_files-test_delete-httpx_basic/file0.md</nc:trashbin-original-location><nc:trashbin-deletion-time>1742603820</nc:trashbin-deletion-time></d:prop><d:status>HTTP/1.1
-        200 OK</d:status></d:propstat></d:response><d:response><d:href>/remote.php/dav/trashbin/admin/trash/file0.md.d1742603816</d:href><d:propstat><d:prop><oc:fileid>33213</oc:fileid><d:resourcetype/><nc:trashbin-filename>file0.md</nc:trashbin-filename><nc:trashbin-original-location>.nextcloud-async-pytest/test_files-test_delete-aiohttp_app_token/file0.md</nc:trashbin-original-location><nc:trashbin-deletion-time>1742603816</nc:trashbin-deletion-time></d:prop><d:status>HTTP/1.1
-        200 OK</d:status></d:propstat></d:response><d:response><d:href>/remote.php/dav/trashbin/admin/trash/file0.md.d1742603815</d:href><d:propstat><d:prop><oc:fileid>33208</oc:fileid><d:resourcetype/><nc:trashbin-filename>file0.md</nc:trashbin-filename><nc:trashbin-original-location>.nextcloud-async-pytest/test_files-test_delete-aiohttp_basic/file0.md</nc:trashbin-original-location><nc:trashbin-deletion-time>1742603815</nc:trashbin-deletion-time></d:prop><d:status>HTTP/1.1
-        200 OK</d:status></d:propstat></d:response><d:response><d:href>/remote.php/dav/trashbin/admin/trash/file4.md.d1742603811</d:href><d:propstat><d:prop><oc:fileid>33201</oc:fileid><d:resourcetype/><nc:trashbin-filename>file4.md</nc:trashbin-filename><nc:trashbin-original-location>.nextcloud-async-pytest/test_files-test_move_exists_with_overwrite-httpx_app_token/file4.md</nc:trashbin-original-location><nc:trashbin-deletion-time>1742603811</nc:trashbin-deletion-time></d:prop><d:status>HTTP/1.1
-        200 OK</d:status></d:propstat></d:response><d:response><d:href>/remote.php/dav/trashbin/admin/trash/file4.md.d1742603808</d:href><d:propstat><d:prop><oc:fileid>33188</oc:fileid><d:resourcetype/><nc:trashbin-filename>file4.md</nc:trashbin-filename><nc:trashbin-original-location>.nextcloud-async-pytest/test_files-test_move_exists_with_overwrite-httpx_basic/file4.md</nc:trashbin-original-location><nc:trashbin-deletion-time>1742603808</nc:trashbin-deletion-time></d:prop><d:status>HTTP/1.1
-        200 OK</d:status></d:propstat></d:response><d:response><d:href>/remote.php/dav/trashbin/admin/trash/file4.md.d1742603804</d:href><d:propstat><d:prop><oc:fileid>33182</oc:fileid><d:resourcetype/><nc:trashbin-filename>file4.md</nc:trashbin-filename><nc:trashbin-original-location>.nextcloud-async-pytest/test_files-test_move_exists_with_overwrite-aiohttp_app_token/file4.md</nc:trashbin-original-location><nc:trashbin-deletion-time>1742603804</nc:trashbin-deletion-time></d:prop><d:status>HTTP/1.1
-        200 OK</d:status></d:propstat></d:response><d:response><d:href>/remote.php/dav/trashbin/admin/trash/file4.md.d1742603801</d:href><d:propstat><d:prop><oc:fileid>33176</oc:fileid><d:resourcetype/><nc:trashbin-filename>file4.md</nc:trashbin-filename><nc:trashbin-original-location>.nextcloud-async-pytest/test_files-test_move_exists_with_overwrite-aiohttp_basic/file4.md</nc:trashbin-original-location><nc:trashbin-deletion-time>1742603801</nc:trashbin-deletion-time></d:prop><d:status>HTTP/1.1
-        200 OK</d:status></d:propstat></d:response><d:response><d:href>/remote.php/dav/trashbin/admin/trash/file1.md.d1742603750</d:href><d:propstat><d:prop><oc:fileid>33029</oc:fileid><d:resourcetype/><nc:trashbin-filename>file1.md</nc:trashbin-filename><nc:trashbin-original-location>.nextcloud-async-pytest/test_files-test_copy_exists_with_overwrite-httpx_app_token/file1.md</nc:trashbin-original-location><nc:trashbin-deletion-time>1742603750</nc:trashbin-deletion-time></d:prop><d:status>HTTP/1.1
-        200 OK</d:status></d:propstat></d:response><d:response><d:href>/remote.php/dav/trashbin/admin/trash/file1.md.d1742603748</d:href><d:propstat><d:prop><oc:fileid>33021</oc:fileid><d:resourcetype/><nc:trashbin-filename>file1.md</nc:trashbin-filename><nc:trashbin-original-location>.nextcloud-async-pytest/test_files-test_copy_exists_with_overwrite-httpx_basic/file1.md</nc:trashbin-original-location><nc:trashbin-deletion-time>1742603748</nc:trashbin-deletion-time></d:prop><d:status>HTTP/1.1
-        200 OK</d:status></d:propstat></d:response><d:response><d:href>/remote.php/dav/trashbin/admin/trash/file1.md.d1742603745</d:href><d:propstat><d:prop><oc:fileid>33006</oc:fileid><d:resourcetype/><nc:trashbin-filename>file1.md</nc:trashbin-filename><nc:trashbin-original-location>.nextcloud-async-pytest/test_files-test_copy_exists_with_overwrite-aiohttp_app_token/file1.md</nc:trashbin-original-location><nc:trashbin-deletion-time>1742603745</nc:trashbin-deletion-time></d:prop><d:status>HTTP/1.1
-        200 OK</d:status></d:propstat></d:response><d:response><d:href>/remote.php/dav/trashbin/admin/trash/file1.md.d1742603743</d:href><d:propstat><d:prop><oc:fileid>33002</oc:fileid><d:resourcetype/><nc:trashbin-filename>file1.md</nc:trashbin-filename><nc:trashbin-original-location>.nextcloud-async-pytest/test_files-test_copy_exists_with_overwrite-aiohttp_basic/file1.md</nc:trashbin-original-location><nc:trashbin-deletion-time>1742603743</nc:trashbin-deletion-time></d:prop><d:status>HTTP/1.1
-        200 OK</d:status></d:propstat></d:response><d:response><d:href>/remote.php/dav/trashbin/admin/trash/.nextcloud-async-pytest.d1742603647/</d:href><d:propstat><d:prop><oc:fileid>32438</oc:fileid><d:resourcetype><d:collection/></d:resourcetype><nc:trashbin-filename>.nextcloud-async-pytest</nc:trashbin-filename><nc:trashbin-original-location>.nextcloud-async-pytest</nc:trashbin-original-location><nc:trashbin-deletion-time>1742603647</nc:trashbin-deletion-time></d:prop><d:status>HTTP/1.1
+        404 Not Found</d:status></d:propstat></d:response><d:response><d:href>/remote.php/dav/trashbin/admin/trash/file0.md.d1743714425</d:href><d:propstat><d:prop><oc:fileid>456</oc:fileid><d:resourcetype/><nc:trashbin-filename>file0.md</nc:trashbin-filename><nc:trashbin-original-location>.nextcloud-async-pytest/test_files-test_restore_from_trashbin-httpx_basic/file0.md</nc:trashbin-original-location><nc:trashbin-deletion-time>1743714425</nc:trashbin-deletion-time></d:prop><d:status>HTTP/1.1
+        200 OK</d:status></d:propstat></d:response><d:response><d:href>/remote.php/dav/trashbin/admin/trash/file0.md.d1743714422</d:href><d:propstat><d:prop><oc:fileid>452</oc:fileid><d:resourcetype/><nc:trashbin-filename>file0.md</nc:trashbin-filename><nc:trashbin-original-location>.nextcloud-async-pytest/test_files-test_restore_from_trashbin-aiohttp_app_token/file0.md</nc:trashbin-original-location><nc:trashbin-deletion-time>1743714422</nc:trashbin-deletion-time></d:prop><d:status>HTTP/1.1
+        200 OK</d:status></d:propstat></d:response><d:response><d:href>/remote.php/dav/trashbin/admin/trash/file0.md.d1743714421</d:href><d:propstat><d:prop><oc:fileid>448</oc:fileid><d:resourcetype/><nc:trashbin-filename>file0.md</nc:trashbin-filename><nc:trashbin-original-location>.nextcloud-async-pytest/test_files-test_restore_from_trashbin-aiohttp_basic/file0.md</nc:trashbin-original-location><nc:trashbin-deletion-time>1743714421</nc:trashbin-deletion-time></d:prop><d:status>HTTP/1.1
+        200 OK</d:status></d:propstat></d:response><d:response><d:href>/remote.php/dav/trashbin/admin/trash/file0.md.d1743714385</d:href><d:propstat><d:prop><oc:fileid>398</oc:fileid><d:resourcetype/><nc:trashbin-filename>file0.md</nc:trashbin-filename><nc:trashbin-original-location>.nextcloud-async-pytest/test_files-test_delete-httpx_app_token/file0.md</nc:trashbin-original-location><nc:trashbin-deletion-time>1743714385</nc:trashbin-deletion-time></d:prop><d:status>HTTP/1.1
+        200 OK</d:status></d:propstat></d:response><d:response><d:href>/remote.php/dav/trashbin/admin/trash/file0.md.d1743714384</d:href><d:propstat><d:prop><oc:fileid>396</oc:fileid><d:resourcetype/><nc:trashbin-filename>file0.md</nc:trashbin-filename><nc:trashbin-original-location>.nextcloud-async-pytest/test_files-test_delete-httpx_basic/file0.md</nc:trashbin-original-location><nc:trashbin-deletion-time>1743714384</nc:trashbin-deletion-time></d:prop><d:status>HTTP/1.1
+        200 OK</d:status></d:propstat></d:response><d:response><d:href>/remote.php/dav/trashbin/admin/trash/file0.md.d1743714382</d:href><d:propstat><d:prop><oc:fileid>394</oc:fileid><d:resourcetype/><nc:trashbin-filename>file0.md</nc:trashbin-filename><nc:trashbin-original-location>.nextcloud-async-pytest/test_files-test_delete-aiohttp_app_token/file0.md</nc:trashbin-original-location><nc:trashbin-deletion-time>1743714382</nc:trashbin-deletion-time></d:prop><d:status>HTTP/1.1
+        200 OK</d:status></d:propstat></d:response><d:response><d:href>/remote.php/dav/trashbin/admin/trash/file0.md.d1743714381</d:href><d:propstat><d:prop><oc:fileid>392</oc:fileid><d:resourcetype/><nc:trashbin-filename>file0.md</nc:trashbin-filename><nc:trashbin-original-location>.nextcloud-async-pytest/test_files-test_delete-aiohttp_basic/file0.md</nc:trashbin-original-location><nc:trashbin-deletion-time>1743714381</nc:trashbin-deletion-time></d:prop><d:status>HTTP/1.1
+        200 OK</d:status></d:propstat></d:response><d:response><d:href>/remote.php/dav/trashbin/admin/trash/file4.md.d1743714379</d:href><d:propstat><d:prop><oc:fileid>390</oc:fileid><d:resourcetype/><nc:trashbin-filename>file4.md</nc:trashbin-filename><nc:trashbin-original-location>.nextcloud-async-pytest/test_files-test_move_exists_with_overwrite-httpx_app_token/file4.md</nc:trashbin-original-location><nc:trashbin-deletion-time>1743714379</nc:trashbin-deletion-time></d:prop><d:status>HTTP/1.1
+        200 OK</d:status></d:propstat></d:response><d:response><d:href>/remote.php/dav/trashbin/admin/trash/file4.md.d1743714377</d:href><d:propstat><d:prop><oc:fileid>384</oc:fileid><d:resourcetype/><nc:trashbin-filename>file4.md</nc:trashbin-filename><nc:trashbin-original-location>.nextcloud-async-pytest/test_files-test_move_exists_with_overwrite-httpx_basic/file4.md</nc:trashbin-original-location><nc:trashbin-deletion-time>1743714377</nc:trashbin-deletion-time></d:prop><d:status>HTTP/1.1
+        200 OK</d:status></d:propstat></d:response><d:response><d:href>/remote.php/dav/trashbin/admin/trash/file4.md.d1743714373</d:href><d:propstat><d:prop><oc:fileid>378</oc:fileid><d:resourcetype/><nc:trashbin-filename>file4.md</nc:trashbin-filename><nc:trashbin-original-location>.nextcloud-async-pytest/test_files-test_move_exists_with_overwrite-aiohttp_app_token/file4.md</nc:trashbin-original-location><nc:trashbin-deletion-time>1743714373</nc:trashbin-deletion-time></d:prop><d:status>HTTP/1.1
+        200 OK</d:status></d:propstat></d:response><d:response><d:href>/remote.php/dav/trashbin/admin/trash/file4.md.d1743714371</d:href><d:propstat><d:prop><oc:fileid>372</oc:fileid><d:resourcetype/><nc:trashbin-filename>file4.md</nc:trashbin-filename><nc:trashbin-original-location>.nextcloud-async-pytest/test_files-test_move_exists_with_overwrite-aiohttp_basic/file4.md</nc:trashbin-original-location><nc:trashbin-deletion-time>1743714371</nc:trashbin-deletion-time></d:prop><d:status>HTTP/1.1
+        200 OK</d:status></d:propstat></d:response><d:response><d:href>/remote.php/dav/trashbin/admin/trash/file1.md.d1743714331</d:href><d:propstat><d:prop><oc:fileid>289</oc:fileid><d:resourcetype/><nc:trashbin-filename>file1.md</nc:trashbin-filename><nc:trashbin-original-location>.nextcloud-async-pytest/test_files-test_copy_exists_with_overwrite-httpx_app_token/file1.md</nc:trashbin-original-location><nc:trashbin-deletion-time>1743714331</nc:trashbin-deletion-time></d:prop><d:status>HTTP/1.1
+        200 OK</d:status></d:propstat></d:response><d:response><d:href>/remote.php/dav/trashbin/admin/trash/file1.md.d1743714330</d:href><d:propstat><d:prop><oc:fileid>285</oc:fileid><d:resourcetype/><nc:trashbin-filename>file1.md</nc:trashbin-filename><nc:trashbin-original-location>.nextcloud-async-pytest/test_files-test_copy_exists_with_overwrite-httpx_basic/file1.md</nc:trashbin-original-location><nc:trashbin-deletion-time>1743714330</nc:trashbin-deletion-time></d:prop><d:status>HTTP/1.1
+        200 OK</d:status></d:propstat></d:response><d:response><d:href>/remote.php/dav/trashbin/admin/trash/file1.md.d1743714327</d:href><d:propstat><d:prop><oc:fileid>281</oc:fileid><d:resourcetype/><nc:trashbin-filename>file1.md</nc:trashbin-filename><nc:trashbin-original-location>.nextcloud-async-pytest/test_files-test_copy_exists_with_overwrite-aiohttp_app_token/file1.md</nc:trashbin-original-location><nc:trashbin-deletion-time>1743714327</nc:trashbin-deletion-time></d:prop><d:status>HTTP/1.1
+        200 OK</d:status></d:propstat></d:response><d:response><d:href>/remote.php/dav/trashbin/admin/trash/file1.md.d1743714326</d:href><d:propstat><d:prop><oc:fileid>277</oc:fileid><d:resourcetype/><nc:trashbin-filename>file1.md</nc:trashbin-filename><nc:trashbin-original-location>.nextcloud-async-pytest/test_files-test_copy_exists_with_overwrite-aiohttp_basic/file1.md</nc:trashbin-original-location><nc:trashbin-deletion-time>1743714326</nc:trashbin-deletion-time></d:prop><d:status>HTTP/1.1
+        200 OK</d:status></d:propstat></d:response><d:response><d:href>/remote.php/dav/trashbin/admin/trash/.nextcloud-async-pytest.d1743714217/</d:href><d:propstat><d:prop><oc:fileid>185</oc:fileid><d:resourcetype><d:collection/></d:resourcetype><nc:trashbin-filename>.nextcloud-async-pytest</nc:trashbin-filename><nc:trashbin-original-location>.nextcloud-async-pytest</nc:trashbin-original-location><nc:trashbin-deletion-time>1743714217</nc:trashbin-deletion-time></d:prop><d:status>HTTP/1.1
+        200 OK</d:status></d:propstat></d:response><d:response><d:href>/remote.php/dav/trashbin/admin/trash/.nextcloud-async-pytest.d1743714208/</d:href><d:propstat><d:prop><oc:fileid>180</oc:fileid><d:resourcetype><d:collection/></d:resourcetype><nc:trashbin-filename>.nextcloud-async-pytest</nc:trashbin-filename><nc:trashbin-original-location>.nextcloud-async-pytest</nc:trashbin-original-location><nc:trashbin-deletion-time>1743714208</nc:trashbin-deletion-time></d:prop><d:status>HTTP/1.1
         200 OK</d:status></d:propstat></d:response></d:multistatus>
 
         '
@@ -384,7 +385,7 @@ interactions:
       - 1, 3, extended-mkcol, access-control, calendarserver-principal-property-search,
         nextcloud-checksum-update, nc-calendar-search, nc-enable-birthday-calendar
       Date:
-      - Sat, 22 Mar 2025 00:37:53 GMT
+      - Thu, 03 Apr 2025 21:07:05 GMT
       Keep-Alive:
       - timeout=5, max=95
       Referrer-Policy:
@@ -396,21 +397,21 @@ interactions:
       X-Content-Type-Options:
       - nosniff
       X-Debug-Token:
-      - fWqJPjXBmNBoNDP6Abs5
+      - u1gGakgmGw35IqCc0Tvn
       X-Frame-Options:
       - SAMEORIGIN
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - fWqJPjXBmNBoNDP6Abs5
+      - u1gGakgmGw35IqCc0Tvn
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:
       - 1; mode=block
       content-length:
-      - '8343'
+      - '8797'
     status:
       code: 207
       message: Multi-Status

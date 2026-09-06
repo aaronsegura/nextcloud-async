@@ -30,10 +30,10 @@ class NextcloudModule(ABC):
     async def _get_raw(
         self,
         path: str = "",
+        headers: dict[str, Any] | None = None,
         data: Any | None = None,
         content: bytes | None = None,
         json: Any | None = None,
-        headers: dict[str, Any] | None = None,
     ) -> Any:
         return await self.driver.get_raw(
             path=f"{self.stub}{path}",
@@ -45,11 +45,12 @@ class NextcloudModule(ABC):
 
     async def _post(
         self,
+        path: str = "",
+        headers: dict[str, Any] | None = None,
         data: Any | None = None,
         content: bytes | None = None,
         json: Any | None = None,
-        path: str = "",
-        headers: dict[str, Any] | None = None,
+        file: bytes | None = None,
     ) -> Any:
         return await self.driver.post(
             path=f"{self.stub}{path}",
@@ -57,15 +58,17 @@ class NextcloudModule(ABC):
             headers=headers,
             content=content,
             json=json,
+            file=file,
         )
 
     async def _put(
         self,
+        path: str = "",
+        headers: dict[str, Any] | None = None,
         data: Any | None = None,
         content: bytes | None = None,
         json: Any | None = None,
-        path: str = "",
-        headers: dict[str, Any] | None = None,
+        file: bytes | None = None,
     ) -> Any:
         return await self.driver.put(
             path=f"{self.stub}{path}",
@@ -73,15 +76,16 @@ class NextcloudModule(ABC):
             headers=headers,
             content=content,
             json=json,
+            file=file,
         )
 
     async def _delete(
         self,
+        path: str = "",
+        headers: dict[str, Any] | None = None,
         data: Any | None = None,
         content: bytes | None = None,
         json: Any | None = None,
-        path: str = "",
-        headers: dict[str, Any] | None = None,
     ) -> Any:
         return await self.driver.delete(
             path=f"{self.stub}{path}",
@@ -94,97 +98,73 @@ class NextcloudModule(ABC):
     async def _propfind(
         self,
         path: str = "",
-        data: Any | None = None,
-        content: bytes | None = None,
-        json: Any | None = None,
         headers: dict[str, Any] | None = None,
+        data: Any | None = None,
     ) -> Any:
         return await self.driver.propfind(
             path=f"{self.stub}{path}",
-            data=data,
             headers=headers,
-            content=content,
-            json=json,
+            data=data,
         )
 
     async def _mkcol(
         self,
         path: str = "",
-        data: Any | None = None,
-        content: bytes | None = None,
-        json: Any | None = None,
         headers: dict[str, Any] | None = None,
+        data: Any | None = None,
     ) -> Any:
         return await self.driver.mkcol(
             path=f"{self.stub}{path}",
-            data=data,
             headers=headers,
-            content=content,
-            json=json,
+            data=data,
         )
 
     async def _move(
         self,
         path: str = "",
-        data: Any | None = None,
-        content: bytes | None = None,
-        json: Any | None = None,
         headers: dict[str, Any] | None = None,
+        data: Any | None = None,
     ) -> Any:
         return await self.driver.move(
             path=f"{self.stub}{path}",
             data=data,
             headers=headers,
-            content=content,
-            json=json,
         )
 
     async def _copy(
         self,
         path: str = "",
-        data: Any | None = None,
-        content: bytes | None = None,
-        json: Any | None = None,
         headers: dict[str, Any] | None = None,
+        data: Any | None = None,
     ) -> Any:
         return await self.driver.copy(
             path=f"{self.stub}{path}",
             data=data,
             headers=headers,
-            content=content,
-            json=json,
         )
 
     async def _proppatch(
         self,
         path: str = "",
-        data: Any | None = None,
-        content: bytes | None = None,
-        json: Any | None = None,
         headers: dict[str, Any] | None = None,
+        data: Any | None = None,
     ) -> Any:
         return await self.driver.proppatch(
             path=f"{self.stub}{path}",
-            data=data,
             headers=headers,
-            content=content,
-            json=json,
+            data=data,
         )
 
     async def _report(
         self,
         path: str = "",
-        data: Any | None = None,
-        content: bytes | None = None,
-        json: Any | None = None,
         headers: dict[str, Any] | None = None,
+        data: Any | None = None,
     ) -> Any:
         return await self.driver.report(
             path=f"{self.stub}{path}",
             data=data,
             headers=headers,
-            content=content,
-            json=json,
         )
 
 

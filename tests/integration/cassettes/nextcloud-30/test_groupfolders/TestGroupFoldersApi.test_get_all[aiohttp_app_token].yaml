@@ -17,41 +17,41 @@ interactions:
       Content-Type:
       - text/html; charset=UTF-8
       Date:
-      - Sat, 22 Mar 2025 00:34:08 GMT
+      - Fri, 04 Apr 2025 11:00:00 GMT
       OC-FileId:
-      - 00032642ocoguk96ketf
+      - 00000744ocdno3jvvu8a
       Referrer-Policy:
       - no-referrer
       Server:
       - Apache/2.4.62 (Debian)
       Set-Cookie:
-      - ocoguk96ketf=839d18481a06740e9118c14ef238bb81; path=/; HttpOnly; SameSite=Lax
-      - oc_sessionPassphrase=k76E7jP0hT6irXbWNvOnip2dKA1sqNFCrhd7b%2FiueommNcU5OwiXpbAm0DDYTznNdgppO8DWXreUkYo4S6%2B0xIeXH8zpDh0fiWe7AuM77v7XWEg4Q%2FG0mM%2FG5olRWMPx;
+      - ocdno3jvvu8a=ae514659aa3b725a4151533813e7de9c; path=/; HttpOnly; SameSite=Lax
+      - oc_sessionPassphrase=qj9tPMZb87zMsdI8qCJD7l0ww4Vdpha99ejoTWZ768bQ42KhBBrNJTUcXf%2B9OI8wg%2BVRjxrEvm0TkY1GdHqWhg7l7ci6eLWRykT7pisFt7AtETrLkimIz8gRGMP%2BJA1H;
         path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=839d18481a06740e9118c14ef238bb81; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=ae514659aa3b725a4151533813e7de9c; path=/; HttpOnly; SameSite=Lax
       - nc_sameSiteCookielax=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
         GMT; SameSite=lax
       - nc_sameSiteCookiestrict=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
         GMT; SameSite=strict
-      - ocoguk96ketf=839d18481a06740e9118c14ef238bb81; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=839d18481a06740e9118c14ef238bb81; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=839d18481a06740e9118c14ef238bb81; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=839d18481a06740e9118c14ef238bb81; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=839d18481a06740e9118c14ef238bb81; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=839d18481a06740e9118c14ef238bb81; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=839d18481a06740e9118c14ef238bb81; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=ae514659aa3b725a4151533813e7de9c; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=ae514659aa3b725a4151533813e7de9c; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=ae514659aa3b725a4151533813e7de9c; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=ae514659aa3b725a4151533813e7de9c; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=ae514659aa3b725a4151533813e7de9c; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=ae514659aa3b725a4151533813e7de9c; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=ae514659aa3b725a4151533813e7de9c; path=/; HttpOnly; SameSite=Lax
       X-Content-Type-Options:
       - nosniff
       X-Debug-Token:
-      - 0lMbbAsWZyqnN3rj6VRu
+      - iENeq89Fl4jN8dBewdjn
       X-Frame-Options:
       - SAMEORIGIN
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - 0lMbbAsWZyqnN3rj6VRu
+      - iENeq89Fl4jN8dBewdjn
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:
@@ -73,8 +73,8 @@ interactions:
         request","128":"Friends","256":"Password protected","512":"No Owner","1024":"Hidden","2048":"Backend","4096":"Local","8192":"Root","16384":"Team
         invite","32768":"Federated","65536":"Mount point"},"source":{"core":{"1":"Nextcloud
         Account","2":"Nextcloud Group","4":"Email address","8":"Contact","16":"Circle","10000":"Nextcloud
-        App"},"extra":{"10001":"Circles App","10002":"Admin Command Line"}}},"config":{"coreFlags":[1,2,4],"systemFlags":[512,1024,2048]}},"member":{"constants":{"level":{"1":"Member","4":"Moderator","8":"Admin","9":"Owner"}},"type":{"0":"single","1":"user","2":"group","4":"mail","8":"contact","16":"circle","10000":"app"}},"teamResourceProviders":["files","talk"]},"ocm":{"enabled":true,"apiVersion":"1.0-proposal1","endPoint":"http:\/\/localhost:8181\/ocm","resourceTypes":[{"name":"file","shareTypes":["user","group"],"protocols":{"webdav":"\/public.php\/webdav\/"}}]},"dav":{"chunking":"1.0","bulkupload":"1.0","absence-supported":true,"absence-replacement":true},"downloadlimit":{"enabled":true},"files_sharing":{"api_enabled":true,"public":{"enabled":true,"password":{"enforced":false,"askForOptionalPassword":false},"expire_date":{"enabled":false},"multiple_links":true,"expire_date_internal":{"enabled":false},"expire_date_remote":{"enabled":false},"send_mail":false,"upload":true,"upload_files_drop":true},"resharing":true,"user":{"send_mail":false,"expire_date":{"enabled":true}},"group_sharing":true,"group":{"enabled":true,"expire_date":{"enabled":true}},"default_permissions":31,"federation":{"outgoing":true,"incoming":true,"expire_date":{"enabled":true},"expire_date_supported":{"enabled":true}},"sharee":{"query_lookup_default":false,"always_show_unique":true},"sharebymail":{"enabled":true,"send_password_by_mail":true,"upload_files_drop":{"enabled":true},"password":{"enabled":true,"enforced":false},"expire_date":{"enabled":true,"enforced":false}}},"groupfolders":{"appVersion":"18.1.2","hasGroupFolders":false},"notifications":{"ocs-endpoints":["list","get","delete","delete-all","icons","rich-strings","action-web","user-status","exists"],"push":["devices","object-data","delete"],"admin-notifications":["ocs","cli"]},"password_policy":{"minLength":10,"enforceNonCommonPassword":true,"enforceNumericCharacters":false,"enforceSpecialCharacters":false,"enforceUpperLowerCase":false,"api":{"generate":"http:\/\/localhost:8181\/ocs\/v2.php\/apps\/password_policy\/api\/v1\/generate","validate":"http:\/\/localhost:8181\/ocs\/v2.php\/apps\/password_policy\/api\/v1\/validate"}},"provisioning_api":{"version":"1.20.0","AccountPropertyScopesVersion":2,"AccountPropertyScopesFederatedEnabled":true,"AccountPropertyScopesPublishedEnabled":true},"spreed":{"features":["audio","video","chat-v2","conversation-v4","guest-signaling","empty-group-room","guest-display-names","multi-room-users","favorites","last-room-activity","no-ping","system-messages","delete-messages","mention-flag","in-call-flags","conversation-call-flags","notification-levels","invite-groups-and-mails","locked-one-to-one-rooms","read-only-rooms","listable-rooms","chat-read-marker","chat-unread","webinary-lobby","start-call-flag","chat-replies","circles-support","force-mute","sip-support","sip-support-nopin","chat-read-status","phonebook-search","raise-hand","room-description","rich-object-sharing","temp-user-avatar-api","geo-location-sharing","voice-message-sharing","signaling-v3","publishing-permissions","clear-history","direct-mention-flag","notification-calls","conversation-permissions","rich-object-list-media","rich-object-delete","unified-search","chat-permission","silent-send","silent-call","send-call-notification","talk-polls","breakout-rooms-v1","recording-v1","avatar","chat-get-context","single-conversation-status","chat-keep-notifications","typing-privacy","remind-me-later","bots-v1","markdown-messages","media-caption","session-state","note-to-self","recording-consent","sip-support-dialout","delete-messages-unlimited","edit-messages","silent-send-state","chat-read-last","federation-v1","federation-v2","ban-v1","chat-reference-id","mention-permissions","edit-messages-note-to-self","archived-conversations-v2","talk-polls-drafts","download-call-participants","email-csv-import","call-notification-state-api","reactions"],"features-local":["favorites","chat-read-status","listable-rooms","phonebook-search","temp-user-avatar-api","unified-search","avatar","remind-me-later","note-to-self","archived-conversations-v2","chat-summary-api","call-notification-state-api"],"config":{"attachments":{"allowed":true,"folder":"\/Talk"},"call":{"enabled":true,"breakout-rooms":true,"recording":false,"recording-consent":0,"supported-reactions":["\u2764\ufe0f","\ud83c\udf89","\ud83d\udc4f","\ud83d\udc4b","\ud83d\udc4d","\ud83d\udc4e","\ud83d\udd25","\ud83d\ude02","\ud83e\udd29","\ud83e\udd14","\ud83d\ude32","\ud83d\ude25"],"can-upload-background":true,"sip-enabled":false,"sip-dialout-enabled":false,"can-enable-sip":true,"start-without-media":false,"max-duration":0,"blur-virtual-background":false,"predefined-backgrounds":["1_office.jpg","2_home.jpg","3_abstract.jpg","4_beach.jpg","5_park.jpg","6_theater.jpg","7_library.jpg","8_space_station.jpg"]},"chat":{"max-length":32000,"read-privacy":0,"has-translation-providers":false,"typing-privacy":0,"summary-threshold":100},"conversations":{"can-create":true},"federation":{"enabled":false,"incoming-enabled":false,"outgoing-enabled":false,"only-trusted-servers":true},"previews":{"max-gif-size":3145728},"signaling":{"session-ping-limit":200,"hello-v2-token-key":"-----BEGIN
-        PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEIV5osi53Bc0WoIxR3xk7zKdn9JtY\nG\/Z\/rDdqElfgVsjJt+UMQSuR2UbeKy4sEbB7phQE+CVXactaoT+YrNVCcw==\n-----END
+        App"},"extra":{"10001":"Circles App","10002":"Admin Command Line"}}},"config":{"coreFlags":[1,2,4],"systemFlags":[512,1024,2048]}},"member":{"constants":{"level":{"1":"Member","4":"Moderator","8":"Admin","9":"Owner"}},"type":{"0":"single","1":"user","2":"group","4":"mail","8":"contact","16":"circle","10000":"app"}},"teamResourceProviders":["files","talk"]},"ocm":{"enabled":true,"apiVersion":"1.0-proposal1","endPoint":"http:\/\/localhost:8181\/ocm","resourceTypes":[{"name":"file","shareTypes":["user","group"],"protocols":{"webdav":"\/public.php\/webdav\/"}}]},"dav":{"chunking":"1.0","bulkupload":"1.0","absence-supported":true,"absence-replacement":true},"downloadlimit":{"enabled":true},"files_sharing":{"api_enabled":true,"public":{"enabled":true,"password":{"enforced":false,"askForOptionalPassword":false},"expire_date":{"enabled":false},"multiple_links":true,"expire_date_internal":{"enabled":false},"expire_date_remote":{"enabled":false},"send_mail":false,"upload":true,"upload_files_drop":true},"resharing":true,"user":{"send_mail":false,"expire_date":{"enabled":true}},"group_sharing":true,"group":{"enabled":true,"expire_date":{"enabled":true}},"default_permissions":31,"federation":{"outgoing":true,"incoming":true,"expire_date":{"enabled":true},"expire_date_supported":{"enabled":true}},"sharee":{"query_lookup_default":false,"always_show_unique":true},"sharebymail":{"enabled":true,"send_password_by_mail":true,"upload_files_drop":{"enabled":true},"password":{"enabled":true,"enforced":false},"expire_date":{"enabled":true,"enforced":false}}},"groupfolders":{"appVersion":"18.1.2","hasGroupFolders":false},"notifications":{"ocs-endpoints":["list","get","delete","delete-all","icons","rich-strings","action-web","user-status","exists"],"push":["devices","object-data","delete"],"admin-notifications":["ocs","cli"]},"password_policy":{"minLength":10,"enforceNonCommonPassword":true,"enforceNumericCharacters":false,"enforceSpecialCharacters":false,"enforceUpperLowerCase":false,"api":{"generate":"http:\/\/localhost:8181\/ocs\/v2.php\/apps\/password_policy\/api\/v1\/generate","validate":"http:\/\/localhost:8181\/ocs\/v2.php\/apps\/password_policy\/api\/v1\/validate"}},"provisioning_api":{"version":"1.20.0","AccountPropertyScopesVersion":2,"AccountPropertyScopesFederatedEnabled":true,"AccountPropertyScopesPublishedEnabled":true},"spreed":{"features":["audio","video","chat-v2","conversation-v4","guest-signaling","empty-group-room","guest-display-names","multi-room-users","favorites","last-room-activity","no-ping","system-messages","delete-messages","mention-flag","in-call-flags","conversation-call-flags","notification-levels","invite-groups-and-mails","locked-one-to-one-rooms","read-only-rooms","listable-rooms","chat-read-marker","chat-unread","webinary-lobby","start-call-flag","chat-replies","circles-support","force-mute","sip-support","sip-support-nopin","chat-read-status","phonebook-search","raise-hand","room-description","rich-object-sharing","temp-user-avatar-api","geo-location-sharing","voice-message-sharing","signaling-v3","publishing-permissions","clear-history","direct-mention-flag","notification-calls","conversation-permissions","rich-object-list-media","rich-object-delete","unified-search","chat-permission","silent-send","silent-call","send-call-notification","talk-polls","breakout-rooms-v1","recording-v1","avatar","chat-get-context","single-conversation-status","chat-keep-notifications","typing-privacy","remind-me-later","bots-v1","markdown-messages","media-caption","session-state","note-to-self","recording-consent","sip-support-dialout","delete-messages-unlimited","edit-messages","silent-send-state","chat-read-last","federation-v1","federation-v2","ban-v1","chat-reference-id","mention-permissions","edit-messages-note-to-self","archived-conversations-v2","talk-polls-drafts","download-call-participants","email-csv-import","call-notification-state-api","message-expiration","reactions"],"features-local":["favorites","chat-read-status","listable-rooms","phonebook-search","temp-user-avatar-api","unified-search","avatar","remind-me-later","note-to-self","archived-conversations-v2","chat-summary-api","call-notification-state-api"],"config":{"attachments":{"allowed":true,"folder":"\/Talk"},"call":{"enabled":true,"breakout-rooms":true,"recording":false,"recording-consent":0,"supported-reactions":["\u2764\ufe0f","\ud83c\udf89","\ud83d\udc4f","\ud83d\udc4b","\ud83d\udc4d","\ud83d\udc4e","\ud83d\udd25","\ud83d\ude02","\ud83e\udd29","\ud83e\udd14","\ud83d\ude32","\ud83d\ude25"],"can-upload-background":true,"sip-enabled":false,"sip-dialout-enabled":false,"can-enable-sip":true,"start-without-media":false,"max-duration":0,"blur-virtual-background":false,"predefined-backgrounds":["1_office.jpg","2_home.jpg","3_abstract.jpg","4_beach.jpg","5_park.jpg","6_theater.jpg","7_library.jpg","8_space_station.jpg"]},"chat":{"max-length":32000,"read-privacy":0,"has-translation-providers":false,"typing-privacy":0,"summary-threshold":100},"conversations":{"can-create":true},"federation":{"enabled":false,"incoming-enabled":false,"outgoing-enabled":false,"only-trusted-servers":true},"previews":{"max-gif-size":3145728},"signaling":{"session-ping-limit":200,"hello-v2-token-key":"-----BEGIN
+        PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEj6t4lB5BN7GwcrIYkqgfbAN0xUu9\nblUm7QQw+XHGRG6k\/zGoqsFYRE++x5YwzTrsL6gA\/ZBNu7E3\/Pi\/xJk8xg==\n-----END
         PUBLIC KEY-----\n"}},"config-local":{"attachments":["allowed","folder"],"call":["predefined-backgrounds","can-upload-background","start-without-media","blur-virtual-background"],"chat":["read-privacy","has-translation-providers","typing-privacy","summary-threshold"],"conversations":["can-create"],"federation":["enabled","incoming-enabled","outgoing-enabled","only-trusted-servers"],"previews":["max-gif-size"],"signaling":["session-ping-limit","hello-v2-token-key"]},"version":"20.1.5"},"systemtags":{"enabled":true},"theming":{"name":"Nextcloud","url":"https:\/\/nextcloud.com","slogan":"a
         safe home for all your data","color":"#00679e","color-text":"#ffffff","color-element":"#00679e","color-element-bright":"#00679e","color-element-dark":"#00679e","logo":"http:\/\/localhost:8181\/core\/img\/logo\/logo.svg?v=0","background":"http:\/\/localhost:8181\/apps\/theming\/img\/background\/jenna-kim-the-globe.webp","background-text":"#ffffff","background-plain":false,"background-default":true,"logoheader":"http:\/\/localhost:8181\/core\/img\/logo\/logo.svg?v=0","favicon":"http:\/\/localhost:8181\/core\/img\/logo\/logo.svg?v=0"},"user_status":{"enabled":true,"restore":true,"supports_emoji":true},"weather_status":{"enabled":true}}}}}'
     headers:
@@ -85,9 +85,9 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sat, 22 Mar 2025 00:34:08 GMT
+      - Fri, 04 Apr 2025 11:00:00 GMT
       Etag:
-      - '"fb5bfbb0ae9a3c399c733316ce5f76b8"'
+      - '"b21a11f025fff96d6333192beae9d2b9"'
       Feature-Policy:
       - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
         'none';payment 'none'
@@ -102,15 +102,15 @@ interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - sH2fD8FhohXXOJhbdKct
+      - 7KEoHfyGAQPr2UOzFanQ
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:
       - 1; mode=block
       content-length:
-      - '8522'
+      - '8545'
     status:
       code: 200
       message: OK
@@ -127,7 +127,7 @@ interactions:
     uri: http://localhost:8181/index.php/apps/groupfolders/folders
   response:
     body:
-      string: '{"ocs":{"meta":{"status":"ok","statuscode":100,"message":"OK","totalitems":"","itemsperpage":""},"data":{"id":4734,"mount_point":"\/.nextcloud-async-pytest\/test_groupfolders-test_get_all-aiohttp_app_token\/groupfolder_aiohttp_app_token_0","groups":[],"quota":-3,"size":0,"acl":false,"manage":[],"group_details":[]}}}'
+      string: '{"ocs":{"meta":{"status":"ok","statuscode":100,"message":"OK","totalitems":"","itemsperpage":""},"data":{"id":136,"mount_point":"\/.nextcloud-async-pytest\/test_groupfolders-test_get_all-aiohttp_app_token\/groupfolder_aiohttp_app_token_0","groups":[],"quota":-3,"size":0,"acl":false,"manage":[],"group_details":[]}}}'
     headers:
       Cache-Control:
       - no-cache, no-store, must-revalidate
@@ -136,7 +136,7 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sat, 22 Mar 2025 00:34:08 GMT
+      - Fri, 04 Apr 2025 11:00:00 GMT
       Feature-Policy:
       - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
         'none';payment 'none'
@@ -151,15 +151,15 @@ interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - 9CAN5MliLzhskQz2yv5I
+      - oi2zSSIyERZID9ksZnpE
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:
       - 1; mode=block
       content-length:
-      - '317'
+      - '316'
     status:
       code: 200
       message: OK
@@ -176,7 +176,7 @@ interactions:
     uri: http://localhost:8181/index.php/apps/groupfolders/folders
   response:
     body:
-      string: '{"ocs":{"meta":{"status":"ok","statuscode":100,"message":"OK","totalitems":"","itemsperpage":""},"data":{"id":4735,"mount_point":"\/.nextcloud-async-pytest\/test_groupfolders-test_get_all-aiohttp_app_token\/groupfolder_aiohttp_app_token_1","groups":[],"quota":-3,"size":0,"acl":false,"manage":[],"group_details":[]}}}'
+      string: '{"ocs":{"meta":{"status":"ok","statuscode":100,"message":"OK","totalitems":"","itemsperpage":""},"data":{"id":137,"mount_point":"\/.nextcloud-async-pytest\/test_groupfolders-test_get_all-aiohttp_app_token\/groupfolder_aiohttp_app_token_1","groups":[],"quota":-3,"size":0,"acl":false,"manage":[],"group_details":[]}}}'
     headers:
       Cache-Control:
       - no-cache, no-store, must-revalidate
@@ -185,7 +185,7 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sat, 22 Mar 2025 00:34:08 GMT
+      - Fri, 04 Apr 2025 11:00:00 GMT
       Feature-Policy:
       - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
         'none';payment 'none'
@@ -200,15 +200,15 @@ interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - UOXmXaUguVdTXHD715aN
+      - rt8lWvyNZ21VFMX6MGZO
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:
       - 1; mode=block
       content-length:
-      - '317'
+      - '316'
     status:
       code: 200
       message: OK
@@ -225,7 +225,7 @@ interactions:
     uri: http://localhost:8181/index.php/apps/groupfolders/folders
   response:
     body:
-      string: '{"ocs":{"meta":{"status":"ok","statuscode":100,"message":"OK","totalitems":"","itemsperpage":""},"data":{"id":4736,"mount_point":"\/.nextcloud-async-pytest\/test_groupfolders-test_get_all-aiohttp_app_token\/groupfolder_aiohttp_app_token_2","groups":[],"quota":-3,"size":0,"acl":false,"manage":[],"group_details":[]}}}'
+      string: '{"ocs":{"meta":{"status":"ok","statuscode":100,"message":"OK","totalitems":"","itemsperpage":""},"data":{"id":138,"mount_point":"\/.nextcloud-async-pytest\/test_groupfolders-test_get_all-aiohttp_app_token\/groupfolder_aiohttp_app_token_2","groups":[],"quota":-3,"size":0,"acl":false,"manage":[],"group_details":[]}}}'
     headers:
       Cache-Control:
       - no-cache, no-store, must-revalidate
@@ -234,7 +234,7 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sat, 22 Mar 2025 00:34:08 GMT
+      - Fri, 04 Apr 2025 11:00:00 GMT
       Feature-Policy:
       - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
         'none';payment 'none'
@@ -249,15 +249,15 @@ interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - CHNKJFa5VInSP1NoVoCd
+      - JuHr8b9cpAdOx8sFj3ha
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:
       - 1; mode=block
       content-length:
-      - '317'
+      - '316'
     status:
       code: 200
       message: OK
@@ -272,7 +272,7 @@ interactions:
     uri: http://localhost:8181/index.php/apps/groupfolders/folders?format=json
   response:
     body:
-      string: '{"ocs":{"meta":{"status":"ok","statuscode":100,"message":"OK","totalitems":"","itemsperpage":""},"data":{"4582":{"id":4582,"mount_point":"\/.nextcloud-async-pytest\/test_groupfolders-test_add_group_folder_advanced_permissions-aiohttp_basic\/groupfolder_aiohttp_basic_1","groups":[],"quota":-3,"size":0,"acl":true,"manage":[],"group_details":[]},"4583":{"id":4583,"mount_point":"\/.nextcloud-async-pytest\/test_groupfolders-test_add_group_folder_advanced_permissions-aiohttp_basic\/groupfolder_aiohttp_basic_2","groups":[],"quota":-3,"size":0,"acl":false,"manage":[],"group_details":[]},"4585":{"id":4585,"mount_point":"\/.nextcloud-async-pytest\/test_groupfolders-test_add_group_folder_advanced_permissions-aiohttp_basic\/groupfolder_aiohttp_basic_1","groups":[],"quota":-3,"size":0,"acl":true,"manage":[],"group_details":[]},"4586":{"id":4586,"mount_point":"\/.nextcloud-async-pytest\/test_groupfolders-test_add_group_folder_advanced_permissions-aiohttp_basic\/groupfolder_aiohttp_basic_2","groups":[],"quota":-3,"size":0,"acl":false,"manage":[],"group_details":[]},"4588":{"id":4588,"mount_point":"\/.nextcloud-async-pytest\/test_groupfolders-test_add_group_folder_advanced_permissions-aiohttp_basic\/groupfolder_aiohttp_basic_1","groups":[],"quota":-3,"size":0,"acl":true,"manage":[],"group_details":[]},"4589":{"id":4589,"mount_point":"\/.nextcloud-async-pytest\/test_groupfolders-test_add_group_folder_advanced_permissions-aiohttp_basic\/groupfolder_aiohttp_basic_2","groups":[],"quota":-3,"size":0,"acl":false,"manage":[],"group_details":[]},"4591":{"id":4591,"mount_point":"\/.nextcloud-async-pytest\/test_groupfolders-test_add_group_folder_advanced_permissions-aiohttp_basic\/groupfolder_aiohttp_basic_1","groups":[],"quota":-3,"size":0,"acl":true,"manage":[],"group_details":[]},"4592":{"id":4592,"mount_point":"\/.nextcloud-async-pytest\/test_groupfolders-test_add_group_folder_advanced_permissions-aiohttp_basic\/groupfolder_aiohttp_basic_2","groups":[],"quota":-3,"size":0,"acl":false,"manage":[],"group_details":[]},"4594":{"id":4594,"mount_point":"\/.nextcloud-async-pytest\/test_groupfolders-test_add_group_folder_advanced_permissions-aiohttp_basic\/groupfolder_aiohttp_basic_1","groups":[],"quota":-3,"size":0,"acl":true,"manage":[],"group_details":[]},"4595":{"id":4595,"mount_point":"\/.nextcloud-async-pytest\/test_groupfolders-test_add_group_folder_advanced_permissions-aiohttp_basic\/groupfolder_aiohttp_basic_2","groups":[],"quota":-3,"size":0,"acl":false,"manage":[],"group_details":[]},"4734":{"id":4734,"mount_point":"\/.nextcloud-async-pytest\/test_groupfolders-test_get_all-aiohttp_app_token\/groupfolder_aiohttp_app_token_0","groups":[],"quota":-3,"size":0,"acl":false,"manage":[],"group_details":[]},"4735":{"id":4735,"mount_point":"\/.nextcloud-async-pytest\/test_groupfolders-test_get_all-aiohttp_app_token\/groupfolder_aiohttp_app_token_1","groups":[],"quota":-3,"size":0,"acl":false,"manage":[],"group_details":[]},"4736":{"id":4736,"mount_point":"\/.nextcloud-async-pytest\/test_groupfolders-test_get_all-aiohttp_app_token\/groupfolder_aiohttp_app_token_2","groups":[],"quota":-3,"size":0,"acl":false,"manage":[],"group_details":[]}}}}'
+      string: '{"ocs":{"meta":{"status":"ok","statuscode":100,"message":"OK","totalitems":"","itemsperpage":""},"data":{"136":{"id":136,"mount_point":"\/.nextcloud-async-pytest\/test_groupfolders-test_get_all-aiohttp_app_token\/groupfolder_aiohttp_app_token_0","groups":[],"quota":-3,"size":0,"acl":false,"manage":[],"group_details":[]},"137":{"id":137,"mount_point":"\/.nextcloud-async-pytest\/test_groupfolders-test_get_all-aiohttp_app_token\/groupfolder_aiohttp_app_token_1","groups":[],"quota":-3,"size":0,"acl":false,"manage":[],"group_details":[]},"138":{"id":138,"mount_point":"\/.nextcloud-async-pytest\/test_groupfolders-test_get_all-aiohttp_app_token\/groupfolder_aiohttp_app_token_2","groups":[],"quota":-3,"size":0,"acl":false,"manage":[],"group_details":[]}}}}'
     headers:
       Cache-Control:
       - no-cache, no-store, must-revalidate
@@ -281,7 +281,7 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sat, 22 Mar 2025 00:34:09 GMT
+      - Fri, 04 Apr 2025 11:00:00 GMT
       Feature-Policy:
       - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
         'none';payment 'none'
@@ -296,15 +296,15 @@ interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - 5KGhGnoJGu78qIYGZZZa
+      - CVYPpvOZyS3JndFVifoM
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:
       - 1; mode=block
       content-length:
-      - '3169'
+      - '758'
     status:
       code: 200
       message: OK
@@ -317,7 +317,7 @@ interactions:
       User-Agent:
       - nextcloud-async-pytest/0.1.0b0
     method: DELETE
-    uri: http://localhost:8181/index.php/apps/groupfolders/folders/4734
+    uri: http://localhost:8181/index.php/apps/groupfolders/folders/136
   response:
     body:
       string: '{"ocs":{"meta":{"status":"ok","statuscode":100,"message":"OK","totalitems":"","itemsperpage":""},"data":{"success":true}}}'
@@ -329,7 +329,7 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sat, 22 Mar 2025 00:34:09 GMT
+      - Fri, 04 Apr 2025 11:00:00 GMT
       Feature-Policy:
       - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
         'none';payment 'none'
@@ -344,57 +344,9 @@ interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - AvGkUIAWY5byQiQjgZYp
-      X-Robots-Tag:
-      - noindex, nofollow
-      X-XSS-Protection:
-      - 1; mode=block
-      content-length:
-      - '122'
-    status:
-      code: 200
-      message: OK
-- request:
-    body:
-      format: json
-    headers:
-      OCS-APIRequest:
-      - 'true'
-      User-Agent:
-      - nextcloud-async-pytest/0.1.0b0
-    method: DELETE
-    uri: http://localhost:8181/index.php/apps/groupfolders/folders/4735
-  response:
-    body:
-      string: '{"ocs":{"meta":{"status":"ok","statuscode":100,"message":"OK","totalitems":"","itemsperpage":""},"data":{"success":true}}}'
-    headers:
-      Cache-Control:
-      - no-cache, no-store, must-revalidate
-      Content-Security-Policy:
-      - default-src 'none';base-uri 'none';manifest-src 'self';frame-ancestors 'none'
-      Content-Type:
-      - application/json; charset=utf-8
-      Date:
-      - Sat, 22 Mar 2025 00:34:09 GMT
-      Feature-Policy:
-      - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
-        'none';payment 'none'
-      Referrer-Policy:
-      - no-referrer
-      Server:
-      - Apache/2.4.62 (Debian)
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - SAMEORIGIN
-      X-Permitted-Cross-Domain-Policies:
-      - none
-      X-Powered-By:
-      - PHP/8.2.27
-      X-Request-Id:
-      - IOLmevtKzNhJRGhbtnqh
+      - vRSrU0aP93VP5v5RZvIJ
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:
@@ -413,7 +365,7 @@ interactions:
       User-Agent:
       - nextcloud-async-pytest/0.1.0b0
     method: DELETE
-    uri: http://localhost:8181/index.php/apps/groupfolders/folders/4736
+    uri: http://localhost:8181/index.php/apps/groupfolders/folders/137
   response:
     body:
       string: '{"ocs":{"meta":{"status":"ok","statuscode":100,"message":"OK","totalitems":"","itemsperpage":""},"data":{"success":true}}}'
@@ -425,7 +377,7 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sat, 22 Mar 2025 00:34:09 GMT
+      - Fri, 04 Apr 2025 11:00:00 GMT
       Feature-Policy:
       - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
         'none';payment 'none'
@@ -440,9 +392,57 @@ interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - PYsyvoksq9ZvfX8Q0DXR
+      - DxbErLnHBP6ldayKhWCo
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+      content-length:
+      - '122'
+    status:
+      code: 200
+      message: OK
+- request:
+    body:
+      format: json
+    headers:
+      OCS-APIRequest:
+      - 'true'
+      User-Agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: DELETE
+    uri: http://localhost:8181/index.php/apps/groupfolders/folders/138
+  response:
+    body:
+      string: '{"ocs":{"meta":{"status":"ok","statuscode":100,"message":"OK","totalitems":"","itemsperpage":""},"data":{"success":true}}}'
+    headers:
+      Cache-Control:
+      - no-cache, no-store, must-revalidate
+      Content-Security-Policy:
+      - default-src 'none';base-uri 'none';manifest-src 'self';frame-ancestors 'none'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Fri, 04 Apr 2025 11:00:00 GMT
+      Feature-Policy:
+      - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
+        'none';payment 'none'
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.28
+      X-Request-Id:
+      - yow1iAoY52y1V6pdrUmw
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:

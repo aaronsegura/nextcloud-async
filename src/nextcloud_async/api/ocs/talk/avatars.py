@@ -5,35 +5,42 @@ Requires capability: avatar
 https://nextcloud-talk.readthedocs.io/en/latest/avatar/
 """
 
+from typing import Any
+
+import aiofile
+
 from nextcloud_async.api.modules import NextcloudModule
 from nextcloud_async.driver import NextcloudTalkDriver
 
 
 class ConversationAvatarsApi(NextcloudModule):
-    def __init__(self, api: NextcloudTalkDriver, api_version: str = "1") -> None:
+    def __init__(self, driver: NextcloudTalkDriver, api_version: str = "1") -> None:
         self.stub = f"/apps/spreed/api/v{api_version}"
-        self.api: NextcloudTalkDriver = api
+        self.driver: NextcloudTalkDriver = driver
 
     async def _validate_capability(self) -> None:
-        await self.api.require_feature("avatar")
+        await self.driver.require_feature("avatar")
 
-    async def set_image(self, room_token: str, image_data: bytes) -> None:
+    async def set_image(self, room_token: str, filename: str) -> dict[str, Any]:
         """Set conversations avatar.
 
         Args:
             room_token:
                 Token of conversation
 
-            image_data:
-                Image data
+            filename:
+                Image file name
 
         """
         await self._validate_capability()
-        await self._post(path=f"/room/{room_token}/avatar", data={"file": image_data})
+        async with aiofile.async_open(filename, "rb") as fp:
+            return await self._post(
+                path=f"/room/{room_token}/avatar", file=await fp.read()
+            )
 
     async def set_emoji(
         self, room_token: str, emoji: str, color: str | None = None
-    ) -> None:
+    ) -> dict[str, Any]:
         """Set emoji as avatar.
 
         Args:
@@ -49,12 +56,12 @@ class ConversationAvatarsApi(NextcloudModule):
 
         """
         await self._validate_capability()
-        await self._post(
+        return await self._post(
             path=f"/room/{room_token}/avatar/emoji",
             data={"emoji": emoji, "color": color},
         )
 
-    async def delete(self, room_token: str) -> None:
+    async def delete(self, room_token: str) -> dict[str, Any]:
         """Delete conversation avatar.
 
         To determine if the delete option should be presented to the user, it's
@@ -66,7 +73,7 @@ class ConversationAvatarsApi(NextcloudModule):
 
         """
         await self._validate_capability()
-        await self._delete(path=f"/room/{room_token}/avatar")
+        return await self._delete(path=f"/room/{room_token}/avatar")
 
     async def get(self, room_token: str, dark_mode: bool = False) -> bytes:
         """Get conversations avatar (binary).
@@ -112,19 +119,19 @@ class ConversationAvatarsApi(NextcloudModule):
             Image data
 
         """
-        await self.api.require_feature("avatar")
-        await self.api.require_feature("federated-v1")
+        await self.driver.require_feature("avatar")
+        await self.driver.require_feature("federated-v1")
 
         if dark_mode:
-            response = await self.api.client.http_client.request(
+            response = await self.driver.client.http_client.request(
                 method="GET",
-                url=f"{self.api.client.endpoint}/ocs/v2.php/apps/spreed/api/v1/proxy/{room_token}/user-avatar/{size}/dark",
+                url=f"{self.driver.client.endpoint}/ocs/v2.php/apps/spreed/api/v1/proxy/{room_token}/user-avatar/{size}/dark",
                 data={"cloudId": cloud_id, "size": size},
             )
         else:
-            response = await self.api.client.http_client.request(
+            response = await self.driver.client.http_client.request(
                 method="GET",
-                url=f"{self.api.client.endpoint}/ocs/v2.php/apps/spreed/api/v1/proxy/{room_token}/user-avatar/{size}",
+                url=f"{self.driver.client.endpoint}/ocs/v2.php/apps/spreed/api/v1/proxy/{room_token}/user-avatar/{size}",
                 data={"cloudId": cloud_id, "size": size},
             )
 

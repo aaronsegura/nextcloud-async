@@ -1,0 +1,35 @@
+image:
+  tag: "29"
+
+nextcloud:
+  host: v29-nextcloud
+  trustedDomains:
+    - v29-nextcloud
+    - localhost
+  password: admin
+  configs:
+    local-federation.config.php: |-
+      <?php
+      $CONFIG = array (
+        'allow_local_remote_servers' => true,
+      );
+      ?>
+
+ingress:
+  enabled: true
+
+cronjob:
+  enabled: true
+
+internalDatabase:
+  enabled: false
+
+externalDatabase:
+  enabled: true
+  type: mysql
+
+mariadb:
+  enabled: true
+  auth:
+    password: nextcloud
+    rootPassword: rootpassword

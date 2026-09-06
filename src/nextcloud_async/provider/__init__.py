@@ -90,6 +90,7 @@ class HttpClientProvider(Protocol):
         data: dict[str, Any] | None = None,
         content: bytes | None = None,
         json: Any | None = None,
+        file: bytes | None = None,
     ) -> Any:
         """Make an HTTP Request."""
 

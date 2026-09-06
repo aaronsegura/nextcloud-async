@@ -30,7 +30,7 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sat, 22 Mar 2025 01:00:43 GMT
+      - Fri, 04 Apr 2025 11:14:09 GMT
       Feature-Policy:
       - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
         'none';payment 'none'
@@ -41,21 +41,21 @@ interactions:
       Server:
       - Apache/2.4.62 (Debian)
       Set-Cookie:
-      - ocoguk96ketf=951d24ccdf6c2c735527791661daa412; path=/; HttpOnly; SameSite=Lax
-      - oc_sessionPassphrase=96amcEuCnRCX0MD9g%2BtSlh9KIicKBb2Vrr%2F5lwNQEsImAiUWNzEgNg3Pf%2B%2F8FhzR2lOMzpYwf2xqEAdlQFCwk5ekBoKhdhUEjfo6kXnaJ0KMRZ9ucKjZRk4a8p4m%2BHBX;
+      - ocdno3jvvu8a=d7f282fb710ced976f69c05c015aba12; path=/; HttpOnly; SameSite=Lax
+      - oc_sessionPassphrase=ZD48lAx7ZQicPhX0iXHJs02N7Sho0rl7JkzwDtwpdceq2esdGyHZ6akFE4a6gfAgEje%2Ff42JzrmgV2jcqo%2BSKxSHShLsS%2F2Zt1YoFy9%2FFOKYtpjXFu950oAnBS0e5aue;
         path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=951d24ccdf6c2c735527791661daa412; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=d7f282fb710ced976f69c05c015aba12; path=/; HttpOnly; SameSite=Lax
       - nc_sameSiteCookielax=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
         GMT; SameSite=lax
       - nc_sameSiteCookiestrict=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
         GMT; SameSite=strict
-      - ocoguk96ketf=951d24ccdf6c2c735527791661daa412; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=951d24ccdf6c2c735527791661daa412; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=951d24ccdf6c2c735527791661daa412; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=951d24ccdf6c2c735527791661daa412; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=951d24ccdf6c2c735527791661daa412; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=951d24ccdf6c2c735527791661daa412; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=951d24ccdf6c2c735527791661daa412; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=d7f282fb710ced976f69c05c015aba12; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=d7f282fb710ced976f69c05c015aba12; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=d7f282fb710ced976f69c05c015aba12; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=d7f282fb710ced976f69c05c015aba12; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=d7f282fb710ced976f69c05c015aba12; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=d7f282fb710ced976f69c05c015aba12; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=d7f282fb710ced976f69c05c015aba12; path=/; HttpOnly; SameSite=Lax
       X-Content-Type-Options:
       - nosniff
       X-Frame-Options:
@@ -63,9 +63,9 @@ interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - vW1orEhMa7YtsvxkQWLd
+      - VLZuizkHOIrlISoNbbh3
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:
@@ -109,7 +109,7 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sat, 22 Mar 2025 01:00:43 GMT
+      - Fri, 04 Apr 2025 11:14:09 GMT
       Feature-Policy:
       - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
         'none';payment 'none'
@@ -126,9 +126,9 @@ interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - zYhhqyerAHfFg9hw4CZ7
+      - CcQlEFt1iwCr6WVWjOI1
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:
@@ -139,7 +139,7 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: message=Pytesting&statusIcon=%E2%8C%9B&clearAt=1742605514&format=json
+    body: message=Pytesting&statusIcon=%E2%8C%9B&clearAt=1743765530&format=json
     headers:
       accept:
       - '*/*'
@@ -161,7 +161,7 @@ interactions:
     uri: http://localhost:8181/ocs/v2.php/apps/user_status/api/v1/user_status/message/custom
   response:
     body:
-      string: '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},"data":{"userId":"admin","message":"Pytesting","messageId":null,"messageIsPredefined":false,"icon":"\u231b","clearAt":1742605514,"status":"online","statusIsUserDefined":true}}}'
+      string: '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},"data":{"userId":"admin","message":"Pytesting","messageId":null,"messageIsPredefined":false,"icon":"\u231b","clearAt":1743765530,"status":"online","statusIsUserDefined":true}}}'
     headers:
       Cache-Control:
       - no-cache, no-store, must-revalidate
@@ -172,7 +172,7 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sat, 22 Mar 2025 01:00:43 GMT
+      - Fri, 04 Apr 2025 11:14:09 GMT
       Feature-Policy:
       - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
         'none';payment 'none'
@@ -189,9 +189,9 @@ interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - klTfKEoZ9Q5orcgD2Vxl
+      - kwuR6O2M1RVRtRfm0HYg
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:
@@ -234,7 +234,7 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sat, 22 Mar 2025 01:00:44 GMT
+      - Fri, 04 Apr 2025 11:14:09 GMT
       Feature-Policy:
       - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
         'none';payment 'none'
@@ -251,9 +251,9 @@ interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - sQRTmbVMTxWXm7TldfD4
+      - Vkb6pCrKD7G74AzFIg8i
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:
@@ -297,7 +297,7 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sat, 22 Mar 2025 01:00:44 GMT
+      - Fri, 04 Apr 2025 11:14:09 GMT
       Feature-Policy:
       - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
         'none';payment 'none'
@@ -314,9 +314,9 @@ interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - 7r2w8dmO2iqxwnUiujaZ
+      - tZ4Qytp9JigFhJkCx4FY
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:

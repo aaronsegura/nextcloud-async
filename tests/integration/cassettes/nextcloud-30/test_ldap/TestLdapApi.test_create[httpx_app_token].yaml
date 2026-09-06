@@ -29,7 +29,7 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sat, 22 Mar 2025 13:23:46 GMT
+      - Fri, 04 Apr 2025 11:08:25 GMT
       Feature-Policy:
       - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
         'none';payment 'none'
@@ -40,21 +40,21 @@ interactions:
       Server:
       - Apache/2.4.62 (Debian)
       Set-Cookie:
-      - ocoguk96ketf=09996441d1034361a6c7718c2ff0d5c0; path=/; HttpOnly; SameSite=Lax
-      - oc_sessionPassphrase=fOciyXKu1w3qWbP1aY4CbfCOL6fq3MFWLb45GmZAZrV%2F23HNpOUeuOntTCKQ%2Fy0QvBqGSk5g7N%2BQg7NQFCRqQsT%2FAEAYTuOBtjupjeUK0lYgMLq9bxMbvefV%2FnFIx7vB;
+      - ocdno3jvvu8a=00d70369816e66af4f7152a7fbe3fe07; path=/; HttpOnly; SameSite=Lax
+      - oc_sessionPassphrase=SfrQnSYKupcVBxv8RIZ%2FMsqH04nURPK14mxM%2F7YXcWrs6WRYlP5x5cB5PWAV9ppeoP2bGpZyygzCvrfmuDWiUZhO%2B1uiDe49ILAGOKT9FB4iY6xlTWQDm4knX%2Fq1E5Mz;
         path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=09996441d1034361a6c7718c2ff0d5c0; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=00d70369816e66af4f7152a7fbe3fe07; path=/; HttpOnly; SameSite=Lax
       - nc_sameSiteCookielax=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
         GMT; SameSite=lax
       - nc_sameSiteCookiestrict=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
         GMT; SameSite=strict
-      - ocoguk96ketf=09996441d1034361a6c7718c2ff0d5c0; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=09996441d1034361a6c7718c2ff0d5c0; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=09996441d1034361a6c7718c2ff0d5c0; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=09996441d1034361a6c7718c2ff0d5c0; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=09996441d1034361a6c7718c2ff0d5c0; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=09996441d1034361a6c7718c2ff0d5c0; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=09996441d1034361a6c7718c2ff0d5c0; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=00d70369816e66af4f7152a7fbe3fe07; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=00d70369816e66af4f7152a7fbe3fe07; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=00d70369816e66af4f7152a7fbe3fe07; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=00d70369816e66af4f7152a7fbe3fe07; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=00d70369816e66af4f7152a7fbe3fe07; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=00d70369816e66af4f7152a7fbe3fe07; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=00d70369816e66af4f7152a7fbe3fe07; path=/; HttpOnly; SameSite=Lax
       X-Content-Type-Options:
       - nosniff
       X-Frame-Options:
@@ -62,9 +62,9 @@ interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - CmFZX0TPXxRe2lEEpR3y
+      - UXNOZkuQj48AgQtpJbuE
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:
@@ -97,7 +97,7 @@ interactions:
     uri: http://localhost:8181/ocs/v2.php/apps/user_ldap/api/v1/config
   response:
     body:
-      string: '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},"data":{"configID":"s09"}}}'
+      string: '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},"data":{"configID":"s01"}}}'
     headers:
       Cache-Control:
       - no-cache, no-store, must-revalidate
@@ -108,7 +108,7 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sat, 22 Mar 2025 13:23:46 GMT
+      - Fri, 04 Apr 2025 11:08:25 GMT
       Feature-Policy:
       - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
         'none';payment 'none'
@@ -125,9 +125,9 @@ interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - PkAj9JK9ezlRTZk4anv3
+      - MYffDQYVXnlKWUslWcMB
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:
@@ -157,7 +157,7 @@ interactions:
       user-agent:
       - nextcloud-async-pytest/0.1.0b0
     method: DELETE
-    uri: http://localhost:8181/ocs/v2.php/apps/user_ldap/api/v1/config/s09
+    uri: http://localhost:8181/ocs/v2.php/apps/user_ldap/api/v1/config/s01
   response:
     body:
       string: '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},"data":[]}}'
@@ -171,7 +171,7 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sat, 22 Mar 2025 13:23:46 GMT
+      - Fri, 04 Apr 2025 11:08:25 GMT
       Feature-Policy:
       - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
         'none';payment 'none'
@@ -188,9 +188,9 @@ interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - wrAAOCkoEgGsQ4kat4k8
+      - 4pLVDWUpchtknxJ1JQvc
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:

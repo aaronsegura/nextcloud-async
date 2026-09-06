@@ -114,6 +114,7 @@ class HttpXClientProvider(HttpClientProvider):
         data: dict[str, Any] | None = None,
         content: bytes | None = None,
         json: Any | None = None,
+        file: bytes | None = None,
     ) -> Any:
         """Make an HTTP Request."""
         try:
@@ -126,6 +127,7 @@ class HttpXClientProvider(HttpClientProvider):
                     content=content,
                 )
             elif json:
+                log.debug("Sending JSON request")
                 _r = await self._client.request(
                     method,
                     url=url,
@@ -133,7 +135,18 @@ class HttpXClientProvider(HttpClientProvider):
                     headers=headers,
                     json=json,
                 )
+            elif file:
+                log.debug(f"Sending file of size {len(file)}")
+                _r = await self._client.request(
+                    method,
+                    url=url,
+                    auth=auth._auth if auth else None,
+                    headers=headers,
+                    files={"file": file},
+                    data={"format": "json"},
+                )
             else:
+                log.debug("Sending Data!")
                 _r = await self._client.request(
                     method,
                     url=url,

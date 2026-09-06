@@ -203,10 +203,11 @@ class NextcloudHttpDriver(ABC):
         self,
         method: str = "GET",
         path: str = "",
-        data: Any = None,
         headers: dict[str, Any] | None = None,
+        data: Any = None,
         content: bytes | None = None,
         json: Any | None = None,
+        file: bytes | None = None,
         raw_response: bool = False,
     ) -> Any:
         """Define how to make a request."""
@@ -243,7 +244,9 @@ class NextcloudHttpDriver(ABC):
         return headers
 
     def _munge_json_data(
-        self, data: dict[str, Any] | None, json: dict[str, Any] | None
+        self,
+        data: dict[str, Any] | None,
+        json: dict[str, Any] | None,
     ) -> tuple[dict[str, Any] | None, dict[str, Any] | None]:
         if data:
             data = self._format_json(data)
@@ -396,10 +399,11 @@ class NextcloudHttpDriver(ABC):
     async def post(
         self,
         path: str = "",
+        headers: dict[str, Any] | None = None,
         data: Any | None = None,
         content: bytes | None = None,
         json: Any | None = None,
-        headers: dict[str, Any] | None = None,
+        file: bytes | None = None,
     ) -> Any:
         """Passthrough to self.request() with method="POST"."""
         return await self.request(
@@ -409,6 +413,7 @@ class NextcloudHttpDriver(ABC):
             headers=headers,
             content=content,
             json=json,
+            file=file,
         )
 
     async def put(

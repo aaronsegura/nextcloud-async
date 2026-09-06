@@ -10,7 +10,7 @@ interactions:
     uri: http://localhost:8181/ocs/v1.php/cloud/apps?filter=disabled&format=json
   response:
     body:
-      string: '{"ocs":{"meta":{"status":"ok","statuscode":100,"message":"OK","totalitems":"","itemsperpage":""},"data":{"apps":{"0":"user_ldap","4":"twofactor_totp","12":"encryption","15":"files_external","30":"admin_audit","35":"twofactor_nextcloud_notification","36":"suspicious_login"}}}}'
+      string: '{"ocs":{"meta":{"status":"ok","statuscode":100,"message":"OK","totalitems":"","itemsperpage":""},"data":{"apps":{"4":"twofactor_totp","12":"encryption","15":"files_external","30":"admin_audit","35":"twofactor_nextcloud_notification","36":"suspicious_login"}}}}'
     headers:
       Cache-Control:
       - no-cache, no-store, must-revalidate
@@ -19,7 +19,7 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sat, 22 Mar 2025 00:34:18 GMT
+      - Thu, 03 Apr 2025 21:03:35 GMT
       Feature-Policy:
       - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
         'none';payment 'none'
@@ -28,18 +28,18 @@ interactions:
       Server:
       - Apache/2.4.62 (Debian)
       Set-Cookie:
-      - ocoguk96ketf=f84d78927033218a6eebebdc485e1e5e; path=/; HttpOnly; SameSite=Lax
-      - oc_sessionPassphrase=po6XbY%2BNbRmbWyiYKOBtKCgKOyedVHpygd6AImpSnEVUsM8B1nvoNXLn8UZHnYS65%2BIwJ8fgqUenFn%2FQqoQJ4rlTFqY%2B4khuOjROzHvEFoBwU58jeXUcKLhTIvcAbRPH;
+      - ocdno3jvvu8a=06e3e51cf16df5be60ea1391f4ba7a6b; path=/; HttpOnly; SameSite=Lax
+      - oc_sessionPassphrase=q3gzIhg6tsabK%2BSbgG3sq5pYGBgVnQNH996I7MB6RWpv6xmT4JZQz9lKjVOSXakUr0OnPVGvbogPYyKOsP0qF62HD%2FG9hr6tyNYX2kfMuGljbW3PUpXiFBMvmjF6Rx3P;
         path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=f84d78927033218a6eebebdc485e1e5e; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=06e3e51cf16df5be60ea1391f4ba7a6b; path=/; HttpOnly; SameSite=Lax
       - nc_sameSiteCookielax=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
         GMT; SameSite=lax
       - nc_sameSiteCookiestrict=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
         GMT; SameSite=strict
-      - ocoguk96ketf=f84d78927033218a6eebebdc485e1e5e; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=f84d78927033218a6eebebdc485e1e5e; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=13331e942322b4ff352bb68c60696689; path=/; HttpOnly; SameSite=Lax
-      - cookie_test=test; expires=Sat, 22 Mar 2025 01:34:19 GMT; Max-Age=3600
+      - ocdno3jvvu8a=06e3e51cf16df5be60ea1391f4ba7a6b; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=06e3e51cf16df5be60ea1391f4ba7a6b; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=1fd4ae0afd719194b5fc3eb58ef26321; path=/; HttpOnly; SameSite=Lax
+      - cookie_test=test; expires=Thu, 03 Apr 2025 22:03:35 GMT; Max-Age=3600
       X-Content-Type-Options:
       - nosniff
       X-Frame-Options:
@@ -47,15 +47,15 @@ interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - AJrpS9nle0mM4Z5xQ743
+      - 5RbWKfRApfjoLwKrqJUH
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:
       - 1; mode=block
       content-length:
-      - '276'
+      - '260'
     status:
       code: 200
       message: OK

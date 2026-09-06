@@ -68,7 +68,6 @@ class GroupFolder(NextcloudDataObject):
 
     def refresh_function(self) -> Awaitable:
         """Define how to refresh this object."""
-        log.debug("Providing refreshed object.")
         return self._api.get(self.id)
 
     async def delete(self) -> None:

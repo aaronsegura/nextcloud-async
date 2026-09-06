@@ -10,7 +10,7 @@ interactions:
     uri: http://localhost:8181/ocs/v1.php/cloud/apps?filter=enabled&format=json
   response:
     body:
-      string: '{"ocs":{"meta":{"status":"ok","statuscode":100,"message":"OK","totalitems":"","itemsperpage":""},"data":{"apps":["files","activity","app_api","bruteforcesettings","circles","cloud_federation_api","comments","contactsinteraction","dashboard","dav","federatedfilesharing","federation","files_downloadlimit","files_pdfviewer","files_reminders","files_sharing","files_trashbin","files_versions","firstrunwizard","groupfolders","logreader","lookup_server_connector","maps","nextcloud_announcements","notifications","oauth2","password_policy","photos","privacy","provisioning_api","recommendations","related_resources","serverinfo","settings","sharebymail","spreed","support","survey_client","systemtags","text","theming","twofactor_backupcodes","updatenotification","user_status","viewer","weather_status","webhook_listeners","workflowengine"]}}}'
+      string: '{"ocs":{"meta":{"status":"ok","statuscode":100,"message":"OK","totalitems":"","itemsperpage":""},"data":{"apps":["files","activity","app_api","bruteforcesettings","circles","cloud_federation_api","comments","contactsinteraction","dashboard","dav","federatedfilesharing","federation","files_downloadlimit","files_pdfviewer","files_reminders","files_sharing","files_trashbin","files_versions","firstrunwizard","groupfolders","logreader","lookup_server_connector","maps","nextcloud_announcements","notifications","oauth2","password_policy","photos","privacy","provisioning_api","recommendations","related_resources","serverinfo","settings","sharebymail","spreed","support","survey_client","systemtags","text","theming","twofactor_backupcodes","updatenotification","user_ldap","user_status","viewer","weather_status","webhook_listeners","workflowengine"]}}}'
     headers:
       Cache-Control:
       - no-cache, no-store, must-revalidate
@@ -19,7 +19,7 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sat, 22 Mar 2025 00:34:17 GMT
+      - Thu, 03 Apr 2025 21:03:34 GMT
       Feature-Policy:
       - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
         'none';payment 'none'
@@ -28,21 +28,21 @@ interactions:
       Server:
       - Apache/2.4.62 (Debian)
       Set-Cookie:
-      - ocoguk96ketf=9c6a3a1518a2a1e81c1335c292f24f99; path=/; HttpOnly; SameSite=Lax
-      - oc_sessionPassphrase=I4jdp1BfE8N%2FlgNJfC%2BIleNY6bNVRgN%2BcL%2BhFywlaCkl5JoWK703SuiZ77WqO7gInUfBUsAfICiubeZGpDCBAiNdMmarSU7B22b%2FGxpH5sYen7i8M6Y2CatwqLW6tl1%2F;
+      - ocdno3jvvu8a=7324d44c7140ded687d50f9a646584b5; path=/; HttpOnly; SameSite=Lax
+      - oc_sessionPassphrase=NApaa48TfAYT2Fpg%2B1qls9yr%2Fo5hE15m2Dh9ajZTl00kJJCYrV063%2FtedUMFeABUFGHnJwZWfhc3IFUvW%2F31Px%2FAB%2F47H1%2FSzeuV2MpDvfjMxrnY0zxJJtHMpIyxgZvn;
         path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=9c6a3a1518a2a1e81c1335c292f24f99; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=7324d44c7140ded687d50f9a646584b5; path=/; HttpOnly; SameSite=Lax
       - nc_sameSiteCookielax=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
         GMT; SameSite=lax
       - nc_sameSiteCookiestrict=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
         GMT; SameSite=strict
-      - ocoguk96ketf=9c6a3a1518a2a1e81c1335c292f24f99; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=9c6a3a1518a2a1e81c1335c292f24f99; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=9c6a3a1518a2a1e81c1335c292f24f99; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=9c6a3a1518a2a1e81c1335c292f24f99; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=9c6a3a1518a2a1e81c1335c292f24f99; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=9c6a3a1518a2a1e81c1335c292f24f99; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=9c6a3a1518a2a1e81c1335c292f24f99; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=7324d44c7140ded687d50f9a646584b5; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=7324d44c7140ded687d50f9a646584b5; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=7324d44c7140ded687d50f9a646584b5; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=7324d44c7140ded687d50f9a646584b5; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=7324d44c7140ded687d50f9a646584b5; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=7324d44c7140ded687d50f9a646584b5; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=7324d44c7140ded687d50f9a646584b5; path=/; HttpOnly; SameSite=Lax
       X-Content-Type-Options:
       - nosniff
       X-Frame-Options:
@@ -50,15 +50,15 @@ interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - IOMvvOBQhRCbINvPn87U
+      - OnKp2jISIl0vnOorEk8P
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:
       - 1; mode=block
       content-length:
-      - '841'
+      - '853'
     status:
       code: 200
       message: OK

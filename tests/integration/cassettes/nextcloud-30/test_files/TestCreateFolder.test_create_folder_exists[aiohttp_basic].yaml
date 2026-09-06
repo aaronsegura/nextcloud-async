@@ -12,12 +12,12 @@ interactions:
         xmlns:s=\"http://sabredav.org/ns\">\n\t<s:exception>Internal Server Error</s:exception>\n\t<s:message>\n\t\tThe
         server was unable to complete your request.\t\tIf this happens again, please
         send the technical details below to the server administrator.\t\tMore details
-        can be found in the server log.\t\t\t</s:message>\n\n\t<s:technical-details>\n\t\t<s:remote-address>172.19.0.1</s:remote-address>\n\t\t<s:request-id>hP3ponU0ybShF4wQN1hJ</s:request-id>\n\n\t\t</s:technical-details>\n</d:error>\n"
+        can be found in the server log.\t\t\t</s:message>\n\n\t<s:technical-details>\n\t\t<s:remote-address>127.0.0.1</s:remote-address>\n\t\t<s:request-id>QyQ5HglXMOuF1GBKKRT0</s:request-id>\n\n\t\t</s:technical-details>\n</d:error>\n"
     headers:
       Allow:
       - OPTIONS, GET, HEAD, DELETE, PROPFIND, PUT, PROPPATCH, COPY, MOVE, REPORT
       Content-Length:
-      - '527'
+      - '526'
       Content-Security-Policy:
       - 'default-src ''none'';base-uri ''none'';manifest-src ''self'';script-src ''self'';style-src
         ''self'' ''unsafe-inline'';img-src ''self'' data: blob:;font-src ''self''
@@ -26,24 +26,24 @@ interactions:
       Content-Type:
       - application/xml; charset=utf-8
       Date:
-      - Sat, 22 Mar 2025 00:38:50 GMT
+      - Thu, 03 Apr 2025 21:07:53 GMT
       Referrer-Policy:
       - no-referrer
       Server:
       - Apache/2.4.62 (Debian)
       Set-Cookie:
-      - ocoguk96ketf=37754349999d250458129cb0b5553586; path=/; HttpOnly; SameSite=Lax
-      - oc_sessionPassphrase=MbSYYltTfh%2BCj0uLesCzyhdv8okWTVnlg2NMXbnb2UsvaJKl8zJOdTHjVbOk1zmoQ12CFAgSqn1VZbYmuYN8mRI02pyOhOEd3rCSxrOViFBO7UaY8ygLd404%2F1H6yCnA;
+      - ocdno3jvvu8a=14b11f896e39a2cb5f9ae139dc0c3395; path=/; HttpOnly; SameSite=Lax
+      - oc_sessionPassphrase=AKOvkOZenMNQnS1P%2F1Q3UgVSalPZ%2FXbUyBLSNAodu%2BiDN6AmFKtUXii5c7917sFnSWNKF46pcVvxq%2BE1uBrOcCBpXyeWL%2FxKzQURtH5ZCbR5HVNH9ny4UUtjjuIa5UBH;
         path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=37754349999d250458129cb0b5553586; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=14b11f896e39a2cb5f9ae139dc0c3395; path=/; HttpOnly; SameSite=Lax
       - nc_sameSiteCookielax=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
         GMT; SameSite=lax
       - nc_sameSiteCookiestrict=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
         GMT; SameSite=strict
-      - ocoguk96ketf=37754349999d250458129cb0b5553586; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=37754349999d250458129cb0b5553586; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=dee3c094a5a836370ced3f296d62a1ad; path=/; HttpOnly; SameSite=Lax
-      - cookie_test=test; expires=Sat, 22 Mar 2025 01:38:51 GMT; Max-Age=3600
+      - ocdno3jvvu8a=14b11f896e39a2cb5f9ae139dc0c3395; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=14b11f896e39a2cb5f9ae139dc0c3395; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=843719a9cdadd932517fc2c855e09443; path=/; HttpOnly; SameSite=Lax
+      - cookie_test=test; expires=Thu, 03 Apr 2025 22:07:54 GMT; Max-Age=3600
       X-Content-Type-Options:
       - nosniff
       X-Frame-Options:
@@ -51,7 +51,7 @@ interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:

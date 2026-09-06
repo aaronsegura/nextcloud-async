@@ -916,18 +916,19 @@ class Conversation(NextcloudDataObject):
         """
         await self._api.calls.leave(room_token=self.token, end_for_all=end_for_all)
 
-    async def set_avatar_image(self, image_data: bytes) -> None:
+    async def set_avatar_image(self, filename: str) -> None:
         """Set conversations avatar.
 
         Args:
             room_token:
                 Token of conversation
 
-            image_data:
-                Image data
+            filename:
+                Image file name
 
         """
-        await self._api.avatars.set_image(self.token, image_data=image_data)
+        _resp = await self._api.avatars.set_image(self.token, filename=filename)
+        self.data = _resp["ocs"]["data"]
 
     async def set_avatar_emoji(self, emoji: str, color: str) -> None:
         """Set emoji as avatar.
@@ -941,7 +942,10 @@ class Conversation(NextcloudDataObject):
                 fallback to the default bright/dark mode icon background color)
 
         """
-        await self._api.avatars.set_emoji(room_token=self.token, emoji=emoji, color=color)
+        _resp = await self._api.avatars.set_emoji(
+            room_token=self.token, emoji=emoji, color=color
+        )
+        self.data = _resp["ocs"]["data"]
 
     async def delete_avatar(self) -> None:
         """Delete conversation avatar.
@@ -949,7 +953,8 @@ class Conversation(NextcloudDataObject):
         To determine if the delete option should be presented to the user, it's
         recommended to check the isCustomAvatar property of Conversation object.
         """
-        await self._api.avatars.delete(room_token=self.token)
+        _resp = await self._api.avatars.delete(room_token=self.token)
+        self.data = _resp["ocs"]
 
     async def get_avatar(self, dark_mode: bool) -> bytes:
         """Get conversations avatar (binary).

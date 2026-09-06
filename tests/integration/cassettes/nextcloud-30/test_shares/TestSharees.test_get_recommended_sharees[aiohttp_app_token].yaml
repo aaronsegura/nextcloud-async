@@ -10,7 +10,7 @@ interactions:
     uri: http://localhost:8181/ocs/v1.php/apps/files_sharing/api/v1/sharees_recommended?itemType=file&format=json
   response:
     body:
-      string: '{"ocs":{"meta":{"status":"ok","statuscode":100,"message":"OK","totalitems":"","itemsperpage":""},"data":{"exact":{"users":[],"groups":[],"remotes":[],"remote_groups":[],"emails":[]},"users":[],"groups":[],"remotes":[],"remote_groups":[],"emails":[]}}}'
+      string: '{"ocs":{"meta":{"status":"ok","statuscode":100,"message":"OK","totalitems":"","itemsperpage":""},"data":{"exact":{"users":[],"groups":[],"remotes":[{"count":1,"label":"admin@http:\/\/v29-nextcloud:8080","value":{"shareType":6,"shareWith":"admin@http:\/\/v29-nextcloud:8080"}}],"remote_groups":[],"emails":[]},"users":[],"groups":[],"remotes":[],"remote_groups":[],"emails":[]}}}'
     headers:
       Cache-Control:
       - no-cache, no-store, must-revalidate
@@ -19,7 +19,7 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sat, 22 Mar 2025 00:56:32 GMT
+      - Fri, 04 Apr 2025 11:13:14 GMT
       Feature-Policy:
       - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
         'none';payment 'none'
@@ -28,21 +28,21 @@ interactions:
       Server:
       - Apache/2.4.62 (Debian)
       Set-Cookie:
-      - ocoguk96ketf=48a54fc9bcecfe51d82811bcc301f06c; path=/; HttpOnly; SameSite=Lax
-      - oc_sessionPassphrase=8sLWreKtDm26LHS%2BfZMybF3ZgjwT2qAk2lXJ7itCmW5lrHRVUtBzFBKjfREjOOJ5XFOr%2F9JYTJ3D3bV607e8zXt1Qv1uVw7MFV0LERJFl8tKCvnTkhhNKPJociQVoRGF;
+      - ocdno3jvvu8a=3b86ecfacc5f949564213ef37eeb1f69; path=/; HttpOnly; SameSite=Lax
+      - oc_sessionPassphrase=luYczKljhGvQbSEuQnkaOgMYMZQIZpyvKI4%2BdgDY3Ctigp6nOyLgD0yVglKclQeJve4Ov7JCm1uYXilwPZK0JB5UwCAYe%2B7eGACjbx3J7lMCglMpBRyIUextTJA97e1v;
         path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=48a54fc9bcecfe51d82811bcc301f06c; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=3b86ecfacc5f949564213ef37eeb1f69; path=/; HttpOnly; SameSite=Lax
       - nc_sameSiteCookielax=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
         GMT; SameSite=lax
       - nc_sameSiteCookiestrict=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
         GMT; SameSite=strict
-      - ocoguk96ketf=48a54fc9bcecfe51d82811bcc301f06c; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=48a54fc9bcecfe51d82811bcc301f06c; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=48a54fc9bcecfe51d82811bcc301f06c; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=48a54fc9bcecfe51d82811bcc301f06c; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=48a54fc9bcecfe51d82811bcc301f06c; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=48a54fc9bcecfe51d82811bcc301f06c; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=48a54fc9bcecfe51d82811bcc301f06c; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=3b86ecfacc5f949564213ef37eeb1f69; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=3b86ecfacc5f949564213ef37eeb1f69; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=3b86ecfacc5f949564213ef37eeb1f69; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=3b86ecfacc5f949564213ef37eeb1f69; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=3b86ecfacc5f949564213ef37eeb1f69; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=3b86ecfacc5f949564213ef37eeb1f69; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=3b86ecfacc5f949564213ef37eeb1f69; path=/; HttpOnly; SameSite=Lax
       X-Content-Type-Options:
       - nosniff
       X-Frame-Options:
@@ -50,15 +50,15 @@ interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - RU6wvP5IrTfeEsM9Bog1
+      - bUmp0wI7RDy3CqFL345a
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:
       - 1; mode=block
       content-length:
-      - '251'
+      - '378'
     status:
       code: 200
       message: OK

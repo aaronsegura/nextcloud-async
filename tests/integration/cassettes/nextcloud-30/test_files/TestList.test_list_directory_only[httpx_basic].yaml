@@ -26,7 +26,7 @@ interactions:
       string: '<?xml version="1.0"?>
 
         <d:multistatus xmlns:d="DAV:" xmlns:s="http://sabredav.org/ns" xmlns:oc="http://owncloud.org/ns"
-        xmlns:nc="http://nextcloud.org/ns"><d:response><d:href>/remote.php/dav/files/admin/.nextcloud-async-pytest/</d:href><d:propstat><d:prop><oc:fileid>32640</oc:fileid><d:resourcetype><d:collection/></d:resourcetype></d:prop><d:status>HTTP/1.1
+        xmlns:nc="http://nextcloud.org/ns"><d:response><d:href>/remote.php/dav/files/admin/.nextcloud-async-pytest/</d:href><d:propstat><d:prop><oc:fileid>186</oc:fileid><d:resourcetype><d:collection/></d:resourcetype></d:prop><d:status>HTTP/1.1
         200 OK</d:status></d:propstat></d:response></d:multistatus>
 
         '
@@ -41,7 +41,7 @@ interactions:
       - 1, 3, extended-mkcol, access-control, calendarserver-principal-property-search,
         nextcloud-checksum-update, nc-calendar-search, nc-enable-birthday-calendar
       Date:
-      - Sat, 22 Mar 2025 00:34:53 GMT
+      - Thu, 03 Apr 2025 21:04:51 GMT
       Keep-Alive:
       - timeout=5, max=100
       Referrer-Policy:
@@ -49,38 +49,38 @@ interactions:
       Server:
       - Apache/2.4.62 (Debian)
       Set-Cookie:
-      - ocoguk96ketf=256b771631f0cd22d01fcd2af411fca9; path=/; HttpOnly; SameSite=Lax
-      - oc_sessionPassphrase=Nbl%2B0nRDAabBoRh0%2BJkPigUGjz0t4jEyg0HHdK8dual8XH1%2F4FY12AZ7dFMkVNqw4d6UWobvlBNzE0edJQ7LF0u9qz3eb4hAjlL7PhR6DHOkgbQPlcVrI9XAjEWiIfNr;
+      - ocdno3jvvu8a=55db0fe47a2abf69ded832b69e5c2173; path=/; HttpOnly; SameSite=Lax
+      - oc_sessionPassphrase=zAQMK7jefAZ74vjStB2RWL093Owb7jk8VVOw01Fa2XXm1cfQfuSZyGxhnSZyl1H%2BzqWu91TXlBLuOkbrZDOSgueez%2F1NJxDHac%2F3uXICLv5CadpIBYmPAXAKceBZZfHZ;
         path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=256b771631f0cd22d01fcd2af411fca9; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=55db0fe47a2abf69ded832b69e5c2173; path=/; HttpOnly; SameSite=Lax
       - nc_sameSiteCookielax=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
         GMT; SameSite=lax
       - nc_sameSiteCookiestrict=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
         GMT; SameSite=strict
-      - ocoguk96ketf=256b771631f0cd22d01fcd2af411fca9; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=256b771631f0cd22d01fcd2af411fca9; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=e10cdda691ae05b0601288cb0f06a22e; path=/; HttpOnly; SameSite=Lax
-      - cookie_test=test; expires=Sat, 22 Mar 2025 01:34:54 GMT; Max-Age=3600
+      - ocdno3jvvu8a=55db0fe47a2abf69ded832b69e5c2173; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=55db0fe47a2abf69ded832b69e5c2173; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=e228c4d6922b394b530af8e576387123; path=/; HttpOnly; SameSite=Lax
+      - cookie_test=test; expires=Thu, 03 Apr 2025 22:04:52 GMT; Max-Age=3600
       Vary:
       - Brief,Prefer
       X-Content-Type-Options:
       - nosniff
       X-Debug-Token:
-      - tWKDKm6GSDMYhzEMe0JS
+      - pMBxE4tozHGdaHJ5Fqra
       X-Frame-Options:
       - SAMEORIGIN
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - tWKDKm6GSDMYhzEMe0JS
+      - pMBxE4tozHGdaHJ5Fqra
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:
       - 1; mode=block
       content-length:
-      - '419'
+      - '417'
     status:
       code: 207
       message: Multi-Status

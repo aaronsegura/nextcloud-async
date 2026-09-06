@@ -13,9 +13,6 @@ from nextcloud_async.exceptions import NextcloudNotCapableError
 if TYPE_CHECKING:
     from nextcloud_async.provider import HttpClientResponse
 
-_HTTP_USER_ERROR = 400
-_HTTP_SERVER_ERROR = 500
-
 log = logging.getLogger("nextcloud_async.driver")
 
 
@@ -60,10 +57,11 @@ class NextcloudTalkDriver(NextcloudOcsDriver):
         self,
         method: str = "GET",
         path: str = "",
+        headers: dict[str, Any] | None = None,
         data: dict[str, Any] | None = None,
         content: bytes | None = None,
         json: Any | None = None,
-        headers: dict[str, Any] | None = None,
+        file: bytes | None = None,
     ) -> tuple[dict[str, Any], dict[str, Any]]:
         """Submit OCS-type query to cloud endpoint.
 
@@ -75,6 +73,9 @@ class NextcloudTalkDriver(NextcloudOcsDriver):
 
             url:
                 Use a URL outside of the given endpoint. Defaults to None.
+
+            headers:
+                Headers for submission. Defaults to {}.
 
             path:
                 The portion of the URL after the host. Defaults to ''.
@@ -89,8 +90,8 @@ class NextcloudTalkDriver(NextcloudOcsDriver):
             json:
                 JSON-serializable data for submission.
 
-            headers:
-                Headers for submission. Defaults to {}.
+            file:
+                File bytes for multipart form-data upload.
 
         Returns:
             tuple[Dict, Dict]: Response Data and headers
@@ -102,7 +103,14 @@ class NextcloudTalkDriver(NextcloudOcsDriver):
         response = cast(
             "HttpClientResponse",
             await super().request(
-                method, path, data, content, json, headers, raw_response=True
+                method=method,
+                path=path,
+                headers=headers,
+                data=data,
+                content=content,
+                json=json,
+                file=file,
+                raw_response=True,
             ),
         )
         await self.raise_response_exception(response)

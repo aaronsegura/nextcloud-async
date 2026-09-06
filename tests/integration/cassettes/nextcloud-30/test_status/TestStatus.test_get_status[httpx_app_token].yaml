@@ -18,7 +18,7 @@ interactions:
     uri: http://localhost:8181/ocs/v2.php/apps/user_status/api/v1/user_status?format=json
   response:
     body:
-      string: '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},"data":{"userId":"admin","message":"Pytesting","messageId":null,"messageIsPredefined":false,"icon":"\u231b","clearAt":1742605514,"status":"online","statusIsUserDefined":true}}}'
+      string: '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},"data":{"userId":"admin","message":"Pytesting","messageId":null,"messageIsPredefined":false,"icon":"\u231b","clearAt":1743765530,"status":"online","statusIsUserDefined":true}}}'
     headers:
       Cache-Control:
       - no-cache, no-store, must-revalidate
@@ -29,7 +29,7 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sat, 22 Mar 2025 01:00:20 GMT
+      - Fri, 04 Apr 2025 11:13:53 GMT
       Feature-Policy:
       - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
         'none';payment 'none'
@@ -40,21 +40,21 @@ interactions:
       Server:
       - Apache/2.4.62 (Debian)
       Set-Cookie:
-      - ocoguk96ketf=b5d42b75ac1c67b80c55a468570786d4; path=/; HttpOnly; SameSite=Lax
-      - oc_sessionPassphrase=8AqzkjrKT7SEX5uyW4OnLWwAss618OLpOBe8YyBr3HSbkquMT9%2BKW3%2F4XwiwYuxLvmYc5a%2BEqbzkAoYR7WOTlKY%2FO6kzOoKKfDjZkbROf7ncNxKCmPckpqH7SFkoJeM%2F;
+      - ocdno3jvvu8a=73ef8f66eb6d90fe3837d2f0ae3b2469; path=/; HttpOnly; SameSite=Lax
+      - oc_sessionPassphrase=6KoB%2BYR4ja2T%2B9%2FIcksn8ydZxaXAttb%2F%2BhH173R0zx%2B2efYwAAKOAzhVtiaDoQ%2B2n9fk3sL5rMY9zDyMvVtWOtHtP5lUNJZyAAWwQ0L61PqP7V0li5Ikp5jlaLTF%2BetW;
         path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=b5d42b75ac1c67b80c55a468570786d4; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=73ef8f66eb6d90fe3837d2f0ae3b2469; path=/; HttpOnly; SameSite=Lax
       - nc_sameSiteCookielax=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
         GMT; SameSite=lax
       - nc_sameSiteCookiestrict=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
         GMT; SameSite=strict
-      - ocoguk96ketf=b5d42b75ac1c67b80c55a468570786d4; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=b5d42b75ac1c67b80c55a468570786d4; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=b5d42b75ac1c67b80c55a468570786d4; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=b5d42b75ac1c67b80c55a468570786d4; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=b5d42b75ac1c67b80c55a468570786d4; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=b5d42b75ac1c67b80c55a468570786d4; path=/; HttpOnly; SameSite=Lax
-      - ocoguk96ketf=b5d42b75ac1c67b80c55a468570786d4; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=73ef8f66eb6d90fe3837d2f0ae3b2469; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=73ef8f66eb6d90fe3837d2f0ae3b2469; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=73ef8f66eb6d90fe3837d2f0ae3b2469; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=73ef8f66eb6d90fe3837d2f0ae3b2469; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=73ef8f66eb6d90fe3837d2f0ae3b2469; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=73ef8f66eb6d90fe3837d2f0ae3b2469; path=/; HttpOnly; SameSite=Lax
+      - ocdno3jvvu8a=73ef8f66eb6d90fe3837d2f0ae3b2469; path=/; HttpOnly; SameSite=Lax
       X-Content-Type-Options:
       - nosniff
       X-Frame-Options:
@@ -62,9 +62,9 @@ interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - SgH3yD9SFHjyKJzQJ6PX
+      - fcrRgCzAjK391DAbKjRL
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:
@@ -97,7 +97,7 @@ interactions:
     uri: http://localhost:8181/ocs/v2.php/apps/user_status/api/v1/user_status/status
   response:
     body:
-      string: '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},"data":{"userId":"admin","message":"Pytesting","messageId":null,"messageIsPredefined":false,"icon":"\u231b","clearAt":1742605514,"status":"online","statusIsUserDefined":true}}}'
+      string: '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},"data":{"userId":"admin","message":"Pytesting","messageId":null,"messageIsPredefined":false,"icon":"\u231b","clearAt":1743765530,"status":"online","statusIsUserDefined":true}}}'
     headers:
       Cache-Control:
       - no-cache, no-store, must-revalidate
@@ -108,7 +108,7 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sat, 22 Mar 2025 01:00:20 GMT
+      - Fri, 04 Apr 2025 11:13:53 GMT
       Feature-Policy:
       - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
         'none';payment 'none'
@@ -125,9 +125,9 @@ interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - gIMqOBgxRVfSW2VWYOUt
+      - qm15aZZDv806wyz9cKBA
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:
@@ -138,7 +138,7 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: message=Pytesting&statusIcon=%E2%8C%9B&clearAt=1742605514&format=json
+    body: message=Pytesting&statusIcon=%E2%8C%9B&clearAt=1743765530&format=json
     headers:
       accept:
       - '*/*'
@@ -160,7 +160,7 @@ interactions:
     uri: http://localhost:8181/ocs/v2.php/apps/user_status/api/v1/user_status/message/custom
   response:
     body:
-      string: '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},"data":{"userId":"admin","message":"Pytesting","messageId":null,"messageIsPredefined":false,"icon":"\u231b","clearAt":1742605514,"status":"online","statusIsUserDefined":true}}}'
+      string: '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},"data":{"userId":"admin","message":"Pytesting","messageId":null,"messageIsPredefined":false,"icon":"\u231b","clearAt":1743765530,"status":"online","statusIsUserDefined":true}}}'
     headers:
       Cache-Control:
       - no-cache, no-store, must-revalidate
@@ -171,7 +171,7 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sat, 22 Mar 2025 01:00:20 GMT
+      - Fri, 04 Apr 2025 11:13:53 GMT
       Feature-Policy:
       - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
         'none';payment 'none'
@@ -188,9 +188,9 @@ interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Powered-By:
-      - PHP/8.2.27
+      - PHP/8.2.28
       X-Request-Id:
-      - wVU0JElKApurHkuZhJ3u
+      - AutHXQp5JOekNoMM21vR
       X-Robots-Tag:
       - noindex, nofollow
       X-XSS-Protection:
