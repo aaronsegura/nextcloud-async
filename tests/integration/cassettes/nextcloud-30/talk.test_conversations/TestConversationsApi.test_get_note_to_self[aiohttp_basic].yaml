@@ -1,0 +1,133 @@
+interactions:
+- request:
+    body: null
+    headers:
+      OCS-APIRequest:
+      - 'true'
+      User-Agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: GET
+    uri: http://localhost:8181/ocs/v1.php/cloud/apps?filter=enabled&format=json
+  response:
+    body:
+      string: '{"ocs":{"meta":{"status":"ok","statuscode":100,"message":"OK","totalitems":"","itemsperpage":""},"data":{"apps":["files","activity","app_api","bruteforcesettings","circles","cloud_federation_api","comments","contactsinteraction","dashboard","dav","federatedfilesharing","federation","files_downloadlimit","files_pdfviewer","files_reminders","files_sharing","files_trashbin","files_versions","firstrunwizard","groupfolders","logreader","lookup_server_connector","maps","nextcloud_announcements","notifications","oauth2","password_policy","photos","privacy","provisioning_api","recommendations","related_resources","serverinfo","settings","sharebymail","spreed","support","survey_client","systemtags","text","theming","twofactor_backupcodes","updatenotification","user_ldap","user_status","viewer","weather_status","webhook_listeners","workflowengine"]}}}'
+    headers:
+      Cache-Control:
+      - no-cache, no-store, must-revalidate
+      Content-Security-Policy:
+      - default-src 'none';base-uri 'none';manifest-src 'self';frame-ancestors 'none'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Tue, 25 Mar 2025 12:13:12 GMT
+      Feature-Policy:
+      - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
+        'none';payment 'none'
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      Set-Cookie:
+      - ocoguk96ketf=21c6d0739524b62af8deee1adfbc6230; path=/; HttpOnly; SameSite=Lax
+      - oc_sessionPassphrase=Nb3Zm5dAemUyUBz17V01zVisnm1r5DGR76gWmZQniXCIdqBQu%2Faq5W1kBBveWE2e3MQ8bzAYHzuxGHoywBAMtrPUENYhtbK%2F%2FNnnim0b5yUltbuxJFgz5BevCHb9FviM;
+        path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=21c6d0739524b62af8deee1adfbc6230; path=/; HttpOnly; SameSite=Lax
+      - nc_sameSiteCookielax=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
+        GMT; SameSite=lax
+      - nc_sameSiteCookiestrict=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59
+        GMT; SameSite=strict
+      - ocoguk96ketf=21c6d0739524b62af8deee1adfbc6230; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=21c6d0739524b62af8deee1adfbc6230; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=3a6187b8153c16bfbaee53a79badebf1; path=/; HttpOnly; SameSite=Lax
+      - cookie_test=test; expires=Tue, 25 Mar 2025 13:13:13 GMT; Max-Age=3600
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.27
+      X-Request-Id:
+      - TgMD0yIY7jTXTQfxIM32
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+      content-length:
+      - '853'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      OCS-APIRequest:
+      - 'true'
+      User-Agent:
+      - nextcloud-async-pytest/0.1.0b0
+    method: GET
+    uri: http://localhost:8181/ocs/v2.php/apps/spreed/api/v4/room/note-to-self?format=json
+  response:
+    body:
+      string: '{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},"data":{"id":2,"token":"mqomhr2q","type":6,"name":"Note
+        to self","displayName":"Note to self","objectType":"note_to_self","objectId":"admin","participantType":1,"participantFlags":0,"readOnly":0,"hasPassword":false,"hasCall":false,"callStartTime":0,"callRecording":0,"canStartCall":false,"lastActivity":1742399939,"lastReadMessage":56,"unreadMessages":0,"unreadMention":false,"unreadMentionDirect":false,"isFavorite":true,"canLeaveConversation":false,"canDeleteConversation":true,"notificationLevel":2,"notificationCalls":1,"lobbyState":0,"lobbyTimer":0,"lastPing":0,"sessionId":"0","lastMessage":{"id":56,"token":"mqomhr2q","actorType":"guests","actorId":"system","actorDisplayName":"","timestamp":1742399939,"message":"System
+        created the conversation","messageParameters":{"actor":{"type":"guest","id":"guest\/system","name":"Guest","mention-id":"guest\/system"}},"systemMessage":"conversation_created","messageType":"system","isReplyable":false,"referenceId":"","reactions":{},"expirationTimestamp":0,"markdown":false},"sipEnabled":0,"actorType":"users","actorId":"admin","attendeeId":2,"permissions":254,"attendeePermissions":0,"callPermissions":0,"defaultPermissions":0,"canEnableSIP":false,"attendeePin":"","description":"A
+        place for your private notes, thoughts and ideas","lastCommonReadMessage":56,"listable":0,"callFlag":0,"messageExpiration":0,"avatarVersion":"dyrYrwCnjTBjyFak","isCustomAvatar":true,"breakoutRoomMode":0,"breakoutRoomStatus":0,"recordingConsent":0,"mentionPermissions":0,"isArchived":false}}}'
+    headers:
+      Cache-Control:
+      - no-cache, no-store, must-revalidate
+      Content-Security-Policy:
+      - default-src 'none';base-uri 'none';manifest-src 'self';frame-ancestors 'none'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Tue, 25 Mar 2025 12:13:13 GMT
+      Feature-Policy:
+      - autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone
+        'none';payment 'none'
+      Referrer-Policy:
+      - no-referrer
+      Server:
+      - Apache/2.4.62 (Debian)
+      Set-Cookie:
+      - ocoguk96ketf=3a6187b8153c16bfbaee53a79badebf1; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=3a6187b8153c16bfbaee53a79badebf1; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=3a6187b8153c16bfbaee53a79badebf1; path=/; HttpOnly; SameSite=Lax
+      - nc_username=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
+      - nc_token=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
+      - nc_session_id=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; HttpOnly
+      - nc_username=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; path=/;
+        HttpOnly
+      - nc_token=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; path=/;
+        HttpOnly
+      - nc_session_id=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; path=/;
+        HttpOnly
+      - ocoguk96ketf=3a6187b8153c16bfbaee53a79badebf1; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=b122dd535df4b0530c4c7c5d5ca4f3a9; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=b122dd535df4b0530c4c7c5d5ca4f3a9; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=b122dd535df4b0530c4c7c5d5ca4f3a9; path=/; HttpOnly; SameSite=Lax
+      - ocoguk96ketf=8c506e4f2add76e93956becbed586823; path=/; HttpOnly; SameSite=Lax
+      - cookie_test=test; expires=Tue, 25 Mar 2025 13:13:14 GMT; Max-Age=3600
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Nextcloud-Talk-Hash:
+      - 5255dd89f5a723473bebefec3aa3faa049750d15
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Powered-By:
+      - PHP/8.2.27
+      X-Request-Id:
+      - l2iGKW6y8IljjzgkzLjQ
+      X-Robots-Tag:
+      - noindex, nofollow
+      X-XSS-Protection:
+      - 1; mode=block
+      content-length:
+      - '1584'
+    status:
+      code: 200
+      message: OK
+version: 1
