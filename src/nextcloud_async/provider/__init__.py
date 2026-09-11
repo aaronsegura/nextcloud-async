@@ -41,6 +41,42 @@ class HttpResponseMock(ABC):
         ...
 
 
+class HttpResponseMock(ABC):
+    _response: bytes
+    _status_code: int
+
+    def __init__(
+        self,
+        status_code: int,
+        response: bytes | None = None,
+        json: Any = None,
+        headers: Any | None = None,
+    ) -> None: ...
+
+    @property
+    def status_code(self) -> int:
+        """Mock status code."""
+        ...
+
+    @property
+    def content(self) -> bytes:
+        """Mock content."""
+        ...
+
+    @property
+    def text(self) -> str:
+        """Mock text."""
+        ...
+
+    def json(self) -> Any:
+        """Mock json."""
+        ...
+
+    def headers(self) -> Any:
+        """Return mock headers."""
+        ...
+
+
 class HttpClientBasicAuth(Protocol):
     def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 

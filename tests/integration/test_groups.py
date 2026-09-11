@@ -17,7 +17,7 @@ _nc_user = {
 
 
 @pytest_asyncio.fixture(scope="function", loop_scope="session")
-async def nc_groups(groups_api: GroupsApi) -> AsyncGenerator[list[Group], None]:
+async def test_groups(groups_api: GroupsApi) -> AsyncGenerator[list[Group], None]:
     ret: list[Group] = []
 
     for i in range(0, 2):

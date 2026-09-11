@@ -30,7 +30,7 @@ def node_id(request: pytest.FixtureRequest) -> str:
 async def group_folders(
     gf_api: GroupFoldersApi,
     remote_test_dir: str,
-    node_id: str,
+    test_id: str,
 ) -> AsyncGenerator[list[GroupFolder], None]:
     ret: list[GroupFolder] = []
 
@@ -48,8 +48,8 @@ async def group_folders(
 
 
 @pytest_asyncio.fixture(scope="function", loop_scope="session")
-async def nc_group(groups_api: GroupsApi, node_id: str) -> AsyncGenerator[Group, None]:
-    group_id = f"groupfolders_test_{node_id}"
+async def test_group(groups_api: GroupsApi, test_id: str) -> AsyncGenerator[Group, None]:
+    group_id = f"groupfolders_test_{test_id}"
     group = await groups_api.create(group_id)
 
     yield group

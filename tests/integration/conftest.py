@@ -52,6 +52,8 @@ from .constants import (
 
 log = logging.getLogger("nextcloud_async")
 
+_NETWORK_BLOCKED = False
+
 
 """
     Plugins Configuration

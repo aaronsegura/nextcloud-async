@@ -1,11 +1,17 @@
 import pytest
 
-from nextcloud_async.api import AppsApi
+from collections.abc import AsyncGenerator
+
+from nextcloud_async.api import App, AppsApi
 
 _test_app = "files_external"
 
 
-@pytest.mark.integration
+@pytest_asyncio.fixture(scope="module", loop_scope="session")
+async def test_app(apps_api: AppsApi) -> AsyncGenerator[App, None]:
+    yield await apps_api.get(_test_app)
+
+
 @pytest.mark.vcr
 @pytest.mark.asyncio(loop_scope="session")
 class TestAppsApi:

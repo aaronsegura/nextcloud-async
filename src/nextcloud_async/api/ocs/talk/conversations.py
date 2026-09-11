@@ -203,6 +203,33 @@ class Conversation(NextcloudDataObject):
         """
         await self._api.participants.join(self.token, password=password, force=force)
 
+    async def leave(self) -> None:
+        """Leave this conversation."""
+        await self._api.participants.leave(self.token)
+
+    async def join(
+        self, password: str | None = None, force: bool = True
+    ) -> "Conversation":
+        """Join a conversation.
+
+        Args:
+            password:
+                Optional: Password is only required for users which are self joined or
+                guests and only when the conversation has hasPassword set to true.
+
+            force:
+                If set to false and the user has an active session already a 409 Conflict
+                will be returned (Default: true - to keep the old behaviour)
+
+        Returns:
+            Conversation object
+
+        """
+        response = await self._api.participants.join(
+            self.token, password=password, force=force
+        )
+        return Conversation(response, self.self_api)
+
     async def delete(self) -> None:
         """Delete this conversation."""
         await self._api.delete(self.token)

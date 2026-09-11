@@ -59,9 +59,9 @@ async def predefined_statuses(status_api: StatusApi) -> list[PredefinedStatus]:
 
 
 @pytest_asyncio.fixture(loop_scope="session")
-async def nc_user(users_api: UsersApi) -> AsyncGenerator[User, None]:
-    _nc_user = {
-        "user_id": "pync_user",
+async def test_user(users_api: UsersApi) -> AsyncGenerator[User, None]:
+    _test_user = {
+        "user_id": "pytest_user",
         "display_name": "Pytest User Guy",
         "email": "pytest@example.com",
         "quota": None,

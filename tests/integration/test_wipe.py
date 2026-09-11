@@ -22,7 +22,6 @@ async def require_app_token(
         pytest.skip("Not valid for this test.")
 
 
-@pytest.mark.integration
 @pytest.mark.vcr
 @pytest.mark.asyncio
 class TestWipeApi:
